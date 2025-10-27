@@ -10,7 +10,7 @@ class AppRouter {
   static const String main = '/main';
 
   static final GoRouter router = GoRouter(
-    initialLocation: login,
+    initialLocation: main, //login,
     routes: [
       GoRoute(
         path: login,
