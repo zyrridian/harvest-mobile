@@ -15,7 +15,7 @@ part 'auth_controller.g.dart';
 
 // Repository Provider
 @riverpod
-AuthRepository authRepository(AuthRepositoryRef ref) {
+AuthRepository authRepository(Ref ref) {
   final dio = ref.watch(dioProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   final sharedPreferences = ref.watch(sharedPreferencesProvider);
@@ -31,17 +31,17 @@ AuthRepository authRepository(AuthRepositoryRef ref) {
 
 // Use Cases Providers
 @riverpod
-LoginUseCase loginUseCase(LoginUseCaseRef ref) {
+LoginUseCase loginUseCase(Ref ref) {
   return LoginUseCase(ref.watch(authRepositoryProvider));
 }
 
 @riverpod
-LogoutUseCase logoutUseCase(LogoutUseCaseRef ref) {
+LogoutUseCase logoutUseCase(Ref ref) {
   return LogoutUseCase(ref.watch(authRepositoryProvider));
 }
 
 @riverpod
-GetCurrentUserUseCase getCurrentUserUseCase(GetCurrentUserUseCaseRef ref) {
+GetCurrentUserUseCase getCurrentUserUseCase(Ref ref) {
   return GetCurrentUserUseCase(ref.watch(authRepositoryProvider));
 }
 
