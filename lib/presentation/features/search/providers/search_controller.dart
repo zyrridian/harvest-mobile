@@ -102,10 +102,12 @@ class SearchController extends StateNotifier<SearchState> {
 
     result.fold(
       (failure) => state = SearchState.error(failure.message),
-      (products) {
+      (products) async {
         state = SearchState.loaded(products);
-        // Save to recent searches
-        saveRecentSearchUseCase(query);
+        await saveRecentSearchUseCase(query);
+        ref
+            .read(recentSearchesControllerProvider.notifier)
+            .loadRecentSearches();
       },
     );
   }

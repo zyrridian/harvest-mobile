@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/theme/app_colors.dart';
 import '../providers/search_controller.dart';
-import '../providers/search_state.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_list_item.dart';
 import '../widgets/filter_bottom_sheet.dart';
@@ -49,6 +48,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _clearSearch() {
     _searchController.clear();
     ref.read(searchControllerProvider.notifier).clearSearch();
+    setState(() {}); // Update UI to hide clear button
   }
 
   void _showFilterBottomSheet() {
@@ -91,83 +91,113 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final viewMode = ref.watch(viewModeProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: _buildSearchBar(),
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          // Recent Searches Section
-          recentSearchesState.when(
-            initial: () => const SizedBox.shrink(),
-            loading: () => const Center(
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            snap: true,
+            title: PreferredSize(
+              preferredSize: const Size.fromHeight(60.0),
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
+                padding: const EdgeInsets.fromLTRB(0, 5.0, 5, 5.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildSearchBar(),
+                    ),
+                    const SizedBox(width: 2),
+                    IconButton(
+                      icon: const Icon(Icons.tune,
+                          color: AppColors.textSecondary),
+                      onPressed: _showFilterBottomSheet,
+                    ),
+                  ],
+                ),
               ),
             ),
-            loaded: (searches) {
-              if (searches.isEmpty) return const SizedBox.shrink();
-
-              final displayedSearches =
-                  showAllRecent ? searches : searches.take(9).toList();
-
-              return Column(
-                children: [
-                  _buildRecentSearchesSection(displayedSearches, searches),
-                  const Divider(height: 32),
-                ],
-              );
-            },
-            error: (message) => const SizedBox.shrink(),
+            titleSpacing: 0,
+            // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+            elevation: 0,
+            scrolledUnderElevation: 1,
           ),
+          SliverToBoxAdapter(
+            child: recentSearchesState.when(
+              initial: () => const SizedBox.shrink(),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              loaded: (searches) {
+                if (searches.isEmpty) return const SizedBox.shrink();
 
-          // Sort and View Options
-          _buildSortAndViewSection(sortBy, viewMode),
-          const SizedBox(height: 16),
+                final displayedSearches =
+                    showAllRecent ? searches : searches.take(9).toList();
 
-          // Search Results
+                // This Column is fine, it's inside a non-sliver box
+                return Column(
+                  children: [
+                    _buildRecentSearchesSection(displayedSearches, searches),
+                    const Divider(height: 32),
+                  ],
+                );
+              },
+              error: (message) => const SizedBox.shrink(),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _buildSortAndViewSection(sortBy, viewMode),
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 16),
+          ),
           searchState.when(
-            initial: () => _buildEmptyState(),
-            loading: () => const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(),
+            initial: () => SliverToBoxAdapter(child: _buildEmptyState()),
+            loading: () => const SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
             loaded: (products) {
               if (products.isEmpty) {
-                return _buildNoResultsState();
+                return SliverToBoxAdapter(child: _buildNoResultsState());
               }
 
-              return Column(
-                children: [
+              // We return a SliverMainAxisGroup to group the
+              // "results count" sliver and the "product list" sliver.
+              return SliverMainAxisGroup(
+                slivers: [
                   // Results Count
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '${products.length} products found',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '${products.length} products found',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
 
                   // Product Grid/List
                   viewMode == ViewMode.grid
-                      ? _buildGridView(products)
-                      : _buildListView(products),
+                      ? _buildSliverGridView(products) // Use new sliver method
+                      : _buildSliverListView(products), // Use new sliver method
                 ],
               );
             },
-            error: (message) => _buildErrorState(message),
+            error: (message) =>
+                SliverToBoxAdapter(child: _buildErrorState(message)),
           ),
         ],
       ),
@@ -201,7 +231,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               onSubmitted: (_) => _performSearch(),
               onChanged: (value) {
                 if (value.isEmpty) {
+                  // _clearSearch() already calls setState
                   _clearSearch();
+                } else {
+                  // Show the clear button
+                  setState(() {});
                 }
               },
             ),
@@ -210,19 +244,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             IconButton(
               icon: const Icon(Icons.clear, color: AppColors.textSecondary),
               onPressed: _clearSearch,
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.mic, color: AppColors.textSecondary),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Voice search coming soon')),
+                );
+              },
             ),
-          IconButton(
-            icon: const Icon(Icons.mic, color: AppColors.textSecondary),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Voice search coming soon')),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.tune, color: AppColors.textSecondary),
-            onPressed: _showFilterBottomSheet,
-          ),
         ],
       ),
     );
@@ -254,10 +285,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
           Wrap(
             spacing: 8,
-            runSpacing: 8,
+            runSpacing: 0,
             children: [
               ...displayedSearches.map((search) => _buildSearchChip(search)),
               if (allSearches.length > 9)
@@ -275,6 +306,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(showAllRecentProvider.notifier).state =
                         !ref.read(showAllRecentProvider);
                   },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  side: BorderSide(
+                    color: AppColors.border,
+                    width: 0.5,
+                  ),
+                  backgroundColor: AppColors.surface,
                 ),
             ],
           ),
@@ -293,6 +332,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             .removeSearch(search);
       },
       onPressed: () => _applySearch(search),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      side: BorderSide(color: AppColors.border, width: 0.5),
+      backgroundColor: AppColors.surface,
     );
   }
 
@@ -302,59 +346,73 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: DropdownButton<String>(
-                value: sortBy,
-                isExpanded: true,
-                underline: const SizedBox(),
-                icon: const Icon(Icons.arrow_drop_down),
-                selectedItemBuilder: (BuildContext context) {
-                  return [
-                    _buildDropdownLabel('Relevance'),
-                    _buildDropdownLabel('Price'),
-                    _buildDropdownLabel('Distance'),
-                    _buildDropdownLabel('Newest'),
-                    _buildDropdownLabel('Rating'),
-                  ];
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'relevance',
-                    child: Text('Relevance'),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Sort by: ',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<String>(
+                      value: sortBy,
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      icon: const Icon(Icons.arrow_drop_down),
+                      selectedItemBuilder: (BuildContext context) {
+                        return [
+                          _buildDropdownLabel('Relevance'),
+                          _buildDropdownLabel('Price'),
+                          _buildDropdownLabel('Distance'),
+                          _buildDropdownLabel('Newest'),
+                          _buildDropdownLabel('Rating'),
+                        ];
+                      },
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'relevance',
+                          child: Text('Relevance'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'price',
+                          child: Text('Price'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'distance',
+                          child: Text('Distance'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'newest',
+                          child: Text('Newest'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'rating',
+                          child: Text('Rating'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          ref.read(sortByProvider.notifier).state = value;
+                          // Re-search with new sort
+                          if (_searchController.text.isNotEmpty) {
+                            _performSearch();
+                          }
+                        }
+                      },
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: 'price',
-                    child: Text('Price'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'distance',
-                    child: Text('Distance'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'newest',
-                    child: Text('Newest'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'rating',
-                    child: Text('Rating'),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(sortByProvider.notifier).state = value;
-                    // Re-search with new sort
-                    if (_searchController.text.isNotEmpty) {
-                      _performSearch();
-                    }
-                  }
-                },
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -433,65 +491,67 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildDropdownLabel(String label) {
-    return Row(
-      children: [
-        Text(
-          'Sort by: ',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGridView(List products) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.65,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.bodyMedium,
+        overflow: TextOverflow.ellipsis,
       ),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return ProductCard(
-          product: products[index],
-          onTap: () {
-            // TODO: Navigate to product details
-          },
-          onFavorite: () {
-            // TODO: Add to favorites
-          },
-        );
-      },
     );
   }
 
-  Widget _buildListView(List products) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+  // --- NEW: Builds a SliverGrid ---
+  Widget _buildSliverGridView(List products) {
+    // We wrap with SliverPadding instead of having padding in the grid
+    return SliverPadding(
       padding: const EdgeInsets.all(16),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return ProductListItem(
-          product: products[index],
-          onTap: () {
-            // TODO: Navigate to product details
+      sliver: SliverGrid.builder(
+        // No shrinkWrap or physics needed!
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          return ProductCard(
+            product: products[index],
+            onTap: () {
+              // TODO: Navigate to product details
+            },
+            onFavorite: () {
+              // TODO: Add to favorites
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // --- NEW: Builds a SliverList ---
+  Widget _buildSliverListView(List products) {
+    // We wrap with SliverPadding instead of having padding in the list
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList(
+        // SliverList uses a delegate
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return ProductListItem(
+              product: products[index],
+              onTap: () {
+                // TODO: Navigate to product details
+              },
+              onFavorite: () {
+                // TODO: Add to favorites
+              },
+            );
           },
-          onFavorite: () {
-            // TODO: Add to favorites
-          },
-        );
-      },
+          childCount: products.length, // Set the count here
+        ),
+      ),
     );
   }
 
