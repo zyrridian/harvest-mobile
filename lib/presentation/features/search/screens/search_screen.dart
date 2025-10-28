@@ -35,20 +35,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
 
-    ref.read(searchQueryProvider.notifier).state = query;
-    ref.read(searchControllerProvider.notifier).searchProducts();
+    ref.read(searchControllerProvider.notifier).performSearch(query);
   }
 
   void _applySearch(String query) {
     _searchController.text = query;
-    ref.read(searchQueryProvider.notifier).state = query;
-    ref.read(searchControllerProvider.notifier).searchProducts();
+    ref.read(searchControllerProvider.notifier).applyRecentSearch(query);
   }
 
   void _clearSearch() {
     _searchController.clear();
     ref.read(searchControllerProvider.notifier).clearSearch();
-    setState(() {}); // Update UI to hide clear button
   }
 
   void _showFilterBottomSheet() {

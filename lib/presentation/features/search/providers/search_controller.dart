@@ -116,6 +116,51 @@ class SearchController extends StateNotifier<SearchState> {
     ref.read(searchQueryProvider.notifier).state = '';
     state = const SearchState.initial();
   }
+
+  // NEW: Perform search with a specific query
+  Future<void> performSearch(String query) async {
+    if (query.trim().isEmpty) {
+      state = const SearchState.initial();
+      return;
+    }
+
+    ref.read(searchQueryProvider.notifier).state = query;
+    await searchProducts();
+  }
+
+  // NEW: Apply a recent search
+  Future<void> applyRecentSearch(String query) async {
+    ref.read(searchQueryProvider.notifier).state = query;
+    await searchProducts();
+  }
+
+  // NEW: Update sort and re-search if needed
+  Future<void> updateSort(String sortBy) async {
+    ref.read(sortByProvider.notifier).state = sortBy;
+
+    final query = ref.read(searchQueryProvider);
+    if (query.trim().isNotEmpty) {
+      await searchProducts();
+    }
+  }
+
+  // NEW: Apply filters and re-search
+  Future<void> applyFilters({
+    double? minPrice,
+    double? maxPrice,
+    required List<String> categories,
+    required List<String> types,
+  }) async {
+    ref.read(minPriceProvider.notifier).state = minPrice;
+    ref.read(maxPriceProvider.notifier).state = maxPrice;
+    ref.read(selectedCategoriesProvider.notifier).state = categories;
+    ref.read(selectedTypesProvider.notifier).state = types;
+
+    final query = ref.read(searchQueryProvider);
+    if (query.trim().isNotEmpty) {
+      await searchProducts();
+    }
+  }
 }
 
 final searchControllerProvider =
