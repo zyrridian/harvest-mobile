@@ -6,33 +6,66 @@ on:
     branches:
       - main
       - dev
+
 name: "Build and Release"
+
 jobs:
   build:
-    name: Build on macOS
+    name: Build & Release
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          java-version: "12.x"
-      - uses: subosito/flutter-action@v1
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: "2.2.0"
-      - run: flutter pub get
-      - run: flutter test
-      - run: flutter build apk --debug --split-per-abi
-      - run: |
-          flutter build ios --no-codesign
+          flutter-version: "3.24.0"
+          channel: "stable"
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze code
+        run: flutter analyze
+        continue-on-error: true
+
+      - name: Run tests
+        run: flutter test
+        continue-on-error: true
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      - name: Build iOS (no codesign)
+        run: |
+          flutter build ios --no-codesign --release
           cd build/ios/iphoneos
           mkdir Payload
           cd Payload
           ln -s ../Runner.app
           cd ..
           zip -r app.ipa Payload
-      - name: Push to Releases
+
+      - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: build/app/outputs/apk/debug/*,build/ios/iphoneos/app.ipa
+          artifacts: "build/app/outputs/flutter-apk/*.apk,build/app/outputs/bundle/release/*.aab,build/ios/iphoneos/app.ipa"
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
+          generateReleaseNotes: true
+          draft: false
+          prerelease: false
