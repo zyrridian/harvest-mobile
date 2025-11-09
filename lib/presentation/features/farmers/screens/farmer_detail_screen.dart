@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/domain/entities/product.dart';
 import 'package:harvest_app/domain/entities/review.dart';
+import 'package:harvest_app/domain/entities/community_post.dart';
+import 'package:harvest_app/presentation/features/community/providers/community_providers.dart';
 
 // Add this custom delegate class at the bottom of your file
 class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -299,7 +301,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -344,6 +346,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
               controller: _tabController,
               children: [
                 _buildProductsTab(),
+                _buildCommunityTab(),
                 _buildAboutTab(),
                 _buildReviewsTab(),
               ],
@@ -639,6 +642,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         indicatorColor: Colors.green[700],
         tabs: const [
           Tab(text: 'Products'),
+          Tab(text: 'Community'),
           Tab(text: 'About'),
           Tab(text: 'Reviews'),
         ],
@@ -801,6 +805,522 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCommunityTab() {
+    final postsAsync = ref.watch(farmerPostsProvider(widget.farmer.id));
+
+    return postsAsync.when(
+      data: (posts) {
+        if (posts.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.forum_outlined, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No posts yet',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: posts.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            return _buildPostCard(posts[index]);
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load posts',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () =>
+                  ref.refresh(farmerPostsProvider(widget.farmer.id)),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostCard(CommunityPost post) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Post header
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage:
+                      CachedNetworkImageProvider(post.farmerAvatar),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            post.farmerName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildPostTypeBadge(post.type),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatPostDate(post.createdAt),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Post content
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              post.content,
+              style: const TextStyle(fontSize: 14, height: 1.5),
+            ),
+          ),
+
+          // Post images
+          if (post.images.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 200,
+              child: post.images.length == 1
+                  ? CachedNetworkImage(
+                      imageUrl: post.images.first,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: post.images.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: CachedNetworkImage(
+                            imageUrl: post.images[index],
+                            width: 250,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+
+          // Location tag
+          if (post.location != null) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Row(
+                children: [
+                  Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    post.location!,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Tags
+          if (post.tags.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: post.tags.map((tag) {
+                  return Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '#$tag',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.green[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+
+          // Post actions
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    // Toggle like
+                  },
+                  icon: Icon(
+                    post.isLiked ? Icons.favorite : Icons.favorite_border,
+                    size: 18,
+                    color: post.isLiked ? Colors.red : Colors.grey[600],
+                  ),
+                  label: Text(
+                    '${post.likeCount}',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () {
+                    // Show comments
+                    _showCommentsSheet(post);
+                  },
+                  icon: Icon(Icons.comment_outlined,
+                      size: 18, color: Colors.grey[600]),
+                  label: Text(
+                    '${post.commentCount}',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
+                    // Share post
+                  },
+                  icon: Icon(Icons.share_outlined,
+                      size: 18, color: Colors.grey[600]),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostTypeBadge(PostType type) {
+    Color backgroundColor;
+    Color textColor;
+    String label;
+
+    switch (type) {
+      case PostType.announcement:
+        backgroundColor = Colors.blue[50]!;
+        textColor = Colors.blue[700]!;
+        label = 'Announcement';
+        break;
+      case PostType.harvest:
+        backgroundColor = Colors.orange[50]!;
+        textColor = Colors.orange[700]!;
+        label = 'Harvest';
+        break;
+      case PostType.tips:
+        backgroundColor = Colors.purple[50]!;
+        textColor = Colors.purple[700]!;
+        label = 'Tips';
+        break;
+      case PostType.event:
+        backgroundColor = Colors.pink[50]!;
+        textColor = Colors.pink[700]!;
+        label = 'Event';
+        break;
+      case PostType.general:
+        backgroundColor = Colors.grey[200]!;
+        textColor = Colors.grey[700]!;
+        label = 'General';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  String _formatPostDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
+  void _showCommentsSheet(CommunityPost post) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) {
+          return Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+                ),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Comments',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Comments list
+              Expanded(
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final commentsAsync =
+                        ref.watch(postCommentsProvider(post.id));
+
+                    return commentsAsync.when(
+                      data: (comments) {
+                        if (comments.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No comments yet.\nBe the first to comment!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: comments.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 24),
+                          itemBuilder: (context, index) {
+                            final comment = comments[index];
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  child: comment.userAvatar != null
+                                      ? null
+                                      : Text(comment.userName[0].toUpperCase()),
+                                  backgroundImage: comment.userAvatar != null
+                                      ? CachedNetworkImageProvider(
+                                          comment.userAvatar!)
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            comment.userName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _formatPostDate(comment.createdAt),
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        comment.content,
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {},
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  comment.isLiked
+                                                      ? Icons.favorite
+                                                      : Icons.favorite_border,
+                                                  size: 14,
+                                                  color: comment.isLiked
+                                                      ? Colors.red
+                                                      : Colors.grey[600],
+                                                ),
+                                                if (comment.likeCount > 0) ...[
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${comment.likeCount}',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (error, stack) => Center(
+                        child: Text('Error loading comments: $error'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // Comment input
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: Colors.grey[300]!)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Write a comment...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        // Send comment
+                      },
+                      icon: Icon(Icons.send, color: Colors.green[700]),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
