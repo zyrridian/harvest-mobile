@@ -6,6 +6,8 @@ import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
 import '../../../presentation/features/settings/screens/settings_screen.dart';
+import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
+import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -15,6 +17,8 @@ class AppRouter {
   static const String farmersMap = '/farmers-map';
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
+  static const String subscriptionIntro = '/subscription-intro';
+  static const String subscriptions = '/subscriptions';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -51,6 +55,16 @@ class AppRouter {
         path: settings,
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: subscriptionIntro,
+        name: 'subscriptionIntro',
+        builder: (context, state) => const SubscriptionIntroScreen(),
+      ),
+      GoRoute(
+        path: subscriptions,
+        name: 'subscriptions',
+        builder: (context, state) => const SubscriptionsScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
