@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../harvest/screens/harvest_screen.dart';
-import '../../report/screens/report_screen.dart';
+import '../../farmers/screens/farmers_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 // Provider to manage bottom navigation index
@@ -19,7 +19,7 @@ class MainScreen extends ConsumerWidget {
     final screens = [
       const DashboardScreen(),
       const HarvestScreen(),
-      const ReportScreen(),
+      const FarmersScreen(),
       const ProfileScreen(),
     ];
 
@@ -45,9 +45,9 @@ class MainScreen extends ConsumerWidget {
             label: 'Harvest',
           ),
           NavigationDestination(
-            icon: Icon(Icons.analytics_outlined),
-            selectedIcon: Icon(Icons.analytics),
-            label: 'Report',
+            icon: Icon(Icons.people_outline),
+            selectedIcon: Icon(Icons.people),
+            label: 'Farmers',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

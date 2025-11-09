@@ -5,6 +5,20 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// 1. Put the logic to READ the key here (BEFORE the 'android' block)
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def mapsApiKey = localProperties.getProperty('MAPS_API_KEY')
+if (mapsApiKey == null) {
+    throw new GradleException("MAPS_API_KEY not found in local.properties. Please add it.")
+}
+
 android {
     namespace = "com.example.harvest_app"
     compileSdk = flutter.compileSdkVersion
@@ -28,6 +42,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // manifestPlaceholders = [MAPS_API_KEY: mapsApiKey]
+        // 2. Use += to ADD your key to the map
+        manifestPlaceholders += [MAPS_API_KEY: mapsApiKey]
     }
 
     buildTypes {
