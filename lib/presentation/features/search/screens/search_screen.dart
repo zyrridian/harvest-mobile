@@ -66,14 +66,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         selectedCategories: selectedCategories,
         selectedTypes: selectedTypes,
         onApply: (min, max, categories, types) {
-          ref.read(minPriceProvider.notifier).state = min;
-          ref.read(maxPriceProvider.notifier).state = max;
-          ref.read(selectedCategoriesProvider.notifier).state = categories;
-          ref.read(selectedTypesProvider.notifier).state = types;
-          // Re-search with new filters
-          if (_searchController.text.isNotEmpty) {
-            _performSearch();
-          }
+          ref.read(searchControllerProvider.notifier).applyFilters(
+                minPrice: min,
+                maxPrice: max,
+                categories: categories,
+                types: types,
+              );
         },
       ),
     );
@@ -226,15 +224,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 12, horizontal: 4)),
               onSubmitted: (_) => _performSearch(),
-              onChanged: (value) {
-                if (value.isEmpty) {
-                  // _clearSearch() already calls setState
-                  _clearSearch();
-                } else {
-                  // Show the clear button
-                  setState(() {});
-                }
-              },
             ),
           ),
           if (_searchController.text.isNotEmpty)
@@ -399,11 +388,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ],
                       onChanged: (value) {
                         if (value != null) {
-                          ref.read(sortByProvider.notifier).state = value;
-                          // Re-search with new sort
-                          if (_searchController.text.isNotEmpty) {
-                            _performSearch();
-                          }
+                          ref
+                              .read(searchControllerProvider.notifier)
+                              .updateSort(value);
                         }
                       },
                     ),

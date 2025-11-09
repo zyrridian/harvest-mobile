@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/providers/db_provider.dart';
 import '../../../../core/providers/dio_provider.dart';
 import '../../../../data/datasources/remote/search_remote_datasource.dart';
@@ -9,7 +8,6 @@ import '../../../../domain/usecases/search/clear_recent_searches.dart';
 import '../../../../domain/usecases/search/get_recent_searches.dart';
 import '../../../../domain/usecases/search/save_recent_search.dart';
 import '../../../../domain/usecases/search/search_products.dart';
-import '../../../../domain/entities/product.dart';
 import 'search_state.dart';
 
 // Data Source Provider
