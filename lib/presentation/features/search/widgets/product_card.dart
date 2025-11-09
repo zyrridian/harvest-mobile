@@ -57,7 +57,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 // Tag
-                if (product.tag != null)
+                if (product.tags.isNotEmpty)
                   Positioned(
                     top: 8,
                     left: 8,
@@ -67,11 +67,11 @@ class ProductCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: _getTagColor(product.tag!),
+                        color: _getTagColor(product.tags.first),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        product.tag!,
+                        product.tags.first,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -103,7 +103,7 @@ class ProductCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          product.storeName,
+                          product.farmerName,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: AppColors.textSecondary,
@@ -111,20 +111,6 @@ class ProductCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          size: 12, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${product.distance.toStringAsFixed(1)} km',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
                       ),
                     ],
                   ),

@@ -350,15 +350,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
   }
 
   void _showFarmerDetails(Farmer farmer) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${farmer.name} details coming soon'),
-        action: SnackBarAction(
-          label: 'View',
-          onPressed: () {},
-        ),
-      ),
-    );
+    context.push(AppRouter.farmerDetail, extra: farmer);
   }
 
   Widget _buildEmptyState() {

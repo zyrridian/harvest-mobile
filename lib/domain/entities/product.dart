@@ -4,53 +4,74 @@ class Product extends Equatable {
   final String id;
   final String name;
   final String description;
-  final String storeName;
-  final String storeId;
-  final double distance; // in km
+  final String category;
   final double price;
-  final String unit; // per kg, per pcs, etc.
-  final double rating;
-  final int stock;
-  final String? tag; // Organic, Fresh, New
+  final String unit; // kg, pcs, bunch, etc.
   final String imageUrl;
-  final String category; // Vegetables, Fruits, Grains, Dairy
-  final List<String> types; // Organic, Fresh, Local
+  final List<String> images;
+  final bool isOrganic;
+  final bool isAvailable;
+  final int stock;
+  final double? discount;
+  final double rating;
+  final int reviewCount;
+  final String farmerId;
+  final String farmerName;
+  final DateTime? harvestDate;
+  final List<String> tags;
   final DateTime createdAt;
 
   const Product({
     required this.id,
     required this.name,
     required this.description,
-    required this.storeName,
-    required this.storeId,
-    required this.distance,
+    required this.category,
     required this.price,
     required this.unit,
-    required this.rating,
-    required this.stock,
-    this.tag,
     required this.imageUrl,
-    required this.category,
-    required this.types,
+    this.images = const [],
+    this.isOrganic = false,
+    this.isAvailable = true,
+    required this.stock,
+    this.discount,
+    required this.rating,
+    required this.reviewCount,
+    required this.farmerId,
+    required this.farmerName,
+    this.harvestDate,
+    this.tags = const [],
     required this.createdAt,
   });
+
+  double get finalPrice {
+    if (discount != null && discount! > 0) {
+      return price * (1 - discount! / 100);
+    }
+    return price;
+  }
+
+  bool get hasDiscount => discount != null && discount! > 0;
 
   @override
   List<Object?> get props => [
         id,
         name,
         description,
-        storeName,
-        storeId,
-        distance,
+        category,
         price,
         unit,
-        rating,
-        stock,
-        tag,
         imageUrl,
-        category,
-        types,
+        images,
+        isOrganic,
+        isAvailable,
+        stock,
+        discount,
+        rating,
+        reviewCount,
+        farmerId,
+        farmerName,
+        harvestDate,
+        tags,
         createdAt,
       ];
 }
