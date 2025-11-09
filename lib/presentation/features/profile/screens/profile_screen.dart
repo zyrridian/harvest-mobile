@@ -50,7 +50,11 @@ class ProfileScreen extends ConsumerWidget {
                     onPressed: () {
                       // TODO: Edit profile
                     },
-                    icon: const Icon(Icons.edit, size: 18),
+                    icon: const Icon(
+                      Icons.edit,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                     label: const Text('Edit Profile'),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(150, 40),
@@ -71,6 +75,14 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
+          _buildMenuItem(
+            context,
+            icon: Icons.settings_outlined,
+            title: 'Settings',
+            onTap: () {
+              context.push(AppRouter.settings);
+            },
+          ),
           _buildMenuItem(
             context,
             icon: Icons.person_outline,

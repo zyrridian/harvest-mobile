@@ -5,6 +5,7 @@ import '../../../presentation/features/auth/screens/register_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
+import '../../../presentation/features/settings/screens/settings_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -13,6 +14,7 @@ class AppRouter {
   static const String main = '/main';
   static const String farmersMap = '/farmers-map';
   static const String farmerDetail = '/farmer-detail';
+  static const String settings = '/settings';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -44,6 +46,11 @@ class AppRouter {
           final farmer = state.extra as Farmer;
           return FarmerDetailScreen(farmer: farmer);
         },
+      ),
+      GoRoute(
+        path: settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
