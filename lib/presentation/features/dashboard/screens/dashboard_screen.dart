@@ -254,9 +254,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cart coming soon')),
-                  );
+                  context.push(AppRouter.cart);
                 },
               ),
               const SizedBox(width: 8),
@@ -310,6 +308,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+
+          // Demo Quick Actions: Cart & Orders
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.push(AppRouter.cart);
+                      },
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                      label: const Text('Cart'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.push(AppRouter.orders);
+                      },
+                      icon: const Icon(Icons.list_alt_outlined),
+                      label: const Text('My Orders'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

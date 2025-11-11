@@ -11,6 +11,10 @@ import '../../../presentation/features/subscriptions/screens/subscription_intro_
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
 import '../../../presentation/features/addresses/screens/addresses_screen.dart';
 import '../../../presentation/features/product/screens/product_detail_screen.dart';
+import '../../../presentation/features/cart/screens/cart_screen.dart';
+import '../../../presentation/features/cart/screens/checkout_screen.dart';
+import '../../../presentation/features/order/screens/orders_list_screen.dart';
+import '../../../presentation/features/order/screens/order_detail_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -25,6 +29,10 @@ class AppRouter {
   static const String notifications = '/notifications';
   static const String addresses = '/addresses';
   static const String productDetail = '/product-detail';
+  static const String cart = '/cart';
+  static const String checkout = '/checkout';
+  static const String orders = '/orders';
+  static const String orderDetail = '/order-detail';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -89,6 +97,30 @@ class AppRouter {
           final productId =
               state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
           return ProductDetailScreen(productId: productId);
+        },
+      ),
+      GoRoute(
+        path: cart,
+        name: 'cart',
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: checkout,
+        name: 'checkout',
+        builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: orders,
+        name: 'orders',
+        builder: (context, state) => const OrdersListScreen(),
+      ),
+      GoRoute(
+        path: orderDetail,
+        name: 'orderDetail',
+        builder: (context, state) {
+          final orderId =
+              state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
+          return OrderDetailScreen(orderId: orderId);
         },
       ),
     ],
