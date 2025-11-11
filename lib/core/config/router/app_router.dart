@@ -8,6 +8,8 @@ import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart
 import '../../../presentation/features/settings/screens/settings_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
+import '../../../presentation/features/notifications/screens/notifications_screen.dart';
+import '../../../presentation/features/addresses/screens/addresses_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -19,6 +21,8 @@ class AppRouter {
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
   static const String subscriptions = '/subscriptions';
+  static const String notifications = '/notifications';
+  static const String addresses = '/addresses';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -65,6 +69,16 @@ class AppRouter {
         path: subscriptions,
         name: 'subscriptions',
         builder: (context, state) => const SubscriptionsScreen(),
+      ),
+      GoRoute(
+        path: notifications,
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: addresses,
+        name: 'addresses',
+        builder: (context, state) => const AddressesScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

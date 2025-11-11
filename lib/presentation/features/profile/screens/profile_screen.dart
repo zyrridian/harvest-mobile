@@ -168,10 +168,18 @@ class ProfileScreen extends ConsumerWidget {
           ),
           _buildMenuItem(
             context,
+            icon: Icons.location_on_outlined,
+            title: 'My Addresses',
+            onTap: () {
+              context.push(AppRouter.addresses);
+            },
+          ),
+          _buildMenuItem(
+            context,
             icon: Icons.notifications_outlined,
             title: 'Notifications',
             onTap: () {
-              // TODO: Navigate to notifications settings
+              context.push(AppRouter.notifications);
             },
           ),
           _buildMenuItem(

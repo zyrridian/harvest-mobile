@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import '../../../../core/config/theme/app_colors.dart';
@@ -213,9 +215,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications coming soon')),
-                  );
+                  context.push(AppRouter.notifications);
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(content: Text('Notifications coming soon')),
+                  // );
                 },
               ),
               // Cart
