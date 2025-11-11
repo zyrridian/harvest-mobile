@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/domain/entities/product.dart';
 import 'package:harvest_app/domain/entities/review.dart';
 import 'package:harvest_app/domain/entities/community_post.dart';
 import 'package:harvest_app/presentation/features/community/providers/community_providers.dart';
+import 'package:harvest_app/presentation/providers/messaging_providers.dart';
 
 // Add this custom delegate class at the bottom of your file
 class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -575,8 +578,31 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           Expanded(
             flex: 3,
             child: ElevatedButton.icon(
-              onPressed: () {
-                // Open chat/message
+              onPressed: () async {
+                // Start conversation with farmer
+                final startConversationUsecase =
+                    ref.read(startConversationUsecaseProvider);
+                final result = await startConversationUsecase(
+                  recipientId: widget.farmer.id,
+                  type: 'general',
+                  initialMessage: 'Hello, I am interested in your products!',
+                );
+
+                if (mounted) {
+                  result.fold(
+                    (failure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: ${failure.message}')),
+                      );
+                    },
+                    (response) {
+                      final conversationId =
+                          response['data']['conversation_id'];
+                      context.push(
+                          '${AppRouter.chat}?conversationId=$conversationId');
+                    },
+                  );
+                }
               },
               icon: const Icon(
                 Icons.message,
