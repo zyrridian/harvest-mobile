@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/config/router/app_router.dart';
 import '../../../shared_widgets/app_scaffold.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -25,6 +27,19 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             const Text('You are now logged in!'),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.push(
+                    '${AppRouter.productDetail}?productId=prd_1234567890abcdef');
+              },
+              icon: const Icon(Icons.shopping_bag),
+              label: const Text('View Product Detail (Demo)'),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              ),
+            ),
           ],
         ),
       ),

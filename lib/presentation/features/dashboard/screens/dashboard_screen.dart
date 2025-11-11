@@ -716,9 +716,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: GestureDetector(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('View ${product.name} details')),
-          );
+          context.push(
+              '${AppRouter.productDetail}?productId=prd_1234567890abcdef');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text('View ${product.name} details')),
+          // );
         },
         child: Container(
           width: 160,

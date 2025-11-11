@@ -10,6 +10,7 @@ import '../../../presentation/features/subscriptions/screens/subscriptions_scree
 import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
 import '../../../presentation/features/addresses/screens/addresses_screen.dart';
+import '../../../presentation/features/product/screens/product_detail_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -23,6 +24,7 @@ class AppRouter {
   static const String subscriptions = '/subscriptions';
   static const String notifications = '/notifications';
   static const String addresses = '/addresses';
+  static const String productDetail = '/product-detail';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -79,6 +81,15 @@ class AppRouter {
         path: addresses,
         name: 'addresses',
         builder: (context, state) => const AddressesScreen(),
+      ),
+      GoRoute(
+        path: productDetail,
+        name: 'productDetail',
+        builder: (context, state) {
+          final productId =
+              state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
+          return ProductDetailScreen(productId: productId);
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
