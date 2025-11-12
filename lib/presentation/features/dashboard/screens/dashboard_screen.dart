@@ -3,15 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
+import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import '../../../../core/config/theme/app_colors.dart';
 
 // Mock data models
 class Category {
+  final String id;
   final String name;
   final IconData icon;
+  final Color color;
+  final Color backgroundColor;
 
-  Category(this.name, this.icon);
+  Category({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.color,
+    required this.backgroundColor,
+  });
 }
 
 class FarmerProfile {
@@ -59,14 +69,62 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final List<Category> categories = [
-    Category('Vegetables', Icons.local_florist),
-    Category('Fruits', Icons.apple),
-    Category('Livestock', Icons.pets),
-    Category('Fish', Icons.water),
-    Category('Dairy', Icons.water_drop),
-    Category('Eggs', Icons.egg),
-    Category('Grains', Icons.grass),
-    Category('Herbs', Icons.eco),
+    Category(
+      id: 'vegetables',
+      name: 'Vegetables',
+      icon: Icons.eco,
+      color: const Color(0xFF22C55E),
+      backgroundColor: const Color(0xFFDCFCE7),
+    ),
+    Category(
+      id: 'fruits',
+      name: 'Fruits',
+      icon: Icons.apple,
+      color: const Color(0xFFEF4444),
+      backgroundColor: const Color(0xFFFEE2E2),
+    ),
+    Category(
+      id: 'meat',
+      name: 'Meat',
+      icon: Icons.restaurant,
+      color: const Color(0xFFDC2626),
+      backgroundColor: const Color(0xFFFEE2E2),
+    ),
+    Category(
+      id: 'fish',
+      name: 'Fish',
+      icon: Icons.set_meal,
+      color: const Color(0xFF3B82F6),
+      backgroundColor: const Color(0xFFDBEAFE),
+    ),
+    Category(
+      id: 'dairy',
+      name: 'Dairy',
+      icon: Icons.local_drink,
+      color: const Color(0xFFF59E0B),
+      backgroundColor: const Color(0xFFFEF3C7),
+    ),
+    Category(
+      id: 'eggs',
+      name: 'Eggs',
+      icon: Icons.egg_outlined,
+      color: const Color(0xFFFBBF24),
+      backgroundColor: const Color(0xFFFEF9C3),
+    ),
+    Category(
+      id: 'grains',
+      name: 'Grains',
+      icon: Icons.grass,
+      color: const Color(0xFF8B5CF6),
+      backgroundColor: const Color(0xFFEDE9FE),
+    ),
+    Category(
+      id: 'more',
+      name: 'More',
+      icon: Icons.grid_view_rounded,
+      color: const Color(0xFF6B7280),
+      backgroundColor: const Color(0xFFF3F4F6),
+    ),
   ];
 
   final List<FarmerProfile> nearbyFarmers = [
@@ -163,6 +221,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             surfaceTintColor: Colors.white,
             elevation: 0,
             scrolledUnderElevation: 1,
+            centerTitle: false,
+            titleSpacing: 20.0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -275,35 +335,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   );
                 },
                 child: Container(
-                  height: 50,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       const SizedBox(width: 16),
-                      const Icon(Icons.search, color: AppColors.textSecondary),
+                      Icon(Icons.search, color: Colors.grey[600], size: 22),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Search products...',
+                          'Search fresh products...',
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textDisabled,
+                                    color: Colors.grey[500],
+                                    fontSize: 15,
                                   ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.mic,
-                            color: AppColors.textSecondary),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Voice search coming soon')),
-                          );
-                        },
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.tune,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -312,70 +382,95 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
 
-          // Demo Quick Actions: Cart & Orders
+          // // Demo Quick Actions: Cart & Orders
+          // SliverToBoxAdapter(
+          //   child: Padding(
+          //     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          //     child: Row(
+          //       children: [
+          //         Expanded(
+          //           child: ElevatedButton.icon(
+          //             onPressed: () {
+          //               context.push(AppRouter.cart);
+          //             },
+          //             icon: const Icon(Icons.shopping_cart_outlined),
+          //             label: const Text('Cart'),
+          //             style: ElevatedButton.styleFrom(
+          //               backgroundColor: AppColors.primary,
+          //               foregroundColor: Colors.white,
+          //             ),
+          //           ),
+          //         ),
+          //         const SizedBox(width: 12),
+          //         Expanded(
+          //           child: ElevatedButton.icon(
+          //             onPressed: () {
+          //               context.push(AppRouter.orders);
+          //             },
+          //             icon: const Icon(Icons.list_alt_outlined),
+          //             label: const Text('My Orders'),
+          //             style: ElevatedButton.styleFrom(
+          //               backgroundColor: AppColors.secondary,
+          //               foregroundColor: Colors.white,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+
+          // Categories Section - Modern Grid Design
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.push(AppRouter.cart);
-                      },
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                      label: const Text('Cart'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text(
+                  //       'Categories',
+                  //       style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  //             fontWeight: FontWeight.bold,
+                  //             fontSize: 20,
+                  //           ),
+                  //     ),
+                  //     TextButton(
+                  //       onPressed: () {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             builder: (context) => const CategoryScreen(
+                  //               categoryName: 'All Categories',
+                  //               categoryId: 'all',
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: const Text('See All'),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 8),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 0.85,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 4,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.push(AppRouter.orders);
-                      },
-                      icon: const Icon(Icons.list_alt_outlined),
-                      label: const Text('My Orders'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      return _buildModernCategoryCard(categories[index]);
+                    },
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // Categories Section
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                  child: Text(
-                    'Categories',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      return _buildCategoryCard(categories[index]);
-                    },
-                  ),
-                ),
-              ],
             ),
           ),
 
@@ -613,48 +708,48 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildCategoryCard(Category category) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${category.name} category coming soon')),
-          );
-        },
-        child: Container(
-          width: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+  Widget _buildModernCategoryCard(Category category) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryScreen(
+              categoryName: category.name,
+              categoryId: category.id,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  category.icon,
-                  color: AppColors.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                category.name,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: category.backgroundColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              category.icon,
+              color: category.color,
+              size: 32,
+            ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            category.name,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textPrimary,
+                ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
