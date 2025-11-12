@@ -40,9 +40,9 @@ class MainScreen extends ConsumerWidget {
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.agriculture_outlined),
-            selectedIcon: Icon(Icons.agriculture),
-            label: 'Harvest',
+            icon: Icon(Icons.school_outlined),
+            selectedIcon: Icon(Icons.school),
+            label: 'Learn',
           ),
           NavigationDestination(
             icon: Icon(Icons.people_outline),
