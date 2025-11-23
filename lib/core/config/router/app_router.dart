@@ -4,12 +4,39 @@ import '../../../presentation/features/auth/screens/login_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
+import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
+import '../../../presentation/features/settings/screens/settings_screen.dart';
+import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
+import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
+import '../../../presentation/features/notifications/screens/notifications_screen.dart';
+import '../../../presentation/features/addresses/screens/addresses_screen.dart';
+import '../../../presentation/features/product/screens/product_detail_screen.dart';
+import '../../../presentation/features/cart/screens/cart_screen.dart';
+import '../../../presentation/features/cart/screens/checkout_screen.dart';
+import '../../../presentation/features/order/screens/orders_list_screen.dart';
+import '../../../presentation/features/order/screens/order_detail_screen.dart';
+import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
+import '../../../presentation/features/messaging/screens/chat_screen.dart';
+import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
   static const String login = '/login';
   static const String register = '/register';
   static const String main = '/main';
   static const String farmersMap = '/farmers-map';
+  static const String farmerDetail = '/farmer-detail';
+  static const String settings = '/settings';
+  static const String subscriptionIntro = '/subscription-intro';
+  static const String subscriptions = '/subscriptions';
+  static const String notifications = '/notifications';
+  static const String addresses = '/addresses';
+  static const String productDetail = '/product-detail';
+  static const String cart = '/cart';
+  static const String checkout = '/checkout';
+  static const String orders = '/orders';
+  static const String orderDetail = '/order-detail';
+  static const String conversations = '/conversations';
+  static const String chat = '/chat';
 
   static final GoRouter router = GoRouter(
     initialLocation: main, //login,
@@ -33,6 +60,86 @@ class AppRouter {
         path: farmersMap,
         name: 'farmersMap',
         builder: (context, state) => const FarmersMapScreen(),
+      ),
+      GoRoute(
+        path: farmerDetail,
+        name: 'farmerDetail',
+        builder: (context, state) {
+          final farmer = state.extra as Farmer;
+          return FarmerDetailScreen(farmer: farmer);
+        },
+      ),
+      GoRoute(
+        path: settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: subscriptionIntro,
+        name: 'subscriptionIntro',
+        builder: (context, state) => const SubscriptionIntroScreen(),
+      ),
+      GoRoute(
+        path: subscriptions,
+        name: 'subscriptions',
+        builder: (context, state) => const SubscriptionsScreen(),
+      ),
+      GoRoute(
+        path: notifications,
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: addresses,
+        name: 'addresses',
+        builder: (context, state) => const AddressesScreen(),
+      ),
+      GoRoute(
+        path: productDetail,
+        name: 'productDetail',
+        builder: (context, state) {
+          final productId =
+              state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
+          return ProductDetailScreen(productId: productId);
+        },
+      ),
+      GoRoute(
+        path: cart,
+        name: 'cart',
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: checkout,
+        name: 'checkout',
+        builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: orders,
+        name: 'orders',
+        builder: (context, state) => const OrdersListScreen(),
+      ),
+      GoRoute(
+        path: orderDetail,
+        name: 'orderDetail',
+        builder: (context, state) {
+          final orderId =
+              state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
+          return OrderDetailScreen(orderId: orderId);
+        },
+      ),
+      GoRoute(
+        path: conversations,
+        name: 'conversations',
+        builder: (context, state) => const ConversationsListScreen(),
+      ),
+      GoRoute(
+        path: chat,
+        name: 'chat',
+        builder: (context, state) {
+          final conversationId = state.uri.queryParameters['conversationId'] ??
+              'conv_1234567890abcdef';
+          return ChatScreen(conversationId: conversationId);
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

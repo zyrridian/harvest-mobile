@@ -8,20 +8,28 @@ class ProductModel {
   final String id;
   final String name;
   final String description;
-  @JsonKey(name: 'store_name')
-  final String storeName;
-  @JsonKey(name: 'store_id')
-  final String storeId;
-  final double distance;
+  final String category;
   final double price;
   final String unit;
-  final double rating;
-  final int stock;
-  final String? tag;
   @JsonKey(name: 'image_url')
   final String imageUrl;
-  final String category;
-  final List<String> types;
+  final List<String> images;
+  @JsonKey(name: 'is_organic')
+  final bool isOrganic;
+  @JsonKey(name: 'is_available')
+  final bool isAvailable;
+  final int stock;
+  final double? discount;
+  final double rating;
+  @JsonKey(name: 'review_count')
+  final int reviewCount;
+  @JsonKey(name: 'farmer_id')
+  final String farmerId;
+  @JsonKey(name: 'farmer_name')
+  final String farmerName;
+  @JsonKey(name: 'harvest_date')
+  final String? harvestDate;
+  final List<String> tags;
   @JsonKey(name: 'created_at')
   final String createdAt;
 
@@ -29,17 +37,21 @@ class ProductModel {
     required this.id,
     required this.name,
     required this.description,
-    required this.storeName,
-    required this.storeId,
-    required this.distance,
+    required this.category,
     required this.price,
     required this.unit,
-    required this.rating,
-    required this.stock,
-    this.tag,
     required this.imageUrl,
-    required this.category,
-    required this.types,
+    this.images = const [],
+    this.isOrganic = false,
+    this.isAvailable = true,
+    required this.stock,
+    this.discount,
+    required this.rating,
+    required this.reviewCount,
+    required this.farmerId,
+    required this.farmerName,
+    this.harvestDate,
+    this.tags = const [],
     required this.createdAt,
   });
 
@@ -53,17 +65,21 @@ class ProductModel {
       id: id,
       name: name,
       description: description,
-      storeName: storeName,
-      storeId: storeId,
-      distance: distance,
+      category: category,
       price: price,
       unit: unit,
-      rating: rating,
-      stock: stock,
-      tag: tag,
       imageUrl: imageUrl,
-      category: category,
-      types: types,
+      images: images,
+      isOrganic: isOrganic,
+      isAvailable: isAvailable,
+      stock: stock,
+      discount: discount,
+      rating: rating,
+      reviewCount: reviewCount,
+      farmerId: farmerId,
+      farmerName: farmerName,
+      harvestDate: harvestDate != null ? DateTime.parse(harvestDate!) : null,
+      tags: tags,
       createdAt: DateTime.parse(createdAt),
     );
   }
@@ -73,17 +89,21 @@ class ProductModel {
       id: product.id,
       name: product.name,
       description: product.description,
-      storeName: product.storeName,
-      storeId: product.storeId,
-      distance: product.distance,
+      category: product.category,
       price: product.price,
       unit: product.unit,
-      rating: product.rating,
-      stock: product.stock,
-      tag: product.tag,
       imageUrl: product.imageUrl,
-      category: product.category,
-      types: product.types,
+      images: product.images,
+      isOrganic: product.isOrganic,
+      isAvailable: product.isAvailable,
+      stock: product.stock,
+      discount: product.discount,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      farmerId: product.farmerId,
+      farmerName: product.farmerName,
+      harvestDate: product.harvestDate?.toIso8601String(),
+      tags: product.tags,
       createdAt: product.createdAt.toIso8601String(),
     );
   }

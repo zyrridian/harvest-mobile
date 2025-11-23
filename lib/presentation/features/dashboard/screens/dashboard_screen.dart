@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
+import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import '../../../../core/config/theme/app_colors.dart';
 
 // Mock data models
 class Category {
+  final String id;
   final String name;
   final IconData icon;
+  final Color color;
+  final Color backgroundColor;
 
-  Category(this.name, this.icon);
+  Category({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.color,
+    required this.backgroundColor,
+  });
 }
 
 class FarmerProfile {
@@ -57,14 +69,62 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final List<Category> categories = [
-    Category('Vegetables', Icons.local_florist),
-    Category('Fruits', Icons.apple),
-    Category('Livestock', Icons.pets),
-    Category('Fish', Icons.water),
-    Category('Dairy', Icons.water_drop),
-    Category('Eggs', Icons.egg),
-    Category('Grains', Icons.grass),
-    Category('Herbs', Icons.eco),
+    Category(
+      id: 'vegetables',
+      name: 'Vegetables',
+      icon: Icons.eco,
+      color: const Color(0xFF22C55E),
+      backgroundColor: const Color(0xFFDCFCE7),
+    ),
+    Category(
+      id: 'fruits',
+      name: 'Fruits',
+      icon: Icons.apple,
+      color: const Color(0xFFEF4444),
+      backgroundColor: const Color(0xFFFEE2E2),
+    ),
+    Category(
+      id: 'meat',
+      name: 'Meat',
+      icon: Icons.restaurant,
+      color: const Color(0xFFDC2626),
+      backgroundColor: const Color(0xFFFEE2E2),
+    ),
+    Category(
+      id: 'fish',
+      name: 'Fish',
+      icon: Icons.set_meal,
+      color: const Color(0xFF3B82F6),
+      backgroundColor: const Color(0xFFDBEAFE),
+    ),
+    Category(
+      id: 'dairy',
+      name: 'Dairy',
+      icon: Icons.local_drink,
+      color: const Color(0xFFF59E0B),
+      backgroundColor: const Color(0xFFFEF3C7),
+    ),
+    Category(
+      id: 'eggs',
+      name: 'Eggs',
+      icon: Icons.egg_outlined,
+      color: const Color(0xFFFBBF24),
+      backgroundColor: const Color(0xFFFEF9C3),
+    ),
+    Category(
+      id: 'grains',
+      name: 'Grains',
+      icon: Icons.grass,
+      color: const Color(0xFF8B5CF6),
+      backgroundColor: const Color(0xFFEDE9FE),
+    ),
+    Category(
+      id: 'more',
+      name: 'More',
+      icon: Icons.grid_view_rounded,
+      color: const Color(0xFF6B7280),
+      backgroundColor: const Color(0xFFF3F4F6),
+    ),
   ];
 
   final List<FarmerProfile> nearbyFarmers = [
@@ -161,6 +221,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             surfaceTintColor: Colors.white,
             elevation: 0,
             scrolledUnderElevation: 1,
+            centerTitle: false,
+            titleSpacing: 20.0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -213,9 +275,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications coming soon')),
-                  );
+                  context.push(AppRouter.notifications);
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(content: Text('Notifications coming soon')),
+                  // );
                 },
               ),
               // Cart
@@ -251,9 +314,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cart coming soon')),
-                  );
+                  context.push(AppRouter.cart);
                 },
               ),
               const SizedBox(width: 8),
@@ -274,35 +335,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   );
                 },
                 child: Container(
-                  height: 50,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       const SizedBox(width: 16),
-                      const Icon(Icons.search, color: AppColors.textSecondary),
+                      Icon(Icons.search, color: Colors.grey[600], size: 22),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Search products...',
+                          'Search fresh products...',
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textDisabled,
+                                    color: Colors.grey[500],
+                                    fontSize: 15,
                                   ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.mic,
-                            color: AppColors.textSecondary),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Voice search coming soon')),
-                          );
-                        },
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.tune,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -311,82 +382,311 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
 
-          // Categories Section
+          // // Demo Quick Actions: Cart & Orders
+          // SliverToBoxAdapter(
+          //   child: Padding(
+          //     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          //     child: Row(
+          //       children: [
+          //         Expanded(
+          //           child: ElevatedButton.icon(
+          //             onPressed: () {
+          //               context.push(AppRouter.cart);
+          //             },
+          //             icon: const Icon(Icons.shopping_cart_outlined),
+          //             label: const Text('Cart'),
+          //             style: ElevatedButton.styleFrom(
+          //               backgroundColor: AppColors.primary,
+          //               foregroundColor: Colors.white,
+          //             ),
+          //           ),
+          //         ),
+          //         const SizedBox(width: 12),
+          //         Expanded(
+          //           child: ElevatedButton.icon(
+          //             onPressed: () {
+          //               context.push(AppRouter.orders);
+          //             },
+          //             icon: const Icon(Icons.list_alt_outlined),
+          //             label: const Text('My Orders'),
+          //             style: ElevatedButton.styleFrom(
+          //               backgroundColor: AppColors.secondary,
+          //               foregroundColor: Colors.white,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+
+          // Categories Section - Modern Grid Design
           SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                  child: Text(
-                    'Categories',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text(
+                  //       'Categories',
+                  //       style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  //             fontWeight: FontWeight.bold,
+                  //             fontSize: 20,
+                  //           ),
+                  //     ),
+                  //     TextButton(
+                  //       onPressed: () {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             builder: (context) => const CategoryScreen(
+                  //               categoryName: 'All Categories',
+                  //               categoryId: 'all',
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: const Text('See All'),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 8),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 0.85,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 4,
+                    ),
                     itemCount: categories.length,
                     itemBuilder: (context, index) {
-                      return _buildCategoryCard(categories[index]);
+                      return _buildModernCategoryCard(categories[index]);
                     },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
           // Near Me Section
           SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-                  child: Row(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on,
-                              color: AppColors.primary, size: 20),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Near Me',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
+                      Text(
+                        'Near Me',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                       ),
                       TextButton(
-                        onPressed: () {},
-                        child: const Text('See all'),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('See all farmers coming soon')),
+                          );
+                        },
+                        child: const Text('See All'),
                       ),
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: 140,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: nearbyFarmers.length,
-                    itemBuilder: (context, index) {
-                      return _buildFarmerCard(nearbyFarmers[index]);
+                  const SizedBox(height: 12),
+
+                  // Interactive Map Preview
+                  GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Map view coming soon')),
+                      );
                     },
+                    child: Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.grey[100],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          children: [
+                            // Map placeholder background
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Colors.blue[50]!,
+                                    Colors.green[50]!,
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Grid pattern to simulate map
+                            CustomPaint(
+                              size: Size.infinite,
+                              painter: MapGridPainter(),
+                            ),
+
+                            // Location markers
+                            Positioned(
+                              top: 60,
+                              left: 100,
+                              child: _buildMapMarker(AppColors.primary,
+                                  isActive: true),
+                            ),
+                            Positioned(
+                              top: 90,
+                              right: 80,
+                              child: _buildMapMarker(Colors.green),
+                            ),
+                            Positioned(
+                              bottom: 70,
+                              left: 60,
+                              child: _buildMapMarker(Colors.orange),
+                            ),
+
+                            // Your location indicator (center)
+                            Center(
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: Colors.white, width: 3),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Map controls overlay
+                            Positioned(
+                              top: 12,
+                              right: 12,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.location_on,
+                                        size: 14, color: Colors.blue[700]),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '3 nearby',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // View on map button
+                            Positioned(
+                              bottom: 12,
+                              right: 12,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withOpacity(0.3),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.map_outlined,
+                                        size: 16, color: Colors.white),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'View Map',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
+
+          // Nearby Farmers Cards - Modern Minimalist Design
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                itemCount: nearbyFarmers.length,
+                itemBuilder: (context, index) {
+                  return _buildModernFarmerCard(nearbyFarmers[index]);
+                },
+              ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
           // Premium Products Section
           SliverToBoxAdapter(
@@ -574,136 +874,48 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildCategoryCard(Category category) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${category.name} category coming soon')),
-          );
-        },
-        child: Container(
-          width: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  category.icon,
-                  color: AppColors.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                category.name,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFarmerCard(FarmerProfile farmer) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('View ${farmer.name} profile')),
-          );
-        },
-        child: Container(
-          width: 200,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    farmer.imageUrl,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        farmer.name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        farmer.location,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on,
-                              size: 12, color: AppColors.primary),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${farmer.distance} km',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.star, size: 12, color: Colors.amber),
-                          const SizedBox(width: 2),
-                          Text(
-                            farmer.rating.toString(),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+  Widget _buildModernCategoryCard(Category category) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryScreen(
+              categoryName: category.name,
+              categoryId: category.id,
             ),
           ),
-        ),
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: category.backgroundColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              category.icon,
+              color: category.color,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            category.name,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textPrimary,
+                ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
@@ -713,9 +925,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: GestureDetector(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('View ${product.name} details')),
-          );
+          context.push(
+              '${AppRouter.productDetail}?productId=prd_1234567890abcdef');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text('View ${product.name} details')),
+          // );
         },
         child: Container(
           width: 160,
@@ -953,4 +1167,213 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ),
     );
   }
+
+  Widget _buildMapMarker(Color color, {bool isActive = false}) {
+    return Container(
+      width: isActive ? 32 : 24,
+      height: isActive ? 32 : 24,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.4),
+            blurRadius: isActive ? 8 : 4,
+            spreadRadius: isActive ? 2 : 0,
+          ),
+        ],
+      ),
+      child: isActive
+          ? const Icon(Icons.storefront, size: 16, color: Colors.white)
+          : null,
+    );
+  }
+
+  Widget _buildModernFarmerCard(FarmerProfile farmer) {
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('View ${farmer.name} profile')),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Farmer Image
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AppCachedImage(
+                    imageUrl: farmer.imageUrl,
+                    width: 70,
+                    height: 70,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Farmer Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        farmer.name,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              '${farmer.distance.toStringAsFixed(1)} km • ${farmer.location}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.amber[50],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.amber[700],
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  farmer.rating.toStringAsFixed(1),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.amber[900],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.verified,
+                                  size: 12,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Verified',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Custom painter for map grid pattern
+class MapGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withOpacity(0.1)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    const gridSize = 40.0;
+
+    // Draw vertical lines
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+
+    // Draw horizontal lines
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

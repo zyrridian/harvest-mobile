@@ -51,9 +51,9 @@ jobs:
         run: flutter test
 
   build:
-    name: Build Artifacts
+    name: Build Android Artifacts
     needs: test
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     # Only build if tests pass AND (it's a tag OR push to dev)
     if: github.event_name == 'push'
     steps:
@@ -93,22 +93,12 @@ jobs:
       - name: Build Android App Bundle
         run: flutter build appbundle --release
 
-      - name: Build iOS (no codesign)
-        run: |
-          flutter build ios --no-codesign --release
-          cd build/ios/iphoneos
-          mkdir Payload
-          cd Payload
-          ln -s ../Runner.app
-          cd ..
-          zip -r app.ipa Payload
-
       - name: Create Release
         # Only create releases for version tags (v1.0.0, v0.2.0, etc.)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/flutter-apk/*.apk,build/app/outputs/bundle/release/*.aab,build/ios/iphoneos/app.ipa"
+          artifacts: "build/app/outputs/flutter-apk/*.apk,build/app/outputs/bundle/release/*.aab"
           tag: ${{ github.ref_name }}
           token: ${{ secrets.TOKEN }}
           generateReleaseNotes: true
