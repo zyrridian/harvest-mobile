@@ -971,7 +971,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                     end: Alignment.bottomRight,
                     colors: [
                       AppColors.primary,
-                      AppColors.primary.withOpacity(0.8),
+                      AppColors.primary.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -1037,7 +1037,8 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                        color: season.color.withOpacity(0.3),
+                                        color:
+                                            season.color.withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
@@ -1373,7 +1374,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1472,7 +1473,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1611,7 +1612,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1634,7 +1635,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: tip.color.withOpacity(0.1),
+                    color: tip.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -1811,7 +1812,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -1843,7 +1844,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1889,7 +1890,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -1966,7 +1967,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -2001,7 +2002,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                       decoration: BoxDecoration(
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(16)),
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                       ),
                       child: const Center(
                         child: Icon(
@@ -2019,7 +2020,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.8),
+                        color: Colors.black.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -2081,209 +2082,209 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
     );
   }
 
-  void _showRecipeDetails(Recipe recipe) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.8,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(20),
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AppCachedImage(
-                  imageUrl: recipe.imageUrl,
-                  height: 200,
-                  width: double.infinity,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                recipe.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildRecipeInfoChip(
-                      Icons.restaurant_menu, recipe.cuisine, Colors.purple),
-                  _buildRecipeInfoChip(
-                      Icons.access_time, recipe.time, Colors.blue),
-                  _buildRecipeInfoChip(Icons.people,
-                      '${recipe.servings} servings', Colors.green),
-                  _buildRecipeInfoChip(Icons.local_fire_department,
-                      '${recipe.calories} cal', Colors.orange),
-                  _buildRecipeInfoChip(
-                      Icons.bar_chart,
-                      recipe.difficulty,
-                      recipe.difficulty == 'Easy'
-                          ? Colors.green
-                          : recipe.difficulty == 'Medium'
-                              ? Colors.orange
-                              : Colors.red),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    recipe.rating.toString(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '(Based on reviews)',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Ingredients',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ...recipe.ingredients.map((ingredient) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.check_circle,
-                            color: AppColors.primary, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            ingredient,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              const SizedBox(height: 20),
-              const Text(
-                'Instructions',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ...recipe.instructions.asMap().entries.map((entry) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${entry.key + 1}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            entry.value,
-                            style: const TextStyle(fontSize: 14, height: 1.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Save recipe feature coming soon')),
-                  );
-                },
-                icon: const Icon(Icons.bookmark_border),
-                label: const Text('Save Recipe'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // void _showRecipeDetails(Recipe recipe) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (context) => DraggableScrollableSheet(
+  //       initialChildSize: 0.8,
+  //       minChildSize: 0.5,
+  //       maxChildSize: 0.95,
+  //       builder: (context, scrollController) => Container(
+  //         decoration: const BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //         ),
+  //         child: ListView(
+  //           controller: scrollController,
+  //           padding: const EdgeInsets.all(20),
+  //           children: [
+  //             Center(
+  //               child: Container(
+  //                 width: 40,
+  //                 height: 4,
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.grey[300],
+  //                   borderRadius: BorderRadius.circular(2),
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 20),
+  //             ClipRRect(
+  //               borderRadius: BorderRadius.circular(16),
+  //               child: AppCachedImage(
+  //                 imageUrl: recipe.imageUrl,
+  //                 height: 200,
+  //                 width: double.infinity,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 16),
+  //             Text(
+  //               recipe.name,
+  //               style: const TextStyle(
+  //                 fontSize: 24,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 12),
+  //             Wrap(
+  //               spacing: 8,
+  //               runSpacing: 8,
+  //               children: [
+  //                 _buildRecipeInfoChip(
+  //                     Icons.restaurant_menu, recipe.cuisine, Colors.purple),
+  //                 _buildRecipeInfoChip(
+  //                     Icons.access_time, recipe.time, Colors.blue),
+  //                 _buildRecipeInfoChip(Icons.people,
+  //                     '${recipe.servings} servings', Colors.green),
+  //                 _buildRecipeInfoChip(Icons.local_fire_department,
+  //                     '${recipe.calories} cal', Colors.orange),
+  //                 _buildRecipeInfoChip(
+  //                     Icons.bar_chart,
+  //                     recipe.difficulty,
+  //                     recipe.difficulty == 'Easy'
+  //                         ? Colors.green
+  //                         : recipe.difficulty == 'Medium'
+  //                             ? Colors.orange
+  //                             : Colors.red),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 20),
+  //             Row(
+  //               children: [
+  //                 const Icon(Icons.star, color: Colors.amber, size: 20),
+  //                 const SizedBox(width: 4),
+  //                 Text(
+  //                   recipe.rating.toString(),
+  //                   style: const TextStyle(
+  //                     fontSize: 18,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 8),
+  //                 Text(
+  //                   '(Based on reviews)',
+  //                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+  //                 ),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 20),
+  //             const Text(
+  //               'Ingredients',
+  //               style: TextStyle(
+  //                 fontSize: 18,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 12),
+  //             ...recipe.ingredients.map((ingredient) => Padding(
+  //                   padding: const EdgeInsets.only(bottom: 8),
+  //                   child: Row(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       const Icon(Icons.check_circle,
+  //                           color: AppColors.primary, size: 20),
+  //                       const SizedBox(width: 8),
+  //                       Expanded(
+  //                         child: Text(
+  //                           ingredient,
+  //                           style: const TextStyle(fontSize: 14),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 )),
+  //             const SizedBox(height: 20),
+  //             const Text(
+  //               'Instructions',
+  //               style: TextStyle(
+  //                 fontSize: 18,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 12),
+  //             ...recipe.instructions.asMap().entries.map((entry) => Padding(
+  //                   padding: const EdgeInsets.only(bottom: 12),
+  //                   child: Row(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Container(
+  //                         width: 28,
+  //                         height: 28,
+  //                         decoration: BoxDecoration(
+  //                           color: AppColors.primary,
+  //                           borderRadius: BorderRadius.circular(14),
+  //                         ),
+  //                         child: Center(
+  //                           child: Text(
+  //                             '${entry.key + 1}',
+  //                             style: const TextStyle(
+  //                               color: Colors.white,
+  //                               fontWeight: FontWeight.bold,
+  //                               fontSize: 12,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 12),
+  //                       Expanded(
+  //                         child: Text(
+  //                           entry.value,
+  //                           style: const TextStyle(fontSize: 14, height: 1.5),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 )),
+  //             const SizedBox(height: 20),
+  //             ElevatedButton.icon(
+  //               onPressed: () {
+  //                 ScaffoldMessenger.of(context).showSnackBar(
+  //                   const SnackBar(
+  //                       content: Text('Save recipe feature coming soon')),
+  //                 );
+  //               },
+  //               icon: const Icon(Icons.bookmark_border),
+  //               label: const Text('Save Recipe'),
+  //               style: ElevatedButton.styleFrom(
+  //                 padding: const EdgeInsets.symmetric(vertical: 16),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildRecipeInfoChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildRecipeInfoChip(IconData icon, String label, Color color) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //     decoration: BoxDecoration(
+  //       color: color.withValues(alpha: 0.1),
+  //       borderRadius: BorderRadius.circular(20),
+  //     ),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         Icon(icon, size: 14, color: color),
+  //         const SizedBox(width: 4),
+  //         Text(
+  //           label,
+  //           style: TextStyle(
+  //             fontSize: 12,
+  //             fontWeight: FontWeight.w600,
+  //             color: color,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildQuickAccessCard({
     required IconData icon,
@@ -2297,7 +2298,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -2316,7 +2317,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(icon, color: color, size: 28),

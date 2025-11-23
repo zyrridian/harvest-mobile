@@ -134,7 +134,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -286,7 +286,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -352,7 +352,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                           specialties: updated,
                         );
                   },
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   side: const BorderSide(color: AppColors.primary),
                 ),
               )),
@@ -367,7 +367,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         hasMapFeature: null,
                       );
                 },
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 side: const BorderSide(color: AppColors.primary),
               ),
             ),
@@ -382,7 +382,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         maxDistance: null,
                       );
                 },
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 side: const BorderSide(color: AppColors.primary),
               ),
             ),
@@ -397,7 +397,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         minRating: null,
                       );
                 },
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 side: const BorderSide(color: AppColors.primary),
               ),
             ),
@@ -578,7 +578,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             Icon(
               Icons.agriculture_outlined,
               size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -609,7 +609,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             Icon(
               Icons.map_outlined,
               size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -634,7 +634,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             Icon(
               Icons.error_outline,
               size: 80,
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(

@@ -51,7 +51,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                         height: 200,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -63,7 +63,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                         height: 150,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -85,7 +85,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purple.withOpacity(0.3),
+                    color: Colors.purple.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -99,7 +99,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -124,7 +124,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                             Text(
                               'Level 5 • 2,340 points',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 14,
                               ),
                             ),
@@ -144,7 +144,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                     child: LinearProgressIndicator(
                       value: 0.65,
                       minHeight: 8,
-                      backgroundColor: Colors.white.withOpacity(0.3),
+                      backgroundColor: Colors.white.withValues(alpha: 0.3),
                       valueColor:
                           const AlwaysStoppedAnimation<Color>(Colors.amber),
                     ),
@@ -153,7 +153,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                   Text(
                     '660 points to Level 6',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -284,7 +284,7 @@ class SubscriptionsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -295,7 +295,7 @@ class SubscriptionsScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -351,7 +351,7 @@ class SubscriptionsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -365,8 +365,8 @@ class SubscriptionsScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF4CAF50).withOpacity(0.1),
-                  const Color(0xFF66BB6A).withOpacity(0.05),
+                  const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  const Color(0xFF66BB6A).withValues(alpha: 0.05),
                 ],
               ),
               borderRadius:
@@ -413,7 +413,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.2),
+                              color: Colors.green.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -479,7 +479,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(

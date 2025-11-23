@@ -548,7 +548,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Icon(
               Icons.search,
               size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -578,7 +578,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Icon(
               Icons.search_off,
               size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -608,7 +608,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Icon(
               Icons.error_outline,
               size: 80,
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(

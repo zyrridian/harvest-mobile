@@ -341,7 +341,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -366,7 +366,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -519,7 +519,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         color: Colors.grey[100],
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -579,7 +579,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       Border.all(color: Colors.white, width: 3),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.blue.withOpacity(0.3),
+                                      color: Colors.blue.withValues(alpha: 0.3),
                                       blurRadius: 8,
                                       spreadRadius: 2,
                                     ),
@@ -600,7 +600,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 4,
                                     ),
                                   ],
@@ -636,7 +637,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.primary.withOpacity(0.3),
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.3),
                                       blurRadius: 8,
                                     ),
                                   ],
@@ -1178,7 +1180,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4),
+            color: color.withValues(alpha: 0.4),
             blurRadius: isActive ? 8 : 4,
             spreadRadius: isActive ? 2 : 0,
           ),
@@ -1199,7 +1201,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
@@ -1307,7 +1309,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
@@ -1349,7 +1351,7 @@ class MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.1)
+      ..color = Colors.grey.withValues(alpha: 0.1)
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 

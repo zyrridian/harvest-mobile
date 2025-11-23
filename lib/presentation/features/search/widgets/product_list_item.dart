@@ -149,8 +149,8 @@ class ProductListItem extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: product.stock > 50
-                                ? AppColors.success.withOpacity(0.1)
-                                : AppColors.warning.withOpacity(0.1),
+                                ? AppColors.success.withValues(alpha: 0.1)
+                                : AppColors.warning.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

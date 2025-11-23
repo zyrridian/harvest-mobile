@@ -154,11 +154,11 @@ final settingsNotifierProvider =
 
 String _mapFailureToMessage(Failure failure) {
   switch (failure.runtimeType) {
-    case ServerFailure:
+    case ServerFailure _:
       return 'Server error occurred';
-    case CacheFailure:
+    case CacheFailure _:
       return 'Cache error occurred';
-    case NetworkFailure:
+    case NetworkFailure _:
       return 'Network error occurred';
     default:
       return 'Unexpected error occurred';

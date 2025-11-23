@@ -214,7 +214,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   height: 48,
                   decoration: BoxDecoration(
                     color: _getPriorityColor(notification.priority)
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -380,6 +380,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         notificationsProvider(NotificationParams(type: _selectedType)),
       );
     }
+
+    if (!mounted) return;
 
     // Handle navigation if action is defined
     if (notification.action != null) {

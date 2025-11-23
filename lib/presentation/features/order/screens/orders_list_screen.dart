@@ -5,7 +5,7 @@ import 'package:harvest_app/presentation/providers/order_providers.dart';
 class OrdersListScreen extends ConsumerStatefulWidget {
   static const routeName = '/orders';
 
-  const OrdersListScreen({Key? key}) : super(key: key);
+  const OrdersListScreen({super.key});
 
   @override
   ConsumerState<OrdersListScreen> createState() => _OrdersListScreenState();

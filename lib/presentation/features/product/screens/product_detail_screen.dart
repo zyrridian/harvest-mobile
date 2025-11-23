@@ -311,7 +311,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget _buildLabelChip(String label, Color color) {
     return Chip(
       label: Text(label),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withValues(alpha: 0.1),
       labelStyle:
           TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
       padding: EdgeInsets.zero,
@@ -441,7 +441,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -487,7 +487,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -550,7 +550,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color),
@@ -614,7 +614,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -760,7 +760,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ],
       ),
@@ -872,7 +872,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),

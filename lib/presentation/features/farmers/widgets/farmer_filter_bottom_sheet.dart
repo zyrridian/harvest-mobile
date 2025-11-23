@@ -134,7 +134,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                           });
                         },
                         backgroundColor: Colors.white,
-                        selectedColor: AppColors.primary.withOpacity(0.1),
+                        selectedColor: AppColors.primary.withValues(alpha: 0.1),
                         checkmarkColor: AppColors.primary,
                         side: BorderSide(
                           color:

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/config/theme/app_colors.dart';
-import '../../../shared_widgets/app_cached_image.dart';
 
 class SeasonalCalendarScreen extends ConsumerStatefulWidget {
   const SeasonalCalendarScreen({super.key});
@@ -135,7 +134,7 @@ class _SeasonalCalendarScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -169,7 +168,7 @@ class _SeasonalCalendarScreenState
                   shape: BoxShape.circle,
                 ),
                 todayDecoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 weekendTextStyle: const TextStyle(color: Colors.red),
@@ -310,14 +309,14 @@ class _SeasonalCalendarScreenState
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: color.withOpacity(0.3)),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
               ),
               child: Text(
                 item,
                 style: TextStyle(
-                  color: color.withOpacity(0.9),
+                  color: color.withValues(alpha: 0.9),
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),

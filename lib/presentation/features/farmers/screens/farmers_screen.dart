@@ -251,7 +251,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                         specialties: updated,
                       );
                 },
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 side: const BorderSide(color: AppColors.primary),
               )),
           if (hasMapFeature != null)
@@ -263,7 +263,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                       hasMapFeature: null,
                     );
               },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               side: const BorderSide(color: AppColors.primary),
             ),
           if (maxDistance != null)
@@ -275,7 +275,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                       maxDistance: null,
                     );
               },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               side: const BorderSide(color: AppColors.primary),
             ),
           if (minRating != null)
@@ -287,7 +287,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                       minRating: null,
                     );
               },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               side: const BorderSide(color: AppColors.primary),
             ),
           TextButton.icon(
@@ -363,7 +363,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
             Icon(
               Icons.agriculture_outlined,
               size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -394,7 +394,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
             Icon(
               Icons.error_outline,
               size: 80,
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(

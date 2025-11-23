@@ -5,7 +5,7 @@ import 'package:harvest_app/presentation/providers/order_providers.dart';
 class OrderDetailScreen extends ConsumerWidget {
   static const routeName = '/order-detail';
 
-  const OrderDetailScreen({Key? key, required this.orderId}) : super(key: key);
+  const OrderDetailScreen({super.key, required this.orderId});
 
   final String orderId;
 
@@ -81,7 +81,7 @@ class OrderDetailScreen extends ConsumerWidget {
                       'Qty: ${item.quantity} • Unit Price: Rp ${item.unitPrice}'),
                   trailing: Text('Rp ${item.subtotal}'),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 16),
               const Text('Delivery:',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -105,11 +105,11 @@ class OrderDetailScreen extends ConsumerWidget {
                   );
                   res.fold(
                     (l) => ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l.message ?? 'Error'))),
+                        SnackBar(content: Text(l.message))),
                     (r) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Order cancelled')));
-                      ref.refresh(orderDetailProvider(orderId));
+                      ref.invalidate(orderDetailProvider(orderId));
                     },
                   );
                 },

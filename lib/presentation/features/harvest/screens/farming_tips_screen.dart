@@ -366,7 +366,7 @@ Improve your soil for better harvests:
                         selectedCategory = category;
                       });
                     },
-                    selectedColor: AppColors.primary.withOpacity(0.2),
+                    selectedColor: AppColors.primary.withValues(alpha: 0.2),
                     checkmarkColor: AppColors.primary,
                   ),
                 );
@@ -399,7 +399,7 @@ Improve your soil for better harvests:
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -433,7 +433,7 @@ Improve your soil for better harvests:
                         color: Colors.white,
                       ),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withOpacity(0.5),
+                        backgroundColor: Colors.black.withValues(alpha: 0.5),
                       ),
                       onPressed: () {
                         setState(() {
@@ -583,7 +583,7 @@ Improve your soil for better harvests:
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(

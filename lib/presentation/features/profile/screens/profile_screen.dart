@@ -77,7 +77,7 @@ class ProfileScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withOpacity(0.3),
+                  color: Colors.orange.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -95,7 +95,7 @@ class ProfileScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -238,7 +238,7 @@ class ProfileScreen extends ConsumerWidget {
 
           // Logout Button
           Card(
-            color: AppColors.error.withOpacity(0.1),
+            color: AppColors.error.withValues(alpha: 0.1),
             child: ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),
               title: const Text(

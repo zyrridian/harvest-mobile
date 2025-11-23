@@ -6,7 +6,7 @@ import 'package:harvest_app/presentation/providers/order_providers.dart';
 class CheckoutScreen extends ConsumerStatefulWidget {
   static const routeName = '/checkout';
 
-  const CheckoutScreen({Key? key}) : super(key: key);
+  const CheckoutScreen({super.key});
 
   @override
   ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -42,7 +42,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   title: Text(item.name),
                   subtitle: Text('Qty: ${item.quantity} • Rp ${item.subtotal}'),
                 );
-              }).toList(),
+              }),
               const Divider(height: 32),
               const Text('Delivery Method:',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -141,7 +141,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           padding: const EdgeInsets.all(16),
           child: ElevatedButton(
             onPressed: () async {
-              final selectedItems = await cartAsync.when(
+              final selectedItems = cartAsync.when(
                 data: (cart) => cart.items
                     .where((i) => i.isSelected)
                     .map((i) => i.cartItemId)
@@ -172,7 +172,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
               res.fold(
                 (l) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(l.message ?? 'Error creating order'))),
+                    content: Text(l.message))),
                 (r) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('Order created successfully!')));

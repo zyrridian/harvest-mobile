@@ -52,101 +52,98 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
           left: 0,
           right: 0,
           height: bottomHeight,
-          child: Container(
-            // color: Colors.white,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Profile picture
-                Positioned(
-                  top: -(profileRadius + extraRadius),
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Transform.scale(
-                      scale: profileScale,
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 4),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          radius: profileRadius,
-                          backgroundImage: CachedNetworkImageProvider(
-                            farmer.profileImage,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Profile picture
+              Positioned(
+                top: -(profileRadius + extraRadius),
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Transform.scale(
+                    scale: profileScale,
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
                           ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: profileRadius,
+                        backgroundImage: CachedNetworkImageProvider(
+                          farmer.profileImage,
                         ),
                       ),
                     ),
                   ),
                 ),
-                // Profile info
-                Positioned(
-                  top: profileRadius + 8,
-                  left: 0,
-                  right: 0,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              farmer.name,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+              ),
+              // Profile info
+              Positioned(
+                top: profileRadius + 8,
+                left: 0,
+                right: 0,
+                child: Opacity(
+                  opacity: opacity,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            farmer.name,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                            if (farmer.isVerified) ...[
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.verified,
-                                color: Colors.blue,
-                                size: 24,
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.location_on,
-                                size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${farmer.city}, ${farmer.state}',
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${farmer.distance.toStringAsFixed(1)} km away',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
                           ),
+                          if (farmer.isVerified) ...[
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.verified,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.location_on,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${farmer.city}, ${farmer.state}',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${farmer.distance.toStringAsFixed(1)} km away',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         // Cover image with circle cutout
@@ -191,7 +188,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.3),
+                          Colors.black.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -212,7 +209,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -224,7 +221,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.share, color: Colors.white),
@@ -235,7 +232,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.more_vert, color: Colors.white),
@@ -360,160 +357,160 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 200,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          clipBehavior: Clip.none,
-          children: [
-            // Cover image
-            CachedNetworkImage(
-              imageUrl: widget.farmer.coverImage,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: Colors.grey[200],
-              ),
-              errorWidget: (context, url, error) => Container(
-                color: Colors.grey[200],
-                child: const Icon(Icons.image, color: Colors.grey),
-              ),
-            ),
-            // Gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      actions: [
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.share, color: Colors.white),
-          ),
-          onPressed: () {
-            // Share farmer profile
-          },
-        ),
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.more_vert, color: Colors.white),
-          ),
-          onPressed: () {
-            // Show more options
-          },
-        ),
-      ],
-    );
-  }
+  // Widget _buildAppBar(BuildContext context) {
+  //   return SliverAppBar(
+  //     expandedHeight: 200,
+  //     pinned: true,
+  //     flexibleSpace: FlexibleSpaceBar(
+  //       background: Stack(
+  //         fit: StackFit.expand,
+  //         clipBehavior: Clip.none,
+  //         children: [
+  //           // Cover image
+  //           CachedNetworkImage(
+  //             imageUrl: widget.farmer.coverImage,
+  //             fit: BoxFit.cover,
+  //             placeholder: (context, url) => Container(
+  //               color: Colors.grey[200],
+  //             ),
+  //             errorWidget: (context, url, error) => Container(
+  //               color: Colors.grey[200],
+  //               child: const Icon(Icons.image, color: Colors.grey),
+  //             ),
+  //           ),
+  //           // Gradient overlay
+  //           Container(
+  //             decoration: BoxDecoration(
+  //               gradient: LinearGradient(
+  //                 begin: Alignment.topCenter,
+  //                 end: Alignment.bottomCenter,
+  //                 colors: [
+  //                   Colors.transparent,
+  //                   Colors.black.withValues(alpha: 0.7),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //     leading: IconButton(
+  //       icon: Container(
+  //         padding: const EdgeInsets.all(8),
+  //         decoration: BoxDecoration(
+  //           color: Colors.black.withValues(alpha: 0.3),
+  //           shape: BoxShape.circle,
+  //         ),
+  //         child: const Icon(Icons.arrow_back, color: Colors.white),
+  //       ),
+  //       onPressed: () => Navigator.pop(context),
+  //     ),
+  //     actions: [
+  //       IconButton(
+  //         icon: Container(
+  //           padding: const EdgeInsets.all(8),
+  //           decoration: BoxDecoration(
+  //             color: Colors.black.withValues(alpha: 0.3),
+  //             shape: BoxShape.circle,
+  //           ),
+  //           child: const Icon(Icons.share, color: Colors.white),
+  //         ),
+  //         onPressed: () {
+  //           // Share farmer profile
+  //         },
+  //       ),
+  //       IconButton(
+  //         icon: Container(
+  //           padding: const EdgeInsets.all(8),
+  //           decoration: BoxDecoration(
+  //             color: Colors.black.withValues(alpha: 0.3),
+  //             shape: BoxShape.circle,
+  //           ),
+  //           child: const Icon(Icons.more_vert, color: Colors.white),
+  //         ),
+  //         onPressed: () {
+  //           // Show more options
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildProfileHeader() {
-    return Transform.translate(
-      offset: const Offset(0, -40),
-      child: Column(
-        children: [
-          // Profile picture
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 50,
-              backgroundImage: CachedNetworkImageProvider(
-                widget.farmer.profileImage,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Name and verification
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.farmer.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (widget.farmer.isVerified) ...[
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.verified,
-                  color: Colors.blue,
-                  size: 24,
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
-          // Location
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.location_on, size: 16, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(
-                '${widget.farmer.city}, ${widget.farmer.state}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${widget.farmer.distance.toStringAsFixed(1)} km away',
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildProfileHeader() {
+  //   return Transform.translate(
+  //     offset: const Offset(0, -40),
+  //     child: Column(
+  //       children: [
+  //         // Profile picture
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             shape: BoxShape.circle,
+  //             border: Border.all(color: Colors.white, width: 4),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black.withValues(alpha: 0.2),
+  //                 blurRadius: 10,
+  //                 offset: const Offset(0, 5),
+  //               ),
+  //             ],
+  //           ),
+  //           child: CircleAvatar(
+  //             radius: 50,
+  //             backgroundImage: CachedNetworkImageProvider(
+  //               widget.farmer.profileImage,
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(height: 12),
+  //         // Name and verification
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Text(
+  //               widget.farmer.name,
+  //               style: const TextStyle(
+  //                 fontSize: 24,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             if (widget.farmer.isVerified) ...[
+  //               const SizedBox(width: 8),
+  //               const Icon(
+  //                 Icons.verified,
+  //                 color: Colors.blue,
+  //                 size: 24,
+  //               ),
+  //             ],
+  //           ],
+  //         ),
+  //         const SizedBox(height: 4),
+  //         // Location
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             const Icon(Icons.location_on, size: 16, color: Colors.grey),
+  //             const SizedBox(width: 4),
+  //             Text(
+  //               '${widget.farmer.city}, ${widget.farmer.state}',
+  //               style: TextStyle(
+  //                 color: Colors.grey[600],
+  //                 fontSize: 14,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 4),
+  //         Text(
+  //           '${widget.farmer.distance.toStringAsFixed(1)} km away',
+  //           style: TextStyle(
+  //             color: Colors.grey[500],
+  //             fontSize: 12,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildStats() {
     return Padding(
@@ -1223,13 +1220,13 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                               children: [
                                 CircleAvatar(
                                   radius: 16,
-                                  child: comment.userAvatar != null
-                                      ? null
-                                      : Text(comment.userName[0].toUpperCase()),
                                   backgroundImage: comment.userAvatar != null
                                       ? CachedNetworkImageProvider(
                                           comment.userAvatar!)
                                       : null,
+                                  child: comment.userAvatar != null
+                                      ? null
+                                      : Text(comment.userName[0].toUpperCase()),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(

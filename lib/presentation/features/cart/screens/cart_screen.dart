@@ -5,7 +5,7 @@ import 'package:harvest_app/presentation/providers/cart_providers.dart';
 class CartScreen extends ConsumerWidget {
   static const routeName = '/cart';
 
-  const CartScreen({Key? key}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,12 +42,11 @@ class CartScreen extends ConsumerWidget {
                             cartItemId: item.cartItemId, quantity: newQty);
                         res.fold(
                             (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message ?? 'Error'))),
-                            (r) {
+                                SnackBar(content: Text(l.message))), (r) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text('Quantity updated')));
-                          ref.refresh(cartProvider);
+                          ref.invalidate(cartProvider);
                         });
                       },
                     ),
@@ -60,12 +59,12 @@ class CartScreen extends ConsumerWidget {
                             cartItemId: item.cartItemId, quantity: newQty);
                         res.fold(
                             (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message ?? 'Error'))),
+                                SnackBar(content: Text(l.message))),
                             (r) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text('Quantity updated')));
-                          ref.refresh(cartProvider);
+                          ref.invalidate(cartProvider);
                         });
                       },
                     ),
@@ -76,11 +75,10 @@ class CartScreen extends ConsumerWidget {
                         final res = await uc.call(cartItemId: item.cartItemId);
                         res.fold(
                             (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message ?? 'Error'))),
-                            (r) {
+                                SnackBar(content: Text(l.message))), (r) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Item removed')));
-                          ref.refresh(cartProvider);
+                          ref.invalidate(cartProvider);
                         });
                       },
                     ),
@@ -105,8 +103,8 @@ class CartScreen extends ConsumerWidget {
                     final validateUc = ref.read(validateCartUsecaseProvider);
                     final res = await validateUc.call();
                     res.fold(
-                        (l) => ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l.message ?? 'Error'))),
+                        (l) => ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text(l.message))),
                         (r) {
                       Navigator.of(context).pushNamed('/checkout');
                     });
@@ -121,11 +119,12 @@ class CartScreen extends ConsumerWidget {
                   final uc = ref.read(clearCartUsecaseProvider);
                   final res = await uc.call();
                   res.fold(
-                      (l) => ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l.message ?? 'Error'))), (r) {
+                      (l) => ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(l.message))),
+                      (r) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Cart cleared')));
-                    ref.refresh(cartProvider);
+                    ref.invalidate(cartProvider);
                   });
                 },
               )
