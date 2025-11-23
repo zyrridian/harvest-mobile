@@ -4,18 +4,13 @@ on:
     branches:
       - dev
       - main
-  
+
   # Run on push to dev (integration testing)
   push:
     branches:
       - dev
-  
-  # Run on tags for releases
-  push:
     tags:
-      - 'v*.*.*'
-
-name: "Build and Test"
+      - "v*.*.*"
 
 jobs:
   test:
