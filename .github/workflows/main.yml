@@ -83,6 +83,10 @@ jobs:
         run: flutter test
         continue-on-error: true
 
+      - name: Create local.properties
+        run: |
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > android/local.properties
+
       - name: Build Android APK
         run: flutter build apk --release
 
