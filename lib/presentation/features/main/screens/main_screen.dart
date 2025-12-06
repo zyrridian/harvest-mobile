@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio_network_logger/dio_network_logger.dart';
-import '../../dashboard/screens/dashboard_screen.dart';
+import '../../home/screens/home_screen.dart';
 import '../../harvest/screens/harvest_screen.dart';
 import '../../farmers/screens/farmers_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -24,7 +24,7 @@ class MainScreen extends ConsumerWidget {
 
     // List of screens for each tab
     final screens = [
-      const DashboardScreen(),
+      const HomeScreen(),
       const HarvestScreen(),
       const FarmersScreen(),
       const ProfileScreen(),
