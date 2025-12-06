@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/dio_provider.dart';
+import '../../../../data/datasources/local/database/app_database.dart';
+import '../../../../data/datasources/local/farmer_local_datasource.dart';
 import '../../../../data/datasources/remote/farmer_remote_datasource.dart';
 import '../../../../data/repositories/farmer_repository_impl.dart';
 import '../../../../domain/repositories/farmer_repository.dart';
@@ -8,7 +10,17 @@ import '../../../../domain/usecases/farmers/get_nearby_farmers.dart';
 import '../../../../domain/usecases/farmers/get_farmer_by_id.dart';
 import 'farmers_state.dart';
 
-// Data Source Provider
+// Database Provider
+final appDatabaseProvider = Provider<AppDatabase>((ref) {
+  return AppDatabase();
+});
+
+// Data Source Providers
+final farmerLocalDataSourceProvider = Provider<FarmerLocalDataSource>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return FarmerLocalDataSourceImpl(database);
+});
+
 final farmerRemoteDataSourceProvider = Provider<FarmerRemoteDataSource>((ref) {
   final dio = ref.watch(dioProvider);
   return FarmerRemoteDataSourceImpl(dio: dio);
@@ -17,7 +29,11 @@ final farmerRemoteDataSourceProvider = Provider<FarmerRemoteDataSource>((ref) {
 // Repository Provider
 final farmerRepositoryProvider = Provider<FarmerRepository>((ref) {
   final remoteDataSource = ref.watch(farmerRemoteDataSourceProvider);
-  return FarmerRepositoryImpl(remoteDataSource: remoteDataSource);
+  final localDataSource = ref.watch(farmerLocalDataSourceProvider);
+  return FarmerRepositoryImpl(
+    remoteDataSource: remoteDataSource,
+    localDataSource: localDataSource,
+  );
 });
 
 // Use Cases Providers

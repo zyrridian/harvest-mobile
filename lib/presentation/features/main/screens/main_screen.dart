@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio_network_logger/dio_network_logger.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../harvest/screens/harvest_screen.dart';
 import '../../farmers/screens/farmers_screen.dart';
@@ -13,6 +15,11 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Attach network logger overlay in debug mode
+    if (kDebugMode) {
+      NetworkLoggerOverlay.attachTo(context);
+    }
+
     final currentIndex = ref.watch(bottomNavIndexProvider);
 
     // List of screens for each tab

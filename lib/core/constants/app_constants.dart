@@ -1,15 +1,21 @@
 class AppConstants {
   // API Configuration
   static const String baseUrl =
-      'https://api.example.com'; // Change this to your API URL
+      'https://mocka.ouim.me/mock'; // Change this to your API URL
   static const String apiVersion = '/api/v1';
 
   // API Endpoints
+  // Auth
   static const String loginEndpoint = '/auth/login';
   static const String registerEndpoint = '/auth/register';
   static const String logoutEndpoint = '/auth/logout';
   static const String refreshTokenEndpoint = '/auth/refresh';
   static const String getCurrentUserEndpoint = '/auth/me';
+
+  // Farmers
+  static const String farmersEndpoint = '/11d440e4/api/v1/farmers';
+  static const String farmerByIdEndpoint = '/e562710c/api/v1/farmers/:id';
+  static const String nearbyFarmersEndpoint = '/f284ffa3/api/v1/farmers/nearby';
 
   // Storage Keys
   static const String authTokenKey = 'auth_token';
