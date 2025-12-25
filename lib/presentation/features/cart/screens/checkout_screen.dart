@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/providers/cart_providers.dart';
 import 'package:harvest_app/presentation/providers/order_providers.dart';
 
@@ -440,7 +442,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order created successfully!')),
         );
-        Navigator.of(context).pushReplacementNamed('/orders');
+        context.push(AppRouter.orderDetail);
       },
     );
   }

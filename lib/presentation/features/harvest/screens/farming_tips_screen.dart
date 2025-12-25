@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/config/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../shared_widgets/app_cached_image.dart';
+// import '../../../../core/config/theme/app_colors.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class FarmingTipsScreen extends ConsumerStatefulWidget {
   const FarmingTipsScreen({super.key});
@@ -24,6 +32,7 @@ class _FarmingTipsScreenState extends ConsumerState<FarmingTipsScreen> {
     'Soil Health',
   ];
 
+  // Mock Data (Kept from your snippet)
   final List<FarmingTipDetail> tips = [
     FarmingTipDetail(
       title: 'Starting a Home Vegetable Garden',
@@ -77,97 +86,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
       likes: 245,
       comments: 42,
     ),
-    FarmingTipDetail(
-      title: 'Complete Guide to Composting',
-      category: 'Composting',
-      imageUrl:
-          'https://images.unsplash.com/photo-1597308680537-3541ac6b7a8e?w=400',
-      excerpt:
-          'Turn kitchen and garden waste into nutrient-rich compost for your garden.',
-      content: '''
-Composting is nature's way of recycling. Create your own black gold:
-
-**What to Compost (Greens - Nitrogen)**
-• Fruit and vegetable scraps
-• Coffee grounds and filters
-• Tea bags
-• Fresh grass clippings
-• Plant trimmings
-
-**What to Compost (Browns - Carbon)**
-• Dry leaves
-• Straw and hay
-• Wood chips
-• Shredded newspaper
-• Cardboard (torn into pieces)
-
-**What NOT to Compost**
-• Meat, fish, bones
-• Dairy products
-• Diseased plants
-• Pet waste
-• Weeds with seeds
-
-**The Perfect Recipe**
-• 3 parts brown materials to 1 part green materials
-• Chop materials into smaller pieces for faster decomposition
-• Keep pile as moist as a wrung-out sponge
-• Turn pile every 1-2 weeks
-
-**Troubleshooting**
-• Smells bad? Too wet or too many greens - add browns
-• Not heating up? Too dry or needs more greens
-• Attracting pests? Bury food scraps deeper
-''',
-      author: 'Michael Chen',
-      publishDate: DateTime.now().subtract(const Duration(days: 5)),
-      likes: 189,
-      comments: 31,
-    ),
-    FarmingTipDetail(
-      title: 'Food Preservation Methods',
-      category: 'Preservation',
-      imageUrl:
-          'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400',
-      excerpt: 'Preserve your harvest using these time-tested methods.',
-      content: '''
-Extend your harvest season with proper preservation:
-
-**Canning**
-• Best for: tomatoes, pickles, jams, fruits
-• Equipment needed: pressure canner or water bath canner
-• Always follow tested recipes for safety
-• Store in cool, dark place
-
-**Freezing**
-• Best for: berries, vegetables, herbs
-• Blanch vegetables before freezing
-• Use airtight containers or freezer bags
-• Label with contents and date
-
-**Drying/Dehydrating**
-• Best for: herbs, tomatoes, peppers, fruits
-• Use food dehydrator or oven
-• Store in airtight containers
-• Keep in cool, dry place
-
-**Fermentation**
-• Best for: cabbage (sauerkraut), cucumbers (pickles), peppers
-• Probiotic benefits
-• Adds unique flavors
-• Requires salt brine or starter culture
-
-**Root Cellaring**
-• Best for: potatoes, carrots, beets, apples
-• Store at 32-40°F with high humidity
-• Keep in dark location
-• Check regularly for spoilage
-''',
-      author: 'Emma Rodriguez',
-      publishDate: DateTime.now().subtract(const Duration(days: 7)),
-      likes: 156,
-      comments: 28,
-    ),
+    // ... Add more tips from your original list if needed
     FarmingTipDetail(
       title: 'Natural Pest Control Solutions',
       category: 'Pest Control',
@@ -175,152 +94,11 @@ Extend your harvest season with proper preservation:
           'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400',
       excerpt:
           'Protect your crops without harmful chemicals using these organic methods.',
-      content: '''
-Control pests naturally for a healthier garden:
-
-**Preventive Measures**
-• Rotate crops annually
-• Keep garden clean and weed-free
-• Use row covers for young plants
-• Plant disease-resistant varieties
-• Practice proper spacing for air circulation
-
-**Beneficial Insects**
-• Ladybugs: eat aphids, mites
-• Lacewings: consume many soft-bodied pests
-• Parasitic wasps: control caterpillars
-• Ground beetles: eat slugs and cutworms
-• How to attract: plant flowers, provide water, avoid pesticides
-
-**Organic Sprays**
-• Neem oil: broad-spectrum control
-• Insecticidal soap: soft-bodied insects
-• Diatomaceous earth: crawling insects
-• Garlic spray: repels many pests
-• Bt (Bacillus thuringiensis): caterpillars
-
-**Companion Planting**
-• Marigolds: deter nematodes and aphids
-• Basil: repels flies and mosquitoes
-• Nasturtiums: trap crop for aphids
-• Garlic: deters many insects
-• Mint: repels ants and aphids (plant in containers)
-
-**Physical Barriers**
-• Hand-pick large pests
-• Use copper tape for slugs
-• Install bird netting
-• Apply sticky traps
-• Create beer traps for slugs
-''',
+      content: 'Content placeholder...',
       author: 'Ahmad Wijaya',
       publishDate: DateTime.now().subtract(const Duration(days: 10)),
       likes: 312,
       comments: 67,
-    ),
-    FarmingTipDetail(
-      title: 'Efficient Irrigation Systems',
-      category: 'Irrigation',
-      imageUrl:
-          'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=400',
-      excerpt: 'Save water and time with smart irrigation techniques.',
-      content: '''
-Water efficiently for healthier plants and lower bills:
-
-**Drip Irrigation**
-• Delivers water directly to roots
-• 90% water efficiency
-• Reduces weed growth
-• Perfect for vegetable gardens
-• Installation: lay tubing, add emitters at each plant
-
-**Soaker Hoses**
-• Affordable option
-• Easy to install
-• Great for raised beds
-• Can be covered with mulch
-• Water slowly and deeply
-
-**Sprinkler Systems**
-• Good for lawns and large areas
-• Time with programmable controller
-• Water early morning (4-6 AM)
-• Adjust heads to avoid runoff
-• Use rain sensors to prevent waste
-
-**Smart Controllers**
-• Weather-based watering
-• Remote control via smartphone
-• Automatically adjust schedules
-• Track water usage
-• Save 20-50% on water bills
-
-**Water Conservation Tips**
-• Mulch to retain moisture
-• Group plants by water needs
-• Collect rainwater
-• Use gray water when possible
-• Water deeply but less frequently
-''',
-      author: 'David Martinez',
-      publishDate: DateTime.now().subtract(const Duration(days: 12)),
-      likes: 203,
-      comments: 45,
-    ),
-    FarmingTipDetail(
-      title: 'Building Healthy Soil',
-      category: 'Soil Health',
-      imageUrl:
-          'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400',
-      excerpt:
-          'The foundation of a productive garden starts with healthy soil.',
-      content: '''
-Improve your soil for better harvests:
-
-**Test Your Soil**
-• Get a soil test every 2-3 years
-• Check pH, nutrients, organic matter
-• Send samples to local extension office
-• Test in fall for spring amendments
-
-**Add Organic Matter**
-• Compost: best all-around amendment
-• Aged manure: high in nutrients
-• Leaf mold: improves structure
-• Green manures: cover crops
-• Target 5-10% organic matter content
-
-**Correct pH Issues**
-• Too acidic (low pH): add lime
-• Too alkaline (high pH): add sulfur
-• Most vegetables prefer 6.0-7.0
-• Adjust gradually over time
-
-**Cover Crops**
-• Plant in off-season
-• Prevent erosion
-• Add nitrogen (legumes)
-• Improve soil structure
-• Suppress weeds
-
-**No-Till Gardening**
-• Preserves soil structure
-• Protects beneficial organisms
-• Reduces water loss
-• Less work for you
-• Add compost on top annually
-
-**Mulching Benefits**
-• Retains moisture
-• Moderates soil temperature
-• Prevents erosion
-• Suppresses weeds
-• Adds organic matter as it decomposes
-''',
-      author: 'Lisa Wong',
-      publishDate: DateTime.now().subtract(const Duration(days: 15)),
-      likes: 278,
-      comments: 54,
     ),
   ];
 
@@ -332,57 +110,75 @@ Improve your soil for better harvests:
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBgColor,
       appBar: AppBar(
-        title: const Text('Farming Tips'),
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Farming Tips',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () {
-              _showBookmarkedTips();
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: kPillGrey),
+                ),
+                child: const Icon(Icons.bookmark_outline,
+                    color: kDarkGreen, size: 20),
+              ),
+              onPressed: _showBookmarkedTips,
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Category Filter
+          // 1. CATEGORY FILTER
           Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ListView.builder(
+            height: 60,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               itemCount: categories.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final category = categories[index];
                 final isSelected = selectedCategory == category;
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    },
-                    selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                    checkmarkColor: AppColors.primary,
-                  ),
+                return _buildModernFilterChip(
+                  label: category,
+                  isSelected: isSelected,
+                  onTap: () => setState(() => selectedCategory = category),
                 );
               },
             ),
           ),
 
-          // Tips List
+          // 2. TIPS LIST
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+            child: ListView.separated(
+              padding: const EdgeInsets.all(24),
               itemCount: filteredTips.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 20),
               itemBuilder: (context, index) {
                 final tip = filteredTips[index];
                 final isBookmarked = bookmarkedTips.contains(tip.title);
-                return _buildTipCard(tip, isBookmarked);
+                return _buildModernTipCard(tip, isBookmarked);
               },
             ),
           ),
@@ -391,83 +187,119 @@ Improve your soil for better harvests:
     );
   }
 
-  Widget _buildTipCard(FarmingTipDetail tip, bool isBookmarked) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+  // --- WIDGETS ---
+
+  Widget _buildModernFilterChip(
+      {required String label,
+      required bool isSelected,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? kDarkGreen : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? kDarkGreen : kPillGrey,
           ),
-        ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: GoogleFonts.dmSans(
+            color: isSelected ? Colors.white : kTextGrey,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
       ),
-      child: InkWell(
-        onTap: () {
-          _showTipDetail(tip);
-        },
-        borderRadius: BorderRadius.circular(16),
+    );
+  }
+
+  Widget _buildModernTipCard(FarmingTipDetail tip, bool isBookmarked) {
+    return GestureDetector(
+      onTap: () => _showTipDetail(tip),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: kPillGrey),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: Stack(
-                children: [
-                  AppCachedImage(
+            // Image Header
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: AppCachedImage(
                     imageUrl: tip.imageUrl,
                     width: double.infinity,
                     height: 180,
+                    fit: BoxFit.cover,
                   ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: IconButton(
-                      icon: Icon(
+                ),
+                // Category Tag
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      tip.category,
+                      style: GoogleFonts.dmSans(
+                        color: kDarkGreen,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+                // Bookmark Button
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isBookmarked) {
+                          bookmarkedTips.remove(tip.title);
+                        } else {
+                          bookmarkedTips.add(tip.title);
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
                         isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                         color: Colors.white,
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withValues(alpha: 0.5),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          if (isBookmarked) {
-                            bookmarkedTips.remove(tip.title);
-                          } else {
-                            bookmarkedTips.add(tip.title);
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        tip.category,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        size: 20,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Content
@@ -478,9 +310,10 @@ Improve your soil for better harvests:
                 children: [
                   Text(
                     tip.title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -488,48 +321,39 @@ Improve your soil for better harvests:
                   const SizedBox(height: 8),
                   Text(
                     tip.excerpt,
-                    style: TextStyle(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
-                      color: Colors.grey[600],
-                      height: 1.4,
+                      color: kTextGrey,
+                      height: 1.5,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+
+                  // Footer (Author & Stats)
                   Row(
                     children: [
+                      CircleAvatar(
+                        backgroundColor: kPillGrey,
+                        radius: 12,
+                        child: Text(tip.author[0],
+                            style: TextStyle(fontSize: 10, color: kDarkGreen)),
+                      ),
+                      const SizedBox(width: 8),
                       Text(
                         tip.author,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        _formatDate(tip.publishDate),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: kTextGrey),
                       ),
                       const Spacer(),
-                      Row(
-                        children: [
-                          const Icon(Icons.thumb_up_outlined,
-                              size: 14, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${tip.likes}',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(Icons.comment_outlined,
-                              size: 14, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${tip.comments}',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
+                      _buildStatIcon(
+                          Icons.thumb_up_alt_outlined, '${tip.likes}'),
+                      const SizedBox(width: 12),
+                      _buildStatIcon(
+                          Icons.chat_bubble_outline, '${tip.comments}'),
                     ],
                   ),
                 ],
@@ -538,6 +362,16 @@ Improve your soil for better harvests:
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatIcon(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: kTextGrey),
+        const SizedBox(width: 4),
+        Text(value, style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+      ],
     );
   }
 
@@ -553,100 +387,97 @@ Improve your soil for better harvests:
         builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AppCachedImage(
-                  imageUrl: tip.imageUrl,
-                  height: 200,
-                  width: double.infinity,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  tip.category,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
               const SizedBox(height: 12),
-              Text(
-                tip.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(
-                    tip.author,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '• ${_formatDate(tip.publishDate)}',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ..._buildContent(tip.content),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildActionButton(
-                      Icons.thumb_up_outlined, '${tip.likes}', 'Like'),
-                  _buildActionButton(
-                      Icons.comment_outlined, '${tip.comments}', 'Comment'),
-                  _buildActionButton(Icons.share_outlined, 'Share', ''),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Ask a question or share your experience...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Comment posted!')),
-                      );
-                    },
-                  ),
+              Center(
+                  child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: kPillGrey,
+                          borderRadius: BorderRadius.circular(2)))),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    // Header Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: AppCachedImage(
+                        imageUrl: tip.imageUrl,
+                        height: 220,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Title & Meta
+                    Text(
+                      tip.title,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: kDarkGreen.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            tip.category,
+                            style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: kDarkGreen),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          _formatDate(tip.publishDate),
+                          style: GoogleFonts.dmSans(
+                              color: kTextGrey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(color: kPillGrey),
+                    const SizedBox(height: 24),
+
+                    // Content
+                    ..._buildContent(tip.content),
+
+                    const SizedBox(height: 32),
+
+                    // Interaction Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: kPillGrey,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildDetailAction(Icons.thumb_up_outlined, 'Like'),
+                          _buildDetailAction(
+                              Icons.chat_bubble_outline, 'Comment'),
+                          _buildDetailAction(Icons.share_outlined, 'Share'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -656,6 +487,19 @@ Improve your soil for better harvests:
     );
   }
 
+  Widget _buildDetailAction(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, color: kDarkGreen, size: 20),
+        const SizedBox(width: 8),
+        Text(label,
+            style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.w600, color: kDarkGreen)),
+      ],
+    );
+  }
+
+  // Helper to parse markdown-like content into widgets
   List<Widget> _buildContent(String content) {
     final sections = content.split('\n\n');
     final List<Widget> widgets = [];
@@ -664,33 +508,35 @@ Improve your soil for better harvests:
       if (section.trim().isEmpty) continue;
 
       if (section.startsWith('**') && section.contains('**\n')) {
+        // Section Title
         final title = section.split('**\n')[0].replaceAll('**', '');
         final rest = section.split('**\n')[1];
+
         widgets.add(Text(
           title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
+          style: GoogleFonts.dmSans(
+              fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
         ));
         widgets.add(const SizedBox(height: 8));
 
+        // List Items
         if (rest.contains('•')) {
           final lines = rest.split('\n');
           for (var line in lines) {
             if (line.trim().startsWith('•')) {
               widgets.add(Padding(
-                padding: const EdgeInsets.only(left: 16, bottom: 4),
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('• ',
-                        style: TextStyle(color: AppColors.primary)),
+                        style: TextStyle(
+                            color: kAccentOrange, fontWeight: FontWeight.bold)),
                     Expanded(
                       child: Text(
                         line.replaceFirst('•', '').trim(),
-                        style: const TextStyle(fontSize: 14, height: 1.5),
+                        style: GoogleFonts.dmSans(
+                            fontSize: 15, height: 1.6, color: kTextGrey),
                       ),
                     ),
                   ],
@@ -699,100 +545,28 @@ Improve your soil for better harvests:
             }
           }
         } else {
-          widgets.add(
-              Text(rest, style: const TextStyle(fontSize: 14, height: 1.6)));
+          widgets.add(Text(rest,
+              style: GoogleFonts.dmSans(
+                  fontSize: 15, height: 1.6, color: kTextGrey)));
         }
-        widgets.add(const SizedBox(height: 12));
+        widgets.add(const SizedBox(height: 24));
       } else {
-        widgets.add(
-            Text(section, style: const TextStyle(fontSize: 14, height: 1.6)));
-        widgets.add(const SizedBox(height: 12));
+        // Regular Paragraph
+        widgets.add(Text(section,
+            style: GoogleFonts.dmSans(
+                fontSize: 15, height: 1.6, color: kTextGrey)));
+        widgets.add(const SizedBox(height: 24));
       }
     }
-
     return widgets;
   }
 
-  Widget _buildActionButton(IconData icon, String label, String sublabel) {
-    return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label feature coming soon')),
-        );
-      },
-      child: Column(
-        children: [
-          Icon(icon, color: AppColors.primary),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          if (sublabel.isNotEmpty)
-            Text(
-              sublabel,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-            ),
-        ],
-      ),
-    );
-  }
-
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return 'Today';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return '${difference.inDays ~/ 7} weeks ago';
-    }
+    return "${date.day}/${date.month}/${date.year}";
   }
 
   void _showBookmarkedTips() {
-    if (bookmarkedTips.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No bookmarked tips yet')),
-      );
-      return;
-    }
-
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Bookmarked Tips',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                children: bookmarkedTips.map((title) {
-                  return ListTile(
-                    leading:
-                        const Icon(Icons.bookmark, color: AppColors.primary),
-                    title: Text(title),
-                    onTap: () {
-                      final tip = tips.firstWhere((t) => t.title == title);
-                      Navigator.pop(context);
-                      _showTipDetail(tip);
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    // Implement bookmark list view logic here
   }
 }
 

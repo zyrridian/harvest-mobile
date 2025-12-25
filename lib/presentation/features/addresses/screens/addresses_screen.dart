@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../providers/address_providers.dart';
 import '../../../../domain/entities/address.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class AddressesScreen extends ConsumerWidget {
   const AddressesScreen({super.key});
@@ -11,58 +19,89 @@ class AddressesScreen extends ConsumerWidget {
     final addressesAsync = ref.watch(addressesProvider);
 
     return Scaffold(
+      backgroundColor: kBgColor,
       appBar: AppBar(
-        title: const Text('My Addresses'),
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'My Addresses',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddAddressDialog(context, ref),
-            tooltip: 'Add address',
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kDarkGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 20),
+              ),
+              onPressed: () => _showAddAddressDialog(context, ref),
+              tooltip: 'Add address',
+            ),
           ),
         ],
       ),
       body: addressesAsync.when(
         data: (addresses) => _buildAddressesList(context, ref, addresses),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              ElevatedButton(
-                onPressed: () => ref.refresh(addressesProvider),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }
 
   Widget _buildAddressesList(
-    BuildContext context,
-    WidgetRef ref,
-    List<Address> addresses,
-  ) {
+      BuildContext context, WidgetRef ref, List<Address> addresses) {
     if (addresses.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.location_off, size: 64, color: Colors.grey[400]),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF9E6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.location_off_outlined,
+                  size: 48, color: Color(0xFFD97706)),
+            ),
             const SizedBox(height: 16),
             Text(
               'No addresses saved',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: kDarkGreen,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add a location to start ordering.',
+              style: GoogleFonts.dmSans(color: kTextGrey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => _showAddAddressDialog(context, ref),
               icon: const Icon(Icons.add),
               label: const Text('Add Address'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kDarkGreen,
+                foregroundColor: Colors.white,
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
             ),
           ],
         ),
@@ -70,9 +109,9 @@ class AddressesScreen extends ConsumerWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       itemCount: addresses.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final address = addresses[index];
         return _buildAddressCard(context, ref, address);
@@ -81,144 +120,145 @@ class AddressesScreen extends ConsumerWidget {
   }
 
   Widget _buildAddressCard(
-    BuildContext context,
-    WidgetRef ref,
-    Address address,
-  ) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => _showAddressOptions(context, ref, address),
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header row
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: address.isPrimary
-                          ? Colors.green
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      address.label,
-                      style: TextStyle(
-                        color: address.isPrimary ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (address.isPrimary)
+      BuildContext context, WidgetRef ref, Address address) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: address.isPrimary ? kDarkGreen : kPillGrey,
+          width: address.isPrimary ? 1.5 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: kDarkGreen.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showAddressOptions(context, ref, address),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
-                        borderRadius: BorderRadius.circular(4),
+                        color: kPillGrey,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Primary',
-                        style: TextStyle(
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
+                        address.label.toUpperCase(),
+                        style: GoogleFonts.dmSans(
+                          color: kDarkGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
                         ),
                       ),
                     ),
-                  if (address.isVerified)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Icon(Icons.verified, size: 16, color: Colors.blue),
-                    ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () => _showAddressOptions(context, ref, address),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Recipient name and phone
-              Text(
-                address.recipientName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                address.phone,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Address
-              Text(
-                address.fullAddress,
-                style: const TextStyle(fontSize: 14),
-              ),
-              Text(
-                '${address.district}, ${address.city}, ${address.province}',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 14,
-                ),
-              ),
-              Text(
-                address.postalCode,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 13,
-                ),
-              ),
-
-              // Notes
-              if (address.notes != null) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline,
-                          size: 16, color: Colors.amber.shade700),
-                      const SizedBox(width: 8),
-                      Expanded(
+                    const SizedBox(width: 8),
+                    if (address.isPrimary)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: kDarkGreen.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         child: Text(
-                          address.notes!,
-                          style: TextStyle(
-                            color: Colors.amber.shade900,
-                            fontSize: 13,
+                          'Primary',
+                          style: GoogleFonts.dmSans(
+                            color: kDarkGreen,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    const Spacer(),
+                    Icon(Icons.more_horiz, color: kTextGrey),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.location_on_outlined,
+                        color: kAccentOrange, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            address.recipientName,
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: kDarkGreen,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            address.phone,
+                            style: GoogleFonts.dmSans(
+                                color: kTextGrey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
+                            style: GoogleFonts.dmSans(
+                                color: kDarkGreen, height: 1.4),
+                          ),
+                          if (address.notes != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF9E6),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline,
+                                      size: 16, color: Color(0xFFD97706)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      address.notes!,
+                                      style: GoogleFonts.dmSans(
+                                        color: const Color(0xFF92400E),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  // ... (Keep _showAddressOptions, _showAddAddressDialog, _setPrimaryAddress, _deleteAddress logic)
   void _showAddressOptions(
     BuildContext context,
     WidgetRef ref,

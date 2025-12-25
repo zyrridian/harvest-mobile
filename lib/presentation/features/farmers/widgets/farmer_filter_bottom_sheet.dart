@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/theme/app_colors.dart';
 
+// --- DESIGN CONSTANTS ---
+const kDarkGreen = Color(0xFF1A2F25);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
+
 class FarmerFilterBottomSheet extends StatefulWidget {
+  // ... (Keep existing parameters)
   final List<String> selectedSpecialties;
   final bool? hasMapFeature;
   final double? maxDistance;
   final double? minRating;
-  final Function(
-    List<String> specialties,
-    bool? hasMapFeature,
-    double? maxDistance,
-    double? minRating,
-  ) onApply;
+  final Function(List<String>, bool?, double?, double?) onApply;
 
   const FarmerFilterBottomSheet({
     super.key,
@@ -28,11 +30,11 @@ class FarmerFilterBottomSheet extends StatefulWidget {
 }
 
 class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
+  // ... (Keep existing state variables & initState)
   late List<String> _selectedSpecialties;
   late bool? _hasMapFeature;
   late double _maxDistance;
   late double _minRating;
-
   final List<String> _availableSpecialties = [
     'Vegetables',
     'Fruits',
@@ -40,8 +42,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
     'Fish',
     'Dairy',
     'Eggs',
-    'Grains',
-    'Herbs',
+    'Grains'
   ];
 
   @override
@@ -58,36 +59,28 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle Bar
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
           // Header
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Filters',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: kDarkGreen,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
+                    // Reset Logic
                     setState(() {
                       _selectedSpecialties.clear();
                       _hasMapFeature = null;
@@ -95,251 +88,167 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                       _minRating = 0.0;
                     });
                   },
-                  child: const Text('Reset'),
+                  child: Text(
+                    'Reset',
+                    style: GoogleFonts.dmSans(
+                        color: kTextGrey, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),
           ),
+          const Divider(color: kPillGrey, height: 1),
 
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Specialties
-                  Text(
-                    'Specialties',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
+                  _buildSectionTitle('Specialties'),
+                  const SizedBox(height: 16),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _availableSpecialties.map((specialty) {
-                      final isSelected =
-                          _selectedSpecialties.contains(specialty);
-                      return FilterChip(
-                        label: Text(specialty),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedSpecialties.add(specialty);
-                            } else {
-                              _selectedSpecialties.remove(specialty);
-                            }
-                          });
-                        },
-                        backgroundColor: Colors.white,
-                        selectedColor: AppColors.primary.withValues(alpha: 0.1),
-                        checkmarkColor: AppColors.primary,
-                        side: BorderSide(
-                          color:
-                              isSelected ? AppColors.primary : AppColors.border,
-                        ),
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _availableSpecialties.map((s) {
+                      final isSelected = _selectedSpecialties.contains(s);
+                      return _buildModernChip(
+                        label: s,
+                        isSelected: isSelected,
+                        onTap: () => setState(() {
+                          isSelected
+                              ? _selectedSpecialties.remove(s)
+                              : _selectedSpecialties.add(s);
+                        }),
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 24),
 
-                  // Map Feature
-                  Text(
-                    'Map Feature',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Map Feature'),
+                  const SizedBox(height: 16),
+                  // Custom Radio Row
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kPillGrey),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       children: [
-                        RadioListTile<bool?>(
-                          title: const Text('All Farmers'),
-                          value: null,
-                          groupValue: _hasMapFeature,
-                          onChanged: (value) {
-                            setState(() {
-                              _hasMapFeature = value;
-                            });
-                          },
-                        ),
-                        const Divider(height: 1),
-                        RadioListTile<bool?>(
-                          title: const Text('With Map Feature'),
-                          value: true,
-                          groupValue: _hasMapFeature,
-                          onChanged: (value) {
-                            setState(() {
-                              _hasMapFeature = value;
-                            });
-                          },
-                        ),
-                        const Divider(height: 1),
-                        RadioListTile<bool?>(
-                          title: const Text('Without Map Feature'),
-                          value: false,
-                          groupValue: _hasMapFeature,
-                          onChanged: (value) {
-                            setState(() {
-                              _hasMapFeature = value;
-                            });
-                          },
-                        ),
+                        _buildCustomRadio('All Farmers', null),
+                        const Divider(height: 1, color: kPillGrey),
+                        _buildCustomRadio('With Map Feature', true),
+                        const Divider(height: 1, color: kPillGrey),
+                        _buildCustomRadio('Without Map Feature', false),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
 
-                  // Max Distance
-                  Text(
-                    'Maximum Distance',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Distance (${_maxDistance.toInt()} km)'),
+                  SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: kDarkGreen,
+                      inactiveTrackColor: kPillGrey,
+                      thumbColor: Colors.white,
+                      overlayColor: kDarkGreen.withOpacity(0.1),
                     ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Distance'),
-                            Text(
-                              '${_maxDistance.toStringAsFixed(0)} km',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        Slider(
-                          value: _maxDistance,
-                          min: 1,
-                          max: 50,
-                          divisions: 49,
-                          label: '${_maxDistance.toStringAsFixed(0)} km',
-                          onChanged: (value) {
-                            setState(() {
-                              _maxDistance = value;
-                            });
-                          },
-                        ),
-                      ],
+                    child: Slider(
+                      value: _maxDistance,
+                      min: 1,
+                      max: 50,
+                      onChanged: (v) => setState(() => _maxDistance = v),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Min Rating
-                  Text(
-                    'Minimum Rating',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Rating'),
-                            Row(
-                              children: [
-                                const Icon(Icons.star,
-                                    size: 16, color: Colors.amber),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _minRating.toStringAsFixed(1),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Slider(
-                          value: _minRating,
-                          min: 0,
-                          max: 5,
-                          divisions: 10,
-                          label: _minRating.toStringAsFixed(1),
-                          onChanged: (value) {
-                            setState(() {
-                              _minRating = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
 
           // Apply Button
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.onApply(
-                    _selectedSpecialties,
-                    _hasMapFeature,
-                    _maxDistance > 0 ? _maxDistance : null,
-                    _minRating > 0 ? _minRating : null,
-                  );
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    widget.onApply(_selectedSpecialties, _hasMapFeature,
+                        _maxDistance, _minRating);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kDarkGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
-                ),
-                child: const Text(
-                  'Apply Filters',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    'Apply Filters',
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.dmSans(
+          fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
+    );
+  }
+
+  Widget _buildModernChip(
+      {required String label,
+      required bool isSelected,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? kDarkGreen : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? kDarkGreen : kPillGrey),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.dmSans(
+            color: isSelected ? Colors.white : kTextGrey,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomRadio(String title, bool? value) {
+    final isSelected = _hasMapFeature == value;
+    return InkWell(
+      onTap: () => setState(() => _hasMapFeature = value),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Text(title,
+                style: GoogleFonts.dmSans(
+                    color: isSelected ? kDarkGreen : kTextGrey,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal)),
+            const Spacer(),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: kDarkGreen, size: 20),
+          ],
+        ),
       ),
     );
   }

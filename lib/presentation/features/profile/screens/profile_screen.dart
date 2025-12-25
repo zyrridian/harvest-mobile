@@ -1,83 +1,145 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../shared_widgets/app_scaffold.dart';
-import '../../../../core/config/theme/app_colors.dart';
+// import '../../../shared_widgets/app_scaffold.dart'; // Can use Scaffold directly
+// import '../../../../core/config/theme/app_colors.dart'; // Local constants used for demo
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppScaffold(
-      title: 'Profile',
-      showBackButton: false,
+    return Scaffold(
+      backgroundColor: kBgColor,
+      appBar: AppBar(
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Profile',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            letterSpacing: -0.5,
+          ),
+        ),
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         children: [
-          // Profile Header
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'John Doe',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+          // 1. PROFILE HEADER CARD
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: kPillGrey),
+              boxShadow: [
+                BoxShadow(
+                  color: kDarkGreen.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: kPillGrey,
+                        border: Border.all(color: Colors.white, width: 4),
+                        image: const DecorationImage(
+                          image: NetworkImage(
+                              'https://i.pravatar.cc/300'), // Replace with actual user image
+                          fit: BoxFit.cover,
                         ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'john.doe@example.com',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Edit profile
-                    },
-                    icon: const Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: Colors.white,
+                      ),
                     ),
-                    label: const Text('Edit Profile'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(150, 40),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: kDarkGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child:
+                          const Icon(Icons.edit, size: 14, color: Colors.white),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'John Doe',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'john.doe@example.com',
+                  style: GoogleFonts.dmSans(
+                    color: kTextGrey,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () {
+                    // TODO: Edit profile
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: kDarkGreen,
+                    side: const BorderSide(color: kPillGrey),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 10),
+                  ),
+                  child: Text(
+                    'Edit Profile',
+                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
             ),
           ),
+
           const SizedBox(height: 24),
 
-          // Subscriptions Premium Card
+          // 2. PREMIUM SUBSCRIPTION CARD
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)],
+                colors: [
+                  Color(0xFF2D4A3E),
+                  Color(0xFF1A2F25)
+                ], // Dark Green Gradient
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withValues(alpha: 0.3),
+                  color: kDarkGreen.withOpacity(0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -95,217 +157,252 @@ class ProfileScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
-                          Icons.auto_awesome,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                        child: const Icon(Icons.workspace_premium_rounded,
+                            color: Color(0xFFFFD700), size: 28),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'My Subscriptions',
-                              style: TextStyle(
+                              'Harvest Premium',
+                              style: GoogleFonts.dmSans(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              '2 active • Save 15% on deliveries',
-                              style: TextStyle(
+                              'Free delivery & exclusive deals',
+                              style: GoogleFonts.dmSans(
                                 color: Colors.white70,
-                                fontSize: 13,
+                                fontSize: 12,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded,
+                          color: Colors.white54, size: 16),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
 
-          // Settings Section
-          Text(
-            'Settings',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
+          const SizedBox(height: 32),
+
+          // 3. SETTINGS SECTION
+          _buildSectionHeader('Account Settings'),
           const SizedBox(height: 12),
-
-          _buildMenuItem(
-            context,
-            icon: Icons.settings_outlined,
-            title: 'Settings',
-            onTap: () {
-              context.push(AppRouter.settings);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.person_outline,
-            title: 'Account Information',
-            onTap: () {
-              // TODO: Navigate to account info
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.location_on_outlined,
-            title: 'My Addresses',
-            onTap: () {
-              context.push(AppRouter.addresses);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            onTap: () {
-              context.push(AppRouter.notifications);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.security_outlined,
-            title: 'Security',
-            onTap: () {
-              // TODO: Navigate to security settings
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.language_outlined,
-            title: 'Language',
-            subtitle: 'English',
-            onTap: () {
-              // TODO: Navigate to language settings
-            },
-          ),
-          const SizedBox(height: 24),
-
-          // Other Section
-          Text(
-            'Other',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: kPillGrey),
+            ),
+            child: Column(
+              children: [
+                _buildModernMenuItem(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Personal Information',
+                  onTap: () {},
                 ),
-          ),
-          const SizedBox(height: 12),
-
-          _buildMenuItem(
-            context,
-            icon: Icons.help_outline,
-            title: 'Help & Support',
-            onTap: () {
-              // TODO: Navigate to help
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.info_outline,
-            title: 'About',
-            onTap: () {
-              // TODO: Navigate to about
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            onTap: () {
-              // TODO: Navigate to privacy policy
-            },
-          ),
-          const SizedBox(height: 24),
-
-          // Logout Button
-          Card(
-            color: AppColors.error.withValues(alpha: 0.1),
-            child: ListTile(
-              leading: const Icon(Icons.logout, color: AppColors.error),
-              title: const Text(
-                'Logout',
-                style: TextStyle(color: AppColors.error),
-              ),
-              onTap: () {
-                _showLogoutDialog(context, ref);
-              },
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.location_on_outlined,
+                  title: 'My Addresses',
+                  onTap: () => context.push(AppRouter.addresses),
+                ),
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.notifications_outlined,
+                  title: 'Notifications',
+                  onTap: () => context.push(AppRouter.notifications),
+                ),
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.security_outlined,
+                  title: 'Security',
+                  onTap: () {},
+                ),
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.language,
+                  title: 'Language',
+                  trailingText: 'English',
+                  onTap: () {},
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
 
-          // Version Info
+          const SizedBox(height: 32),
+
+          // 4. SUPPORT SECTION
+          _buildSectionHeader('Support'),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: kPillGrey),
+            ),
+            child: Column(
+              children: [
+                _buildModernMenuItem(
+                  icon: Icons.help_outline_rounded,
+                  title: 'Help Center',
+                  onTap: () {},
+                ),
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Privacy Policy',
+                  onTap: () {},
+                ),
+                _buildDivider(),
+                _buildModernMenuItem(
+                  icon: Icons.info_outline_rounded,
+                  title: 'About Us',
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          // 5. LOGOUT BUTTON
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => _showLogoutDialog(context, ref),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: const Color(0xFFFEE2E2), // Light Red
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text(
+                'Log Out',
+                style: GoogleFonts.dmSans(
+                  color: const Color(0xFFDC2626), // Dark Red
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
           Center(
             child: Text(
               'Version 1.0.0',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textDisabled,
-                  ),
+              style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 12),
             ),
           ),
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.primary),
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-        trailing:
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-        onTap: onTap,
+  // --- WIDGET HELPERS ---
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Text(
+        title,
+        style: GoogleFonts.dmSans(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: kTextGrey,
+        ),
       ),
     );
+  }
+
+  Widget _buildModernMenuItem({
+    required IconData icon,
+    required String title,
+    String? trailingText,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Icon(icon, color: kDarkGreen, size: 22),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: kDarkGreen,
+                  ),
+                ),
+              ),
+              if (trailingText != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    trailingText,
+                    style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 13),
+                  ),
+                ),
+              Icon(Icons.chevron_right_rounded, color: kPillGrey, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+        height: 1, thickness: 1, color: kPillGrey, indent: 58, endIndent: 20);
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Log Out',
+            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold)),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: GoogleFonts.dmSans(color: kTextGrey),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.dmSans(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // Navigate back to login
               context.go(AppRouter.login);
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: AppColors.error),
+            child: Text(
+              'Log Out',
+              style: GoogleFonts.dmSans(
+                  color: const Color(0xFFDC2626), fontWeight: FontWeight.bold),
             ),
           ),
         ],
