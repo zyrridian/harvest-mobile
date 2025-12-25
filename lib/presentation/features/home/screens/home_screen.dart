@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart'; // Make sure to add this package
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import '../../../../core/config/theme/app_colors.dart';
 
+// --- NEW 2025 DESIGN COLORS ---
+const kBgColor = Color(0xFFFAFAF8); // Warm off-white
+const kDarkGreen = Color(0xFF1A2F25); // Deep Forest
+const kAccentOrange = Color(0xFFE86A33); // Burnt Orange
+const kPillGrey = Color(0xFFF0F2F0); // Stone Grey
+
 // Mock data models
+// Don't forget to update your Category class to include the optional icon!
 class Category {
   final String id;
   final String name;
-  final IconData icon;
-  final Color color;
-  final Color backgroundColor;
+  final String emoji;
+  final IconData? icon; // Added this optional field
+  final List<Color> gradient;
 
   Category({
     required this.id,
     required this.name,
-    required this.icon,
-    required this.color,
-    required this.backgroundColor,
+    required this.emoji,
+    this.icon,
+    required this.gradient,
   });
 }
 
@@ -68,65 +76,71 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<HomeScreen> {
+  // Updated Categories to match the "Earth Tone Gradients"
+  // 1. Updated Model to handle both Emojis (for food) and Icons (for "More")
   final List<Category> categories = [
     Category(
       id: 'vegetables',
-      name: 'Vegetables',
-      icon: Icons.eco,
-      color: const Color(0xFF22C55E),
-      backgroundColor: const Color(0xFFDCFCE7),
+      name: 'Vegetables', // Restored full name
+      emoji: '🥦',
+      gradient: [
+        const Color(0xFFD4E2D4),
+        const Color(0xFFB8C6B8)
+      ], // Sage Green
     ),
     Category(
       id: 'fruits',
       name: 'Fruits',
-      icon: Icons.apple,
-      color: const Color(0xFFEF4444),
-      backgroundColor: const Color(0xFFFEE2E2),
+      emoji: '🍓',
+      gradient: [const Color(0xFFFFE5D9), const Color(0xFFFFD1BC)], // Peach
     ),
     Category(
       id: 'meat',
       name: 'Meat',
-      icon: Icons.restaurant,
-      color: const Color(0xFFDC2626),
-      backgroundColor: const Color(0xFFFEE2E2),
+      emoji: '🥩',
+      gradient: [const Color(0xFFF2E6E6), const Color(0xFFE6D0D0)], // Rose
     ),
     Category(
       id: 'fish',
-      name: 'Fish',
-      icon: Icons.set_meal,
-      color: const Color(0xFF3B82F6),
-      backgroundColor: const Color(0xFFDBEAFE),
+      name: 'Fish', // Restored
+      emoji: '🐟',
+      gradient: [
+        const Color(0xFFDBEAFE),
+        const Color(0xFF93C5FD)
+      ], // Ocean Blue
     ),
     Category(
       id: 'dairy',
       name: 'Dairy',
-      icon: Icons.local_drink,
-      color: const Color(0xFFF59E0B),
-      backgroundColor: const Color(0xFFFEF3C7),
+      emoji: '🧀',
+      gradient: [const Color(0xFFFFF9E6), const Color(0xFFFFF0C2)], // Cream
     ),
     Category(
       id: 'eggs',
-      name: 'Eggs',
-      icon: Icons.egg_outlined,
-      color: const Color(0xFFFBBF24),
-      backgroundColor: const Color(0xFFFEF9C3),
+      name: 'Eggs', // Restored
+      emoji: '🥚',
+      gradient: [
+        const Color(0xFFFEF9C3),
+        const Color(0xFFFDE047)
+      ], // Pale Yellow
     ),
     Category(
       id: 'grains',
       name: 'Grains',
-      icon: Icons.grass,
-      color: const Color(0xFF8B5CF6),
-      backgroundColor: const Color(0xFFEDE9FE),
+      emoji: '🌾',
+      gradient: [const Color(0xFFF0EAD6), const Color(0xFFE6DEBF)], // Wheat
     ),
     Category(
       id: 'more',
-      name: 'More',
-      icon: Icons.grid_view_rounded,
-      color: const Color(0xFF6B7280),
-      backgroundColor: const Color(0xFFF3F4F6),
+      name: 'More', // Restored Button
+      emoji: '', // Empty emoji, we will use an Icon for this one
+      icon: Icons.grid_view_rounded, // Specific Icon for "More"
+      gradient: [
+        const Color(0xFFF3F4F6),
+        const Color(0xFFD1D5DB)
+      ], // Neutral Grey
     ),
   ];
-
   final List<FarmerProfile> nearbyFarmers = [
     FarmerProfile(
       name: 'Green Valley Farm',
@@ -151,29 +165,6 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       rating: 4.7,
       imageUrl:
           'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=200',
-    ),
-  ];
-
-  final List<Product> premiumProducts = [
-    Product(
-      name: 'Organic Tomatoes',
-      seller: 'Green Valley Farm',
-      price: 4.99,
-      unit: 'kg',
-      imageUrl:
-          'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400',
-      isPremium: true,
-      rating: 4.8,
-    ),
-    Product(
-      name: 'Fresh Strawberries',
-      seller: 'Sunrise Organic',
-      price: 8.99,
-      unit: 'box',
-      imageUrl:
-          'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',
-      isPremium: true,
-      rating: 4.9,
     ),
   ];
 
@@ -210,170 +201,90 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kBgColor, // Changed to off-white
       body: CustomScrollView(
         slivers: [
-          // App Bar with Cart and Notifications
+          // 1. HEADER (APP BAR)
           SliverAppBar(
             pinned: true,
-            floating: true,
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
+            floating: false,
+            backgroundColor: kBgColor,
+            surfaceTintColor: kBgColor,
             elevation: 0,
-            scrolledUnderElevation: 1,
-            centerTitle: false,
-            titleSpacing: 20.0,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Harvest Market',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+            toolbarHeight: 80,
+            titleSpacing: 24.0,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Harvest Market.',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: kDarkGreen,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      _buildModernIconBtn(
+                        icon: Icons.notifications_none_rounded,
+                        hasDot: true,
+                        onTap: () => context.push(AppRouter.notifications),
                       ),
-                ),
-                Text(
-                  'Fresh from local farms',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                      const SizedBox(width: 12),
+                      _buildModernIconBtn(
+                        icon: Icons.shopping_bag_outlined,
+                        hasDot: false,
+                        onTap: () => context.push(AppRouter.cart),
                       ),
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              // Notifications
-              IconButton(
-                icon: Stack(
-                  children: [
-                    const Icon(Icons.notifications_outlined,
-                        color: AppColors.textPrimary),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.error,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: const Text(
-                          '3',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  context.push(AppRouter.notifications);
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(content: Text('Notifications coming soon')),
-                  // );
-                },
-              ),
-              // Cart
-              IconButton(
-                icon: Stack(
-                  children: [
-                    const Icon(Icons.shopping_cart_outlined,
-                        color: AppColors.textPrimary),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: const Text(
-                          '2',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  context.push(AppRouter.cart);
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
           ),
 
-          // Search Bar
+          // 2. FLAT SEARCH BAR
+          // 2. FLAT SEARCH BAR
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SearchScreen(),
-                    ),
+                        builder: (context) => const SearchScreen()),
                   );
                 },
                 child: Container(
-                  height: 52,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: kPillGrey,
+                    borderRadius: BorderRadius.circular(100),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 16),
-                      Icon(Icons.search, color: Colors.grey[600], size: 22),
+                      const SizedBox(width: 20),
+                      Icon(Icons.search, color: Colors.grey[500], size: 22),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Search fresh products...',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.grey[500],
-                                    fontSize: 15,
-                                  ),
+                          style: GoogleFonts.dmSans(
+                            color: Colors.grey[500],
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.tune,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(Icons.tune_rounded,
+                            color: kDarkGreen, size: 20),
                       ),
                     ],
                   ),
@@ -382,91 +293,28 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // // Demo Quick Actions: Cart & Orders
-          // SliverToBoxAdapter(
-          //   child: Padding(
-          //     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          //     child: Row(
-          //       children: [
-          //         Expanded(
-          //           child: ElevatedButton.icon(
-          //             onPressed: () {
-          //               context.push(AppRouter.cart);
-          //             },
-          //             icon: const Icon(Icons.shopping_cart_outlined),
-          //             label: const Text('Cart'),
-          //             style: ElevatedButton.styleFrom(
-          //               backgroundColor: AppColors.primary,
-          //               foregroundColor: Colors.white,
-          //             ),
-          //           ),
-          //         ),
-          //         const SizedBox(width: 12),
-          //         Expanded(
-          //           child: ElevatedButton.icon(
-          //             onPressed: () {
-          //               context.push(AppRouter.orders);
-          //             },
-          //             icon: const Icon(Icons.list_alt_outlined),
-          //             label: const Text('My Orders'),
-          //             style: ElevatedButton.styleFrom(
-          //               backgroundColor: AppColors.secondary,
-          //               foregroundColor: Colors.white,
-          //             ),
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
-          // Categories Section - Modern Grid Design
+          // 3. MODERN CATEGORIES (Earth Tones & Pebbles)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Text(
-                  //       'Categories',
-                  //       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  //             fontWeight: FontWeight.bold,
-                  //             fontSize: 20,
-                  //           ),
-                  //     ),
-                  //     TextButton(
-                  //       onPressed: () {
-                  //         Navigator.push(
-                  //           context,
-                  //           MaterialPageRoute(
-                  //             builder: (context) => const CategoryScreen(
-                  //               categoryName: 'All Categories',
-                  //               categoryId: 'all',
-                  //             ),
-                  //           ),
-                  //         );
-                  //       },
-                  //       child: const Text('See All'),
-                  //     ),
-                  //   ],
-                  // ),
-                  // const SizedBox(height: 8),
+                  _buildSectionHeader('Shop by Category', showSeeAll: false),
+                  const SizedBox(height: 16),
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
-                      childAspectRatio: 0.85,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 4,
+                      childAspectRatio:
+                          0.72, // Slightly taller to fit long names
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 16,
                     ),
                     itemCount: categories.length,
                     itemBuilder: (context, index) {
-                      return _buildModernCategoryCard(categories[index]);
+                      return _buildPebbleCategoryCard(categories[index]);
                     },
                   ),
                 ],
@@ -474,212 +322,121 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // Near Me Section
+          // 4. NEAR ME (Floating Card Map)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Near Me',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('See all farmers coming soon')),
-                          );
-                        },
-                        child: const Text('See All'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Interactive Map Preview
-                  GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Map view coming soon')),
-                      );
-                    },
-                    child: Container(
-                      height: 180,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.grey[100],
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                  _buildSectionHeader('Farmers Near You'),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      color: const Color(0xFFE0E8E5), // Map BG color
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Stack(
+                        children: [
+                          // Abstract Map Painter
+                          CustomPaint(
+                            size: Size.infinite,
+                            painter: MapGridPainter(),
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Stack(
-                          children: [
-                            // Map placeholder background
-                            Container(
+
+                          // Pins
+                          Positioned(
+                            top: 60,
+                            left: 100,
+                            child: _buildMapPin(kAccentOrange),
+                          ),
+                          Positioned(
+                            top: 90,
+                            right: 80,
+                            child: _buildMapPin(kDarkGreen),
+                          ),
+
+                          // Floating Overlay Card
+                          Positioned(
+                            left: 16,
+                            right: 16,
+                            bottom: 16,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.blue[50]!,
-                                    Colors.green[50]!,
-                                  ],
-                                ),
+                                color: Colors.white.withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: kDarkGreen.withOpacity(0.08),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
                               ),
-                            ),
-
-                            // Grid pattern to simulate map
-                            CustomPaint(
-                              size: Size.infinite,
-                              painter: MapGridPainter(),
-                            ),
-
-                            // Location markers
-                            Positioned(
-                              top: 60,
-                              left: 100,
-                              child: _buildMapMarker(AppColors.primary,
-                                  isActive: true),
-                            ),
-                            Positioned(
-                              top: 90,
-                              right: 80,
-                              child: _buildMapMarker(Colors.green),
-                            ),
-                            Positioned(
-                              bottom: 70,
-                              left: 60,
-                              child: _buildMapMarker(Colors.orange),
-                            ),
-
-                            // Your location indicator (center)
-                            Center(
-                              child: Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.white, width: 3),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blue.withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Map controls overlay
-                            Positioned(
-                              top: 12,
-                              right: 12,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.1),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.location_on,
-                                        size: 14, color: Colors.blue[700]),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '3 nearby',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.blue[700],
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '3 Markets Open',
+                                        style: GoogleFonts.dmSans(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: kDarkGreen,
+                                        ),
                                       ),
+                                      Text(
+                                        'Within 5km range',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: kDarkGreen,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // View on map button
-                            Positioned(
-                              bottom: 12,
-                              right: 12,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.primary
-                                          .withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.map_outlined,
-                                        size: 16, color: Colors.white),
-                                    SizedBox(width: 4),
-                                    Text(
+                                    child: Text(
                                       'View Map',
-                                      style: TextStyle(
+                                      style: GoogleFonts.dmSans(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
 
-          // Nearby Farmers Cards - Modern Minimalist Design
+          // 5. NEARBY LIST (Cleaned up)
           SliverToBoxAdapter(
             child: SizedBox(
               height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 itemCount: nearbyFarmers.length,
                 itemBuilder: (context, index) {
                   return _buildModernFarmerCard(nearbyFarmers[index]);
@@ -688,94 +445,24 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-          // Premium Products Section
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.stars,
-                              color: Colors.amber, size: 20),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Premium Products',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('See all'),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 240,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: premiumProducts.length,
-                    itemBuilder: (context, index) {
-                      return _buildProductCard(premiumProducts[index]);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Fresh Today Section
+          // Fresh Today Header
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.local_shipping,
-                          color: AppColors.success, size: 20),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Fresh Today',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('See all'),
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+              child: _buildSectionHeader('Fresh Today', showSeeAll: true),
             ),
           ),
 
+          // Fresh Today Grid (Existing logic, updated font)
           // Fresh Today Grid
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 0.75,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -786,134 +473,142 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // Seasonal Recommendations
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.wb_sunny, color: Colors.orange, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Seasonal Picks',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=200',
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Winter Collection',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Get the best seasonal produce',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 0),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: const Text('Explore now'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Bottom padding
+          // REDUCED BOTTOM SPACER
+          // Previously 100, now 85. Just enough to clear the 70px nav bar + margins.
           const SliverToBoxAdapter(
-            child: SizedBox(height: 80),
+            child: SizedBox(height: 85), 
           ),
         ],
       ),
     );
   }
 
-  Widget _buildModernCategoryCard(Category category) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoryScreen(
-              categoryName: category.name,
-              categoryId: category.id,
+  // --- WIDGET HELPERS ---
+
+  Widget _buildSectionHeader(String title, {bool showSeeAll = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+          ),
+        ),
+        if (showSeeAll)
+          Text(
+            'See all',
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[500],
             ),
           ),
-        );
+      ],
+    );
+  }
+
+  Widget _buildModernIconBtn(
+      {required IconData icon,
+      required bool hasDot,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFE5E5E0)),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(icon, color: kDarkGreen, size: 20),
+            if (hasDot)
+              Positioned(
+                top: 10,
+                right: 12,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: kAccentOrange,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPebbleCategoryCard(Category category) {
+    return GestureDetector(
+      onTap: () {
+        // Handle "More" click differently if needed
+        if (category.id == 'more') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CategoryScreen(
+                categoryName: 'All Categories',
+                categoryId: 'all',
+              ),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryScreen(
+                categoryName: category.name,
+                categoryId: category.id,
+              ),
+            ),
+          );
+        }
       },
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: category.backgroundColor,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              category.icon,
-              color: category.color,
-              size: 32,
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(24), // "Super-ellipse" shape
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: category.gradient,
+                ),
+              ),
+              child: Center(
+                child: category.id == 'more'
+                    // If it's "More", show the Icon
+                    ? Icon(category.icon, color: kDarkGreen, size: 28)
+                    // Otherwise show the Emoji
+                    : Text(
+                        category.emoji,
+                        style: const TextStyle(fontSize: 32),
+                      ),
+              ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             category.name,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
-                ),
             textAlign: TextAlign.center,
+            style: GoogleFonts.dmSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: kDarkGreen,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -922,273 +617,22 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildProductCard(Product product) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: GestureDetector(
-        onTap: () {
-          context.push(
-              '${AppRouter.productDetail}?productId=prd_1234567890abcdef');
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text('View ${product.name} details')),
-          // );
-        },
-        child: Container(
-          width: 160,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: AppCachedImage(
-                      imageUrl: product.imageUrl,
-                      width: double.infinity,
-                      height: 120,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  if (product.isPremium)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.stars,
-                                size: 12, color: Colors.white),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Premium',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.favorite_border,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product.seller,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '\$${product.price}/${product.unit}',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        if (product.rating != null)
-                          Row(
-                            children: [
-                              const Icon(Icons.star,
-                                  size: 12, color: Colors.amber),
-                              const SizedBox(width: 2),
-                              Text(
-                                product.rating.toString(),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGridProductCard(Product product) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('View ${product.name} details')),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(12)),
-                  child: Image.network(
-                    product.imageUrl,
-                    width: double.infinity,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product.seller,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '\$${product.price}/${product.unit}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        if (product.rating != null)
-                          Row(
-                            children: [
-                              const Icon(Icons.star,
-                                  size: 12, color: Colors.amber),
-                              const SizedBox(width: 2),
-                              Text(
-                                product.rating.toString(),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapMarker(Color color, {bool isActive = false}) {
+  Widget _buildMapPin(Color color) {
     return Container(
-      width: isActive ? 32 : 24,
-      height: isActive ? 32 : 24,
+      width: 14,
+      height: 14,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: Colors.white, width: 2.5),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.4),
-            blurRadius: isActive ? 8 : 4,
-            spreadRadius: isActive ? 2 : 0,
-          ),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
         ],
       ),
-      child: isActive
-          ? const Icon(Icons.storefront, size: 16, color: Colors.white)
-          : null,
     );
   }
 
@@ -1198,181 +642,148 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20), // More rounded
+        border: Border.all(color: const Color(0xFFF0F2F0)), // Subtle border
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('View ${farmer.name} profile')),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // Farmer Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: AppCachedImage(
-                    imageUrl: farmer.imageUrl,
-                    width: 70,
-                    height: 70,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AppCachedImage(
+                imageUrl: farmer.imageUrl,
+                width: 70,
+                height: 70,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    farmer.name,
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: kDarkGreen,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${farmer.distance}km • ${farmer.location}',
+                    style: GoogleFonts.dmSans(
+                      color: Colors.grey[500],
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGridProductCard(Product product) {
+    // Keeping your logic, just updating styles
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF0F2F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+                child: Image.network(
+                  product.imageUrl,
+                  width: double.infinity,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.favorite_border,
+                    size: 16,
+                    color: Colors.grey,
                   ),
                 ),
-                const SizedBox(width: 12),
-                // Farmer Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        farmer.name,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              '${farmer.distance.toStringAsFixed(1)} km • ${farmer.location}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                    fontSize: 13,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.amber[50],
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  size: 12,
-                                  color: Colors.amber[700],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  farmer.rating.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.amber[900],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.verified,
-                                  size: 12,
-                                  color: AppColors.primary,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Verified',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.w700,
+                    color: kDarkGreen,
+                  ),
+                ),
+                Text(
+                  product.seller,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '\$${product.price}',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-// Custom painter for map grid pattern
+// Minimal Map Painter (Dots instead of lines)
 class MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.1)
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+      ..color = const Color(0xFFC4D1CC)
+      ..style = PaintingStyle.fill;
 
-    const gridSize = 40.0;
+    const double step = 20.0;
 
-    // Draw vertical lines
-    for (double x = 0; x < size.width; x += gridSize) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
-        paint,
-      );
-    }
-
-    // Draw horizontal lines
-    for (double y = 0; y < size.height; y += gridSize) {
-      canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
-        paint,
-      );
+    for (double y = 0; y < size.height; y += step) {
+      for (double x = 0; x < size.width; x += step) {
+        if ((x + y) % 3 == 0) {
+          // Random-ish pattern
+          canvas.drawCircle(Offset(x, y), 1.5, paint);
+        }
+      }
     }
   }
 
