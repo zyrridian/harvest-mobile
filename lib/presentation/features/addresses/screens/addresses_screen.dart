@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../providers/address_providers.dart';
 import '../../../../domain/entities/address.dart';
+import 'add_edit_address_screen.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -266,58 +267,99 @@ class AddressesScreen extends ConsumerWidget {
   ) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!address.isPrimary)
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            if (!address.isPrimary)
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: kDarkGreen.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.star, color: kDarkGreen),
+                ),
+                title: Text(
+                  'Set as Primary',
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _setPrimaryAddress(context, ref, address.addressId);
+                },
+              ),
             ListTile(
-              leading: const Icon(Icons.star),
-              title: const Text('Set as Primary'),
-              onTap: () async {
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kDarkGreen.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.edit, color: kDarkGreen),
+              ),
+              title: Text(
+                'Edit Address',
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+              ),
+              onTap: () {
                 Navigator.pop(context);
-                await _setPrimaryAddress(context, ref, address.addressId);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddEditAddressScreen(address: address),
+                  ),
+                );
               },
             ),
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('Edit Address'),
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to edit address screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Edit address screen coming soon...')),
-              );
-            },
-          ),
-          if (!address.isPrimary)
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Delete Address',
-                  style: TextStyle(color: Colors.red)),
-              onTap: () async {
-                Navigator.pop(context);
-                await _deleteAddress(context, ref, address.addressId);
-              },
-            ),
-        ],
+            if (!address.isPrimary)
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.delete, color: Colors.red),
+                ),
+                title: Text(
+                  'Delete Address',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _deleteAddress(context, ref, address.addressId);
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
 
   void _showAddAddressDialog(BuildContext context, WidgetRef ref) {
-    // TODO: Navigate to add address screen
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Address'),
-        content: const Text('Add address form coming soon...'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddEditAddressScreen(),
       ),
     );
   }

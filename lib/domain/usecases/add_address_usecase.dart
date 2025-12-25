@@ -1,12 +1,12 @@
 import 'package:dartz/dartz.dart';
-import '../../../core/error/failures.dart';
-import '../../entities/address.dart';
-import '../../repositories/address_repository.dart';
+import '../../core/error/failures.dart';
+import '../entities/address.dart';
+import '../repositories/address_repository.dart';
 
-class AddAddress {
+class AddAddressUseCase {
   final AddressRepository repository;
 
-  AddAddress(this.repository);
+  AddAddressUseCase(this.repository);
 
   Future<Either<Failure, Address>> call({
     required String label,
