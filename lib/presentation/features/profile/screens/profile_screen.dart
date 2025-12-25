@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
+import 'help_center_screen.dart';
+import 'privacy_policy_screen.dart';
+import 'about_us_screen.dart';
 // import '../../../shared_widgets/app_scaffold.dart'; // Can use Scaffold directly
 // import '../../../../core/config/theme/app_colors.dart'; // Local constants used for demo
 
@@ -259,19 +262,34 @@ class ProfileScreen extends ConsumerWidget {
                 _buildModernMenuItem(
                   icon: Icons.help_outline_rounded,
                   title: 'Help Center',
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpCenterScreen(),
+                    ),
+                  ),
                 ),
                 _buildDivider(),
                 _buildModernMenuItem(
                   icon: Icons.privacy_tip_outlined,
                   title: 'Privacy Policy',
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyScreen(),
+                    ),
+                  ),
                 ),
                 _buildDivider(),
                 _buildModernMenuItem(
                   icon: Icons.info_outline_rounded,
                   title: 'About Us',
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AboutUsScreen(),
+                    ),
+                  ),
                 ),
               ],
             ),
