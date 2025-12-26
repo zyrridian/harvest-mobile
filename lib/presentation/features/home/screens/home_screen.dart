@@ -6,7 +6,6 @@ import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
-import '../../../../core/config/theme/app_colors.dart';
 
 // --- NEW 2025 DESIGN COLORS ---
 const kBgColor = Color(0xFFFAFAF8); // Warm off-white
@@ -49,6 +48,7 @@ class FarmerProfile {
 }
 
 class Product {
+  final String id;
   final String name;
   final String seller;
   final double price;
@@ -58,6 +58,7 @@ class Product {
   final double? rating;
 
   Product({
+    required this.id,
     required this.name,
     required this.seller,
     required this.price,
@@ -170,6 +171,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
 
   final List<Product> freshToday = [
     Product(
+      id: 'lettuce_001',
       name: 'Fresh Lettuce',
       seller: 'Green Valley Farm',
       price: 2.49,
@@ -179,6 +181,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       rating: 4.7,
     ),
     Product(
+      id: 'carrots_001',
       name: 'Carrots',
       seller: 'Fresh Fields Co.',
       price: 3.99,
@@ -188,6 +191,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       rating: 4.6,
     ),
     Product(
+      id: 'peppers_001',
       name: 'Bell Peppers',
       seller: 'Sunrise Organic',
       price: 5.49,
@@ -328,7 +332,10 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
               child: Column(
                 children: [
-                  _buildSectionHeader('Farmers Near You'),
+                  _buildSectionHeader(
+                    'Farmers Near You',
+                    onSeeAllTap: () => context.push(AppRouter.farmers),
+                  ),
                   const SizedBox(height: 16),
                   Container(
                     height: 200,
@@ -449,7 +456,11 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-              child: _buildSectionHeader('Fresh Today', showSeeAll: true),
+              child: _buildSectionHeader(
+                'Fresh Today',
+                showSeeAll: true,
+                onSeeAllTap: () => context.push(AppRouter.products),
+              ),
             ),
           ),
 
@@ -476,7 +487,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           // REDUCED BOTTOM SPACER
           // Previously 100, now 85. Just enough to clear the 70px nav bar + margins.
           const SliverToBoxAdapter(
-            child: SizedBox(height: 85), 
+            child: SizedBox(height: 85),
           ),
         ],
       ),
@@ -485,7 +496,11 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
 
   // --- WIDGET HELPERS ---
 
-  Widget _buildSectionHeader(String title, {bool showSeeAll = false}) {
+  Widget _buildSectionHeader(
+    String title, {
+    bool showSeeAll = false,
+    VoidCallback? onSeeAllTap,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -499,12 +514,15 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
         if (showSeeAll)
-          Text(
-            'See all',
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[500],
+          GestureDetector(
+            onTap: onSeeAllTap,
+            child: Text(
+              'See all',
+              style: GoogleFonts.dmSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[500],
+              ),
             ),
           ),
       ],
@@ -637,54 +655,57 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildModernFarmerCard(FarmerProfile farmer) {
-    return Container(
-      width: 280,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // More rounded
-        border: Border.all(color: const Color(0xFFF0F2F0)), // Subtle border
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AppCachedImage(
-                imageUrl: farmer.imageUrl,
-                width: 70,
-                height: 70,
+    return GestureDetector(
+      onTap: () => context.push(AppRouter.farmers),
+      child: Container(
+        width: 280,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20), // More rounded
+          border: Border.all(color: const Color(0xFFF0F2F0)), // Subtle border
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AppCachedImage(
+                  imageUrl: farmer.imageUrl,
+                  width: 70,
+                  height: 70,
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    farmer.name,
-                    style: GoogleFonts.dmSans(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: kDarkGreen,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      farmer.name,
+                      style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        color: kDarkGreen,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${farmer.distance}km • ${farmer.location}',
-                    style: GoogleFonts.dmSans(
-                      color: Colors.grey[500],
-                      fontSize: 13,
+                    const SizedBox(height: 4),
+                    Text(
+                      '${farmer.distance}km • ${farmer.location}',
+                      style: GoogleFonts.dmSans(
+                        color: Colors.grey[500],
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -692,76 +713,79 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildGridProductCard(Product product) {
     // Keeping your logic, just updating styles
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF0F2F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.network(
-                  product.imageUrl,
-                  width: double.infinity,
-                  height: 120,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.favorite_border,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () => context.push('${AppRouter.products}/${product.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF0F2F0)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(
-                  product.name,
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.w700,
-                    color: kDarkGreen,
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.network(
+                    product.imageUrl,
+                    width: double.infinity,
+                    height: 120,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                Text(
-                  product.seller,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '\$${product.price}',
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen,
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.favorite_border,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                  Text(
+                    product.seller,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '\$${product.price}',
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

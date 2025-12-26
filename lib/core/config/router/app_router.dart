@@ -24,6 +24,8 @@ class AppRouter {
   static const String register = '/register';
   static const String main = '/main';
   static const String farmersMap = '/farmers-map';
+  static const String farmers = '/farmers'; // farmers list
+  static const String products = '/products'; // products list
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
@@ -100,6 +102,16 @@ class AppRouter {
         builder: (context, state) {
           final productId =
               state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
+          return ProductDetailScreen(productId: productId);
+        },
+      ),
+      // Product detail with path parameter
+      GoRoute(
+        path: '$products/:productId',
+        name: 'productDetailById',
+        builder: (context, state) {
+          final productId =
+              state.pathParameters['productId'] ?? 'prd_1234567890abcdef';
           return ProductDetailScreen(productId: productId);
         },
       ),
