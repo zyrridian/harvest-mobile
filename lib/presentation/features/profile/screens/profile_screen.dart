@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
+import '../../../../core/utils/localization_extension.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../../providers/profile_providers.dart';
 import 'help_center_screen.dart';
 import 'privacy_policy_screen.dart';
@@ -26,7 +28,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
-    final currentLanguage = ref.watch(languageProvider);
+    final currentLanguage = ref.watch(currentLanguageNameProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -36,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
         centerTitle: false,
         scrolledUnderElevation: 0,
         title: Text(
-          'Profile',
+          context.l10n.profile,
           style: GoogleFonts.playfairDisplay(
             fontSize: 28,
             fontWeight: FontWeight.w700,
@@ -132,7 +134,7 @@ class ProfileScreen extends ConsumerWidget {
                           horizontal: 24, vertical: 10),
                     ),
                     child: Text(
-                      'Edit Profile',
+                      context.l10n.editProfile,
                       style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -186,7 +188,7 @@ class ProfileScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Harvest Premium',
+                                context.l10n.harvestPremium,
                                 style: GoogleFonts.dmSans(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -195,7 +197,7 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Free delivery & exclusive deals',
+                                context.l10n.premiumDescription,
                                 style: GoogleFonts.dmSans(
                                   color: Colors.white70,
                                   fontSize: 12,
@@ -216,7 +218,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 3. SETTINGS SECTION
-            _buildSectionHeader('Account Settings'),
+            _buildSectionHeader(context.l10n.accountSettings),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
@@ -228,7 +230,7 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   _buildModernMenuItem(
                     icon: Icons.person_outline_rounded,
-                    title: 'Personal Information',
+                    title: context.l10n.personalInformation,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -239,19 +241,19 @@ class ProfileScreen extends ConsumerWidget {
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.location_on_outlined,
-                    title: 'My Addresses',
+                    title: context.l10n.myAddresses,
                     onTap: () => context.push(AppRouter.addresses),
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.notifications_outlined,
-                    title: 'Notifications',
+                    title: context.l10n.notifications,
                     onTap: () => context.push(AppRouter.notifications),
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.security_outlined,
-                    title: 'Security',
+                    title: context.l10n.security,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -262,7 +264,7 @@ class ProfileScreen extends ConsumerWidget {
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.language,
-                    title: 'Language',
+                    title: context.l10n.language,
                     trailingText: currentLanguage,
                     onTap: () => Navigator.push(
                       context,
@@ -278,7 +280,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 4. SUPPORT SECTION
-            _buildSectionHeader('Support'),
+            _buildSectionHeader(context.l10n.support),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
@@ -290,7 +292,7 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   _buildModernMenuItem(
                     icon: Icons.help_outline_rounded,
-                    title: 'Help Center',
+                    title: context.l10n.helpCenter,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -301,7 +303,7 @@ class ProfileScreen extends ConsumerWidget {
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.privacy_tip_outlined,
-                    title: 'Privacy Policy',
+                    title: context.l10n.privacyPolicy,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -312,7 +314,7 @@ class ProfileScreen extends ConsumerWidget {
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: Icons.info_outline_rounded,
-                    title: 'About Us',
+                    title: context.l10n.aboutUs,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -338,7 +340,7 @@ class ProfileScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
-                  'Log Out',
+                  context.l10n.logout,
                   style: GoogleFonts.dmSans(
                     color: const Color(0xFFDC2626), // Dark Red
                     fontWeight: FontWeight.bold,
@@ -351,7 +353,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             Center(
               child: Text(
-                'Version 1.0.0',
+                context.l10n.version,
                 style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 12),
               ),
             ),
@@ -368,7 +370,7 @@ class ProfileScreen extends ConsumerWidget {
               Icon(Icons.error_outline, size: 48, color: kTextGrey),
               const SizedBox(height: 16),
               Text(
-                'Error loading profile',
+                context.l10n.error,
                 style: GoogleFonts.dmSans(color: kTextGrey),
               ),
             ],
@@ -447,16 +449,17 @@ class ProfileScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Log Out',
+        title: Text(context.l10n.logout,
             style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold)),
         content: Text(
-          'Are you sure you want to log out?',
+          context.l10n.logoutConfirm,
           style: GoogleFonts.dmSans(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel', style: GoogleFonts.dmSans(color: kTextGrey)),
+            child: Text(context.l10n.cancel,
+                style: GoogleFonts.dmSans(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () {
@@ -464,7 +467,7 @@ class ProfileScreen extends ConsumerWidget {
               context.go(AppRouter.login);
             },
             child: Text(
-              'Log Out',
+              context.l10n.logout,
               style: GoogleFonts.dmSans(
                   color: const Color(0xFFDC2626), fontWeight: FontWeight.bold),
             ),
