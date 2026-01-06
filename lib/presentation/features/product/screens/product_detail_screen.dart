@@ -1205,15 +1205,28 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   void _addToCart(ProductDetail product) {
     final quantity = ref.read(productQuantityProvider(widget.productId));
-    // TODO: Implement add to cart functionality
+    // Navigate to cart screen
     _showSnackBar('Added $quantity ${product.unit} to cart');
     ref.read(isInCartProvider(widget.productId).notifier).state = true;
+
+    // Navigate to cart after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.pushNamed(context, '/cart');
+      }
+    });
   }
 
   void _buyNow(ProductDetail product) {
     final quantity = ref.read(productQuantityProvider(widget.productId));
-    // TODO: Implement buy now functionality (navigate to checkout)
-    _showSnackBar('Buy $quantity ${product.unit} now - Navigate to checkout');
+    // Navigate directly to checkout for buy now
+    _showSnackBar('Proceeding to checkout with $quantity ${product.unit}');
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.pushNamed(context, '/checkout');
+      }
+    });
   }
 
   void _shareProduct(ProductDetail product) {

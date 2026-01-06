@@ -334,7 +334,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   _buildSectionHeader(
                     'Farmers Near You',
-                    onSeeAllTap: () => context.push(AppRouter.farmers),
+                    onSeeAllTap: () => context.push(AppRouter.farmersMap),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -408,19 +408,23 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: kDarkGreen,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      'View Map',
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                  GestureDetector(
+                                    onTap: () =>
+                                        context.push(AppRouter.farmersMap),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: kDarkGreen,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        'View Map',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -656,7 +660,10 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildModernFarmerCard(FarmerProfile farmer) {
     return GestureDetector(
-      onTap: () => context.push(AppRouter.farmers),
+      onTap: () {
+        // Navigate to farmers map screen instead of farmers list
+        context.push(AppRouter.farmersMap);
+      },
       child: Container(
         width: 280,
         margin: const EdgeInsets.only(right: 12),

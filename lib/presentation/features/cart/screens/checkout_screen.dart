@@ -439,10 +439,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         SnackBar(content: Text(l.message)),
       ),
       (r) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order created successfully!')),
-        );
-        context.push(AppRouter.orderDetail);
+        // Navigate to order success screen with order details
+        final orderId = r['data']?['order_id'] ?? 'ord_unknown';
+        final orderNumber = r['data']?['order_number'] ?? 'ORD-000000';
+
+        context.go(
+            '${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber');
       },
     );
   }

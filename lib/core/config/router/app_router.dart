@@ -15,6 +15,7 @@ import '../../../presentation/features/cart/screens/cart_screen.dart';
 import '../../../presentation/features/cart/screens/checkout_screen.dart';
 import '../../../presentation/features/order/screens/orders_list_screen.dart';
 import '../../../presentation/features/order/screens/order_detail_screen.dart';
+import '../../../presentation/features/order/screens/order_success_screen.dart';
 import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
 import '../../../domain/entities/farmer.dart';
@@ -37,6 +38,7 @@ class AppRouter {
   static const String checkout = '/checkout';
   static const String orders = '/orders';
   static const String orderDetail = '/order-detail';
+  static const String orderSuccess = '/order-success';
   static const String conversations = '/conversations';
   static const String chat = '/chat';
 
@@ -137,6 +139,20 @@ class AppRouter {
           final orderId =
               state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
           return OrderDetailScreen(orderId: orderId);
+        },
+      ),
+      GoRoute(
+        path: orderSuccess,
+        name: 'orderSuccess',
+        builder: (context, state) {
+          final orderId =
+              state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
+          final orderNumber =
+              state.uri.queryParameters['orderNumber'] ?? 'ORD-000000';
+          return OrderSuccessScreen(
+            orderId: orderId,
+            orderNumber: orderNumber,
+          );
         },
       ),
       GoRoute(

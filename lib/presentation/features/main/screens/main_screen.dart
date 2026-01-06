@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/presentation/features/farmers/screens/farmers_screen.dart';
 import '../../home/screens/home_screen.dart';
 import '../../harvest/screens/harvest_screen.dart';
-import '../../farmers/screens/farmers_screen.dart';
+import '../../order/screens/orders_list_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -33,6 +34,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       const HomeScreen(),
       const HarvestScreen(),
       const FarmersScreen(),
+      const OrdersListScreen(),
       const ProfileScreen(),
     ];
 
@@ -103,6 +105,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     currentIndex: currentIndex),
                 _buildNavItem(
                     index: 3,
+                    icon: Icons.receipt_long_outlined,
+                    label: 'Orders',
+                    currentIndex: currentIndex),
+                _buildNavItem(
+                    index: 4,
                     icon: Icons.person_outline_rounded,
                     label: 'Profile',
                     currentIndex: currentIndex),
