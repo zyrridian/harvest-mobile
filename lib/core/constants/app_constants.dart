@@ -1,11 +1,12 @@
 class AppConstants {
   // API Configuration
-  static const String baseUrl =
-      'https://mocka.ouim.me/mock'; // Change this to your API URL
+  // TODO: Update this to your actual API URL
+  // For development, you can use: http://10.0.2.2:3000 (Android emulator localhost)
+  // or http://localhost:3000 (web/desktop)
+  static const String baseUrl = 'https://harvest-backend-ugjh.vercel.app';
   static const String apiVersion = '/api/v1';
 
-  // API Endpoints
-  // Auth
+  // API Endpoints - Auth
   static const String loginEndpoint = '/auth/login';
   static const String registerEndpoint = '/auth/register';
   static const String logoutEndpoint = '/auth/logout';

@@ -12,6 +12,8 @@ const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
+const kFreshGreen = Color(0xFF10B981);
+const kPreOrderBlue = Color(0xFF3B82F6);
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
@@ -83,9 +85,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
+                // Freshness indicator for perishables
+                if (product.isPerishable) ...[
+                  _buildFreshnessIndicator(context, product),
+                  const SizedBox(height: 12),
+                ],
                 _buildProductHeader(context, product),
                 const SizedBox(height: 16),
                 _buildPriceSection(context, product),
+                // Pre-order section for upcoming harvests
+                if (product.canPreOrder && product.preOrderInfo != null) ...[
+                  const SizedBox(height: 16),
+                  _buildPreOrderSection(context, product),
+                ],
                 const SizedBox(height: 16),
                 _buildLabels(context, product),
                 const SizedBox(height: 16),
@@ -122,6 +134,319 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // NEW: Freshness Indicator Widget
+  Widget _buildFreshnessIndicator(BuildContext context, ProductDetail product) {
+    Color freshnessColor;
+    String freshnessText;
+    IconData freshnessIcon;
+
+    if (product.isJustHarvested) {
+      freshnessColor = kFreshGreen;
+      freshnessText = '🌱 Just Harvested';
+      freshnessIcon = Icons.eco;
+    } else if (product.freshnessLevel == FreshnessLevel.fresh) {
+      freshnessColor = kFreshGreen;
+      freshnessText = '✨ Fresh';
+      freshnessIcon = Icons.check_circle;
+    } else if (product.freshnessLevel == FreshnessLevel.good) {
+      freshnessColor = Colors.amber;
+      freshnessText = 'Good Condition';
+      freshnessIcon = Icons.thumb_up;
+    } else {
+      freshnessColor = Colors.grey;
+      freshnessText = 'Perishable Item';
+      freshnessIcon = Icons.access_time;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: freshnessColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: freshnessColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: freshnessColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(freshnessIcon, color: freshnessColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  freshnessText,
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: freshnessColor,
+                  ),
+                ),
+                if (product.harvestDate != null)
+                  Text(
+                    'Harvested ${_formatHarvestDate(product.harvestDate!)}',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+                if (product.shelfLifeDays != null)
+                  Text(
+                    'Best within ${product.shelfLifeDays} days',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (product.daysUntilExpiry != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color:
+                    product.daysUntilExpiry! <= 2 ? kAccentOrange : kFreshGreen,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${product.daysUntilExpiry}d left',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _formatHarvestDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inHours < 1) {
+      return 'just now';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours} hours ago';
+    } else if (diff.inDays == 1) {
+      return 'yesterday';
+    } else {
+      return DateFormat('MMM d').format(date);
+    }
+  }
+
+  // NEW: Pre-Order Section Widget
+  Widget _buildPreOrderSection(BuildContext context, ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+    final daysUntil = preOrderInfo.daysUntilHarvest;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            kPreOrderBlue.withOpacity(0.1),
+            kPreOrderBlue.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPreOrderBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with countdown
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: kPreOrderBlue.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.event_available,
+                  color: kPreOrderBlue,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pre-Order Available',
+                      style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                    Text(
+                      'Harvest on ${DateFormat('EEEE, MMM d').format(preOrderInfo.harvestDate)}',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        color: kTextGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: daysUntil <= 1 ? kAccentOrange : kPreOrderBlue,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.schedule, size: 14, color: Colors.white),
+                    const SizedBox(width: 4),
+                    Text(
+                      daysUntil == 0
+                          ? 'Today!'
+                          : daysUntil == 1
+                              ? 'Tomorrow'
+                              : '$daysUntil days',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Progress bar
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${preOrderInfo.preOrderCount} people pre-ordered',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+                  Text(
+                    '${preOrderInfo.availableQuantity} ${product.unit} available',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: preOrderInfo.isAlmostSoldOut
+                          ? kAccentOrange
+                          : kDarkGreen,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: preOrderInfo.preOrderPercentage / 100,
+                  minHeight: 8,
+                  backgroundColor: kPillGrey,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    preOrderInfo.preOrderPercentage > 70
+                        ? kAccentOrange
+                        : kPreOrderBlue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Pre-order benefits
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildPreOrderBenefit(Icons.local_shipping, 'Priority Delivery'),
+              _buildPreOrderBenefit(Icons.eco, 'Freshest Quality'),
+              _buildPreOrderBenefit(Icons.savings, 'Lock-in Price'),
+            ],
+          ),
+
+          // Deposit info
+          if (preOrderInfo.requiresDeposit) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 16, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Requires ${preOrderInfo.depositPercentage?.toStringAsFixed(0) ?? '20'}% deposit (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)})',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: Colors.amber[800],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreOrderBenefit(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: kPreOrderBlue),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: kDarkGreen,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1047,6 +1372,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, ProductDetail product) {
+    // Check if this is a pre-order product
+    final isPreOrder = product.canPreOrder && product.preOrderInfo != null;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -1061,9 +1389,126 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ],
       ),
       child: SafeArea(
-        child: Row(
+        child: isPreOrder
+            ? _buildPreOrderBottomBar(context, product)
+            : _buildRegularBottomBar(context, product),
+      ),
+    );
+  }
+
+  // Regular purchase bottom bar
+  Widget _buildRegularBottomBar(BuildContext context, ProductDetail product) {
+    return Row(
+      children: [
+        // 1. Quantity Selector
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: kPillGrey),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove, size: 20),
+                color: kDarkGreen,
+                onPressed: () => _decrementQuantity(product),
+              ),
+              Consumer(
+                builder: (context, ref, child) {
+                  final quantity =
+                      ref.watch(productQuantityProvider(widget.productId));
+                  return Text(
+                    '$quantity',
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: kDarkGreen),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, size: 20),
+                color: kDarkGreen,
+                onPressed: () => _incrementQuantity(product),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 16),
+
+        // 2. Add to Cart Button
+        ElevatedButton(
+          onPressed: product.isInStock ? () => _addToCart(product) : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kAccentOrange,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            minimumSize: const Size(54, 54),
+            padding: EdgeInsets.zero,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Icon(Icons.shopping_cart_outlined,
+              color: Colors.white, size: 22),
+        ),
+
+        const SizedBox(width: 12),
+
+        // 3. Buy Now Button
+        Expanded(
+          child: ElevatedButton(
+            onPressed: product.isInStock ? () => _buyNow(product) : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Buy Now',
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Pre-order bottom bar with special styling
+  Widget _buildPreOrderBottomBar(BuildContext context, ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Harvest countdown banner
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: kPreOrderBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.schedule, size: 16, color: kPreOrderBlue),
+              const SizedBox(width: 6),
+              Text(
+                'Harvest in ${preOrderInfo.daysUntilHarvest} days • ${preOrderInfo.availableQuantity} ${product.unit} left',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: kPreOrderBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
           children: [
-            // 1. Quantity Selector
+            // Quantity Selector
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: kPillGrey),
@@ -1098,51 +1543,341 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
             ),
 
-            const SizedBox(width: 16),
-
-            // 2. Add to Cart Button (FIX: Removed Expanded)
-            // Adding specific width or minimumSize makes it a nice square
-            ElevatedButton(
-              onPressed: product.isInStock ? () => _addToCart(product) : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kAccentOrange,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                // Fix the width to be equal to height for a square look
-                minimumSize: const Size(54, 54),
-                padding: EdgeInsets.zero, // Remove padding to center icon
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Icon(Icons.shopping_cart_outlined,
-                  color: Colors.white, size: 22),
-              // const SizedBox(width: 8),
-              // Text('Add to Cart',
-              //     style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
-            ),
-
             const SizedBox(width: 12),
 
-            // 3. Buy Now Button (Keeps Expanded to take remaining space)
+            // Pre-Order Button with special styling
             Expanded(
               child: ElevatedButton(
-                onPressed: product.isInStock ? () => _buyNow(product) : null,
+                onPressed: () => _handlePreOrder(product),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: kPreOrderBlue,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('Buy Now',
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.event_available, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      preOrderInfo.requiresDeposit
+                          ? 'Pre-Order (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)} deposit)'
+                          : 'Pre-Order Now',
+                      style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _handlePreOrder(ProductDetail product) {
+    // Show pre-order confirmation dialog
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _buildPreOrderConfirmationSheet(product),
+    );
+  }
+
+  Widget _buildPreOrderConfirmationSheet(ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+    final quantity = ref.read(productQuantityProvider(widget.productId));
+    final totalPrice = product.finalPrice * quantity;
+    final depositAmount = preOrderInfo.requiresDeposit
+        ? (preOrderInfo.depositAmount ?? totalPrice * 0.2)
+        : 0.0;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kPreOrderBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child:
+                      const Icon(Icons.event_available, color: kPreOrderBlue),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Confirm Pre-Order',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                      Text(
+                        'Reserve your fresh produce',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: kTextGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Product summary
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product.images.first.url,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                        Text(
+                          '$quantity ${product.unit} × ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.finalPrice)}',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13,
+                            color: kTextGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(
+                            locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                        .format(totalPrice),
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Harvest info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kFreshGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today,
+                      size: 20, color: kFreshGreen),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Harvest Date',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            color: kTextGrey,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('EEEE, MMMM d, yyyy')
+                              .format(preOrderInfo.harvestDate),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: kFreshGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${preOrderInfo.daysUntilHarvest} days',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Deposit info if required
+            if (preOrderInfo.requiresDeposit) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.account_balance_wallet,
+                            size: 18, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Deposit Required',
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pay now:',
+                          style: GoogleFonts.dmSans(color: kTextGrey),
+                        ),
+                        Text(
+                          NumberFormat.currency(
+                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                              .format(depositAmount),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pay on delivery:',
+                          style: GoogleFonts.dmSans(color: kTextGrey),
+                        ),
+                        Text(
+                          NumberFormat.currency(
+                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                              .format(totalPrice - depositAmount),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            // Confirm button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _confirmPreOrder(product);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPreOrderBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  preOrderInfo.requiresDeposit
+                      ? 'Pay Deposit & Reserve'
+                      : 'Confirm Pre-Order',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                'You can cancel up to 24 hours before harvest',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  color: kTextGrey,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _confirmPreOrder(ProductDetail product) {
+    // TODO: Implement actual pre-order API call
+    _showSnackBar('Pre-order confirmed! You will be notified when ready.');
   }
 
   void _toggleFavorite(WidgetRef ref, bool currentStatus) async {

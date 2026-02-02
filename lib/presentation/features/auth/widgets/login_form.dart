@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../shared_widgets/custom_button.dart';
+
+// Design constants matching current style
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class LoginForm extends ConsumerStatefulWidget {
   final Function(String email, String password) onSubmit;
@@ -51,13 +58,34 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(
+            enabled: !widget.isLoading,
+            style: GoogleFonts.dmSans(color: kDarkGreen),
+            decoration: InputDecoration(
               labelText: 'Email',
+              labelStyle: GoogleFonts.dmSans(color: kTextGrey),
               hintText: 'Enter your email',
-              prefixIcon: Icon(Icons.email_outlined),
+              hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+              prefixIcon: const Icon(Icons.email_outlined, color: kDarkGreen),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: kPillGrey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: kPillGrey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: kDarkGreen, width: 2),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFFDC2626)),
+              ),
             ),
             validator: Validators.email,
-            enabled: !widget.isLoading,
           ),
           const SizedBox(height: 16),
 
@@ -66,15 +94,20 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             controller: _passwordController,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
+            enabled: !widget.isLoading,
+            style: GoogleFonts.dmSans(color: kDarkGreen),
             decoration: InputDecoration(
               labelText: 'Password',
+              labelStyle: GoogleFonts.dmSans(color: kTextGrey),
               hintText: 'Enter your password',
-              prefixIcon: const Icon(Icons.lock_outlined),
+              hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+              prefixIcon: const Icon(Icons.lock_outlined, color: kDarkGreen),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
+                  color: kTextGrey,
                 ),
                 onPressed: () {
                   setState(() {
@@ -82,18 +115,59 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   });
                 },
               ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: kPillGrey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: kPillGrey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: kDarkGreen, width: 2),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFFDC2626)),
+              ),
             ),
             validator: Validators.password,
-            enabled: !widget.isLoading,
             onFieldSubmitted: (_) => _handleSubmit(),
           ),
           const SizedBox(height: 24),
 
           // Login Button
-          CustomButton(
+          ElevatedButton(
             onPressed: widget.isLoading ? null : _handleSubmit,
-            text: 'Login',
-            isLoading: widget.isLoading,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDarkGreen,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0,
+              disabledBackgroundColor: kPillGrey,
+            ),
+            child: widget.isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    'Login',
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
           ),
         ],
       ),

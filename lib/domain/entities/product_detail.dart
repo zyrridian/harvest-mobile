@@ -1,5 +1,10 @@
 import 'package:equatable/equatable.dart';
 
+// Enums for perishable products
+enum ProductType { regular, perishable }
+
+enum FreshnessLevel { justHarvested, fresh, good, fair }
+
 // Detailed Product Entity for Product Detail Screen
 class ProductDetail extends Equatable {
   final String productId;
@@ -41,6 +46,25 @@ class ProductDetail extends Equatable {
   final bool isInCart;
   final bool isInWishlist;
 
+  // --- Perishable Product Fields ---
+  final ProductType productType;
+  final bool isPerishable;
+  final int? shelfLifeDays;
+  final DateTime? bestBeforeDate;
+  final FreshnessLevel? freshnessLevel;
+
+  // --- Pre-Order Fields ---
+  final bool acceptsPreOrder;
+  final DateTime? nextHarvestDate;
+  final int? preOrderAvailableQty;
+  final double? preOrderPrice;
+  final String? harvestScheduleId;
+  final PreOrderInfo? preOrderInfo;
+
+  // --- Farmer Location Fields ---
+  final double? farmerDistance;
+  final bool isWithinRadius;
+
   const ProductDetail({
     required this.productId,
     required this.name,
@@ -80,12 +104,68 @@ class ProductDetail extends Equatable {
     required this.isFavorite,
     required this.isInCart,
     required this.isInWishlist,
+    // Perishable fields
+    this.productType = ProductType.regular,
+    this.isPerishable = false,
+    this.shelfLifeDays,
+    this.bestBeforeDate,
+    this.freshnessLevel,
+    // Pre-order fields
+    this.acceptsPreOrder = false,
+    this.nextHarvestDate,
+    this.preOrderAvailableQty,
+    this.preOrderPrice,
+    this.harvestScheduleId,
+    this.preOrderInfo,
+    // Location fields
+    this.farmerDistance,
+    this.isWithinRadius = false,
   });
 
   double get finalPrice => discount?.discountedPrice ?? price;
   bool get hasDiscount => discount != null;
   bool get isInStock => availability.status == 'in_stock' && stockQuantity > 0;
   bool get isLowStock => availability.isLowStock ?? false;
+
+  /// Days until product expires (for perishables)
+  int? get daysUntilExpiry {
+    if (bestBeforeDate == null) return null;
+    return bestBeforeDate!.difference(DateTime.now()).inDays;
+  }
+
+  /// Days until next harvest (for pre-orders)
+  int? get daysUntilHarvest {
+    if (nextHarvestDate == null) return null;
+    return nextHarvestDate!.difference(DateTime.now()).inDays;
+  }
+
+  /// Whether pre-order is available
+  bool get canPreOrder {
+    return acceptsPreOrder &&
+        nextHarvestDate != null &&
+        (preOrderAvailableQty == null || preOrderAvailableQty! > 0);
+  }
+
+  /// Whether product is freshly harvested (within 24 hours)
+  bool get isJustHarvested {
+    if (harvestDate == null) return false;
+    return DateTime.now().difference(harvestDate!).inHours < 24;
+  }
+
+  /// Get freshness label for display
+  String get freshnessLabel {
+    if (freshnessLevel == null) return '';
+    switch (freshnessLevel!) {
+      case FreshnessLevel.justHarvested:
+        return 'Just Harvested';
+      case FreshnessLevel.fresh:
+        return 'Fresh';
+      case FreshnessLevel.good:
+        return 'Good';
+      case FreshnessLevel.fair:
+        return 'Fair';
+    }
+  }
 
   @override
   List<Object?> get props => [
@@ -127,6 +207,68 @@ class ProductDetail extends Equatable {
         isFavorite,
         isInCart,
         isInWishlist,
+        productType,
+        isPerishable,
+        shelfLifeDays,
+        bestBeforeDate,
+        freshnessLevel,
+        acceptsPreOrder,
+        nextHarvestDate,
+        preOrderAvailableQty,
+        preOrderPrice,
+        harvestScheduleId,
+        preOrderInfo,
+        farmerDistance,
+        isWithinRadius,
+      ];
+}
+
+// Pre-Order Information
+class PreOrderInfo extends Equatable {
+  final String harvestScheduleId;
+  final DateTime harvestDate;
+  final int availableQuantity;
+  final int totalQuantity;
+  final int preOrderCount;
+  final double? depositPercentage;
+  final double? depositAmount;
+  final bool requiresDeposit;
+  final String? pickupLocation;
+  final List<String> deliveryOptions;
+  final String? specialInstructions;
+
+  const PreOrderInfo({
+    required this.harvestScheduleId,
+    required this.harvestDate,
+    required this.availableQuantity,
+    required this.totalQuantity,
+    this.preOrderCount = 0,
+    this.depositPercentage,
+    this.depositAmount,
+    this.requiresDeposit = false,
+    this.pickupLocation,
+    this.deliveryOptions = const ['pickup', 'delivery'],
+    this.specialInstructions,
+  });
+
+  int get daysUntilHarvest => harvestDate.difference(DateTime.now()).inDays;
+  double get preOrderPercentage =>
+      (totalQuantity - availableQuantity) / totalQuantity * 100;
+  bool get isAlmostSoldOut => availableQuantity < totalQuantity * 0.2;
+
+  @override
+  List<Object?> get props => [
+        harvestScheduleId,
+        harvestDate,
+        availableQuantity,
+        totalQuantity,
+        preOrderCount,
+        depositPercentage,
+        depositAmount,
+        requiresDeposit,
+        pickupLocation,
+        deliveryOptions,
+        specialInstructions,
       ];
 }
 

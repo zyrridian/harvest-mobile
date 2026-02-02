@@ -6,6 +6,7 @@ import '../../../../core/config/router/app_router.dart';
 import '../../../../core/utils/localization_extension.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../providers/profile_providers.dart';
+import '../../../providers/auth_provider.dart';
 import 'help_center_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'about_us_screen.dart';
@@ -462,9 +463,29 @@ class ProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.dmSans(color: kTextGrey)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.go(AppRouter.login);
+            onPressed: () async {
+              Navigator.of(context).pop(); // Close dialog
+
+              // Show loading indicator
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(
+                    child: CircularProgressIndicator(color: kDarkGreen),
+                  ),
+                );
+              }
+
+              // Actually logout the user
+              await ref.read(authControllerProvider.notifier).logout();
+
+              // Close loading dialog and navigate to login
+              if (context.mounted) {
+                Navigator.of(context).pop(); // Close loading
+                // Use go to navigate to login and clear stack
+                context.go(AppRouter.login);
+              }
             },
             child: Text(
               context.l10n.logout,

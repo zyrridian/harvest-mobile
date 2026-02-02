@@ -6,12 +6,17 @@ import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
+import 'package:harvest_app/presentation/providers/harvest_providers.dart';
+import 'package:harvest_app/domain/entities/harvest_schedule.dart';
+import 'package:intl/intl.dart';
 
 // --- NEW 2025 DESIGN COLORS ---
 const kBgColor = Color(0xFFFAFAF8); // Warm off-white
 const kDarkGreen = Color(0xFF1A2F25); // Deep Forest
 const kAccentOrange = Color(0xFFE86A33); // Burnt Orange
 const kPillGrey = Color(0xFFF0F2F0); // Stone Grey
+const kFreshGreen = Color(0xFF10B981); // Fresh/Success green
+const kPreOrderBlue = Color(0xFF3B82F6); // Pre-order blue
 
 // Mock data models
 // Don't forget to update your Category class to include the optional icon!
@@ -32,18 +37,30 @@ class Category {
 }
 
 class FarmerProfile {
+  final String id;
   final String name;
   final String location;
   final double distance;
   final double rating;
   final String imageUrl;
+  final bool hasUpcomingHarvest;
+  final int upcomingHarvestCount;
+  final DateTime? nextHarvestDate;
+  final List<String> upcomingProducts;
+  final bool isSubscribed;
 
   FarmerProfile({
+    required this.id,
     required this.name,
     required this.location,
     required this.distance,
     required this.rating,
     required this.imageUrl,
+    this.hasUpcomingHarvest = false,
+    this.upcomingHarvestCount = 0,
+    this.nextHarvestDate,
+    this.upcomingProducts = const [],
+    this.isSubscribed = false,
   });
 }
 
@@ -56,6 +73,10 @@ class Product {
   final String imageUrl;
   final bool isPremium;
   final double? rating;
+  final bool isPerishable;
+  final bool acceptsPreOrder;
+  final DateTime? harvestDate;
+  final int? daysUntilHarvest;
 
   Product({
     required this.id,
@@ -66,6 +87,10 @@ class Product {
     required this.imageUrl,
     this.isPremium = false,
     this.rating,
+    this.isPerishable = false,
+    this.acceptsPreOrder = false,
+    this.harvestDate,
+    this.daysUntilHarvest,
   });
 }
 
@@ -142,30 +167,48 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       ], // Neutral Grey
     ),
   ];
+
+  // Updated farmer data with harvest info
   final List<FarmerProfile> nearbyFarmers = [
     FarmerProfile(
+      id: 'farmer_001',
       name: 'Green Valley Farm',
       location: 'North District',
       distance: 1.2,
       rating: 4.8,
       imageUrl:
           'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=200',
+      hasUpcomingHarvest: true,
+      upcomingHarvestCount: 3,
+      nextHarvestDate: DateTime.now().add(const Duration(days: 2)),
+      upcomingProducts: ['Tomatoes', 'Lettuce', 'Spinach'],
+      isSubscribed: true,
     ),
     FarmerProfile(
+      id: 'farmer_002',
       name: 'Sunrise Organic',
       location: 'East Village',
       distance: 2.5,
       rating: 4.9,
       imageUrl:
           'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200',
+      hasUpcomingHarvest: true,
+      upcomingHarvestCount: 2,
+      nextHarvestDate: DateTime.now().add(const Duration(days: 5)),
+      upcomingProducts: ['Strawberries', 'Avocados'],
+      isSubscribed: false,
     ),
     FarmerProfile(
+      id: 'farmer_003',
       name: 'Fresh Fields Co.',
       location: 'West End',
       distance: 3.1,
       rating: 4.7,
       imageUrl:
           'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=200',
+      hasUpcomingHarvest: false,
+      upcomingHarvestCount: 0,
+      isSubscribed: false,
     ),
   ];
 
@@ -179,6 +222,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       imageUrl:
           'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400',
       rating: 4.7,
+      isPerishable: true,
+      harvestDate: DateTime.now().subtract(const Duration(hours: 6)),
     ),
     Product(
       id: 'carrots_001',
@@ -189,6 +234,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       imageUrl:
           'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',
       rating: 4.6,
+      isPerishable: true,
     ),
     Product(
       id: 'peppers_001',
@@ -199,7 +245,65 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       imageUrl:
           'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400',
       rating: 4.8,
+      isPerishable: true,
+      acceptsPreOrder: true,
+      daysUntilHarvest: 3,
     ),
+  ];
+
+  // Dummy data for upcoming harvests (pre-orders available)
+  final List<Map<String, dynamic>> upcomingHarvests = [
+    {
+      'id': 'harvest_001',
+      'productName': 'Organic Tomatoes',
+      'farmerName': 'Green Valley Farm',
+      'farmerImage':
+          'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=200',
+      'productImage':
+          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400',
+      'harvestDate': DateTime.now().add(const Duration(days: 2)),
+      'price': 25000.0,
+      'unit': 'kg',
+      'availableQty': 22,
+      'totalQty': 50,
+      'preOrderCount': 12,
+      'distance': 2.3,
+      'isOrganic': true,
+    },
+    {
+      'id': 'harvest_002',
+      'productName': 'Fresh Strawberries',
+      'farmerName': 'Sunrise Organic',
+      'farmerImage':
+          'https://images.unsplash.com/photo-1595855759920-86582396756a?w=200',
+      'productImage':
+          'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',
+      'harvestDate': DateTime.now().add(const Duration(days: 5)),
+      'price': 85000.0,
+      'unit': 'kg',
+      'availableQty': 12,
+      'totalQty': 30,
+      'preOrderCount': 15,
+      'distance': 4.5,
+      'isOrganic': true,
+    },
+    {
+      'id': 'harvest_003',
+      'productName': 'Free-Range Eggs',
+      'farmerName': 'Happy Chicken Farm',
+      'farmerImage':
+          'https://images.unsplash.com/photo-1569288063477-83f6a49e2d68?w=200',
+      'productImage':
+          'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',
+      'harvestDate': DateTime.now().add(const Duration(days: 1)),
+      'price': 3500.0,
+      'unit': 'pcs',
+      'availableQty': 50,
+      'totalQty': 200,
+      'preOrderCount': 25,
+      'distance': 3.8,
+      'isOrganic': false,
+    },
   ];
 
   @override
@@ -326,7 +430,47 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // 4. NEAR ME (Floating Card Map)
+          // 4. UPCOMING HARVESTS - PRE-ORDER SECTION (NEW)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Column(
+                children: [
+                  _buildSectionHeader(
+                    '🌾 Pre-Order Fresh Harvests',
+                    onSeeAllTap: () => context.push(AppRouter.products),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Reserve perishable items before harvest day',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Upcoming Harvests Horizontal List
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: upcomingHarvests.length,
+                itemBuilder: (context, index) {
+                  return _buildUpcomingHarvestCard(upcomingHarvests[index]);
+                },
+              ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+          // 5. NEAR ME (Floating Card Map)
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
@@ -661,58 +805,350 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   Widget _buildModernFarmerCard(FarmerProfile farmer) {
     return GestureDetector(
       onTap: () {
-        // Navigate to farmers map screen instead of farmers list
-        context.push(AppRouter.farmersMap);
+        // Navigate to farmer detail screen
+        context.push('${AppRouter.farmers}/${farmer.id}');
       },
       child: Container(
-        width: 280,
+        width: 300,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20), // More rounded
-          border: Border.all(color: const Color(0xFFF0F2F0)), // Subtle border
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF0F2F0)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AppCachedImage(
-                  imageUrl: farmer.imageUrl,
-                  width: 70,
-                  height: 70,
-                ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: AppCachedImage(
+                      imageUrl: farmer.imageUrl,
+                      width: 70,
+                      height: 70,
+                    ),
+                  ),
+                  // Online indicator
+                  if (farmer.hasUpcomingHarvest)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: kFreshGreen,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.agriculture,
+                          size: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      farmer.name,
-                      style: GoogleFonts.dmSans(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        color: kDarkGreen,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            farmer.name,
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: kDarkGreen,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (farmer.isSubscribed)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: kPreOrderBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Following',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: kPreOrderBlue,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       '${farmer.distance}km • ${farmer.location}',
                       style: GoogleFonts.dmSans(
                         color: Colors.grey[500],
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
+                    if (farmer.hasUpcomingHarvest) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.schedule, size: 12, color: kFreshGreen),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Harvesting in ${farmer.nextHarvestDate!.difference(DateTime.now()).inDays} days',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: kFreshGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // NEW: Upcoming Harvest Pre-Order Card
+  Widget _buildUpcomingHarvestCard(Map<String, dynamic> harvest) {
+    final harvestDate = harvest['harvestDate'] as DateTime;
+    final daysUntil = harvestDate.difference(DateTime.now()).inDays;
+    final availableQty = harvest['availableQty'] as int;
+    final totalQty = harvest['totalQty'] as int;
+    final preOrderPercentage = ((totalQty - availableQty) / totalQty * 100);
+
+    return GestureDetector(
+      onTap: () {
+        // Navigate to product detail with pre-order mode
+        context.push('${AppRouter.products}/${harvest['id']}');
+      },
+      child: Container(
+        width: 200,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: kPillGrey),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image with harvest countdown badge
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                  child: Image.network(
+                    harvest['productImage'] as String,
+                    width: double.infinity,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                // Harvest countdown badge
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: daysUntil <= 1 ? kAccentOrange : kDarkGreen,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.schedule,
+                          size: 12,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          daysUntil == 0
+                              ? 'Today!'
+                              : daysUntil == 1
+                                  ? 'Tomorrow'
+                                  : '$daysUntil days',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Organic badge
+                if (harvest['isOrganic'] == true)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text('🌿', style: TextStyle(fontSize: 12)),
+                    ),
+                  ),
+              ],
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    harvest['productName'] as String,
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: kDarkGreen,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 8,
+                        backgroundImage: NetworkImage(
+                          harvest['farmerImage'] as String,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          harvest['farmerName'] as String,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 11,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Pre-order progress bar
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${harvest['preOrderCount']} pre-orders',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 10,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          Text(
+                            '$availableQty ${harvest['unit']} left',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: availableQty < 20
+                                  ? kAccentOrange
+                                  : kDarkGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: preOrderPercentage / 100,
+                          minHeight: 4,
+                          backgroundColor: kPillGrey,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            preOrderPercentage > 70
+                                ? kAccentOrange
+                                : kFreshGreen,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Price and pre-order button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        NumberFormat.currency(
+                          locale: 'id',
+                          symbol: 'Rp ',
+                          decimalDigits: 0,
+                        ).format(harvest['price']),
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: kPreOrderBlue,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Pre-Order',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

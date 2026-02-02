@@ -1,11 +1,35 @@
 import 'package:equatable/equatable.dart';
 
+/// User type enum
+enum UserType {
+  consumer,
+  farmer,
+  admin;
+
+  static UserType fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'FARMER':
+        return UserType.farmer;
+      case 'ADMIN':
+        return UserType.admin;
+      default:
+        return UserType.consumer;
+    }
+  }
+
+  String toApiString() {
+    return name.toUpperCase();
+  }
+}
+
 class User extends Equatable {
   final String id;
   final String email;
   final String name;
   final String? phoneNumber;
   final String? avatarUrl;
+  final UserType userType;
+  final bool isVerified;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +39,8 @@ class User extends Equatable {
     required this.name,
     this.phoneNumber,
     this.avatarUrl,
+    this.userType = UserType.consumer,
+    this.isVerified = false,
     required this.createdAt,
     this.updatedAt,
   });
@@ -26,6 +52,8 @@ class User extends Equatable {
         name,
         phoneNumber,
         avatarUrl,
+        userType,
+        isVerified,
         createdAt,
         updatedAt,
       ];
@@ -36,6 +64,8 @@ class User extends Equatable {
     String? name,
     String? phoneNumber,
     String? avatarUrl,
+    UserType? userType,
+    bool? isVerified,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -45,6 +75,8 @@ class User extends Equatable {
       name: name ?? this.name,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      userType: userType ?? this.userType,
+      isVerified: isVerified ?? this.isVerified,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
