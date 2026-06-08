@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../core/error/failure.dart';
-import '../entities/user.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/domain/entities/user.dart';
 
 abstract class AuthRepository {
   /// Login user with email and password

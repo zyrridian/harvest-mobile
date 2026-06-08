@@ -93,7 +93,7 @@ final getCurrentUserUseCaseProvider =
 // ignore: unused_element
 typedef GetCurrentUserUseCaseRef
     = AutoDisposeProviderRef<GetCurrentUserUseCase>;
-String _$authControllerHash() => r'bb74737b56da0fbd5026a16bc51f4526e021772b';
+String _$authControllerHash() => r'ac5ee16b6d7945947c9bd2380ca9097df4bb3214';
 
 /// See also [AuthController].
 @ProviderFor(AuthController)

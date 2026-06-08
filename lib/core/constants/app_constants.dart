@@ -14,6 +14,9 @@ class AppConstants {
   static const String refreshTokenEndpoint = '/auth/refresh';
   static const String getCurrentUserEndpoint = '/auth/me';
 
+  // API Endpoints - Home
+  static const String getHomeDataEndpoint = '/home';
+
   // Farmers
   static const String farmersEndpoint = '/11d440e4/api/v1/farmers';
   static const String farmerByIdEndpoint = '/e562710c/api/v1/farmers/:id';
@@ -24,6 +27,7 @@ class AppConstants {
   static const String refreshTokenKey = 'refresh_token';
   static const String userDataKey = 'user_data';
   static const String isLoggedInKey = 'is_logged_in';
+  static const String homeDataKey = 'home_data';
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
