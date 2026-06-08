@@ -83,6 +83,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch the provider to keep it alive during async operations
+    ref.watch(authControllerProvider);
+    
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(

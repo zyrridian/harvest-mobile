@@ -5,7 +5,11 @@ import 'package:harvest_app/data/models/home/home_model.dart';
 import 'package:harvest_app/data/models/home/home_response_model.dart';
 
 abstract class HomeRemoteDataSource {
-  Future<HomeModel> getHomeData();
+  Future<HomeModel> getHomeData({
+    double? latitude,
+    double? longitude,
+    double? radius,
+  });
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -14,9 +18,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   HomeRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<HomeModel> getHomeData() async {
+  Future<HomeModel> getHomeData({
+    double? latitude,
+    double? longitude,
+    double? radius,
+  }) async {
     try {
-      final response = await dio.get(AppConstants.getHomeDataEndpoint);
+      final Map<String, dynamic> queryParameters = {};
+      if (latitude != null) queryParameters['latitude'] = latitude;
+      if (longitude != null) queryParameters['longitude'] = longitude;
+      if (radius != null) queryParameters['radius'] = radius;
+
+      final response = await dio.get(
+        AppConstants.getHomeDataEndpoint,
+        queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
+      );
 
       if (response.statusCode == 200) {
         final apiResponse = HomeApiResponse.fromJson(response.data);

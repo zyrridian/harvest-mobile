@@ -39,9 +39,8 @@ class HomeModel {
       categories: home.categories
           .map((e) => HomeCategoriesModel.fromEntity(e))
           .toList(),
-      preOrders: home.preOrders
-          .map((e) => HomePreOrdersModel.fromEntity(e))
-          .toList(),
+      preOrders:
+          home.preOrders.map((e) => HomePreOrdersModel.fromEntity(e)).toList(),
       nearbyFarmers: HomeNearbyFarmersModel.fromEntity(home.nearbyFarmers),
       freshToday: home.freshToday
           .map((e) => HomeFreshTodayModel.fromEntity(e))
@@ -193,15 +192,29 @@ class HomeNearbyFarmersModel {
 class HomeFarmerModel {
   final String id;
   final String name;
-  @JsonKey(name: 'avatar_url')
-  final String? avatarUrl;
+  @JsonKey(name: 'profile_image')
+  final String? profileImage;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
+  final double? rating;
+  @JsonKey(name: 'total_products')
+  final int? totalProducts;
+  @JsonKey(name: 'is_verified')
+  final bool? isVerified;
   @JsonKey(name: 'distance_km')
-  final double distanceKm;
+  final double? distanceKm;
 
   HomeFarmerModel({
     required this.id,
     required this.name,
-    required this.avatarUrl,
+    required this.profileImage,
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+    required this.rating,
+    required this.totalProducts,
+    required this.isVerified,
     required this.distanceKm,
   });
 
@@ -214,7 +227,13 @@ class HomeFarmerModel {
     return HomeFarmer(
       id: id,
       name: name,
-      avatarUrl: avatarUrl,
+      profileImage: profileImage,
+      latitude: latitude,
+      longitude: longitude,
+      address: address,
+      rating: rating,
+      totalProducts: totalProducts,
+      isVerified: isVerified,
       distanceKm: distanceKm,
     );
   }
@@ -223,7 +242,13 @@ class HomeFarmerModel {
     return HomeFarmerModel(
       id: farmer.id,
       name: farmer.name,
-      avatarUrl: farmer.avatarUrl,
+      profileImage: farmer.profileImage,
+      latitude: farmer.latitude,
+      longitude: farmer.longitude,
+      address: farmer.address,
+      rating: farmer.rating,
+      totalProducts: farmer.totalProducts,
+      isVerified: farmer.isVerified,
       distanceKm: farmer.distanceKm,
     );
   }

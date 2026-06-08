@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart'; // Make sure to add this package
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/domain/entities/home.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/features/home/providers/home_controller.dart';
@@ -11,6 +12,7 @@ import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import 'package:harvest_app/presentation/providers/harvest_providers.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 // --- NEW 2025 DESIGN COLORS ---
 const kBgColor = Color(0xFFFAFAF8); // Warm off-white
@@ -104,6 +106,95 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLocationAndFetch();
+    });
+  }
+
+  Future<void> _checkLocationAndFetch() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        _showLocationDeniedDialog();
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _showLocationDeniedForeverDialog();
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      if (mounted) {
+        ref.read(homeControllerProvider.notifier).refresh(
+              latitude: position.latitude,
+              longitude: position.longitude,
+              radius: 10.0,
+            );
+      }
+    } catch (e) {
+      // Handle error quietly
+    }
+  }
+
+  void _showLocationDeniedDialog() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+            'Location access denied. Showing default nearby farmers.'),
+        action: SnackBarAction(
+          label: 'Retry',
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            _checkLocationAndFetch();
+          },
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showLocationDeniedForeverDialog() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Location Required'),
+        content: const Text(
+            'Location permissions are permanently denied. Please enable them in your device settings to see farmers near you.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Geolocator.openAppSettings();
+              Navigator.pop(context);
+            },
+            child: const Text('Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Updated Categories to match the "Earth Tone Gradients"
   // 1. Updated Model to handle both Emojis (for food) and Icons (for "More")
   final List<Category> categories = [
@@ -356,7 +447,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             );
           }).toList();
 
-          return _buildContent(dynamicCategories, apiFreshToday);
+          return _buildContent(
+              dynamicCategories, apiFreshToday, homeData.nearbyFarmers.farmers);
         },
         error: (message) => Center(child: Text(message)),
         orElse: () =>
@@ -365,8 +457,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildContent(
-      List<Category> mappedCategories, List<Product> mappedFreshToday) {
+  Widget _buildContent(List<Category> mappedCategories,
+      List<Product> mappedFreshToday, List<HomeFarmer> mappedNearbyFarmers) {
     return CustomScrollView(
       slivers: [
         // 1. HEADER (APP BAR)
@@ -509,7 +601,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
         // Upcoming Harvests Horizontal List
         SliverToBoxAdapter(
           child: SizedBox(
-            height: 220,
+            height: 240, // Increased height to prevent overflow
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -643,9 +735,9 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: nearbyFarmers.length,
+              itemCount: mappedNearbyFarmers.length,
               itemBuilder: (context, index) {
-                return _buildModernFarmerCard(nearbyFarmers[index]);
+                return _buildModernFarmerCard(mappedNearbyFarmers[index]);
               },
             ),
           ),
@@ -849,7 +941,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildModernFarmerCard(FarmerProfile farmer) {
+  Widget _buildModernFarmerCard(HomeFarmer farmer) {
     return GestureDetector(
       onTap: () {
         // Navigate to farmer detail screen
@@ -872,13 +964,14 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: AppCachedImage(
-                      imageUrl: farmer.imageUrl,
+                      imageUrl: farmer.profileImage ??
+                          'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpg',
                       width: 70,
                       height: 70,
                     ),
                   ),
-                  // Online indicator
-                  if (farmer.hasUpcomingHarvest)
+                  // Verified indicator
+                  if (farmer.isVerified == true)
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -890,7 +983,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                           border: Border.all(color: Colors.white, width: 2),
                         ),
                         child: const Icon(
-                          Icons.agriculture,
+                          Icons.verified,
                           size: 10,
                           color: Colors.white,
                         ),
@@ -918,43 +1011,53 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (farmer.isSubscribed)
+                        if (farmer.rating != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: kPreOrderBlue.withOpacity(0.1),
+                              color: kAccentOrange.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Following',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: kPreOrderBlue,
-                              ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.star,
+                                    size: 10, color: kAccentOrange),
+                                const SizedBox(width: 2),
+                                Text(
+                                  farmer.rating.toString(),
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: kAccentOrange,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${farmer.distance}km • ${farmer.location}',
+                      '${farmer.distanceKm?.toStringAsFixed(1) ?? '?'}km • ${farmer.address ?? 'Unknown Location'}',
                       style: GoogleFonts.dmSans(
                         color: Colors.grey[500],
                         fontSize: 12,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (farmer.hasUpcomingHarvest) ...[
+                    if (farmer.totalProducts != null &&
+                        farmer.totalProducts! > 0) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.schedule, size: 12, color: kFreshGreen),
+                          Icon(Icons.inventory_2, size: 12, color: kFreshGreen),
                           const SizedBox(width: 4),
                           Text(
-                            'Harvesting in ${farmer.nextHarvestDate!.difference(DateTime.now()).inDays} days',
+                            '${farmer.totalProducts} Products Available',
                             style: GoogleFonts.dmSans(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -1202,7 +1305,6 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildGridProductCard(Product product) {
-    // Keeping your logic, just updating styles
     return GestureDetector(
       onTap: () => context.push('${AppRouter.products}/${product.id}'),
       child: Container(
@@ -1219,11 +1321,13 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(
-                    product.imageUrl,
+                  child: AppCachedImage(
+                    imageUrl: product.imageUrl,
                     width: double.infinity,
                     height: 120,
                     fit: BoxFit.cover,
+                    errorAssetImage:
+                        'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpg',
                   ),
                 ),
                 Positioned(

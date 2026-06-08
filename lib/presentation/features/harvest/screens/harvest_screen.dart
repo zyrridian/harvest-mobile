@@ -102,12 +102,12 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         imageUrl:
             'https://images.unsplash.com/photo-1583058492096-393bd78a6e46?w=400',
         harvestTime: '60 Days'),
-    SeasonalProduce(
-        name: 'Mango',
-        category: 'Fruit',
-        imageUrl:
-            'https://images.unsplash.com/photo-1605616385733-64db1b0b1dea?w=400',
-        harvestTime: 'Seasonal'),
+    // SeasonalProduce(
+    //     name: 'Mango',
+    //     category: 'Fruit',
+    //     imageUrl:
+    //         'https://images.unsplash.com/photo-1605616385733-64db1b0b1dea?w=400',
+    //     harvestTime: 'Seasonal'),
   ];
 
   final List<Recipe> recipes = [

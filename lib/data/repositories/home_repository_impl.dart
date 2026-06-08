@@ -16,32 +16,43 @@ class HomeRepositoryImpl implements HomeRepository {
   });
 
   @override
-  Future<Either<Failure, Home>> getHomeData() async {
+  Future<Either<Failure, Home>> getHomeData({
+    double? latitude,
+    double? longitude,
+    double? radius,
+  }) async {
     try {
-      // First try to get home data from local storage
-      final localHome = await localDataSource.getHomeData();
+      // Always try to fetch fresh data from remote first
+      final remoteHome = await remoteDataSource.getHomeData(
+        latitude: latitude,
+        longitude: longitude,
+        radius: radius,
+      );
 
-      if (localHome != null) {
-        return Right(localHome.toEntity());
-      }
-
-      // If no local home data, fetch from remote
-      final remoteHome = await remoteDataSource.getHomeData();
-
-      // Save to local storage
+      // Save to local storage for offline fallback
       await localDataSource.saveHomeData(remoteHome);
 
       return Right(remoteHome.toEntity());
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message, statusCode: e.statusCode));
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
     } catch (e) {
-      return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      // If remote fails (e.g. no internet), try to get from local cache
+      try {
+        final localHome = await localDataSource.getHomeData();
+        if (localHome != null) {
+          return Right(localHome.toEntity());
+        }
+      } catch (_) {
+        // Ignore local cache error, handle the remote error below
+      }
+
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
     }
   }
 }

@@ -165,17 +165,28 @@ class HomeNearbyFarmers extends Equatable {
   }
 }
 
-// TODO: UPDATE THIS CLASS TO MATCH API RESPONSE
 class HomeFarmer extends Equatable {
   final String id;
   final String name;
-  final String? avatarUrl;
-  final double distanceKm;
+  final String? profileImage;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
+  final double? rating;
+  final int? totalProducts;
+  final bool? isVerified;
+  final double? distanceKm;
 
   const HomeFarmer({
     required this.id,
     required this.name,
-    required this.avatarUrl,
+    required this.profileImage,
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+    required this.rating,
+    required this.totalProducts,
+    required this.isVerified,
     required this.distanceKm,
   });
 
@@ -183,20 +194,38 @@ class HomeFarmer extends Equatable {
   List<Object?> get props => [
         id,
         name,
-        avatarUrl,
+        profileImage,
+        latitude,
+        longitude,
+        address,
+        rating,
+        totalProducts,
+        isVerified,
         distanceKm,
       ];
 
   HomeFarmer copyWith({
     String? id,
     String? name,
-    String? avatarUrl,
+    String? profileImage,
+    double? latitude,
+    double? longitude,
+    String? address,
+    double? rating,
+    int? totalProducts,
+    bool? isVerified,
     double? distanceKm,
   }) {
     return HomeFarmer(
       id: id ?? this.id,
       name: name ?? this.name,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
+      profileImage: profileImage ?? this.profileImage,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      address: address ?? this.address,
+      rating: rating ?? this.rating,
+      totalProducts: totalProducts ?? this.totalProducts,
+      isVerified: isVerified ?? this.isVerified,
       distanceKm: distanceKm ?? this.distanceKm,
     );
   }

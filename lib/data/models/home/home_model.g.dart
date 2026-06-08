@@ -94,15 +94,27 @@ HomeFarmerModel _$HomeFarmerModelFromJson(Map<String, dynamic> json) =>
     HomeFarmerModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      avatarUrl: json['avatar_url'] as String?,
-      distanceKm: (json['distance_km'] as num).toDouble(),
+      profileImage: json['profile_image'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      address: json['address'] as String?,
+      rating: (json['rating'] as num?)?.toDouble(),
+      totalProducts: (json['total_products'] as num?)?.toInt(),
+      isVerified: json['is_verified'] as bool?,
+      distanceKm: (json['distance_km'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$HomeFarmerModelToJson(HomeFarmerModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'avatar_url': instance.avatarUrl,
+      'profile_image': instance.profileImage,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'address': instance.address,
+      'rating': instance.rating,
+      'total_products': instance.totalProducts,
+      'is_verified': instance.isVerified,
       'distance_km': instance.distanceKm,
     };
 
