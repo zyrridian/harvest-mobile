@@ -1,10 +1,14 @@
 class AppConstants {
+  // Image Placeholders
+  static const String placeholderImage =
+      'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpge';
+
   // API Configuration
   // TODO: Update this to your actual API URL
   // For development, you can use: http://10.0.2.2:3000 (Android emulator localhost)
   // or http://localhost:3000 (web/desktop)
-  static const String baseUrl =
-      String.fromEnvironment('BASE_URL', defaultValue: 'https://marketplace.zyrridian.dev');
+  static const String baseUrl = String.fromEnvironment('BASE_URL',
+      defaultValue: 'https://marketplace.zyrridian.dev');
   static const String apiVersion = '/api/v1';
 
   // API Endpoints - Auth

@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart'; // Make sure to add this package
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/domain/entities/home.dart';
 import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
 import 'package:harvest_app/presentation/features/category/screens/category_screen.dart';
 import 'package:harvest_app/presentation/features/home/providers/home_controller.dart';
-import 'package:harvest_app/presentation/features/home/providers/home_state.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
-import 'package:harvest_app/presentation/providers/harvest_providers.dart';
-import 'package:harvest_app/domain/entities/harvest_schedule.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -193,6 +191,25 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _onRefresh() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        Position position = await Geolocator.getCurrentPosition();
+        await ref.read(homeControllerProvider.notifier).refresh(
+              latitude: position.latitude,
+              longitude: position.longitude,
+              radius: 10.0,
+            );
+      } else {
+        await ref.read(homeControllerProvider.notifier).refresh();
+      }
+    } catch (e) {
+      await ref.read(homeControllerProvider.notifier).refresh();
+    }
   }
 
   // Updated Categories to match the "Earth Tone Gradients"
@@ -448,7 +465,11 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           }).toList();
 
           return _buildContent(
-              dynamicCategories, apiFreshToday, homeData.nearbyFarmers.farmers);
+            dynamicCategories,
+            apiFreshToday,
+            homeData.nearbyFarmers.farmers,
+            homeData.preOrders,
+          );
         },
         error: (message) => Center(child: Text(message)),
         orElse: () =>
@@ -457,327 +478,340 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildContent(List<Category> mappedCategories,
-      List<Product> mappedFreshToday, List<HomeFarmer> mappedNearbyFarmers) {
-    return CustomScrollView(
-      slivers: [
-        // 1. HEADER (APP BAR)
-        SliverAppBar(
-          pinned: true,
-          floating: false,
-          backgroundColor: kBgColor,
-          surfaceTintColor: kBgColor,
-          elevation: 0,
-          toolbarHeight: 80,
-          titleSpacing: 24.0,
-          title: Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Harvest Market.',
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: kDarkGreen,
-                    letterSpacing: -0.5,
+  Widget _buildContent(
+    List<Category> mappedCategories,
+    List<Product> mappedFreshToday,
+    List<HomeFarmer> mappedNearbyFarmers,
+    List<HomePreOrders> mappedPreOrders,
+  ) {
+    return RefreshIndicator(
+      color: kDarkGreen,
+      backgroundColor: Colors.white,
+      onRefresh: _onRefresh,
+      child: CustomScrollView(
+        slivers: [
+          // 1. HEADER (APP BAR)
+          SliverAppBar(
+            pinned: false,
+            floating: true,
+            backgroundColor: kBgColor,
+            surfaceTintColor: kBgColor,
+            elevation: 0,
+            toolbarHeight: 80,
+            titleSpacing: 24.0,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Harvest Market.',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: kDarkGreen,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    _buildModernIconBtn(
-                      icon: Icons.notifications_none_rounded,
-                      hasDot: true,
-                      onTap: () => context.push(AppRouter.notifications),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildModernIconBtn(
-                      icon: Icons.shopping_bag_outlined,
-                      hasDot: false,
-                      onTap: () => context.push(AppRouter.cart),
-                    ),
-                  ],
-                ),
-              ],
+                  Row(
+                    children: [
+                      _buildModernIconBtn(
+                        icon: Icons.notifications_none_rounded,
+                        hasDot: true,
+                        onTap: () => context.push(AppRouter.notifications),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildModernIconBtn(
+                        icon: Icons.shopping_bag_outlined,
+                        hasDot: false,
+                        onTap: () => context.push(AppRouter.cart),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // 2. FLAT SEARCH BAR
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SearchScreen()),
-                );
-              },
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: kPillGrey,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    Icon(Icons.search, color: Colors.grey[500], size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Search fresh products...',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.grey[500],
-                          fontSize: 15,
+          // 2. FLAT SEARCH BAR
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SearchScreen()),
+                  );
+                },
+                child: Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: kPillGrey,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 20),
+                      Icon(Icons.search, color: Colors.grey[500], size: 22),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Search fresh products...',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.grey[500],
+                            fontSize: 15,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.all(10),
-                      child:
-                          Icon(Icons.tune_rounded, color: kDarkGreen, size: 20),
-                    ),
-                  ],
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(Icons.tune_rounded,
+                            color: kDarkGreen, size: 20),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
 
-        // 3. MODERN CATEGORIES (Earth Tones & Pebbles)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-            child: Column(
-              children: [
-                _buildSectionHeader('Shop by Category', showSeeAll: false),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    childAspectRatio: 0.72,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 16,
+          // 3. MODERN CATEGORIES (Earth Tones & Pebbles)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+              child: Column(
+                children: [
+                  _buildSectionHeader('Shop by Category', showSeeAll: false),
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 0.72,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: mappedCategories.length,
+                    itemBuilder: (context, index) {
+                      return _buildPebbleCategoryCard(mappedCategories[index]);
+                    },
                   ),
-                  itemCount: mappedCategories.length,
-                  itemBuilder: (context, index) {
-                    return _buildPebbleCategoryCard(mappedCategories[index]);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
 
-        // 4. UPCOMING HARVESTS - PRE-ORDER SECTION (NEW)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            child: Column(
-              children: [
-                _buildSectionHeader(
-                  '🌾 Pre-Order Fresh Harvests',
-                  onSeeAllTap: () => context.push(AppRouter.products),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Reserve perishable items before harvest day',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 13,
-                    color: Colors.grey[600],
+          // 4. UPCOMING HARVESTS - PRE-ORDER SECTION (NEW)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Column(
+                children: [
+                  _buildSectionHeader(
+                    '🌾 Pre-Order Fresh Harvests',
+                    onSeeAllTap: () => context.push(AppRouter.products),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    'Reserve perishable items before harvest day',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // Upcoming Harvests Horizontal List
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 240, // Increased height to prevent overflow
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: upcomingHarvests.length,
-              itemBuilder: (context, index) {
-                return _buildUpcomingHarvestCard(upcomingHarvests[index]);
-              },
+          // Upcoming Harvests Horizontal List
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 280, // Increased height to prevent overflow with larger image
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: mappedPreOrders.length,
+                itemBuilder: (context, index) {
+                  return _buildUpcomingHarvestCard(mappedPreOrders[index]);
+                },
+              ),
             ),
           ),
-        ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-        // 5. NEAR ME (Floating Card Map)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-            child: Column(
-              children: [
-                _buildSectionHeader(
-                  'Farmers Near You',
-                  onSeeAllTap: () => context.push(AppRouter.farmersMap),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
-                    color: const Color(0xFFE0E8E5), // Map BG color
+          // 5. NEAR ME (Floating Card Map)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+              child: Column(
+                children: [
+                  _buildSectionHeader(
+                    'Farmers Near You',
+                    onSeeAllTap: () => context.push(AppRouter.farmersMap),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: Stack(
-                      children: [
-                        // Abstract Map Painter
-                        CustomPaint(
-                          size: Size.infinite,
-                          painter: MapGridPainter(),
-                        ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      color: const Color(0xFFE0E8E5), // Map BG color
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Stack(
+                        children: [
+                          // Abstract Map Painter
+                          CustomPaint(
+                            size: Size.infinite,
+                            painter: MapGridPainter(),
+                          ),
 
-                        // Pins
-                        Positioned(
-                          top: 60,
-                          left: 100,
-                          child: _buildMapPin(kAccentOrange),
-                        ),
-                        Positioned(
-                          top: 90,
-                          right: 80,
-                          child: _buildMapPin(kDarkGreen),
-                        ),
+                          // Pins
+                          Positioned(
+                            top: 60,
+                            left: 100,
+                            child: _buildMapPin(kAccentOrange),
+                          ),
+                          Positioned(
+                            top: 90,
+                            right: 80,
+                            child: _buildMapPin(kDarkGreen),
+                          ),
 
-                        // Floating Overlay Card
-                        Positioned(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: kDarkGreen.withOpacity(0.08),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '3 Markets Open',
-                                      style: GoogleFonts.dmSans(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                          // Floating Overlay Card
+                          Positioned(
+                            left: 16,
+                            right: 16,
+                            bottom: 16,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: kDarkGreen.withOpacity(0.08),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '3 Markets Open',
+                                        style: GoogleFonts.dmSans(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: kDarkGreen,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Within 5km range',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  GestureDetector(
+                                    onTap: () =>
+                                        context.push(AppRouter.farmersMap),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      decoration: BoxDecoration(
                                         color: kDarkGreen,
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                    ),
-                                    Text(
-                                      'Within 5km range',
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () =>
-                                      context.push(AppRouter.farmersMap),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: kDarkGreen,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      'View Map',
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                      child: Text(
+                                        'View Map',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
 
-        // 5. NEARBY LIST (Cleaned up)
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: mappedNearbyFarmers.length,
-              itemBuilder: (context, index) {
-                return _buildModernFarmerCard(mappedNearbyFarmers[index]);
-              },
+          // 5. NEARBY LIST (Cleaned up)
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: mappedNearbyFarmers.length,
+                itemBuilder: (context, index) {
+                  return _buildModernFarmerCard(mappedNearbyFarmers[index]);
+                },
+              ),
             ),
           ),
-        ),
 
-        // Fresh Today Header
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-            child: _buildSectionHeader(
-              'Fresh Today',
-              showSeeAll: true,
-              onSeeAllTap: () => context.push(AppRouter.products),
+          // Fresh Today Header
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+              child: _buildSectionHeader(
+                'Fresh Today',
+                showSeeAll: true,
+                onSeeAllTap: () => context.push(AppRouter.products),
+              ),
             ),
           ),
-        ),
 
-        // Fresh Today Grid
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.75,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return _buildGridProductCard(mappedFreshToday[index]);
-              },
-              childCount: mappedFreshToday.length,
+          // Fresh Today Grid
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return _buildGridProductCard(mappedFreshToday[index]);
+                },
+                childCount: mappedFreshToday.length,
+              ),
             ),
           ),
-        ),
 
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 85),
-        ),
-      ],
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 85),
+          ),
+        ],
+      ),
     );
   }
 
@@ -964,8 +998,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: AppCachedImage(
-                      imageUrl: farmer.profileImage ??
-                          'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpg',
+                      imageUrl:
+                          farmer.profileImage ?? AppConstants.placeholderImage,
                       width: 70,
                       height: 70,
                     ),
@@ -1078,17 +1112,20 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   }
 
   // NEW: Upcoming Harvest Pre-Order Card
-  Widget _buildUpcomingHarvestCard(Map<String, dynamic> harvest) {
-    final harvestDate = harvest['harvestDate'] as DateTime;
-    final daysUntil = harvestDate.difference(DateTime.now()).inDays;
-    final availableQty = harvest['availableQty'] as int;
-    final totalQty = harvest['totalQty'] as int;
-    final preOrderPercentage = ((totalQty - availableQty) / totalQty * 100);
+  Widget _buildUpcomingHarvestCard(HomePreOrders harvest) {
+    final daysUntil = harvest.daysUntilHarvest ??
+        (harvest.harvestDate != null
+            ? harvest.harvestDate!.difference(DateTime.now()).inDays
+            : 0);
+    final totalQty = harvest.targetAmount ?? harvest.stockQuantity ?? 0;
+    final currentBooked = harvest.currentBooked ?? 0;
+    final availableQty = totalQty - currentBooked;
+    final preOrderPercentage = totalQty > 0 ? (currentBooked / totalQty * 100).clamp(0.0, 100.0) : 0.0;
 
     return GestureDetector(
       onTap: () {
         // Navigate to product detail with pre-order mode
-        context.push('${AppRouter.products}/${harvest['id']}');
+        context.push('${AppRouter.products}/${harvest.id}');
       },
       child: Container(
         width: 200,
@@ -1115,10 +1152,10 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
-                  child: Image.network(
-                    harvest['productImage'] as String,
+                  child: AppCachedImage(
+                    imageUrl: harvest.image ?? AppConstants.placeholderImage,
                     width: double.infinity,
-                    height: 100,
+                    height: 135,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -1138,18 +1175,19 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.schedule,
                           size: 12,
                           color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          daysUntil == 0
-                              ? 'Today!'
-                              : daysUntil == 1
-                                  ? 'Tomorrow'
-                                  : '$daysUntil days',
+                          harvest.countdownLabel ??
+                              (daysUntil == 0
+                                  ? 'Today!'
+                                  : daysUntil == 1
+                                      ? 'Tomorrow'
+                                      : '$daysUntil days'),
                           style: GoogleFonts.dmSans(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -1161,7 +1199,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 // Organic badge
-                if (harvest['isOrganic'] == true)
+                if (harvest.isOrganic == true)
                   Positioned(
                     top: 8,
                     right: 8,
@@ -1171,7 +1209,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: Text('🌿', style: TextStyle(fontSize: 12)),
+                      child: const Text('🌿', style: TextStyle(fontSize: 12)),
                     ),
                   ),
               ],
@@ -1183,7 +1221,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    harvest['productName'] as String,
+                    harvest.name,
                     style: GoogleFonts.dmSans(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -1198,13 +1236,14 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                       CircleAvatar(
                         radius: 8,
                         backgroundImage: NetworkImage(
-                          harvest['farmerImage'] as String,
+                          harvest.farmer?.profileImage ??
+                              AppConstants.placeholderImage,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          harvest['farmerName'] as String,
+                          harvest.farmer?.name ?? 'Unknown Farmer',
                           style: GoogleFonts.dmSans(
                             fontSize: 11,
                             color: Colors.grey[600],
@@ -1224,14 +1263,14 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '${harvest['preOrderCount']} pre-orders',
+                            '$currentBooked pre-orders',
                             style: GoogleFonts.dmSans(
                               fontSize: 10,
                               color: Colors.grey[500],
                             ),
                           ),
                           Text(
-                            '$availableQty ${harvest['unit']} left',
+                            '$availableQty ${harvest.unit ?? 'kg'} left',
                             style: GoogleFonts.dmSans(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -1268,7 +1307,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                           locale: 'id',
                           symbol: 'Rp ',
                           decimalDigits: 0,
-                        ).format(harvest['price']),
+                        ).format(harvest.price ?? 0),
                         style: GoogleFonts.dmSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -1326,8 +1365,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                     width: double.infinity,
                     height: 120,
                     fit: BoxFit.cover,
-                    errorAssetImage:
-                        'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpg',
+                    errorAssetImage: AppConstants.placeholderImage,
                   ),
                 ),
                 Positioned(

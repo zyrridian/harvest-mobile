@@ -101,24 +101,46 @@ class HomeCategoriesModel {
 class HomePreOrdersModel {
   final String id;
   final String name;
-  @JsonKey(name: 'image_url')
-  final String? imageUrl;
-  final double price;
-  @JsonKey(name: 'discount_price')
-  final double discountPrice;
-  @JsonKey(name: 'farmer_name')
-  final String farmerName;
-  @JsonKey(name: 'available_date')
-  final DateTime availableDate;
+  final String? slug;
+  final double? price;
+  final String? currency;
+  final String? unit;
+  @JsonKey(name: 'stock_quantity')
+  final int? stockQuantity;
+  @JsonKey(name: 'harvest_date')
+  final DateTime? harvestDate;
+  @JsonKey(name: 'target_amount')
+  final int? targetAmount;
+  @JsonKey(name: 'current_booked')
+  final int? currentBooked;
+  @JsonKey(name: 'is_harvest')
+  final bool? isHarvest;
+  @JsonKey(name: 'days_until_harvest')
+  final int? daysUntilHarvest;
+  @JsonKey(name: 'countdown_label')
+  final String? countdownLabel;
+  @JsonKey(name: 'is_organic')
+  final bool? isOrganic;
+  final String? image;
+  final HomePreOrdersFarmerModel? farmer;
 
   HomePreOrdersModel({
     required this.id,
     required this.name,
-    required this.imageUrl,
-    required this.price,
-    required this.discountPrice,
-    required this.farmerName,
-    required this.availableDate,
+    this.slug,
+    this.price,
+    this.currency,
+    this.unit,
+    this.stockQuantity,
+    this.harvestDate,
+    this.targetAmount,
+    this.currentBooked,
+    this.isHarvest,
+    this.daysUntilHarvest,
+    this.countdownLabel,
+    this.isOrganic,
+    this.image,
+    this.farmer,
   });
 
   factory HomePreOrdersModel.fromJson(Map<String, dynamic> json) =>
@@ -130,11 +152,20 @@ class HomePreOrdersModel {
     return HomePreOrders(
       id: id,
       name: name,
-      imageUrl: imageUrl,
+      slug: slug,
       price: price,
-      discountPrice: discountPrice,
-      farmerName: farmerName,
-      availableDate: availableDate,
+      currency: currency,
+      unit: unit,
+      stockQuantity: stockQuantity,
+      harvestDate: harvestDate,
+      targetAmount: targetAmount,
+      currentBooked: currentBooked,
+      isHarvest: isHarvest,
+      daysUntilHarvest: daysUntilHarvest,
+      countdownLabel: countdownLabel,
+      isOrganic: isOrganic,
+      image: image,
+      farmer: farmer?.toEntity(),
     );
   }
 
@@ -142,11 +173,58 @@ class HomePreOrdersModel {
     return HomePreOrdersModel(
       id: preOrder.id,
       name: preOrder.name,
-      imageUrl: preOrder.imageUrl,
+      slug: preOrder.slug,
       price: preOrder.price,
-      discountPrice: preOrder.discountPrice,
-      farmerName: preOrder.farmerName,
-      availableDate: preOrder.availableDate,
+      currency: preOrder.currency,
+      unit: preOrder.unit,
+      stockQuantity: preOrder.stockQuantity,
+      harvestDate: preOrder.harvestDate,
+      targetAmount: preOrder.targetAmount,
+      currentBooked: preOrder.currentBooked,
+      isHarvest: preOrder.isHarvest,
+      daysUntilHarvest: preOrder.daysUntilHarvest,
+      countdownLabel: preOrder.countdownLabel,
+      isOrganic: preOrder.isOrganic,
+      image: preOrder.image,
+      farmer: preOrder.farmer != null
+          ? HomePreOrdersFarmerModel.fromEntity(preOrder.farmer!)
+          : null,
+    );
+  }
+}
+
+@JsonSerializable()
+class HomePreOrdersFarmerModel {
+  final String name;
+  @JsonKey(name: 'profile_image')
+  final String? profileImage;
+  @JsonKey(name: 'is_verified')
+  final bool? isVerified;
+
+  HomePreOrdersFarmerModel({
+    required this.name,
+    this.profileImage,
+    this.isVerified,
+  });
+
+  factory HomePreOrdersFarmerModel.fromJson(Map<String, dynamic> json) =>
+      _$HomePreOrdersFarmerModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HomePreOrdersFarmerModelToJson(this);
+
+  HomePreOrdersFarmer toEntity() {
+    return HomePreOrdersFarmer(
+      name: name,
+      profileImage: profileImage,
+      isVerified: isVerified,
+    );
+  }
+
+  factory HomePreOrdersFarmerModel.fromEntity(HomePreOrdersFarmer farmer) {
+    return HomePreOrdersFarmerModel(
+      name: farmer.name,
+      profileImage: farmer.profileImage,
+      isVerified: farmer.isVerified,
     );
   }
 }

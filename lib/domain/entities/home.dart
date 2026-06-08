@@ -82,54 +82,129 @@ class HomeCategories extends Equatable {
   }
 }
 
-// TODO: UPDATE THIS CLASS TO MATCH API RESPONSE
 class HomePreOrders extends Equatable {
   final String id;
   final String name;
-  final String? imageUrl;
-  final double price;
-  final double discountPrice;
-  final String farmerName;
-  final DateTime availableDate;
+  final String? slug;
+  final double? price;
+  final String? currency;
+  final String? unit;
+  final int? stockQuantity;
+  final DateTime? harvestDate;
+  final int? targetAmount;
+  final int? currentBooked;
+  final bool? isHarvest;
+  final int? daysUntilHarvest;
+  final String? countdownLabel;
+  final bool? isOrganic;
+  final String? image;
+  final HomePreOrdersFarmer? farmer;
 
   const HomePreOrders({
     required this.id,
     required this.name,
-    required this.imageUrl,
+    required this.slug,
     required this.price,
-    required this.discountPrice,
-    required this.farmerName,
-    required this.availableDate,
+    required this.currency,
+    required this.unit,
+    required this.stockQuantity,
+    required this.harvestDate,
+    required this.targetAmount,
+    required this.currentBooked,
+    required this.isHarvest,
+    required this.daysUntilHarvest,
+    required this.countdownLabel,
+    required this.isOrganic,
+    required this.image,
+    required this.farmer,
   });
 
   @override
   List<Object?> get props => [
         id,
         name,
-        imageUrl,
+        slug,
         price,
-        discountPrice,
-        farmerName,
-        availableDate,
+        currency,
+        unit,
+        stockQuantity,
+        harvestDate,
+        targetAmount,
+        currentBooked,
+        isHarvest,
+        daysUntilHarvest,
+        countdownLabel,
+        isOrganic,
+        image,
+        farmer,
       ];
 
   HomePreOrders copyWith({
     String? id,
     String? name,
-    String? imageUrl,
+    String? slug,
     double? price,
-    double? discountPrice,
-    String? farmerName,
-    DateTime? availableDate,
+    String? currency,
+    String? unit,
+    int? stockQuantity,
+    DateTime? harvestDate,
+    int? targetAmount,
+    int? currentBooked,
+    bool? isHarvest,
+    int? daysUntilHarvest,
+    String? countdownLabel,
+    bool? isOrganic,
+    String? image,
+    HomePreOrdersFarmer? farmer,
   }) {
     return HomePreOrders(
       id: id ?? this.id,
       name: name ?? this.name,
-      imageUrl: imageUrl ?? this.imageUrl,
+      slug: slug ?? this.slug,
       price: price ?? this.price,
-      discountPrice: discountPrice ?? this.discountPrice,
-      farmerName: farmerName ?? this.farmerName,
-      availableDate: availableDate ?? this.availableDate,
+      currency: currency ?? this.currency,
+      unit: unit ?? this.unit,
+      stockQuantity: stockQuantity ?? this.stockQuantity,
+      harvestDate: harvestDate ?? this.harvestDate,
+      targetAmount: targetAmount ?? this.targetAmount,
+      currentBooked: currentBooked ?? this.currentBooked,
+      isHarvest: isHarvest ?? this.isHarvest,
+      daysUntilHarvest: daysUntilHarvest ?? this.daysUntilHarvest,
+      countdownLabel: countdownLabel ?? this.countdownLabel,
+      isOrganic: isOrganic ?? this.isOrganic,
+      image: image ?? this.image,
+      farmer: farmer ?? this.farmer,
+    );
+  }
+}
+
+class HomePreOrdersFarmer extends Equatable {
+  final String name;
+  final String? profileImage;
+  final bool? isVerified;
+
+  const HomePreOrdersFarmer({
+    required this.name,
+    this.profileImage,
+    this.isVerified,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        profileImage,
+        isVerified,
+      ];
+
+  HomePreOrdersFarmer copyWith({
+    String? name,
+    String? profileImage,
+    bool? isVerified,
+  }) {
+    return HomePreOrdersFarmer(
+      name: name ?? this.name,
+      profileImage: profileImage ?? this.profileImage,
+      isVerified: isVerified ?? this.isVerified,
     );
   }
 }

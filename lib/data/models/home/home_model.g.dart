@@ -54,22 +54,61 @@ HomePreOrdersModel _$HomePreOrdersModelFromJson(Map<String, dynamic> json) =>
     HomePreOrdersModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      imageUrl: json['image_url'] as String?,
-      price: (json['price'] as num).toDouble(),
-      discountPrice: (json['discount_price'] as num).toDouble(),
-      farmerName: json['farmer_name'] as String,
-      availableDate: DateTime.parse(json['available_date'] as String),
+      slug: json['slug'] as String?,
+      price: (json['price'] as num?)?.toDouble(),
+      currency: json['currency'] as String?,
+      unit: json['unit'] as String?,
+      stockQuantity: (json['stock_quantity'] as num?)?.toInt(),
+      harvestDate: json['harvest_date'] == null
+          ? null
+          : DateTime.parse(json['harvest_date'] as String),
+      targetAmount: (json['target_amount'] as num?)?.toInt(),
+      currentBooked: (json['current_booked'] as num?)?.toInt(),
+      isHarvest: json['is_harvest'] as bool?,
+      daysUntilHarvest: (json['days_until_harvest'] as num?)?.toInt(),
+      countdownLabel: json['countdown_label'] as String?,
+      isOrganic: json['is_organic'] as bool?,
+      image: json['image'] as String?,
+      farmer: json['farmer'] == null
+          ? null
+          : HomePreOrdersFarmerModel.fromJson(
+              json['farmer'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$HomePreOrdersModelToJson(HomePreOrdersModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'image_url': instance.imageUrl,
+      'slug': instance.slug,
       'price': instance.price,
-      'discount_price': instance.discountPrice,
-      'farmer_name': instance.farmerName,
-      'available_date': instance.availableDate.toIso8601String(),
+      'currency': instance.currency,
+      'unit': instance.unit,
+      'stock_quantity': instance.stockQuantity,
+      'harvest_date': instance.harvestDate?.toIso8601String(),
+      'target_amount': instance.targetAmount,
+      'current_booked': instance.currentBooked,
+      'is_harvest': instance.isHarvest,
+      'days_until_harvest': instance.daysUntilHarvest,
+      'countdown_label': instance.countdownLabel,
+      'is_organic': instance.isOrganic,
+      'image': instance.image,
+      'farmer': instance.farmer,
+    };
+
+HomePreOrdersFarmerModel _$HomePreOrdersFarmerModelFromJson(
+        Map<String, dynamic> json) =>
+    HomePreOrdersFarmerModel(
+      name: json['name'] as String,
+      profileImage: json['profile_image'] as String?,
+      isVerified: json['is_verified'] as bool?,
+    );
+
+Map<String, dynamic> _$HomePreOrdersFarmerModelToJson(
+        HomePreOrdersFarmerModel instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'profile_image': instance.profileImage,
+      'is_verified': instance.isVerified,
     };
 
 HomeNearbyFarmersModel _$HomeNearbyFarmersModelFromJson(
