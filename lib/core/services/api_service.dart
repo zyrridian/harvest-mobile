@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:dio_network_logger/dio_network_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:flutter_network_debugger/flutter_network_debugger.dart';
 import '../constants/app_constants.dart';
 import 'storage_service.dart';
 
@@ -184,7 +184,7 @@ final dioProvider = Provider<Dio>((ref) {
 
   // Add network logger in debug mode
   if (kDebugMode) {
-    dio.interceptors.add(DioNetworkLogger());
+    dio.interceptors.add(FlutterNetworkDebuggerDioInterceptor());
     dio.interceptors.add(
       PrettyDioLogger(
         requestHeader: true,

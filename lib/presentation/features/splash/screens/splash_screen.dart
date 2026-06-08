@@ -1,5 +1,3 @@
-import 'package:dio_network_logger/dio_network_logger.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,10 +21,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
-
-    if (kDebugMode) {
-      NetworkLoggerOverlay.attachTo(context);
-    }
 
     _animationController = AnimationController(
       vsync: this,

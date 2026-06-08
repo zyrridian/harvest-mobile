@@ -21,7 +21,7 @@ dependencies:
 
   # Network
   dio: ^5.4.1
-  dio_network_logger: ^1.0.2
+  flutter_network_debugger: ^0.1.0
 
   # Local Storage
   shared_preferences: ^2.2.2

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../main.dart';
 import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
@@ -52,6 +53,7 @@ class AppRouter {
   static const String chat = '/chat';
 
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: splash,
     routes: [
       // Splash screen

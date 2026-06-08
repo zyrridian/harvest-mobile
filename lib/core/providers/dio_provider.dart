@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dio_network_logger/dio_network_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_network_debugger/flutter_network_debugger.dart';
 import '../constants/app_constants.dart';
 
 /// Provider for Dio HTTP client
@@ -59,10 +59,8 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // Add DioNetworkLogger interceptor
-  dio.interceptors.add(
-    DioNetworkLogger(),
-  );
+  // Add FlutterNetworkDebugger interceptor
+  dio.interceptors.add(FlutterNetworkDebuggerDioInterceptor());
 
   return dio;
 });
