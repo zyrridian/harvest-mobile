@@ -8,7 +8,7 @@ import '../constants/app_constants.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: AppConstants.baseUrl, // + AppConstants.apiVersion,
+      baseUrl: AppConstants.baseUrl + AppConstants.apiVersion,
       connectTimeout: AppConstants.connectionTimeout,
       receiveTimeout: AppConstants.receiveTimeout,
       headers: {
@@ -23,7 +23,7 @@ final dioProvider = Provider<Dio>((ref) {
     InterceptorsWrapper(
       onRequest: (options, handler) async {
         // Add auth token to requests
-        const storage = FlutterSecureStorage();
+        final storage = ref.read(secureStorageProvider);
         final token = await storage.read(key: AppConstants.authTokenKey);
 
         if (token != null) {

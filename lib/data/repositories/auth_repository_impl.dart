@@ -60,6 +60,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         name: name,
         phoneNumber: phoneNumber,
+        userType: 'CONSUMER', // Assuming default user type is 'CONSUMER'
       );
 
       // Save tokens and user data locally

@@ -1,7 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/storage_service.dart';
-import '../../data/services/authentication_service.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/usecases/auth/login_usecase.dart';
+import '../../domain/usecases/auth/register_usecase.dart';
+import '../../domain/usecases/auth/logout_usecase.dart';
+import '../../domain/usecases/auth/get_current_usecase.dart';
+import '../../domain/usecases/auth/is_logged_in_usecase.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/datasources/remote/auth_remote_datasource.dart';
+import '../../data/datasources/local/auth_local_datasource.dart';
+import '../../core/providers/dio_provider.dart';
+import '../../core/providers/db_provider.dart';
 
 /// Auth state enum
 enum AuthStatus {
@@ -47,11 +57,21 @@ class AuthState {
 
 /// Auth controller notifier
 class AuthController extends StateNotifier<AuthState> {
-  final AuthenticationService _authService;
+  final LoginUseCase _loginUseCase;
+  final RegisterUseCase _registerUseCase;
+  final LogoutUseCase _logoutUseCase;
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final IsLoggedInUseCase _isLoggedInUseCase;
   final PreferencesService _preferencesService;
 
-  AuthController(this._authService, this._preferencesService)
-      : super(const AuthState());
+  AuthController(
+    this._loginUseCase,
+    this._registerUseCase,
+    this._logoutUseCase,
+    this._getCurrentUserUseCase,
+    this._isLoggedInUseCase,
+    this._preferencesService,
+  ) : super(const AuthState());
 
   /// Initialize auth state - check if user is logged in
   Future<void> initialize() async {
@@ -62,36 +82,27 @@ class AuthController extends StateNotifier<AuthState> {
       final isFirstLaunch = _preferencesService.isFirstLaunch();
 
       // Check if authenticated
-      final isAuthenticated = await _authService.isAuthenticated();
+      final isAuthenticated = await _isLoggedInUseCase();
 
       if (isAuthenticated) {
-        // Try to get stored user
-        final storedUser = await _authService.getStoredUser();
+        final result = await _getCurrentUserUseCase();
 
-        if (storedUser != null) {
-          state = AuthState(
-            status: AuthStatus.authenticated,
-            user: storedUser.toEntity(),
-            isFirstLaunch: isFirstLaunch,
-          );
-        } else {
-          // Try to fetch user from API
-          try {
-            final user = await _authService.getCurrentUser();
-            state = AuthState(
-              status: AuthStatus.authenticated,
-              user: user.toEntity(),
-              isFirstLaunch: isFirstLaunch,
-            );
-          } catch (e) {
-            // Failed to get user, logout
-            await _authService.logout();
+        result.fold(
+          (failure) async {
+            await _logoutUseCase();
             state = AuthState(
               status: AuthStatus.unauthenticated,
               isFirstLaunch: isFirstLaunch,
             );
-          }
-        }
+          },
+          (user) {
+            state = AuthState(
+              status: AuthStatus.authenticated,
+              user: user,
+              isFirstLaunch: isFirstLaunch,
+            );
+          },
+        );
       } else {
         state = AuthState(
           status: AuthStatus.unauthenticated,
@@ -114,26 +125,25 @@ class AuthController extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
-    try {
-      final authResponse = await _authService.login(
-        email: email,
-        password: password,
-      );
+    final result = await _loginUseCase(email: email, password: password);
 
-      state = AuthState(
-        status: AuthStatus.authenticated,
-        user: authResponse.user.toEntity(),
-        isFirstLaunch: false,
-      );
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      );
-      return false;
-    }
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (user) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: user,
+          isFirstLaunch: false,
+        );
+        return true;
+      },
+    );
   }
 
   /// Register a new user
@@ -145,35 +155,37 @@ class AuthController extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
-    try {
-      final authResponse = await _authService.register(
-        email: email,
-        password: password,
-        name: name,
-        phoneNumber: phoneNumber,
-      );
+    final result = await _registerUseCase(
+      email: email,
+      password: password,
+      name: name,
+      phoneNumber: phoneNumber,
+    );
 
-      state = AuthState(
-        status: AuthStatus.authenticated,
-        user: authResponse.user.toEntity(),
-        isFirstLaunch: false,
-      );
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      );
-      return false;
-    }
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (user) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: user,
+          isFirstLaunch: false,
+        );
+        return true;
+      },
+    );
   }
 
   /// Logout the current user
   Future<void> logout() async {
     state = state.copyWith(status: AuthStatus.loading);
 
-    await _authService.logout();
+    await _logoutUseCase();
 
     state = const AuthState(
       status: AuthStatus.unauthenticated,
@@ -191,12 +203,15 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> refreshUser() async {
     if (!state.isAuthenticated) return;
 
-    try {
-      final user = await _authService.getCurrentUser();
-      state = state.copyWith(user: user.toEntity());
-    } catch (e) {
-      // Silently fail, keep current user data
-    }
+    final result = await _getCurrentUserUseCase();
+    result.fold(
+      (failure) {
+        // Silently fail, keep current user data
+      },
+      (user) {
+        state = state.copyWith(user: user);
+      },
+    );
   }
 
   /// Clear error
@@ -205,13 +220,55 @@ class AuthController extends StateNotifier<AuthState> {
   }
 }
 
+/// Provider for AuthRepository
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final dio = ref.watch(dioProvider);
+  final secureStorage = ref.watch(secureStorageProvider);
+  final sharedPreferences = ref.watch(sharedPreferencesProvider);
+
+  return AuthRepositoryImpl(
+    remoteDataSource: AuthRemoteDataSourceImpl(dio),
+    localDataSource: AuthLocalDataSourceImpl(
+      secureStorage: secureStorage,
+      sharedPreferences: sharedPreferences,
+    ),
+  );
+});
+
+/// Use Case Providers
+final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
+  return LoginUseCase(ref.watch(authRepositoryProvider));
+});
+
+final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
+  return RegisterUseCase(ref.watch(authRepositoryProvider));
+});
+
+final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
+  return LogoutUseCase(ref.watch(authRepositoryProvider));
+});
+
+final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
+  return GetCurrentUserUseCase(ref.watch(authRepositoryProvider));
+});
+
+final isLoggedInUseCaseProvider = Provider<IsLoggedInUseCase>((ref) {
+  return IsLoggedInUseCase(ref.watch(authRepositoryProvider));
+});
+
 /// Provider for AuthController
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthState>((ref) {
-  final authService = ref.watch(authenticationServiceProvider);
   final preferencesService = ref.watch(preferencesServiceProvider);
 
-  return AuthController(authService, preferencesService);
+  return AuthController(
+    ref.watch(loginUseCaseProvider),
+    ref.watch(registerUseCaseProvider),
+    ref.watch(logoutUseCaseProvider),
+    ref.watch(getCurrentUserUseCaseProvider),
+    ref.watch(isLoggedInUseCaseProvider),
+    preferencesService,
+  );
 });
 
 /// Provider to check if user is authenticated
