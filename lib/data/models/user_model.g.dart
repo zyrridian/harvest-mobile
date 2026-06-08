@@ -12,6 +12,8 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       name: json['name'] as String,
       phoneNumber: json['phone_number'] as String?,
       avatarUrl: json['avatar_url'] as String?,
+      userType: json['user_type'] as String?,
+      isVerified: json['is_verified'] as bool?,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String?,
     );
@@ -22,6 +24,8 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'name': instance.name,
       'phone_number': instance.phoneNumber,
       'avatar_url': instance.avatarUrl,
+      'user_type': instance.userType,
+      'is_verified': instance.isVerified,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };

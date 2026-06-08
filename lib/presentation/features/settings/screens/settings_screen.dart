@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/config/router/app_router.dart';
+import '../../../../core/config/theme/app_colors.dart';
+import '../../../providers/auth_provider.dart';
 import '../providers/settings_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -182,6 +186,20 @@ class SettingsScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
             ),
+
+            const Divider(height: 32),
+
+            // Account Section
+            _buildSectionHeader('Account'),
+            _buildListTile(
+              context,
+              icon: Icons.logout,
+              title: 'Logout',
+              subtitle: 'Sign out of your account',
+              textColor: AppColors.error,
+              onTap: () => _showLogoutDialog(context, ref),
+            ),
+
             const SizedBox(height: 32),
           ],
         ),
@@ -239,10 +257,12 @@ class SettingsScreen extends ConsumerWidget {
     required String title,
     String? subtitle,
     VoidCallback? onTap,
+    Color? textColor,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.green),
-      title: Text(title),
+      leading: Icon(icon, color: textColor ?? Colors.green),
+      title: Text(title,
+          style: textColor != null ? TextStyle(color: textColor) : null),
       subtitle: subtitle != null ? Text(subtitle) : null,
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
@@ -464,6 +484,33 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await ref.read(authControllerProvider.notifier).logout();
+              if (context.mounted) {
+                context.go(AppRouter.login);
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Logout'),
+          ),
+        ],
       ),
     );
   }

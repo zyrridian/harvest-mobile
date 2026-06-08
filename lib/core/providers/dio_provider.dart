@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_network_debugger/flutter_network_debugger.dart';
 import '../constants/app_constants.dart';
 
 /// Provider for Dio HTTP client
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: AppConstants.baseUrl + AppConstants.apiVersion,
+      baseUrl: AppConstants.baseUrl, // + AppConstants.apiVersion,
       connectTimeout: AppConstants.connectionTimeout,
       receiveTimeout: AppConstants.receiveTimeout,
       headers: {
@@ -57,6 +58,9 @@ final dioProvider = Provider<Dio>((ref) {
       error: true,
     ),
   );
+
+  // Add FlutterNetworkDebugger interceptor
+  dio.interceptors.add(FlutterNetworkDebuggerDioInterceptor());
 
   return dio;
 });

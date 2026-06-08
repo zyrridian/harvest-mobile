@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../main.dart';
+import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
+import '../../../presentation/features/splash/screens/splash_screen.dart';
+import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
@@ -15,15 +19,24 @@ import '../../../presentation/features/cart/screens/cart_screen.dart';
 import '../../../presentation/features/cart/screens/checkout_screen.dart';
 import '../../../presentation/features/order/screens/orders_list_screen.dart';
 import '../../../presentation/features/order/screens/order_detail_screen.dart';
+import '../../../presentation/features/order/screens/order_success_screen.dart';
 import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
+  // Auth routes
+  static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+
+  // Main routes
   static const String main = '/main';
   static const String farmersMap = '/farmers-map';
+  static const String farmers = '/farmers'; // farmers list
+  static const String products = '/products'; // products list
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
@@ -35,12 +48,26 @@ class AppRouter {
   static const String checkout = '/checkout';
   static const String orders = '/orders';
   static const String orderDetail = '/order-detail';
+  static const String orderSuccess = '/order-success';
   static const String conversations = '/conversations';
   static const String chat = '/chat';
 
   static final GoRouter router = GoRouter(
-    initialLocation: main, //login,
+    navigatorKey: navigatorKey,
+    initialLocation: splash,
     routes: [
+      // Splash screen
+      GoRoute(
+        path: splash,
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      // Welcome/Onboarding screen
+      GoRoute(
+        path: welcome,
+        name: 'welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
       GoRoute(
         path: login,
         name: 'login',
@@ -50,6 +77,11 @@ class AppRouter {
         path: register,
         name: 'register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: forgotPassword,
+        name: 'forgotPassword',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: main,
@@ -103,6 +135,16 @@ class AppRouter {
           return ProductDetailScreen(productId: productId);
         },
       ),
+      // Product detail with path parameter
+      GoRoute(
+        path: '$products/:productId',
+        name: 'productDetailById',
+        builder: (context, state) {
+          final productId =
+              state.pathParameters['productId'] ?? 'prd_1234567890abcdef';
+          return ProductDetailScreen(productId: productId);
+        },
+      ),
       GoRoute(
         path: cart,
         name: 'cart',
@@ -125,6 +167,20 @@ class AppRouter {
           final orderId =
               state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
           return OrderDetailScreen(orderId: orderId);
+        },
+      ),
+      GoRoute(
+        path: orderSuccess,
+        name: 'orderSuccess',
+        builder: (context, state) {
+          final orderId =
+              state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
+          final orderNumber =
+              state.uri.queryParameters['orderNumber'] ?? 'ORD-000000';
+          return OrderSuccessScreen(
+            orderId: orderId,
+            orderNumber: orderNumber,
+          );
         },
       ),
       GoRoute(

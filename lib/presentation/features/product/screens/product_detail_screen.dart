@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/product_detail.dart';
 import '../../../providers/product_detail_providers.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
+const kFreshGreen = Color(0xFF10B981);
+const kPreOrderBlue = Color(0xFF3B82F6);
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
@@ -32,9 +42,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final productAsync = ref.watch(productDetailProvider(widget.productId));
 
     return Scaffold(
+      backgroundColor: kBgColor,
       body: productAsync.when(
         data: (product) => _buildProductDetail(context, product),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: kDarkGreen),
+        ),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -46,7 +59,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ElevatedButton(
                 onPressed: () =>
                     ref.invalidate(productDetailProvider(widget.productId)),
-                child: const Text('Retry'),
+                style: ElevatedButton.styleFrom(backgroundColor: kDarkGreen),
+                child:
+                    const Text('Retry', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -64,56 +79,427 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       slivers: [
         _buildAppBar(context, product),
         SliverToBoxAdapter(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProductHeader(context, product),
-              const Divider(height: 1),
-              _buildPriceSection(context, product),
-              const Divider(height: 1),
-              _buildLabels(context, product),
-              const Divider(height: 1, thickness: 8),
-              _buildSellerInfo(context, product),
-              const Divider(height: 1, thickness: 8),
-              _buildDescription(context, product),
-              if (product.specifications != null &&
-                  product.specifications!.isNotEmpty) ...[
-                const Divider(height: 1, thickness: 8),
-                _buildSpecifications(context, product),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                // Freshness indicator for perishables
+                if (product.isPerishable) ...[
+                  _buildFreshnessIndicator(context, product),
+                  const SizedBox(height: 12),
+                ],
+                _buildProductHeader(context, product),
+                const SizedBox(height: 16),
+                _buildPriceSection(context, product),
+                // Pre-order section for upcoming harvests
+                if (product.canPreOrder && product.preOrderInfo != null) ...[
+                  const SizedBox(height: 16),
+                  _buildPreOrderSection(context, product),
+                ],
+                const SizedBox(height: 16),
+                _buildLabels(context, product),
+                const SizedBox(height: 16),
+                _buildSellerInfo(context, product),
+                const SizedBox(height: 16),
+                _buildDescription(context, product),
+                if (product.specifications != null &&
+                    product.specifications!.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildSpecifications(context, product),
+                ],
+                if (product.certifications != null &&
+                    product.certifications!.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildCertifications(context, product),
+                ],
+                // const SizedBox(height: 16),
+                _buildDeliveryOptions(context, product),
+                if (product.bulkPricing != null &&
+                    product.bulkPricing!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildBulkPricing(context, product),
+                ],
+                // const SizedBox(height: 16),
+                _buildRatingReviews(context, product),
+                if (product.relatedProducts != null &&
+                    product.relatedProducts!.isNotEmpty) ...[
+                  // const SizedBox(height: 16),
+                  _buildRelatedProducts(context, product),
+                ],
+                const SizedBox(height: 100), // Space for bottom bar
               ],
-              if (product.certifications != null &&
-                  product.certifications!.isNotEmpty) ...[
-                const Divider(height: 1, thickness: 8),
-                _buildCertifications(context, product),
-              ],
-              const Divider(height: 1, thickness: 8),
-              _buildDeliveryOptions(context, product),
-              if (product.bulkPricing != null &&
-                  product.bulkPricing!.isNotEmpty) ...[
-                const Divider(height: 1, thickness: 8),
-                _buildBulkPricing(context, product),
-              ],
-              const Divider(height: 1, thickness: 8),
-              _buildRatingReviews(context, product),
-              if (product.relatedProducts != null &&
-                  product.relatedProducts!.isNotEmpty) ...[
-                const Divider(height: 1, thickness: 8),
-                _buildRelatedProducts(context, product),
-              ],
-              const SizedBox(height: 100), // Space for bottom bar
-            ],
+            ),
           ),
         ),
       ],
     );
   }
 
+  // NEW: Freshness Indicator Widget
+  Widget _buildFreshnessIndicator(BuildContext context, ProductDetail product) {
+    Color freshnessColor;
+    String freshnessText;
+    IconData freshnessIcon;
+
+    if (product.isJustHarvested) {
+      freshnessColor = kFreshGreen;
+      freshnessText = '🌱 Just Harvested';
+      freshnessIcon = Icons.eco;
+    } else if (product.freshnessLevel == FreshnessLevel.fresh) {
+      freshnessColor = kFreshGreen;
+      freshnessText = '✨ Fresh';
+      freshnessIcon = Icons.check_circle;
+    } else if (product.freshnessLevel == FreshnessLevel.good) {
+      freshnessColor = Colors.amber;
+      freshnessText = 'Good Condition';
+      freshnessIcon = Icons.thumb_up;
+    } else {
+      freshnessColor = Colors.grey;
+      freshnessText = 'Perishable Item';
+      freshnessIcon = Icons.access_time;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: freshnessColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: freshnessColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: freshnessColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(freshnessIcon, color: freshnessColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  freshnessText,
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: freshnessColor,
+                  ),
+                ),
+                if (product.harvestDate != null)
+                  Text(
+                    'Harvested ${_formatHarvestDate(product.harvestDate!)}',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+                if (product.shelfLifeDays != null)
+                  Text(
+                    'Best within ${product.shelfLifeDays} days',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (product.daysUntilExpiry != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color:
+                    product.daysUntilExpiry! <= 2 ? kAccentOrange : kFreshGreen,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${product.daysUntilExpiry}d left',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _formatHarvestDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inHours < 1) {
+      return 'just now';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours} hours ago';
+    } else if (diff.inDays == 1) {
+      return 'yesterday';
+    } else {
+      return DateFormat('MMM d').format(date);
+    }
+  }
+
+  // NEW: Pre-Order Section Widget
+  Widget _buildPreOrderSection(BuildContext context, ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+    final daysUntil = preOrderInfo.daysUntilHarvest;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            kPreOrderBlue.withOpacity(0.1),
+            kPreOrderBlue.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPreOrderBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with countdown
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: kPreOrderBlue.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.event_available,
+                  color: kPreOrderBlue,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pre-Order Available',
+                      style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                    Text(
+                      'Harvest on ${DateFormat('EEEE, MMM d').format(preOrderInfo.harvestDate)}',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        color: kTextGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: daysUntil <= 1 ? kAccentOrange : kPreOrderBlue,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.schedule, size: 14, color: Colors.white),
+                    const SizedBox(width: 4),
+                    Text(
+                      daysUntil == 0
+                          ? 'Today!'
+                          : daysUntil == 1
+                              ? 'Tomorrow'
+                              : '$daysUntil days',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Progress bar
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${preOrderInfo.preOrderCount} people pre-ordered',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: kTextGrey,
+                    ),
+                  ),
+                  Text(
+                    '${preOrderInfo.availableQuantity} ${product.unit} available',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: preOrderInfo.isAlmostSoldOut
+                          ? kAccentOrange
+                          : kDarkGreen,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: preOrderInfo.preOrderPercentage / 100,
+                  minHeight: 8,
+                  backgroundColor: kPillGrey,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    preOrderInfo.preOrderPercentage > 70
+                        ? kAccentOrange
+                        : kPreOrderBlue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Pre-order benefits
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildPreOrderBenefit(Icons.local_shipping, 'Priority Delivery'),
+              _buildPreOrderBenefit(Icons.eco, 'Freshest Quality'),
+              _buildPreOrderBenefit(Icons.savings, 'Lock-in Price'),
+            ],
+          ),
+
+          // Deposit info
+          if (preOrderInfo.requiresDeposit) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 16, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Requires ${preOrderInfo.depositPercentage?.toStringAsFixed(0) ?? '20'}% deposit (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)})',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: Colors.amber[800],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreOrderBenefit(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: kPreOrderBlue),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: kDarkGreen,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppBar(BuildContext context, ProductDetail product) {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 350,
       pinned: true,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
+      backgroundColor: kBgColor,
+      surfaceTintColor: kBgColor,
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          backgroundColor: Colors.white.withOpacity(0.9),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: kDarkGreen, size: 20),
+            onPressed: () => Navigator.pop(context),
+            padding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(0.9),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final isFavorite =
+                    ref.watch(isFavoriteProvider(widget.productId));
+                return IconButton(
+                  icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      size: 20),
+                  color: isFavorite ? kAccentOrange : kDarkGreen,
+                  onPressed: () => _toggleFavorite(ref, isFavorite),
+                  padding: EdgeInsets.zero,
+                );
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(0.9),
+            child: IconButton(
+              icon: const Icon(Icons.share, color: kDarkGreen, size: 20),
+              onPressed: () => _shareProduct(product),
+              padding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -135,99 +521,108 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 );
               },
             ),
+            // Pagination Dots
             Positioned(
               bottom: 16,
-              right: 16,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '${_currentImageIndex + 1}/${product.images.length}',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  product.images.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: _currentImageIndex == index ? 24 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: _currentImageIndex == index
+                          ? kDarkGreen
+                          : Colors.white.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ),
               ),
             ),
             if (product.hasDiscount)
               Positioned(
-                top: 16,
+                top: 100,
                 left: 16,
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(8),
+                    color: kAccentOrange,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     '-${product.discount!.value.toStringAsFixed(0)}%',
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),
           ],
         ),
       ),
-      actions: [
-        Consumer(
-          builder: (context, ref, child) {
-            final isFavorite = ref.watch(isFavoriteProvider(widget.productId));
-            return IconButton(
-              icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-              color: isFavorite ? Colors.red : null,
-              onPressed: () => _toggleFavorite(ref, isFavorite),
-            );
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.share),
-          onPressed: () => _shareProduct(product),
-        ),
-      ],
     );
   }
 
   Widget _buildProductHeader(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            product.name,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          product.name,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            height: 1.2,
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.amber, size: 18),
-              const SizedBox(width: 4),
-              Text(
-                product.rating.average.toStringAsFixed(1),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+            const SizedBox(width: 4),
+            Text(
+              product.rating.average.toStringAsFixed(1),
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                color: kDarkGreen,
+                fontSize: 14,
               ),
-              const SizedBox(width: 8),
-              Text('(${product.rating.count} reviews)'),
-              const Spacer(),
-              Text(
-                '${NumberFormat('#,###').format(product.stats.orders)} sold',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '(${product.rating.count} reviews)',
+              style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+            ),
+            const Spacer(),
+            Text(
+              '${NumberFormat('#,###').format(product.stats.orders)} sold',
+              style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildPriceSection(BuildContext context, ProductDetail product) {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.orange[50],
+      decoration: BoxDecoration(
+        color: kAccentOrange.withValues(alpha: 0.05),
+        border: Border(
+          top: BorderSide(color: kPillGrey),
+          bottom: BorderSide(color: kPillGrey),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -236,9 +631,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               NumberFormat.currency(
                       locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                   .format(product.price),
-              style: const TextStyle(
+              style: GoogleFonts.dmSans(
                 decoration: TextDecoration.lineThrough,
-                color: Colors.grey,
+                color: kTextGrey,
                 fontSize: 14,
               ),
             ),
@@ -251,16 +646,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 NumberFormat.currency(
                         locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                     .format(product.finalPrice),
-                style: const TextStyle(
-                  fontSize: 24,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.orange,
+                  color: kDarkGreen,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '/ ${product.unit}',
-                style: TextStyle(color: Colors.grey[600]),
+                style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 16),
               ),
             ],
           ),
@@ -268,8 +663,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const SizedBox(height: 4),
             Text(
               'Save ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.discount!.savings)}',
-              style: const TextStyle(
-                  color: Colors.green, fontWeight: FontWeight.bold),
+              style: GoogleFonts.dmSans(
+                color: const Color(0xFF10B981),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ],
@@ -299,7 +696,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     if (labels.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -309,182 +706,238 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildLabelChip(String label, Color color) {
-    return Chip(
-      label: Text(label),
-      backgroundColor: color.withValues(alpha: 0.1),
-      labelStyle:
-          TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-
-  Widget _buildSellerInfo(BuildContext context, ProductDetail product) {
-    final seller = product.seller;
-    return InkWell(
-      onTap: () => _viewSellerProfile(seller.userId),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundImage: seller.profilePicture != null
-                  ? NetworkImage(seller.profilePicture!)
-                  : null,
-              child:
-                  seller.profilePicture == null ? Text(seller.name[0]) : null,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(seller.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      if (seller.verified) ...[
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified,
-                            size: 16, color: Colors.blue),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${seller.location.city}, ${seller.location.province}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                      if (seller.location.distance != null) ...[
-                        const Text(' • ', style: TextStyle(color: Colors.grey)),
-                        Text(
-                          '${seller.location.distance!.toStringAsFixed(1)} km',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 14, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(
-                          '${seller.rating} • ${seller.totalProducts ?? 0} products'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right),
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: kAccentOrange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kAccentOrange.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.dmSans(
+          color: kAccentOrange,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
       ),
     );
   }
 
-  Widget _buildDescription(BuildContext context, ProductDetail product) {
-    return Padding(
+  Widget _buildSellerInfo(BuildContext context, ProductDetail product) {
+    final seller = product.seller;
+    return Container(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Description',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
+        boxShadow: [
+          BoxShadow(
+            color: kDarkGreen.withOpacity(0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
           ),
-          const SizedBox(height: 12),
-          Text(product.description),
-          if (product.longDescription != null) ...[
-            const SizedBox(height: 12),
-            Text(product.longDescription!),
-          ],
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: seller.profilePicture != null
+                ? NetworkImage(seller.profilePicture!)
+                : null,
+            child: seller.profilePicture == null ? Text(seller.name[0]) : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(seller.name,
+                        style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: kDarkGreen)),
+                    if (seller.verified) ...[
+                      const SizedBox(width: 4),
+                      const Icon(Icons.verified, size: 16, color: Colors.blue),
+                    ],
+                  ],
+                ),
+                Text(
+                  '${seller.location.city}, ${seller.location.province}',
+                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                ),
+              ],
+            ),
+          ),
+          OutlinedButton(
+            onPressed: () => _viewSellerProfile(seller.userId),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: kDarkGreen,
+              side: const BorderSide(color: kPillGrey),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              minimumSize: const Size(80, 36),
+            ),
+            child: Text('Visit',
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSpecifications(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Specifications',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  Widget _buildDescription(BuildContext context, ProductDetail product) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Description',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: kDarkGreen,
           ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          product.description,
+          style: GoogleFonts.dmSans(
+            fontSize: 14,
+            color: kTextGrey,
+            height: 1.6,
+          ),
+        ),
+        if (product.longDescription != null) ...[
           const SizedBox(height: 12),
-          ...product.specifications!.map((spec) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: Text(
-                      spec.key,
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
-                  Expanded(
-                      child: Text(spec.value,
-                          style: const TextStyle(fontWeight: FontWeight.w500))),
-                ],
-              ),
-            );
-          }),
+          Text(
+            product.longDescription!,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              color: kTextGrey,
+              height: 1.6,
+            ),
+          ),
         ],
-      ),
+      ],
+    );
+  }
+
+  Widget _buildSpecifications(BuildContext context, ProductDetail product) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Specifications',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: kDarkGreen,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: kPillGrey),
+          ),
+          child: Column(
+            children: product.specifications!.map((spec) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 120,
+                      child: Text(
+                        spec.key,
+                        style:
+                            GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        spec.value,
+                        style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.w600,
+                            color: kDarkGreen,
+                            fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildCertifications(BuildContext context, ProductDetail product) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Certifications',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: kDarkGreen,
+            ),
           ),
           const SizedBox(height: 12),
           ...product.certifications!.map((cert) {
-            return Card(
+            return Container(
               margin: const EdgeInsets.only(bottom: 12),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    if (cert.verified)
-                      const Icon(Icons.verified, color: Colors.green, size: 32),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(cert.name,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Issued by: ${cert.issuer}',
-                              style: const TextStyle(fontSize: 12)),
-                          Text(
-                              'Valid until: ${DateFormat('dd MMM yyyy').format(cert.expiryDate)}',
-                              style: const TextStyle(fontSize: 12)),
-                        ],
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPillGrey, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  if (cert.verified)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Icon(Icons.verified,
+                          color: Color(0xFF10B981), size: 24),
                     ),
-                  ],
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(cert.name,
+                            style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.bold,
+                                color: kDarkGreen)),
+                        const SizedBox(height: 4),
+                        Text('Issued by: ${cert.issuer}',
+                            style: GoogleFonts.dmSans(
+                                fontSize: 12, color: kTextGrey)),
+                        Text(
+                            'Valid until: ${DateFormat('dd MMM yyyy').format(cert.expiryDate)}',
+                            style: GoogleFonts.dmSans(
+                                fontSize: 12, color: kTextGrey)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             );
           }),
@@ -494,48 +947,65 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildDeliveryOptions(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Delivery Options',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Delivery Options',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: kDarkGreen,
           ),
-          const SizedBox(height: 12),
-          if (product.deliveryOptions.homeDelivery?.available == true) ...[
-            _buildDeliveryOption(
-              icon: Icons.local_shipping,
-              title: 'Home Delivery',
-              subtitle:
-                  'Rp ${NumberFormat('#,###').format(product.deliveryOptions.homeDelivery!.fee)} • '
-                  '${product.deliveryOptions.homeDelivery!.estimatedDelivery}',
-              color: Colors.blue,
-            ),
-          ],
-          if (product.deliveryOptions.selfPickup?.available == true) ...[
-            const SizedBox(height: 8),
-            _buildDeliveryOption(
-              icon: Icons.store,
-              title: 'Self Pickup',
-              subtitle: 'FREE • ${product.deliveryOptions.selfPickup!.address}',
-              color: Colors.green,
-            ),
-          ],
-          if (product.deliveryOptions.expressDelivery?.available == true) ...[
-            const SizedBox(height: 8),
-            _buildDeliveryOption(
-              icon: Icons.flash_on,
-              title: 'Express Delivery',
-              subtitle:
-                  'Rp ${NumberFormat('#,###').format(product.deliveryOptions.expressDelivery!.fee)} • '
-                  '${product.deliveryOptions.expressDelivery!.estimatedDelivery}',
-              color: Colors.orange,
-            ),
-          ],
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: kPillGrey),
+          ),
+          child: Column(
+            children: [
+              if (product.deliveryOptions.homeDelivery?.available == true)
+                _buildDeliveryOption(
+                  icon: Icons.local_shipping,
+                  title: 'Home Delivery',
+                  subtitle:
+                      'Rp ${NumberFormat('#,###').format(product.deliveryOptions.homeDelivery!.fee)} • '
+                      '${product.deliveryOptions.homeDelivery!.estimatedDelivery}',
+                  color: Colors.blue,
+                ),
+              if (product.deliveryOptions.selfPickup?.available == true) ...[
+                if (product.deliveryOptions.homeDelivery?.available == true)
+                  Divider(color: kPillGrey, height: 24),
+                _buildDeliveryOption(
+                  icon: Icons.store,
+                  title: 'Self Pickup',
+                  subtitle:
+                      'FREE • ${product.deliveryOptions.selfPickup!.address}',
+                  color: Colors.green,
+                ),
+              ],
+              if (product.deliveryOptions.expressDelivery?.available ==
+                  true) ...[
+                if (product.deliveryOptions.homeDelivery?.available == true ||
+                    product.deliveryOptions.selfPickup?.available == true)
+                  Divider(color: kPillGrey, height: 24),
+                _buildDeliveryOption(
+                  icon: Icons.flash_on,
+                  title: 'Express Delivery',
+                  subtitle:
+                      'Rp ${NumberFormat('#,###').format(product.deliveryOptions.expressDelivery!.fee)} • '
+                      '${product.deliveryOptions.expressDelivery!.estimatedDelivery}',
+                  color: Colors.orange,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -553,16 +1023,21 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: color),
+          child: Icon(icon, color: color, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: kDarkGreen)),
+              const SizedBox(height: 2),
               Text(subtitle,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
             ],
           ),
         ),
@@ -572,46 +1047,57 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   Widget _buildBulkPricing(BuildContext context, ProductDetail product) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Bulk Pricing',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: kDarkGreen,
+            ),
           ),
           const SizedBox(height: 12),
           ...product.bulkPricing!.map((bulk) {
-            return Card(
+            return Container(
               margin: const EdgeInsets.only(bottom: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${bulk.minQuantity}${bulk.maxQuantity != null ? '-${bulk.maxQuantity}' : '+'} ${product.unit}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          'Save ${bulk.discountPercentage.toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                              color: Colors.green, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      NumberFormat.currency(
-                              locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-                          .format(bulk.pricePerUnit),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPillGrey, width: 1.5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${bulk.minQuantity}${bulk.maxQuantity != null ? '-${bulk.maxQuantity}' : '+'} ${product.unit}',
+                        style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold, color: kDarkGreen),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Save ${bulk.discountPercentage.toStringAsFixed(1)}%',
+                        style: GoogleFonts.dmSans(
+                            color: const Color(0xFF10B981), fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    NumberFormat.currency(
+                            locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                        .format(bulk.pricePerUnit),
+                    style: GoogleFonts.playfairDisplay(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen),
+                  ),
+                ],
               ),
             );
           }),
@@ -622,20 +1108,25 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   Widget _buildRatingReviews(BuildContext context, ProductDetail product) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Ratings & Reviews',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: kDarkGreen,
+                ),
               ),
               TextButton(
                 onPressed: () => _viewAllReviews(product),
-                child: const Text('View All'),
+                child: Text('View All',
+                    style: GoogleFonts.dmSans(color: kAccentOrange)),
               ),
             ],
           ),
@@ -644,8 +1135,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Text(
                 product.rating.average.toStringAsFixed(1),
-                style:
-                    const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                style: GoogleFonts.playfairDisplay(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -659,13 +1152,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           index < product.rating.average.floor()
                               ? Icons.star
                               : Icons.star_border,
-                          color: Colors.amber,
+                          color: kAccentOrange,
                           size: 20,
                         ),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text('Based on ${product.rating.count} reviews'),
+                    Text('Based on ${product.rating.count} reviews',
+                        style: GoogleFonts.dmSans(color: kTextGrey)),
                   ],
                 ),
               ),
@@ -769,17 +1263,21 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   Widget _buildRelatedProducts(BuildContext context, ProductDetail product) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Related Products',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: kDarkGreen,
+            ),
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 220,
+            height: 240,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: product.relatedProducts!.length,
@@ -790,70 +1288,78 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   child: Container(
                     width: 150,
                     margin: const EdgeInsets.only(right: 12),
-                    child: Card(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(4)),
-                            child: Image.network(
-                              relatedProduct.image ?? '',
-                              width: 150,
-                              height: 120,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 150,
-                                  height: 120,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image),
-                                );
-                              },
-                            ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kPillGrey, width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12)),
+                          child: Image.network(
+                            relatedProduct.image ?? '',
+                            width: 150,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 150,
+                                height: 120,
+                                color: kPillGrey,
+                                child:
+                                    const Icon(Icons.image, color: kTextGrey),
+                              );
+                            },
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  relatedProduct.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                relatedProduct.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: kDarkGreen),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                NumberFormat.currency(
+                                        locale: 'id',
+                                        symbol: 'Rp ',
+                                        decimalDigits: 0)
+                                    .format(relatedProduct.price),
+                                style: GoogleFonts.playfairDisplay(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: kDarkGreen),
+                              ),
+                              if (relatedProduct.rating != null) ...[
                                 const SizedBox(height: 4),
-                                Text(
-                                  NumberFormat.currency(
-                                          locale: 'id',
-                                          symbol: 'Rp ',
-                                          decimalDigits: 0)
-                                      .format(relatedProduct.price),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        color: kAccentOrange, size: 12),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      relatedProduct.rating!.toStringAsFixed(1),
+                                      style: GoogleFonts.dmSans(
+                                          fontSize: 11, color: kTextGrey),
+                                    ),
+                                  ],
                                 ),
-                                if (relatedProduct.rating != null) ...[
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.star,
-                                          color: Colors.amber, size: 12),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        relatedProduct.rating!
-                                            .toStringAsFixed(1),
-                                        style: const TextStyle(fontSize: 10),
-                                      ),
-                                    ],
-                                  ),
-                                ],
                               ],
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -866,93 +1372,512 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, ProductDetail product) {
+    // Check if this is a pre-order product
+    final isPreOrder = product.canPreOrder && product.preOrderInfo != null;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
+            color: kDarkGreen.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
       child: SafeArea(
-        child: Row(
+        child: isPreOrder
+            ? _buildPreOrderBottomBar(context, product)
+            : _buildRegularBottomBar(context, product),
+      ),
+    );
+  }
+
+  // Regular purchase bottom bar
+  Widget _buildRegularBottomBar(BuildContext context, ProductDetail product) {
+    return Row(
+      children: [
+        // 1. Quantity Selector
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: kPillGrey),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove, size: 20),
+                color: kDarkGreen,
+                onPressed: () => _decrementQuantity(product),
+              ),
+              Consumer(
+                builder: (context, ref, child) {
+                  final quantity =
+                      ref.watch(productQuantityProvider(widget.productId));
+                  return Text(
+                    '$quantity',
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: kDarkGreen),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, size: 20),
+                color: kDarkGreen,
+                onPressed: () => _incrementQuantity(product),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 16),
+
+        // 2. Add to Cart Button
+        ElevatedButton(
+          onPressed: product.isInStock ? () => _addToCart(product) : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kAccentOrange,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            minimumSize: const Size(54, 54),
+            padding: EdgeInsets.zero,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Icon(Icons.shopping_cart_outlined,
+              color: Colors.white, size: 22),
+        ),
+
+        const SizedBox(width: 12),
+
+        // 3. Buy Now Button
+        Expanded(
+          child: ElevatedButton(
+            onPressed: product.isInStock ? () => _buyNow(product) : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Buy Now',
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Pre-order bottom bar with special styling
+  Widget _buildPreOrderBottomBar(BuildContext context, ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Harvest countdown banner
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: kPreOrderBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.schedule, size: 16, color: kPreOrderBlue),
+              const SizedBox(width: 6),
+              Text(
+                'Harvest in ${preOrderInfo.daysUntilHarvest} days • ${preOrderInfo.availableQuantity} ${product.unit} left',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: kPreOrderBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
           children: [
             // Quantity Selector
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: kPillGrey),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.remove),
+                    icon: const Icon(Icons.remove, size: 20),
+                    color: kDarkGreen,
                     onPressed: () => _decrementQuantity(product),
-                    padding: EdgeInsets.zero,
-                    constraints:
-                        const BoxConstraints(minWidth: 40, minHeight: 40),
                   ),
                   Consumer(
                     builder: (context, ref, child) {
                       final quantity =
                           ref.watch(productQuantityProvider(widget.productId));
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(quantity.toString(),
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
+                      return Text(
+                        '$quantity',
+                        style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: kDarkGreen),
                       );
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(Icons.add, size: 20),
+                    color: kDarkGreen,
                     onPressed: () => _incrementQuantity(product),
-                    padding: EdgeInsets.zero,
-                    constraints:
-                        const BoxConstraints(minWidth: 40, minHeight: 40),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(width: 12),
-            // Add to Cart Button
+
+            // Pre-Order Button with special styling
             Expanded(
-              child: ElevatedButton.icon(
-                onPressed: product.isInStock ? () => _addToCart(product) : null,
-                icon: const Icon(Icons.shopping_cart),
-                label: Text(product.isInStock ? 'Add to Cart' : 'Out of Stock'),
+              child: ElevatedButton(
+                onPressed: () => _handlePreOrder(product),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: kPreOrderBlue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.event_available, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      preOrderInfo.requiresDeposit
+                          ? 'Pre-Order (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)} deposit)'
+                          : 'Pre-Order Now',
+                      style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            // Buy Now Button
-            Expanded(
-              child: ElevatedButton(
-                onPressed: product.isInStock ? () => _buyNow(product) : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _handlePreOrder(ProductDetail product) {
+    // Show pre-order confirmation dialog
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _buildPreOrderConfirmationSheet(product),
+    );
+  }
+
+  Widget _buildPreOrderConfirmationSheet(ProductDetail product) {
+    final preOrderInfo = product.preOrderInfo!;
+    final quantity = ref.read(productQuantityProvider(widget.productId));
+    final totalPrice = product.finalPrice * quantity;
+    final depositAmount = preOrderInfo.requiresDeposit
+        ? (preOrderInfo.depositAmount ?? totalPrice * 0.2)
+        : 0.0;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kPreOrderBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child:
+                      const Icon(Icons.event_available, color: kPreOrderBlue),
                 ),
-                child: const Text('Buy Now'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Confirm Pre-Order',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                      Text(
+                        'Reserve your fresh produce',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: kTextGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Product summary
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product.images.first.url,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                        Text(
+                          '$quantity ${product.unit} × ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.finalPrice)}',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13,
+                            color: kTextGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(
+                            locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                        .format(totalPrice),
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Harvest info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kFreshGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today,
+                      size: 20, color: kFreshGreen),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Harvest Date',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            color: kTextGrey,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('EEEE, MMMM d, yyyy')
+                              .format(preOrderInfo.harvestDate),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: kFreshGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${preOrderInfo.daysUntilHarvest} days',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Deposit info if required
+            if (preOrderInfo.requiresDeposit) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.account_balance_wallet,
+                            size: 18, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Deposit Required',
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pay now:',
+                          style: GoogleFonts.dmSans(color: kTextGrey),
+                        ),
+                        Text(
+                          NumberFormat.currency(
+                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                              .format(depositAmount),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pay on delivery:',
+                          style: GoogleFonts.dmSans(color: kTextGrey),
+                        ),
+                        Text(
+                          NumberFormat.currency(
+                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+                              .format(totalPrice - depositAmount),
+                          style: GoogleFonts.dmSans(
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            // Confirm button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _confirmPreOrder(product);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPreOrderBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  preOrderInfo.requiresDeposit
+                      ? 'Pay Deposit & Reserve'
+                      : 'Confirm Pre-Order',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                'You can cancel up to 24 hours before harvest',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  color: kTextGrey,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _confirmPreOrder(ProductDetail product) {
+    // TODO: Implement actual pre-order API call
+    _showSnackBar('Pre-order confirmed! You will be notified when ready.');
   }
 
   void _toggleFavorite(WidgetRef ref, bool currentStatus) async {
@@ -1015,15 +1940,28 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   void _addToCart(ProductDetail product) {
     final quantity = ref.read(productQuantityProvider(widget.productId));
-    // TODO: Implement add to cart functionality
+    // Navigate to cart screen
     _showSnackBar('Added $quantity ${product.unit} to cart');
     ref.read(isInCartProvider(widget.productId).notifier).state = true;
+
+    // Navigate to cart after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.pushNamed(context, '/cart');
+      }
+    });
   }
 
   void _buyNow(ProductDetail product) {
     final quantity = ref.read(productQuantityProvider(widget.productId));
-    // TODO: Implement buy now functionality (navigate to checkout)
-    _showSnackBar('Buy $quantity ${product.unit} now - Navigate to checkout');
+    // Navigate directly to checkout for buy now
+    _showSnackBar('Proceeding to checkout with $quantity ${product.unit}');
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.pushNamed(context, '/checkout');
+      }
+    });
   }
 
   void _shareProduct(ProductDetail product) {

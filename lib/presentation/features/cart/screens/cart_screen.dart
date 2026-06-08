@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/providers/cart_providers.dart';
+// Assuming you have these from previous files, if not, they are defined below
+// import 'package:harvest_app/core/config/theme/app_colors.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class CartScreen extends ConsumerWidget {
   static const routeName = '/cart';
@@ -12,125 +24,413 @@ class CartScreen extends ConsumerWidget {
     final cartAsync = ref.watch(cartProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Cart')),
+      backgroundColor: kBgColor,
+      appBar: AppBar(
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'My Cart',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            letterSpacing: -0.5,
+          ),
+        ),
+        actions: [
+          // Clear Cart Button moved to AppBar for cleaner UI
+          IconButton(
+            onPressed: () => _clearCart(context, ref),
+            icon: const Icon(Icons.delete_outline, color: kDarkGreen),
+            tooltip: 'Clear Cart',
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
       body: cartAsync.when(
         data: (cart) {
           if (cart.items.isEmpty) {
-            return const Center(child: Text('Your cart is empty'));
+            return _buildEmptyState(context);
           }
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: cart.items.length,
-            separatorBuilder: (_, __) => const Divider(),
-            itemBuilder: (context, idx) {
-              final item = cart.items[idx];
-              return ListTile(
-                leading: CircleAvatar(
-                    child: Text(item.name.isNotEmpty ? item.name[0] : '?')),
-                title: Text(item.name),
-                subtitle: Text('Qty: ${item.quantity} • Rp ${item.subtotal}'),
-                trailing: Wrap(
-                  spacing: 8,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () async {
-                        // simulate decrease quantity
-                        final newQty = (item.quantity - 1).clamp(1, 999);
-                        final uc = ref.read(updateCartItemUsecaseProvider);
-                        final res = await uc.call(
-                            cartItemId: item.cartItemId, quantity: newQty);
-                        res.fold(
-                            (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message))), (r) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Quantity updated')));
-                          ref.invalidate(cartProvider);
-                        });
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () async {
-                        final newQty = (item.quantity + 1).clamp(1, 999);
-                        final uc = ref.read(updateCartItemUsecaseProvider);
-                        final res = await uc.call(
-                            cartItemId: item.cartItemId, quantity: newQty);
-                        res.fold(
-                            (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message))),
-                            (r) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Quantity updated')));
-                          ref.invalidate(cartProvider);
-                        });
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        final uc = ref.read(removeCartItemUsecaseProvider);
-                        final res = await uc.call(cartItemId: item.cartItemId);
-                        res.fold(
-                            (l) => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.message))), (r) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Item removed')));
-                          ref.invalidate(cartProvider);
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: ${e.toString()}')),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
+
+          // Calculate Total (assuming item.subtotal is the line total)
+          final double total =
+              cart.items.fold(0, (sum, item) => sum + (item.subtotal));
+
+          return Column(
             children: [
+              // Scrollable Cart Items
               Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    // validate & checkout -> navigate to checkout screen
-                    final validateUc = ref.read(validateCartUsecaseProvider);
-                    final res = await validateUc.call();
-                    res.fold(
-                        (l) => ScaffoldMessenger.of(context)
-                            .showSnackBar(SnackBar(content: Text(l.message))),
-                        (r) {
-                      Navigator.of(context).pushNamed('/checkout');
-                    });
+                child: ListView.separated(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  itemCount: cart.items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, idx) {
+                    final item = cart.items[idx];
+                    return _buildModernCartItem(context, ref, item);
                   },
-                  child: const Text('Checkout'),
                 ),
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.delete_sweep_outlined),
-                onPressed: () async {
-                  final uc = ref.read(clearCartUsecaseProvider);
-                  final res = await uc.call();
-                  res.fold(
-                      (l) => ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(l.message))),
-                      (r) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cart cleared')));
-                    ref.invalidate(cartProvider);
-                  });
-                },
-              )
+
+              // Bottom Summary Section
+              _buildBottomSummary(context, ref, total),
             ],
+          );
+        },
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (e, st) => Center(child: Text('Error: ${e.toString()}')),
+      ),
+    );
+  }
+
+  // --- WIDGETS ---
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: kPillGrey,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.shopping_basket_outlined,
+                size: 48, color: Colors.grey),
           ),
+          const SizedBox(height: 24),
+          Text(
+            'Your cart is empty',
+            style: GoogleFonts.dmSans(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: kDarkGreen,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Fresh products are waiting for you!',
+            style: GoogleFonts.dmSans(color: kTextGrey),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDarkGreen,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)),
+            ),
+            child: const Text('Start Shopping'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernCartItem(
+      BuildContext context, WidgetRef ref, dynamic item) {
+    // Note: 'item' should be your CartItem model.
+    // Assuming fields: name, quantity, subtotal, cartItemId.
+    // Ideally, item has an imageUrl. If not, we use a fallback.
+
+    return Dismissible(
+      key: Key(item.cartItemId.toString()),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEF4444), // Red
+          borderRadius: BorderRadius.circular(20),
         ),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+      ),
+      onDismissed: (_) => _removeItem(context, ref, item.cartItemId),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: kPillGrey),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 1. Product Image
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              // Use a real image if available: Image.network(item.imageUrl)
+              child: Center(
+                child: Text(
+                  item.name.isNotEmpty ? item.name[0] : '?',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen.withOpacity(0.4),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+
+            // 2. Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: kDarkGreen,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Rp ${item.subtotal}', // Or unit price if available
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: kAccentOrange,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 3. Quantity Stepper (Pill Shape)
+            Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildStepperBtn(
+                    icon: Icons.remove,
+                    onTap: () => _updateQty(context, ref, item, -1),
+                  ),
+                  SizedBox(
+                    width: 30,
+                    child: Text(
+                      '${item.quantity}',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                  ),
+                  _buildStepperBtn(
+                    icon: Icons.add,
+                    onTap: () => _updateQty(context, ref, item, 1),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepperBtn(
+      {required IconData icon, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Icon(icon, size: 16, color: kDarkGreen),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSummary(
+      BuildContext context, WidgetRef ref, double total) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+            color: kDarkGreen.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Subtotal Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Subtotal', style: GoogleFonts.dmSans(color: kTextGrey)),
+                Text(
+                  'Rp $total',
+                  style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold, color: kDarkGreen),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Mock Delivery Fee (Optional)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Delivery Fee',
+                    style: GoogleFonts.dmSans(color: kTextGrey)),
+                Text(
+                  'Rp 15.000',
+                  style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold, color: kDarkGreen),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Divider(),
+            ),
+            // Total Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                  ),
+                ),
+                Text(
+                  'Rp ${total + 15000}', // Adding dummy delivery fee
+                  style: GoogleFonts.dmSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: kAccentOrange,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Checkout Button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () => _checkout(context, ref),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kDarkGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'Checkout Now',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- LOGIC METHODS (Preserved from your original code) ---
+
+  Future<void> _updateQty(
+      BuildContext context, WidgetRef ref, dynamic item, int change) async {
+    final newQty = (item.quantity + change).clamp(1, 999);
+    if (newQty == item.quantity) return;
+
+    final uc = ref.read(updateCartItemUsecaseProvider);
+    final res = await uc.call(
+        cartItemId: item.cartItemId, quantity: newQty.toInt()); // Ensure int
+
+    res.fold(
+      (l) => _showSnack(context, l.message),
+      (r) => ref.invalidate(cartProvider), // Refresh logic
+    );
+  }
+
+  Future<void> _removeItem(
+      BuildContext context, WidgetRef ref, dynamic id) async {
+    final uc = ref.read(removeCartItemUsecaseProvider);
+    final res = await uc.call(cartItemId: id);
+    res.fold(
+      (l) => _showSnack(context, l.message),
+      (r) {
+        _showSnack(context, 'Item removed');
+        ref.invalidate(cartProvider);
+      },
+    );
+  }
+
+  Future<void> _clearCart(BuildContext context, WidgetRef ref) async {
+    final uc = ref.read(clearCartUsecaseProvider);
+    final res = await uc.call();
+    res.fold(
+      (l) => _showSnack(context, l.message),
+      (r) {
+        _showSnack(context, 'Cart cleared');
+        ref.invalidate(cartProvider);
+      },
+    );
+  }
+
+  Future<void> _checkout(BuildContext context, WidgetRef ref) async {
+    final validateUc = ref.read(validateCartUsecaseProvider);
+    final res = await validateUc.call();
+    res.fold(
+      (l) => _showSnack(context, l.message),
+      (r) => context.push(AppRouter.checkout),
+    );
+  }
+
+  void _showSnack(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: kDarkGreen,
       ),
     );
   }
