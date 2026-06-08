@@ -39,6 +39,23 @@ final loginUseCaseProvider = AutoDisposeProvider<LoginUseCase>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef LoginUseCaseRef = AutoDisposeProviderRef<LoginUseCase>;
+String _$registerUseCaseHash() => r'0f1f842bd5399c007cd5e8089bff9c56ec0c7618';
+
+/// See also [registerUseCase].
+@ProviderFor(registerUseCase)
+final registerUseCaseProvider = AutoDisposeProvider<RegisterUseCase>.internal(
+  registerUseCase,
+  name: r'registerUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$registerUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RegisterUseCaseRef = AutoDisposeProviderRef<RegisterUseCase>;
 String _$logoutUseCaseHash() => r'2b963e9e0eff2155f687d45b1b5c652ddb695d62';
 
 /// See also [logoutUseCase].
@@ -76,7 +93,7 @@ final getCurrentUserUseCaseProvider =
 // ignore: unused_element
 typedef GetCurrentUserUseCaseRef
     = AutoDisposeProviderRef<GetCurrentUserUseCase>;
-String _$authControllerHash() => r'da27f50f5da02f063c3229a405ee52b9b8d6a497';
+String _$authControllerHash() => r'bb74737b56da0fbd5026a16bc51f4526e021772b';
 
 /// See also [AuthController].
 @ProviderFor(AuthController)

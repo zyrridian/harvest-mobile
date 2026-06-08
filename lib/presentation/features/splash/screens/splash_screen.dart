@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
+import 'package:harvest_app/core/services/storage_service.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/config/theme/app_colors.dart';
-import '../../../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -53,23 +54,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Wait for animation to complete and auth check
     await Future.wait([
       Future.delayed(const Duration(milliseconds: 2000)),
-      ref.read(authControllerProvider.notifier).initialize(),
+      ref.read(authControllerProvider.notifier).checkAuthStatus(),
     ]);
 
     if (!mounted) return;
 
-    final authState = ref.read(authControllerProvider);
+    final isFirstLaunch = ref.read(preferencesServiceProvider).isFirstLaunch();
 
-    if (authState.isFirstLaunch) {
+    if (isFirstLaunch) {
       // First time user, show onboarding
       context.go(AppRouter.welcome);
-    } else if (authState.isAuthenticated) {
-      // User is logged in, go to main
-      context.go(AppRouter.main);
-    } else {
-      // User is not logged in, go to login
-      context.go(AppRouter.login);
+      return;
     }
+
+    final authState = ref.read(authControllerProvider);
+
+    authState.maybeWhen(
+      authenticated: (_) => context.go(AppRouter.main),
+      orElse: () => context.go(AppRouter.login),
+    );
   }
 
   @override

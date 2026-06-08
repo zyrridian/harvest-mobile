@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/config/router/app_router.dart';
-import '../../../providers/auth_provider.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_state.dart';
 
 // Design constants matching current style
 const kBgColor = Color(0xFFFAFAF8);
@@ -74,23 +75,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     // Listen to auth state changes
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
-      if (next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              next.errorMessage!,
-              style: GoogleFonts.dmSans(),
+      next.maybeWhen(
+        error: (message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: GoogleFonts.dmSans(),
+              ),
+              backgroundColor: const Color(0xFFDC2626),
+              behavior: SnackBarBehavior.floating,
             ),
-            backgroundColor: const Color(0xFFDC2626),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        ref.read(authControllerProvider.notifier).clearError();
-      }
-
-      if (next.isAuthenticated) {
-        context.go(AppRouter.main);
-      }
+          );
+        },
+        authenticated: (_) {
+          context.go(AppRouter.main);
+        },
+        orElse: () {},
+      );
     });
 
     return Scaffold(
@@ -165,11 +167,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   decoration: InputDecoration(
                     labelText: 'Full Name',
                     hintText: 'Enter your full name',
-                    prefixIcon: const Icon(Icons.person_outline, color: kTextGrey),
+                    prefixIcon:
+                        const Icon(Icons.person_outline, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
                     labelStyle: GoogleFonts.dmSans(color: kTextGrey),
-                    hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+                    hintStyle:
+                        GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -188,7 +192,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDC2626), width: 2),
                     ),
                   ),
                   textCapitalization: TextCapitalization.words,
@@ -210,11 +215,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     hintText: 'Enter your email',
-                    prefixIcon: const Icon(Icons.email_outlined, color: kTextGrey),
+                    prefixIcon:
+                        const Icon(Icons.email_outlined, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
                     labelStyle: GoogleFonts.dmSans(color: kTextGrey),
-                    hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+                    hintStyle:
+                        GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -233,7 +240,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDC2626), width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -259,11 +267,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   decoration: InputDecoration(
                     labelText: 'Phone Number (Optional)',
                     hintText: '+62 xxx xxxx xxxx',
-                    prefixIcon: const Icon(Icons.phone_outlined, color: kTextGrey),
+                    prefixIcon:
+                        const Icon(Icons.phone_outlined, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
                     labelStyle: GoogleFonts.dmSans(color: kTextGrey),
-                    hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+                    hintStyle:
+                        GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -282,7 +292,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDC2626), width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.phone,
@@ -303,11 +314,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline, color: kTextGrey),
+                    prefixIcon:
+                        const Icon(Icons.lock_outline, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
                     labelStyle: GoogleFonts.dmSans(color: kTextGrey),
-                    hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+                    hintStyle:
+                        GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -339,7 +352,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDC2626), width: 2),
                     ),
                   ),
                   obscureText: _obscurePassword,
@@ -361,11 +375,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     hintText: 'Re-enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline, color: kTextGrey),
+                    prefixIcon:
+                        const Icon(Icons.lock_outline, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
                     labelStyle: GoogleFonts.dmSans(color: kTextGrey),
-                    hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+                    hintStyle:
+                        GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
@@ -397,7 +413,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDC2626), width: 2),
                     ),
                   ),
                   obscureText: _obscureConfirmPassword,
@@ -472,7 +489,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: authState.isLoading ? null : _handleRegister,
+                    onPressed: authState.maybeWhen(
+                      loading: () => true,
+                      orElse: () => false,
+                    )
+                        ? null
+                        : _handleRegister,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kDarkGreen,
                       foregroundColor: Colors.white,
@@ -482,7 +504,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       elevation: 0,
                       disabledBackgroundColor: kDarkGreen.withOpacity(0.5),
                     ),
-                    child: authState.isLoading
+                    child: authState.maybeWhen(
+                      loading: () => true,
+                      orElse: () => false,
+                    )
                         ? const SizedBox(
                             height: 24,
                             width: 24,

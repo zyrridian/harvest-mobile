@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../../domain/entities/user.dart';
+import 'package:harvest_app/domain/entities/user.dart';
 
 part 'auth_state.freezed.dart';
 

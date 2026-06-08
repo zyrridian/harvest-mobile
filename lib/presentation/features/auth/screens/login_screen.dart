@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../providers/auth_provider.dart';
+import '../providers/auth_controller.dart';
+import '../providers/auth_state.dart';
 import '../widgets/login_form.dart';
 
 // Design constants matching current style
@@ -22,25 +23,24 @@ class LoginScreen extends ConsumerWidget {
 
     // Listen to auth state changes
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
-      if (next.hasError && next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              next.errorMessage!,
-              style: GoogleFonts.dmSans(),
+      next.maybeWhen(
+        error: (message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: GoogleFonts.dmSans(),
+              ),
+              backgroundColor: const Color(0xFFDC2626),
+              behavior: SnackBarBehavior.floating,
             ),
-            backgroundColor: const Color(0xFFDC2626),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        // Clear error after showing
-        ref.read(authControllerProvider.notifier).clearError();
-      }
-
-      if (next.isAuthenticated) {
-        // Navigate to home screen
-        context.go(AppRouter.main);
-      }
+          );
+        },
+        authenticated: (_) {
+          context.go(AppRouter.main);
+        },
+        orElse: () {},
+      );
     });
 
     return Scaffold(
@@ -102,7 +102,10 @@ class LoginScreen extends ConsumerWidget {
                           password: password,
                         );
                   },
-                  isLoading: authState.isLoading,
+                  isLoading: authState.maybeWhen(
+                    loading: () => true,
+                    orElse: () => false,
+                  ),
                 ),
                 const SizedBox(height: 16),
 

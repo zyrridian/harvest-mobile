@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/utils/localization_extension.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../providers/profile_providers.dart';
-import '../../../providers/auth_provider.dart';
 import 'help_center_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'about_us_screen.dart';
@@ -447,7 +447,7 @@ class ProfileScreen extends ConsumerWidget {
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(context.l10n.logout,
@@ -458,20 +458,20 @@ class ProfileScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.cancel,
                 style: GoogleFonts.dmSans(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(dialogContext).pop(); // Close dialog
 
               // Show loading indicator
               if (context.mounted) {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (context) => const Center(
+                  builder: (loadingContext) => const Center(
                     child: CircularProgressIndicator(color: kDarkGreen),
                   ),
                 );

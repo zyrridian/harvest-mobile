@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/config/router/app_router.dart';
-import '../../../../core/config/theme/app_colors.dart';
-import '../../../providers/auth_provider.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:harvest_app/core/services/storage_service.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -59,7 +59,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   }
 
   void _completeOnboarding() {
-    ref.read(authControllerProvider.notifier).completeOnboarding();
+    ref.read(preferencesServiceProvider).setFirstLaunchComplete();
     context.go(AppRouter.login);
   }
 
