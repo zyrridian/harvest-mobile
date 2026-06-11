@@ -192,9 +192,16 @@ class AppRouter {
         path: chat,
         name: 'chat',
         builder: (context, state) {
-          final conversationId = state.uri.queryParameters['conversationId'] ??
+          final extra = state.extra as Map<String, dynamic>?;
+          final conversationId =
+              extra?['conversationId'] as String? ??
+              state.uri.queryParameters['conversationId'] ??
               'conv_1234567890abcdef';
-          return ChatScreen(conversationId: conversationId);
+          return ChatScreen(
+            conversationId: conversationId,
+            farmerName: extra?['farmerName'] as String?,
+            farmerAvatar: extra?['farmerAvatar'] as String?,
+          );
         },
       ),
     ],

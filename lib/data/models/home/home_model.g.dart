@@ -132,6 +132,7 @@ Map<String, dynamic> _$HomeNearbyFarmersModelToJson(
 HomeFarmerModel _$HomeFarmerModelFromJson(Map<String, dynamic> json) =>
     HomeFarmerModel(
       id: json['id'] as String,
+      userId: json['user_id'] as String,
       name: json['name'] as String,
       profileImage: json['profile_image'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
@@ -146,6 +147,7 @@ HomeFarmerModel _$HomeFarmerModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$HomeFarmerModelToJson(HomeFarmerModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'user_id': instance.userId,
       'name': instance.name,
       'profile_image': instance.profileImage,
       'latitude': instance.latitude,

@@ -96,12 +96,12 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
         imageUrl:
             'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
         harvestTime: '30 Days'),
-    SeasonalProduce(
-        name: 'Red Chilies',
-        category: 'Veg',
-        imageUrl:
-            'https://images.unsplash.com/photo-1583058492096-393bd78a6e46?w=400',
-        harvestTime: '60 Days'),
+    // SeasonalProduce(
+    //     name: 'Red Chilies',
+    //     category: 'Veg',
+    //     imageUrl:
+    //         'https://images.unsplash.com/photo-1583058492096-393bd78a6e46?w=400',
+    //     harvestTime: '60 Days'),
     // SeasonalProduce(
     //     name: 'Mango',
     //     category: 'Fruit',

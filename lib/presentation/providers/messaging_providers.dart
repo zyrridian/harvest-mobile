@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/dio_provider.dart';
 import '../../data/datasources/remote/messaging_remote_datasource.dart';
 import '../../data/repositories/messaging_repository_impl.dart';
 import '../../domain/repositories/messaging_repository.dart';
@@ -11,10 +12,11 @@ import '../../domain/usecases/messaging/send_message.dart';
 import '../../domain/usecases/messaging/send_typing_indicator.dart';
 import '../../domain/usecases/messaging/start_conversation.dart';
 
-// Data Source Provider
+// Data Source Provider – now backed by the real Dio instance
 final messagingRemoteDataSourceProvider =
     Provider<MessagingRemoteDataSource>((ref) {
-  return MessagingRemoteDataSourceImpl();
+  final dio = ref.watch(dioProvider);
+  return MessagingRemoteDataSourceImpl(dio);
 });
 
 // Repository Provider

@@ -633,7 +633,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           // Upcoming Harvests Horizontal List
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 280, // Increased height to prevent overflow with larger image
+              height:
+                  280, // Increased height to prevent overflow with larger image
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -979,12 +980,11 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   Widget _buildModernFarmerCard(HomeFarmer farmer) {
     return GestureDetector(
       onTap: () {
-        // Map HomeFarmer to Farmer and navigate
         final fullFarmer = Farmer(
           id: farmer.id,
-          userId: '', 
+          userId: farmer.userId,
           name: farmer.name,
-          description: '', 
+          description: '',
           profileImage: farmer.profileImage,
           coverImage: null,
           latitude: farmer.latitude ?? 0.0,
@@ -1141,7 +1141,8 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     final totalQty = harvest.targetAmount ?? harvest.stockQuantity ?? 0;
     final currentBooked = harvest.currentBooked ?? 0;
     final availableQty = totalQty - currentBooked;
-    final preOrderPercentage = totalQty > 0 ? (currentBooked / totalQty * 100).clamp(0.0, 100.0) : 0.0;
+    final preOrderPercentage =
+        totalQty > 0 ? (currentBooked / totalQty * 100).clamp(0.0, 100.0) : 0.0;
 
     return GestureDetector(
       onTap: () {

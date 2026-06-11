@@ -7,7 +7,9 @@ import '../../../../domain/entities/farmer.dart';
 import '../../../../domain/entities/product.dart';
 import '../../../../domain/entities/review.dart';
 import '../../../../domain/entities/community_post.dart';
+import '../../../../core/config/router/app_router.dart';
 import '../../farmer_detail/providers/farmer_detail_controller.dart';
+import '../../../providers/messaging_providers.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -184,8 +186,42 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         Expanded(
           flex: 2,
           child: ElevatedButton.icon(
-            onPressed: () {
-              // Handle Message Logic
+            onPressed: () async {
+              // Start or get existing conversation with this farmer,
+              // then navigate to the chat screen.
+              final startConversation =
+                  ref.read(startConversationUsecaseProvider);
+              final result = await startConversation(
+                recipientId: widget.farmer.userId,
+                type: 'general',
+              );
+              result.fold(
+                (failure) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text('Could not open chat: ${failure.message}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                (data) {
+                  final convId = data['data']?['conversation_id'] as String? ??
+                      'conv_1234567890abcdef';
+                  if (context.mounted) {
+                    context.push(
+                      AppRouter.chat,
+                      extra: {
+                        'conversationId': convId,
+                        'farmerName': widget.farmer.name,
+                        'farmerAvatar': widget.farmer.profileImage,
+                      },
+                    );
+                  }
+                },
+              );
             },
             icon: const Icon(
               Icons.chat_bubble_outline,
@@ -229,11 +265,14 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
   Widget _buildProductsTab(AsyncValue<List<Product>> productsState) {
     return productsState.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      loading: () =>
+          const Center(child: CircularProgressIndicator(color: kDarkGreen)),
       error: (error, _) => Center(child: Text('Error: $error')),
       data: (products) {
         if (products.isEmpty) {
-          return Center(child: Text('No products available', style: GoogleFonts.dmSans(color: kTextGrey)));
+          return Center(
+              child: Text('No products available',
+                  style: GoogleFonts.dmSans(color: kTextGrey)));
         }
         return GridView.builder(
           padding: const EdgeInsets.all(24),
@@ -259,17 +298,24 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     child: Container(
                       decoration: BoxDecoration(
                         color: kPillGrey,
-                        borderRadius:
-                            const BorderRadius.vertical(top: Radius.circular(20)),
-                        image: product.imageUrl.isNotEmpty && product.imageUrl.startsWith('http') ? DecorationImage(
-                          image: CachedNetworkImageProvider(product.imageUrl),
-                          fit: BoxFit.cover,
-                        ) : null,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        image: product.imageUrl.isNotEmpty &&
+                                product.imageUrl.startsWith('http')
+                            ? DecorationImage(
+                                image: CachedNetworkImageProvider(
+                                    product.imageUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
-                      child: product.imageUrl.isEmpty || !product.imageUrl.startsWith('http') ? Center(
-                        child: Icon(Icons.shopping_bag_outlined,
-                            size: 40, color: kDarkGreen.withOpacity(0.2)),
-                      ) : null,
+                      child: product.imageUrl.isEmpty ||
+                              !product.imageUrl.startsWith('http')
+                          ? Center(
+                              child: Icon(Icons.shopping_bag_outlined,
+                                  size: 40, color: kDarkGreen.withOpacity(0.2)),
+                            )
+                          : null,
                     ),
                   ),
                   Padding(
@@ -287,7 +333,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                         Text(
                           'Rp ${product.price}',
                           style: GoogleFonts.dmSans(
-                              color: kAccentOrange, fontWeight: FontWeight.bold),
+                              color: kAccentOrange,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -303,11 +350,14 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
   Widget _buildCommunityTab(AsyncValue<List<CommunityPost>> postsState) {
     return postsState.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      loading: () =>
+          const Center(child: CircularProgressIndicator(color: kDarkGreen)),
       error: (error, _) => Center(child: Text('Error: $error')),
       data: (posts) {
         if (posts.isEmpty) {
-          return Center(child: Text('No posts yet', style: GoogleFonts.dmSans(color: kTextGrey)));
+          return Center(
+              child: Text('No posts yet',
+                  style: GoogleFonts.dmSans(color: kTextGrey)));
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
@@ -329,8 +379,10 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     children: [
                       CircleAvatar(
                         radius: 16,
-                        backgroundImage: widget.farmer.profileImage != null && widget.farmer.profileImage!.startsWith('http')
-                            ? CachedNetworkImageProvider(widget.farmer.profileImage!)
+                        backgroundImage: widget.farmer.profileImage != null &&
+                                widget.farmer.profileImage!.startsWith('http')
+                            ? CachedNetworkImageProvider(
+                                widget.farmer.profileImage!)
                             : null,
                         onBackgroundImageError: (_, __) {},
                       ),
@@ -340,7 +392,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                         children: [
                           Text(widget.farmer.name,
                               style: GoogleFonts.dmSans(
-                                  fontWeight: FontWeight.bold, color: kDarkGreen)),
+                                  fontWeight: FontWeight.bold,
+                                  color: kDarkGreen)),
                           Text(post.createdAt.toString().split(' ')[0],
                               style: GoogleFonts.dmSans(
                                   fontSize: 12, color: kTextGrey)),
@@ -360,10 +413,13 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       decoration: BoxDecoration(
                         color: kPillGrey,
                         borderRadius: BorderRadius.circular(12),
-                        image: post.images.first.startsWith('http') ? DecorationImage(
-                          image: CachedNetworkImageProvider(post.images.first),
-                          fit: BoxFit.cover,
-                        ) : null,
+                        image: post.images.first.startsWith('http')
+                            ? DecorationImage(
+                                image: CachedNetworkImageProvider(
+                                    post.images.first),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
                     ),
                   ],
@@ -438,7 +494,6 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
             ),
           ),
           const SizedBox(height: 16),
-
           const SizedBox(height: 12),
           _buildContactRow(Icons.location_on_outlined, widget.farmer.address),
         ],
@@ -463,11 +518,14 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
   Widget _buildReviewsTab(AsyncValue<List<Review>> reviewsState) {
     return reviewsState.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      loading: () =>
+          const Center(child: CircularProgressIndicator(color: kDarkGreen)),
       error: (error, _) => Center(child: Text('Error: $error')),
       data: (reviews) {
         if (reviews.isEmpty) {
-          return Center(child: Text('No reviews yet', style: GoogleFonts.dmSans(color: kTextGrey)));
+          return Center(
+              child: Text('No reviews yet',
+                  style: GoogleFonts.dmSans(color: kTextGrey)));
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
@@ -486,9 +544,10 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     CircleAvatar(
                       radius: 16,
                       backgroundColor: kPillGrey,
-                      backgroundImage: review.userAvatar != null && review.userAvatar!.startsWith('http')
-                        ? CachedNetworkImageProvider(review.userAvatar!)
-                        : null,
+                      backgroundImage: review.userAvatar != null &&
+                              review.userAvatar!.startsWith('http')
+                          ? CachedNetworkImageProvider(review.userAvatar!)
+                          : null,
                       onBackgroundImageError: (_, __) {},
                     ),
                     const SizedBox(width: 12),
@@ -497,7 +556,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       children: [
                         Text(review.userName,
                             style: GoogleFonts.dmSans(
-                                fontWeight: FontWeight.bold, color: kDarkGreen)),
+                                fontWeight: FontWeight.bold,
+                                color: kDarkGreen)),
                         Row(
                           children: List.generate(
                               5,
@@ -513,7 +573,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     ),
                     const Spacer(),
                     Text(review.createdAt.toString().split(' ')[0],
-                        style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+                        style:
+                            GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
                   ],
                 ),
                 const SizedBox(height: 12),

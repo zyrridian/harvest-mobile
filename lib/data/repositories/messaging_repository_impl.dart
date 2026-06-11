@@ -44,7 +44,8 @@ class MessagingRepositoryImpl implements MessagingRepository {
         limit: limit,
         beforeMessageId: beforeMessageId,
       );
-      return Right(result.toEntity());
+      // datasource already returns the entity directly
+      return Right(result);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

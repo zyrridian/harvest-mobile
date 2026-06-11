@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import '../../models/conversation_model.dart';
 import '../../models/message_model.dart';
+import '../../../domain/entities/conversation.dart';
+import '../../../domain/entities/message.dart';
 
 abstract class MessagingRemoteDataSource {
   Future<Map<String, dynamic>> getConversations({
@@ -9,7 +12,7 @@ abstract class MessagingRemoteDataSource {
     int limit = 20,
   });
 
-  Future<ConversationDetailModel> getConversationDetail({
+  Future<ConversationDetail> getConversationDetail({
     required String conversationId,
     int page = 1,
     int limit = 50,
@@ -99,9 +102,62 @@ abstract class MessagingRemoteDataSource {
   Future<List<BlockedUserModel>> getBlockedUsers();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers – manual JSON parsing matching the actual backend shapes
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Parses the participant object from the DETAIL endpoint (fewer required fields)
+ConversationParticipant _parseParticipant(Map<String, dynamic> p) {
+  return ConversationParticipant(
+    userId: p['user_id'] as String,
+    name: p['name'] as String? ?? '',
+    profilePicture: p['profile_picture'] as String?,
+    userType: p['user_type'] as String? ?? 'producer',
+    isOnline: p['is_online'] as bool? ?? false,
+    lastSeen: p['last_seen'] != null
+        ? DateTime.tryParse(p['last_seen'] as String)
+        : null,
+    verified: p['verified'] as bool? ?? false,
+    responseRate: (p['response_rate'] as num?)?.toInt(),
+    responseTime: p['response_time'] as String?,
+  );
+}
+
+/// Parses a single message from the DETAIL endpoint.
+/// The backend returns flat sender_id / sender_name instead of a nested object.
+Message _parseMessage(Map<String, dynamic> m) {
+  return Message(
+    messageId: m['message_id'] as String,
+    sender: MessageUser(
+      userId: m['sender_id'] as String? ?? '',
+      name: m['sender_name'] as String? ?? '',
+      profilePicture: m['sender_avatar'] as String?,
+    ),
+    type: m['type'] as String? ?? 'text',
+    content: m['content'] as String?,
+    timestamp: m['timestamp'] != null
+        ? DateTime.tryParse(m['timestamp'] as String) ?? DateTime.now()
+        : DateTime.now(),
+    isRead: m['is_read'] as bool? ?? false,
+    readAt: m['read_at'] != null
+        ? DateTime.tryParse(m['read_at'] as String)
+        : null,
+    isEdited: m['is_edited'] as bool? ?? false,
+    isDeleted: m['is_deleted'] as bool? ?? false,
+    text: m['text'] as String?,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Real implementation
+// ─────────────────────────────────────────────────────────────────────────────
+
 class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
-  // final ApiService apiService;
-  // MessagingRemoteDataSourceImpl(this.apiService);
+  final Dio _dio;
+
+  MessagingRemoteDataSourceImpl(this._dio);
+
+  // ── Conversations ─────────────────────────────────────────────────────────
 
   @override
   Future<Map<String, dynamic>> getConversations({
@@ -110,402 +166,73 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     int page = 1,
     int limit = 20,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Mock JSON response matching API spec
-    final mockResponse = {
-      "status": "success",
-      "data": {
-        "conversations": [
-          {
-            "conversation_id": "conv_1234567890abcdef",
-            "type": "order",
-            "participant": {
-              "user_id": "usr_987",
-              "name": "Green Valley Farm",
-              "profile_picture":
-                  "https://cdn.farmmarket.com/profiles/usr_987.jpg",
-              "user_type": "producer",
-              "is_online": true,
-              "last_seen": DateTime.now()
-                  .subtract(const Duration(minutes: 5))
-                  .toIso8601String(),
-              "verified": true,
-              "response_rate": 98,
-              "response_time": "< 30 minutes"
-            },
-            "order": {
-              "order_id": "ord_123",
-              "order_number": "FM20251009001",
-              "status": "shipped",
-              "total_amount": 75050,
-              "items_count": 2
-            },
-            "product": {
-              "product_id": "prd_456",
-              "name": "Organic Tomatoes",
-              "image": "https://cdn.farmmarket.com/products/prd_456.jpg",
-              "price": 15000
-            },
-            "last_message": {
-              "message_id": "msg_789",
-              "sender_id": "usr_987",
-              "sender_name": "Green Valley Farm",
-              "type": "text",
-              "content": "Your order has been shipped!",
-              "preview": "Your order has been shipped!",
-              "timestamp": DateTime.now()
-                  .subtract(const Duration(hours: 1))
-                  .toIso8601String(),
-              "is_read": false
-            },
-            "unread_count": 2,
-            "muted": false,
-            "pinned": false,
-            "created_at": DateTime.now()
-                .subtract(const Duration(days: 1))
-                .toIso8601String(),
-            "updated_at": DateTime.now()
-                .subtract(const Duration(hours: 1))
-                .toIso8601String()
-          },
-          {
-            "conversation_id": "conv_9876543210fedcba",
-            "type": "general",
-            "participant": {
-              "user_id": "usr_654",
-              "name": "Fresh Harvest Farm",
-              "profile_picture":
-                  "https://cdn.farmmarket.com/profiles/usr_654.jpg",
-              "user_type": "producer",
-              "is_online": false,
-              "last_seen": DateTime.now()
-                  .subtract(const Duration(hours: 2))
-                  .toIso8601String(),
-              "verified": true
-            },
-            "product": {
-              "product_id": "prd_789",
-              "name": "Fresh Strawberries",
-              "image": "https://cdn.farmmarket.com/products/prd_789.jpg",
-              "price": 45000
-            },
-            "last_message": {
-              "message_id": "msg_456",
-              "sender_id": "usr_123",
-              "sender_name": "You",
-              "type": "text",
-              "content": "Is this still available?",
-              "preview": "Is this still available?",
-              "timestamp": DateTime.now()
-                  .subtract(const Duration(hours: 3))
-                  .toIso8601String(),
-              "is_read": true
-            },
-            "unread_count": 0,
-            "muted": false,
-            "pinned": false,
-            "created_at": DateTime.now()
-                .subtract(const Duration(hours: 3))
-                .toIso8601String(),
-            "updated_at": DateTime.now()
-                .subtract(const Duration(hours: 3))
-                .toIso8601String()
-          },
-          {
-            "conversation_id": "conv_abc123def456",
-            "type": "general",
-            "participant": {
-              "user_id": "usr_321",
-              "name": "Organic Gardens",
-              "profile_picture":
-                  "https://cdn.farmmarket.com/profiles/usr_321.jpg",
-              "user_type": "producer",
-              "is_online": true,
-              "last_seen": DateTime.now().toIso8601String(),
-              "verified": true,
-              "response_rate": 95,
-              "response_time": "< 1 hour"
-            },
-            "product": {
-              "product_id": "prd_111",
-              "name": "Fresh Lettuce",
-              "image": "https://cdn.farmmarket.com/products/prd_111.jpg",
-              "price": 8000
-            },
-            "last_message": {
-              "message_id": "msg_111",
-              "sender_id": "usr_321",
-              "sender_name": "Organic Gardens",
-              "type": "text",
-              "content": "Yes, we have fresh stock today!",
-              "preview": "Yes, we have fresh stock today!",
-              "timestamp": DateTime.now()
-                  .subtract(const Duration(minutes: 30))
-                  .toIso8601String(),
-              "is_read": true
-            },
-            "unread_count": 0,
-            "muted": false,
-            "pinned": true,
-            "created_at": DateTime.now()
-                .subtract(const Duration(days: 2))
-                .toIso8601String(),
-            "updated_at": DateTime.now()
-                .subtract(const Duration(minutes: 30))
-                .toIso8601String()
-          }
-        ],
-        "stats": {
-          "total_conversations": 15,
-          "unread_conversations": 3,
-          "total_unread_messages": 8
-        },
-        "pagination": {
-          "current_page": 1,
-          "total_pages": 1,
-          "total_items": 15,
-          "items_per_page": 20,
-          "has_next": false,
-          "has_previous": false
-        }
-      }
-    };
-
-    return mockResponse;
-
-    // Real implementation:
-    // return await apiService.get('/conversations', queryParams: {
-    //   'filter': filter,
-    //   if (search != null) 'search': search,
-    //   'page': page.toString(),
-    //   'limit': limit.toString(),
-    // });
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/conversations',
+      queryParameters: {
+        if (filter != 'all') 'filter': filter,
+        if (search != null && search.isNotEmpty) 'search': search,
+        'page': page,
+        'limit': limit,
+      },
+    );
+    return response.data ?? {};
   }
 
   @override
-  Future<ConversationDetailModel> getConversationDetail({
+  Future<ConversationDetail> getConversationDetail({
     required String conversationId,
     int page = 1,
     int limit = 50,
     String? beforeMessageId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    // Mock JSON response matching API spec
-    final mockResponse = {
-      "conversation_id": conversationId,
-      "type": "order",
-      "participant": {
-        "user_id": "usr_987",
-        "name": "Green Valley Farm",
-        "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg",
-        "user_type": "producer",
-        "is_online": true,
-        "last_seen": DateTime.now().toIso8601String(),
-        "verified": true,
-        "response_rate": 98,
-        "response_time": "< 30 minutes"
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/conversations/$conversationId',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+        if (beforeMessageId != null) 'before_message_id': beforeMessageId,
       },
-      "order": {
-        "order_id": "ord_123",
-        "order_number": "FM20251009001",
-        "status": "shipped",
-        "total_amount": 75050,
-        "items_count": 2
-      },
-      "messages": [
-        {
-          "message_id": "msg_001",
-          "sender": {
-            "user_id": "usr_123",
-            "name": "Ahmad Zulfikar",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_123.jpg"
-          },
-          "type": "text",
-          "content": "Hello, I'd like to order tomatoes",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 2))
-              .toIso8601String(),
-          "is_read": true,
-          "read_at": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 58))
-              .toIso8601String(),
-          "is_edited": false,
-          "is_deleted": false
-        },
-        {
-          "message_id": "msg_002",
-          "sender": {
-            "user_id": "usr_987",
-            "name": "Green Valley Farm",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-          },
-          "type": "text",
-          "content":
-              "Hi! Sure, we have fresh organic tomatoes available. How many kg do you need?",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 55))
-              .toIso8601String(),
-          "is_read": true,
-          "read_at": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 54))
-              .toIso8601String(),
-          "is_edited": false,
-          "is_deleted": false
-        },
-        {
-          "message_id": "msg_003",
-          "sender": {
-            "user_id": "usr_123",
-            "name": "Ahmad Zulfikar",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_123.jpg"
-          },
-          "type": "product",
-          "product": {
-            "product_id": "prd_123",
-            "name": "Organic Fresh Tomatoes",
-            "image": "https://cdn.farmmarket.com/products/prd_123.jpg",
-            "price": 15000,
-            "unit": "kg",
-            "availability": "in_stock"
-          },
-          "text": "I'd like 3 kg of this",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 53))
-              .toIso8601String(),
-          "is_read": true,
-          "read_at": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 52))
-              .toIso8601String(),
-          "is_edited": false,
-          "is_deleted": false
-        },
-        {
-          "message_id": "msg_004",
-          "sender": {
-            "user_id": "usr_987",
-            "name": "Green Valley Farm",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-          },
-          "type": "text",
-          "content": "Perfect! You can add it to cart and checkout.",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 50))
-              .toIso8601String(),
-          "is_read": true,
-          "read_at": DateTime.now()
-              .subtract(const Duration(days: 1, hours: 1, minutes: 48))
-              .toIso8601String(),
-          "is_edited": false,
-          "is_deleted": false,
-          "reactions": [
-            {
-              "emoji": "👍",
-              "user_id": "usr_123",
-              "timestamp": DateTime.now()
-                  .subtract(const Duration(days: 1, hours: 1, minutes: 47))
-                  .toIso8601String()
-            }
-          ]
-        },
-        {
-          "message_id": "msg_005",
-          "sender": {
-            "user_id": "usr_987",
-            "name": "Green Valley Farm",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-          },
-          "type": "order",
-          "order": {
-            "order_id": "ord_123",
-            "order_number": "FM20251009001",
-            "status": "shipped",
-            "total_amount": 75050,
-            "items_count": 2,
-            "created_at": DateTime.now()
-                .subtract(const Duration(hours: 5))
-                .toIso8601String()
-          },
-          "text": "Your order has been shipped! 🚚",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(hours: 1))
-              .toIso8601String(),
-          "is_read": false,
-          "is_edited": false,
-          "is_deleted": false
-        },
-        {
-          "message_id": "msg_006",
-          "sender": {
-            "user_id": "usr_987",
-            "name": "Green Valley Farm",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-          },
-          "type": "image",
-          "images": [
-            {
-              "image_id": "img_msg_001",
-              "url": "https://cdn.farmmarket.com/messages/img_msg_001.jpg",
-              "thumbnail_url":
-                  "https://cdn.farmmarket.com/messages/thumb_img_msg_001.jpg",
-              "width": 1920,
-              "height": 1080
-            }
-          ],
-          "text": "Here's your packed order 📦",
-          "timestamp": DateTime.now()
-              .subtract(const Duration(minutes: 30))
-              .toIso8601String(),
-          "is_read": false,
-          "is_edited": false,
-          "is_deleted": false
-        },
-        {
-          "message_id": "msg_007",
-          "sender": {
-            "user_id": "usr_123",
-            "name": "Ahmad Zulfikar",
-            "profile_picture": "https://cdn.farmmarket.com/profiles/usr_123.jpg"
-          },
-          "type": "voice",
-          "voice": {
-            "url": "https://cdn.farmmarket.com/messages/voice_007.m4a",
-            "duration": 8,
-            "waveform": [0.2, 0.5, 0.8, 0.6, 0.4, 0.7, 0.5, 0.3]
-          },
-          "timestamp": DateTime.now()
-              .subtract(const Duration(minutes: 25))
-              .toIso8601String(),
-          "is_read": false,
-          "is_played": false,
-          "is_edited": false,
-          "is_deleted": false
-        }
-      ],
-      "quick_replies": [
-        "Is this still available?",
-        "What's the minimum order?",
-        "Can you deliver today?",
-        "Do you have organic certification?"
-      ],
-      "typing_indicator": {"is_typing": false, "user_id": null},
-      "can_send_messages": true,
-      "blocked": false,
-      "muted": false,
-      "created_at":
-          DateTime.now().subtract(const Duration(days: 1)).toIso8601String()
-    };
+    );
 
-    return ConversationDetailModel.fromJson(mockResponse);
+    final body = response.data ?? {};
+    final data = body['data'] as Map<String, dynamic>? ?? body;
 
-    // Real implementation:
-    // final response = await apiService.get('/conversations/$conversationId', queryParams: {
-    //   'page': page.toString(),
-    //   'limit': limit.toString(),
-    //   if (beforeMessageId != null) 'before_message_id': beforeMessageId,
-    // });
-    // return ConversationDetailModel.fromJson(response['data']);
+    final participant = _parseParticipant(
+        data['participant'] as Map<String, dynamic>);
+
+    final rawMessages = data['messages'] as List<dynamic>? ?? [];
+    final messages = rawMessages
+        .map((m) => _parseMessage(m as Map<String, dynamic>))
+        .toList();
+
+    ConversationOrder? order;
+    final rawOrder = data['order'];
+    if (rawOrder != null) {
+      final o = rawOrder as Map<String, dynamic>;
+      order = ConversationOrder(
+        orderId: o['order_id'] as String,
+        orderNumber: o['order_number'] as String,
+        status: o['status'] as String,
+        totalAmount: (o['total_amount'] as num).toInt(),
+        itemsCount: (o['items_count'] as num?)?.toInt(),
+      );
+    }
+
+    return ConversationDetail(
+      conversationId: data['conversation_id'] as String,
+      type: data['type'] as String? ?? 'general',
+      participant: participant,
+      order: order,
+      messages: messages,
+      quickReplies: const [],
+      typingIndicator: const TypingIndicator(isTyping: false),
+      canSendMessages: true,
+      blocked: false,
+      muted: false,
+      createdAt: data['created_at'] != null
+          ? DateTime.tryParse(data['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
+    );
   }
 
   @override
@@ -516,39 +243,21 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String? productId,
     String? initialMessage,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final mockResponse = {
-      "status": "success",
-      "message": "Conversation started",
-      "data": {
-        "conversation_id": "conv_new_${DateTime.now().millisecondsSinceEpoch}",
-        "participant": {
-          "user_id": recipientId,
-          "name": "Green Valley Farm",
-          "profile_picture":
-              "https://cdn.farmmarket.com/profiles/$recipientId.jpg"
-        },
-        "message": {
-          "message_id": "msg_${DateTime.now().millisecondsSinceEpoch}",
-          "content": initialMessage ?? "",
-          "timestamp": DateTime.now().toIso8601String()
-        },
-        "created_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    return mockResponse;
-
-    // Real implementation:
-    // return await apiService.post('/conversations', body: {
-    //   'recipient_id': recipientId,
-    //   'type': type,
-    //   if (orderId != null) 'order_id': orderId,
-    //   if (productId != null) 'product_id': productId,
-    //   if (initialMessage != null) 'initial_message': initialMessage,
-    // });
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/conversations',
+      data: {
+        'recipient_id': recipientId,
+        'type': type,
+        if (orderId != null) 'order_id': orderId,
+        if (productId != null) 'product_id': productId,
+        if (initialMessage != null && initialMessage.isNotEmpty)
+          'initial_message': initialMessage,
+      },
+    );
+    return response.data ?? {};
   }
+
+  // ── Messages ──────────────────────────────────────────────────────────────
 
   @override
   Future<MessageModel> sendMessage({
@@ -561,41 +270,54 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String? voicePath,
     String? replyToMessageId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
+    final formData = FormData.fromMap({
+      'type': type,
+      if (content != null) 'content': content,
+      if (productId != null) 'product_id': productId,
+      if (orderId != null) 'order_id': orderId,
+      if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
+    });
 
-    final mockResponse = {
-      "message_id": "msg_${DateTime.now().millisecondsSinceEpoch}",
-      "sender": {
-        "user_id": "usr_123",
-        "name": "You",
-        "profile_picture": "https://cdn.farmmarket.com/profiles/usr_123.jpg"
+    if (imagePaths != null) {
+      for (final path in imagePaths) {
+        formData.files.add(MapEntry(
+          'images',
+          await MultipartFile.fromFile(path),
+        ));
+      }
+    }
+    if (voicePath != null) {
+      formData.files.add(MapEntry(
+        'voice',
+        await MultipartFile.fromFile(voicePath),
+      ));
+    }
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/conversations/$conversationId/messages',
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+
+    final data = (response.data?['data'] as Map<String, dynamic>?) ??
+        response.data ??
+        {};
+
+    // Build a MessageModel from the flat response
+    return MessageModel.fromJson({
+      'message_id': data['message_id'] ?? '',
+      'sender': {
+        'user_id': data['sender_id'] ?? '',
+        'name': data['sender_name'] ?? 'You',
+        'profile_picture': data['sender_avatar'],
       },
-      "type": type,
-      "content": content,
-      "timestamp": DateTime.now().toIso8601String(),
-      "is_read": false,
-      "is_edited": false,
-      "is_deleted": false
-    };
-
-    return MessageModel.fromJson(mockResponse);
-
-    // Real implementation:
-    // final formData = FormData();
-    // formData.fields.add(MapEntry('type', type));
-    // if (content != null) formData.fields.add(MapEntry('content', content));
-    // if (imagePaths != null) {
-    //   for (var path in imagePaths) {
-    //     formData.files.add(MapEntry('images', await MultipartFile.fromFile(path)));
-    //   }
-    // }
-    // if (productId != null) formData.fields.add(MapEntry('product_id', productId));
-    // if (orderId != null) formData.fields.add(MapEntry('order_id', orderId));
-    // if (voicePath != null) formData.files.add(MapEntry('voice', await MultipartFile.fromFile(voicePath)));
-    // if (replyToMessageId != null) formData.fields.add(MapEntry('reply_to_message_id', replyToMessageId));
-    //
-    // final response = await apiService.post('/conversations/$conversationId/messages', formData: formData);
-    // return MessageModel.fromJson(response['data']);
+      'type': data['type'] ?? type,
+      'content': data['content'] ?? content,
+      'timestamp': data['timestamp'] ?? DateTime.now().toIso8601String(),
+      'is_read': data['is_read'] ?? false,
+      'is_edited': data['is_edited'] ?? false,
+      'is_deleted': data['is_deleted'] ?? false,
+    });
   }
 
   @override
@@ -603,21 +325,11 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String messageId,
     required String content,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    return {
-      "status": "success",
-      "message": "Message updated",
-      "data": {
-        "message_id": messageId,
-        "content": content,
-        "is_edited": true,
-        "edited_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.put('/messages/$messageId', body: {'content': content});
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/messages/$messageId',
+      data: {'content': content},
+    );
+    return response.data ?? {};
   }
 
   @override
@@ -625,264 +337,153 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String messageId,
     String deleteFor = 'me',
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    return {
-      "status": "success",
-      "message": "Message deleted",
-      "data": {
-        "message_id": messageId,
-        "deleted_for": deleteFor,
-        "deleted_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.delete('/messages/$messageId', queryParams: {'delete_for': deleteFor});
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/messages/$messageId',
+      queryParameters: {'delete_for': deleteFor},
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> markMessageAsRead({
     required String messageId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    return {
-      "status": "success",
-      "message": "Message marked as read",
-      "data": {
-        "message_id": messageId,
-        "read_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/messages/$messageId/read');
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/messages/$messageId/read',
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> markConversationAsRead({
     required String conversationId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    return {
-      "status": "success",
-      "message": "All messages marked as read",
-      "data": {
-        "conversation_id": conversationId,
-        "messages_marked": 5,
-        "marked_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/conversations/$conversationId/read-all');
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/conversations/$conversationId/read-all',
+    );
+    return response.data ?? {};
   }
+
+  // ── Reactions ─────────────────────────────────────────────────────────────
 
   @override
   Future<Map<String, dynamic>> addReaction({
     required String messageId,
     required String emoji,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    return {
-      "status": "success",
-      "message": "Reaction added",
-      "data": {
-        "message_id": messageId,
-        "emoji": emoji,
-        "user_id": "usr_123",
-        "timestamp": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/messages/$messageId/reaction', body: {'emoji': emoji});
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/messages/$messageId/reaction',
+      data: {'emoji': emoji},
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> removeReaction({
     required String messageId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    return {"status": "success", "message": "Reaction removed"};
-
-    // Real implementation:
-    // return await apiService.delete('/messages/$messageId/reaction');
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/messages/$messageId/reaction',
+    );
+    return response.data ?? {};
   }
+
+  // ── Typing (REST fallback – real-time via socket) ─────────────────────────
 
   @override
   Future<Map<String, dynamic>> sendTypingIndicator({
     required String conversationId,
     required bool isTyping,
   }) async {
-    // No delay for typing indicator (real-time)
-    return {
-      "status": "success",
-      "data": {
-        "conversation_id": conversationId,
-        "is_typing": isTyping,
-        "expires_at":
-            DateTime.now().add(const Duration(seconds: 5)).toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/conversations/$conversationId/typing', body: {'is_typing': isTyping});
+    // Typing is handled in real-time by the socket; this REST method is a
+    // no-op placeholder kept for interface compatibility.
+    return {'status': 'ok'};
   }
+
+  // ── Mute / Pin ────────────────────────────────────────────────────────────
 
   @override
   Future<Map<String, dynamic>> muteConversation({
     required String conversationId,
     int? duration,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    return {
-      "status": "success",
-      "message": "Conversation muted",
-      "data": {
-        "conversation_id": conversationId,
-        "muted": true,
-        "muted_until": duration != null
-            ? DateTime.now().add(Duration(seconds: duration)).toIso8601String()
-            : null
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/conversations/$conversationId/mute', body: {'duration': duration});
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/conversations/$conversationId/mute',
+      data: duration != null ? {'duration': duration} : null,
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> unmuteConversation({
     required String conversationId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    return {"status": "success", "message": "Conversation unmuted"};
-
-    // Real implementation:
-    // return await apiService.delete('/conversations/$conversationId/mute');
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/conversations/$conversationId/mute',
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> pinConversation({
     required String conversationId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    return {
-      "status": "success",
-      "message": "Conversation pinned",
-      "data": {
-        "conversation_id": conversationId,
-        "pinned": true,
-        "pinned_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/conversations/$conversationId/pin');
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/conversations/$conversationId/pin',
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> unpinConversation({
     required String conversationId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    return {"status": "success", "message": "Conversation unpinned"};
-
-    // Real implementation:
-    // return await apiService.delete('/conversations/$conversationId/pin');
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/conversations/$conversationId/pin',
+    );
+    return response.data ?? {};
   }
+
+  // ── Conversation management ───────────────────────────────────────────────
 
   @override
   Future<Map<String, dynamic>> deleteConversation({
     required String conversationId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    return {
-      "status": "success",
-      "message": "Conversation deleted",
-      "data": {
-        "conversation_id": conversationId,
-        "deleted_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.delete('/conversations/$conversationId');
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/conversations/$conversationId',
+    );
+    return response.data ?? {};
   }
+
+  // ── Block / Unblock ───────────────────────────────────────────────────────
 
   @override
   Future<Map<String, dynamic>> blockUser({
     required String userId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    return {
-      "status": "success",
-      "message": "User blocked successfully",
-      "data": {
-        "user_id": userId,
-        "blocked": true,
-        "blocked_at": DateTime.now().toIso8601String()
-      }
-    };
-
-    // Real implementation:
-    // return await apiService.post('/users/$userId/block');
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/users/$userId/block',
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<Map<String, dynamic>> unblockUser({
     required String userId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    return {"status": "success", "message": "User unblocked successfully"};
-
-    // Real implementation:
-    // return await apiService.delete('/users/$userId/block');
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/users/$userId/block',
+    );
+    return response.data ?? {};
   }
 
   @override
   Future<List<BlockedUserModel>> getBlockedUsers() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final mockResponse = {
-      "status": "success",
-      "data": {
-        "blocked_users": [
-          {
-            "user_id": "usr_999",
-            "name": "Blocked User",
-            "profile_picture":
-                "https://cdn.farmmarket.com/profiles/usr_999.jpg",
-            "blocked_at": DateTime.now()
-                .subtract(const Duration(days: 7))
-                .toIso8601String()
-          }
-        ],
-        "total_count": 1
-      }
-    };
-
-    final data = mockResponse['data'] as Map<String, dynamic>;
-    final List<dynamic> blockedUsersData = data['blocked_users'];
-    return blockedUsersData
-        .map((json) => BlockedUserModel.fromJson(json))
+    final response = await _dio.get<Map<String, dynamic>>('/users/blocked');
+    final data = response.data?['data'] as List<dynamic>? ?? [];
+    return data
+        .map((e) => BlockedUserModel.fromJson(e as Map<String, dynamic>))
         .toList();
-
-    // Real implementation:
-    // final response = await apiService.get('/users/blocked');
-    // final List<dynamic> blockedUsersData = response['data']['blocked_users'];
-    // return blockedUsersData.map((json) => BlockedUserModel.fromJson(json)).toList();
   }
 }

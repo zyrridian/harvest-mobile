@@ -242,6 +242,7 @@ class HomeNearbyFarmers extends Equatable {
 
 class HomeFarmer extends Equatable {
   final String id;
+  final String userId;
   final String name;
   final String? profileImage;
   final double? latitude;
@@ -254,6 +255,7 @@ class HomeFarmer extends Equatable {
 
   const HomeFarmer({
     required this.id,
+    required this.userId,
     required this.name,
     required this.profileImage,
     required this.latitude,
@@ -268,6 +270,7 @@ class HomeFarmer extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        userId,
         name,
         profileImage,
         latitude,
@@ -281,6 +284,7 @@ class HomeFarmer extends Equatable {
 
   HomeFarmer copyWith({
     String? id,
+    String? userId,
     String? name,
     String? profileImage,
     double? latitude,
@@ -293,6 +297,7 @@ class HomeFarmer extends Equatable {
   }) {
     return HomeFarmer(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       name: name ?? this.name,
       profileImage: profileImage ?? this.profileImage,
       latitude: latitude ?? this.latitude,

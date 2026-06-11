@@ -269,6 +269,8 @@ class HomeNearbyFarmersModel {
 @JsonSerializable()
 class HomeFarmerModel {
   final String id;
+  @JsonKey(name: 'user_id')
+  final String userId;
   final String name;
   @JsonKey(name: 'profile_image')
   final String? profileImage;
@@ -285,6 +287,7 @@ class HomeFarmerModel {
 
   HomeFarmerModel({
     required this.id,
+    required this.userId,
     required this.name,
     required this.profileImage,
     required this.latitude,
@@ -304,6 +307,7 @@ class HomeFarmerModel {
   HomeFarmer toEntity() {
     return HomeFarmer(
       id: id,
+      userId: userId,
       name: name,
       profileImage: profileImage,
       latitude: latitude,
@@ -319,6 +323,7 @@ class HomeFarmerModel {
   factory HomeFarmerModel.fromEntity(HomeFarmer farmer) {
     return HomeFarmerModel(
       id: farmer.id,
+      userId: farmer.userId,
       name: farmer.name,
       profileImage: farmer.profileImage,
       latitude: farmer.latitude,
