@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/product_detail.dart';
-import '../../../providers/product_detail_providers.dart';
+import '../providers/product_detail_controller.dart';
+import '../providers/product_detail_state.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -16,9 +17,9 @@ const kFreshGreen = Color(0xFF10B981);
 const kPreOrderBlue = Color(0xFF3B82F6);
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
-  final String productId;
+  final String slug;
 
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen({super.key, required this.slug});
 
   @override
   ConsumerState<ProductDetailScreen> createState() =>
@@ -33,42 +34,41 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     super.initState();
     // Track product view when screen loads
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      ref.read(trackProductViewUseCaseProvider).call(widget.productId);
+      // ref.read(trackProductViewUseCaseProvider).call(widget.slug);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final productAsync = ref.watch(productDetailProvider(widget.productId));
+    final state = ref.watch(productDetailControllerProvider(widget.slug));
 
     return Scaffold(
       backgroundColor: kBgColor,
-      body: productAsync.when(
-        data: (product) => _buildProductDetail(context, product),
+      body: state.when(
+        initial: () => const SizedBox.shrink(),
         loading: () => const Center(
           child: CircularProgressIndicator(color: kDarkGreen),
         ),
-        error: (error, stack) => Center(
+        data: (product, isFavorite, quantity, isInCart) => _buildProductDetail(context, product),
+        error: (message) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text('Error: $error'),
+              Text('Error: $message'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () =>
-                    ref.invalidate(productDetailProvider(widget.productId)),
+                onPressed: () => ref.read(productDetailControllerProvider(widget.slug).notifier).refresh(),
                 style: ElevatedButton.styleFrom(backgroundColor: kDarkGreen),
-                child:
-                    const Text('Retry', style: TextStyle(color: Colors.white)),
+                child: const Text('Retry', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: productAsync.maybeWhen(
-        data: (product) => _buildBottomBar(context, product),
+      bottomNavigationBar: state.maybeWhen(
+        data: (product, _, __, ___) => _buildBottomBar(context, product),
         orElse: () => null,
       ),
     );
@@ -474,14 +474,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             backgroundColor: Colors.white.withOpacity(0.9),
             child: Consumer(
               builder: (context, ref, child) {
-                final isFavorite =
-                    ref.watch(isFavoriteProvider(widget.productId));
+                final state = ref.watch(productDetailControllerProvider(widget.slug));
+                final isFavorite = state.maybeWhen(
+                  data: (_, fav, __, ___) => fav,
+                  orElse: () => false,
+                );
                 return IconButton(
                   icon: Icon(
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       size: 20),
                   color: isFavorite ? kAccentOrange : kDarkGreen,
-                  onPressed: () => _toggleFavorite(ref, isFavorite),
+                  onPressed: () => ref.read(productDetailControllerProvider(widget.slug).notifier).toggleFavorite(),
                   padding: EdgeInsets.zero,
                 );
               },
@@ -1415,8 +1418,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
               Consumer(
                 builder: (context, ref, child) {
-                  final quantity =
-                      ref.watch(productQuantityProvider(widget.productId));
+                  final state = ref.watch(productDetailControllerProvider(widget.slug));
+                  final quantity = state.maybeWhen(
+                    data: (_, __, q, ___) => q,
+                    orElse: () => 1,
+                  );
                   return Text(
                     '$quantity',
                     style: GoogleFonts.dmSans(
@@ -1523,8 +1529,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ),
                   Consumer(
                     builder: (context, ref, child) {
-                      final quantity =
-                          ref.watch(productQuantityProvider(widget.productId));
+                      final state = ref.watch(productDetailControllerProvider(widget.slug));
+                      final quantity = state.maybeWhen(
+                        data: (_, __, q, ___) => q,
+                        orElse: () => 1,
+                      );
                       return Text(
                         '$quantity',
                         style: GoogleFonts.dmSans(
@@ -1593,7 +1602,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   Widget _buildPreOrderConfirmationSheet(ProductDetail product) {
     final preOrderInfo = product.preOrderInfo!;
-    final quantity = ref.read(productQuantityProvider(widget.productId));
+    final state = ref.read(productDetailControllerProvider(widget.slug));
+    final quantity = state.maybeWhen(
+      data: (_, __, q, ___) => q,
+      orElse: () => 1,
+    );
     final totalPrice = product.finalPrice * quantity;
     final depositAmount = preOrderInfo.requiresDeposit
         ? (preOrderInfo.depositAmount ?? totalPrice * 0.2)
@@ -1881,70 +1894,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   void _toggleFavorite(WidgetRef ref, bool currentStatus) async {
-    // Optimistic update
-    ref.read(isFavoriteProvider(widget.productId).notifier).state =
-        !currentStatus;
-
-    if (currentStatus) {
-      final result = await ref
-          .read(removeProductFromFavoritesUseCaseProvider)
-          .call(widget.productId);
-      result.fold(
-        (failure) {
-          // Revert on failure
-          ref.read(isFavoriteProvider(widget.productId).notifier).state =
-              currentStatus;
-          _showSnackBar('Failed to remove from favorites');
-        },
-        (_) {
-          _showSnackBar('Removed from favorites');
-          ref.invalidate(productDetailProvider(widget.productId));
-        },
-      );
-    } else {
-      final result = await ref
-          .read(addProductToFavoritesUseCaseProvider)
-          .call(widget.productId);
-      result.fold(
-        (failure) {
-          // Revert on failure
-          ref.read(isFavoriteProvider(widget.productId).notifier).state =
-              currentStatus;
-          _showSnackBar('Failed to add to favorites');
-        },
-        (_) {
-          _showSnackBar('Added to favorites');
-          ref.invalidate(productDetailProvider(widget.productId));
-        },
-      );
-    }
+    ref.read(productDetailControllerProvider(widget.slug).notifier).toggleFavorite();
   }
 
   void _incrementQuantity(ProductDetail product) {
-    final currentQuantity = ref.read(productQuantityProvider(widget.productId));
-    if (currentQuantity < product.maximumOrder) {
-      ref.read(productQuantityProvider(widget.productId).notifier).state =
-          currentQuantity + 1;
-    } else {
-      _showSnackBar('Maximum order: ${product.maximumOrder} ${product.unit}');
-    }
+    ref.read(productDetailControllerProvider(widget.slug).notifier).incrementQuantity();
   }
 
   void _decrementQuantity(ProductDetail product) {
-    final currentQuantity = ref.read(productQuantityProvider(widget.productId));
-    if (currentQuantity > product.minimumOrder) {
-      ref.read(productQuantityProvider(widget.productId).notifier).state =
-          currentQuantity - 1;
-    }
+    ref.read(productDetailControllerProvider(widget.slug).notifier).decrementQuantity();
   }
 
   void _addToCart(ProductDetail product) {
-    final quantity = ref.read(productQuantityProvider(widget.productId));
-    // Navigate to cart screen
+    final state = ref.read(productDetailControllerProvider(widget.slug));
+    final quantity = state.maybeWhen(
+      data: (_, __, q, ___) => q,
+      orElse: () => 1,
+    );
     _showSnackBar('Added $quantity ${product.unit} to cart');
-    ref.read(isInCartProvider(widget.productId).notifier).state = true;
+    ref.read(productDetailControllerProvider(widget.slug).notifier).addToCart();
 
-    // Navigate to cart after a short delay
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         Navigator.pushNamed(context, '/cart');
@@ -1953,8 +1922,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   void _buyNow(ProductDetail product) {
-    final quantity = ref.read(productQuantityProvider(widget.productId));
-    // Navigate directly to checkout for buy now
+    final state = ref.read(productDetailControllerProvider(widget.slug));
+    final quantity = state.maybeWhen(
+      data: (_, __, q, ___) => q,
+      orElse: () => 1,
+    );
     _showSnackBar('Proceeding to checkout with $quantity ${product.unit}');
 
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -1979,12 +1951,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     _showSnackBar('View all ${product.rating.count} reviews');
   }
 
-  void _viewProduct(String productId) {
-    // Navigate to another product detail screen
+  void _viewProduct(String slug) {
+    // Optionally pop current screen if you want to avoid deep stack,
+    // or push to maintain history.
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProductDetailScreen(productId: productId),
+        builder: (context) => ProductDetailScreen(slug: slug),
       ),
     );
   }

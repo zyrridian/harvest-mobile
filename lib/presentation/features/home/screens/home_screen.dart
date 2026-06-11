@@ -452,7 +452,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
 
           final apiFreshToday = homeData.freshToday.map((item) {
             return Product(
-              id: item.id,
+              id: item.slug,
               name: item.name,
               seller: item.farmer.name,
               price: item.price.toDouble(),
@@ -1125,7 +1125,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
     return GestureDetector(
       onTap: () {
         // Navigate to product detail with pre-order mode
-        context.push('${AppRouter.products}/${harvest.id}');
+        context.push('${AppRouter.products}/${harvest.slug}');
       },
       child: Container(
         width: 200,

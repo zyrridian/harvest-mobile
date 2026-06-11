@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/presentation/providers/cart_providers.dart';
+import '../providers/cart_controller.dart';
 import 'package:harvest_app/presentation/providers/order_providers.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -35,7 +35,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cartAsync = ref.watch(cartProvider);
+    final cartState = ref.watch(cartControllerProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -58,7 +58,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
       ),
-      body: cartAsync.when(
+      body: cartState.when(
+        initial: () => const SizedBox.shrink(),
         data: (cart) {
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
@@ -232,7 +233,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         },
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (e, st) => Center(child: Text('Error: $e')),
+        error: (e) => Center(child: Text('Error: $e')),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -241,7 +242,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () => _handlePlaceOrder(cartAsync),
+              onPressed: () => _handlePlaceOrder(cartState),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
                 foregroundColor: Colors.white,
@@ -402,14 +403,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   // --- LOGIC ---
 
-  void _handlePlaceOrder(AsyncValue<dynamic> cartAsync) async {
-    final selectedItems = cartAsync.when(
+  void _handlePlaceOrder(dynamic cartState) async {
+    final selectedItems = cartState.maybeWhen(
       data: (cart) => cart.items
-          .where((i) => (i as dynamic).isSelected) // Cast if needed
+          .where((i) => (i as dynamic).isSelected)
           .map((i) => (i as dynamic).cartItemId)
           .toList(),
-      loading: () => <String>[],
-      error: (e, st) => <String>[],
+      orElse: () => <String>[],
     );
 
     if (selectedItems.isEmpty) {

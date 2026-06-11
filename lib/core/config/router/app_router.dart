@@ -130,19 +130,19 @@ class AppRouter {
         path: productDetail,
         name: 'productDetail',
         builder: (context, state) {
-          final productId =
-              state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
-          return ProductDetailScreen(productId: productId);
+          final slug =
+              state.uri.queryParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          return ProductDetailScreen(slug: slug);
         },
       ),
       // Product detail with path parameter
       GoRoute(
-        path: '$products/:productId',
+        path: '$products/:slug',
         name: 'productDetailById',
         builder: (context, state) {
-          final productId =
-              state.pathParameters['productId'] ?? 'prd_1234567890abcdef';
-          return ProductDetailScreen(productId: productId);
+          final slug =
+              state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          return ProductDetailScreen(slug: slug);
         },
       ),
       GoRoute(

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/presentation/providers/cart_providers.dart';
+import '../providers/cart_controller.dart';
 // Assuming you have these from previous files, if not, they are defined below
 // import 'package:harvest_app/core/config/theme/app_colors.dart';
 
@@ -21,7 +21,7 @@ class CartScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cartAsync = ref.watch(cartProvider);
+    final cartState = ref.watch(cartControllerProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -49,7 +49,8 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(width: 16),
         ],
       ),
-      body: cartAsync.when(
+      body: cartState.when(
+        initial: () => const SizedBox.shrink(),
         data: (cart) {
           if (cart.items.isEmpty) {
             return _buildEmptyState(context);
@@ -82,7 +83,7 @@ class CartScreen extends ConsumerWidget {
         },
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (e, st) => Center(child: Text('Error: ${e.toString()}')),
+        error: (e) => Center(child: Text('Error: ${e.toString()}')),
       ),
     );
   }
@@ -387,7 +388,7 @@ class CartScreen extends ConsumerWidget {
 
     res.fold(
       (l) => _showSnack(context, l.message),
-      (r) => ref.invalidate(cartProvider), // Refresh logic
+      (r) => ref.read(cartControllerProvider.notifier).refresh(), // Refresh logic
     );
   }
 
@@ -399,7 +400,7 @@ class CartScreen extends ConsumerWidget {
       (l) => _showSnack(context, l.message),
       (r) {
         _showSnack(context, 'Item removed');
-        ref.invalidate(cartProvider);
+        ref.read(cartControllerProvider.notifier).refresh();
       },
     );
   }
@@ -411,7 +412,7 @@ class CartScreen extends ConsumerWidget {
       (l) => _showSnack(context, l.message),
       (r) {
         _showSnack(context, 'Cart cleared');
-        ref.invalidate(cartProvider);
+        ref.read(cartControllerProvider.notifier).refresh();
       },
     );
   }
