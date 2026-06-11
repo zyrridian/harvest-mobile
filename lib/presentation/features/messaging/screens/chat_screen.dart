@@ -83,8 +83,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final repo = ref.read(chatSocketRepositoryProvider);
 
     _newMessageSub = repo.onNewMessage.listen((msg) {
-      if (msg.sender.userId != 'me') {
-        // only add incoming – ours are optimistic
+      final detail = ref.read(conversationDetailProvider(widget.conversationId)).valueOrNull;
+      final isOurMessage = msg.sender.userId == 'me' || 
+                           msg.sender.name == 'You' || 
+                           (detail != null && msg.sender.userId != detail.participant.userId);
+
+      if (isOurMessage) {
+        // Replace temp message
+        final tempIndex = _messages.indexWhere((m) => m.messageId.startsWith('temp_') && m.content == msg.content);
+        if (tempIndex != -1) {
+          setState(() {
+            _messages[tempIndex] = msg;
+          });
+        }
+      } else {
         setState(() => _messages.add(msg));
         _scrollToBottom();
       }
@@ -219,7 +231,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       body: Column(
         children: [
           _buildAppBar(conversationAsync),
-          Expanded(child: _buildMessageList()),
+          Expanded(child: _buildMessageList(conversationAsync)),
           if (_isTyping) _buildTypingIndicator(),
           _buildInputBar(),
         ],
@@ -259,16 +271,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   name: detail.participant.name,
                   avatar: detail.participant.profilePicture,
                   isOnline: detail.participant.isOnline,
+                  isTyping: _isTyping,
+                  lastSeen: detail.participant.lastSeen,
                 ),
                 loading: () => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
                   isOnline: false,
+                  isTyping: _isTyping,
                 ),
                 error: (_, __) => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
                   isOnline: false,
+                  isTyping: _isTyping,
                 ),
               ),
               const SizedBox(width: 8),
@@ -292,6 +308,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     required String name,
     String? avatar,
     required bool isOnline,
+    bool isTyping = false,
+    DateTime? lastSeen,
   }) {
     return Expanded(
       child: Row(
@@ -347,12 +365,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   ),
                 ),
                 Text(
-                  isOnline ? 'Online' : 'Tap to view profile',
+                  isTyping
+                      ? 'typing...'
+                      : isOnline
+                          ? 'Online'
+                          : lastSeen != null
+                              ? '${lastSeen.toLocal().month}/${lastSeen.toLocal().day}/${lastSeen.toLocal().year}'
+                              : 'Tap to view profile',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
-                    color: isOnline ? _kOnlineGreen : _kGrey,
+                    color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -381,7 +405,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   // ── Message List ───────────────────────────────────────────────────────────
 
-  Widget _buildMessageList() {
+  Widget _buildMessageList(AsyncValue<ConversationDetail> conversationAsync) {
     if (_messages.isEmpty) {
       return Center(
         child: Column(
@@ -422,14 +446,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final message = _messages[index];
+        final otherUserId = conversationAsync.valueOrNull?.participant.userId;
         final isMe = message.sender.userId == 'me' ||
-            message.sender.userId == 'usr_123'; // fallback for REST mock
+            message.sender.name == 'You' ||
+            message.sender.userId == 'usr_123' ||
+            (otherUserId != null && message.sender.userId != otherUserId);
         final prevMessage = index > 0 ? _messages[index - 1] : null;
         final showDateDivider = prevMessage == null ||
-            !_isSameDay(prevMessage.timestamp, message.timestamp);
-        final showAvatar = !isMe &&
-            (index == _messages.length - 1 ||
-                _messages[index + 1].sender.userId != message.sender.userId);
+            !_isSameDay(prevMessage.timestamp.toLocal(), message.timestamp.toLocal());
+            
+        final nextMessage = index < _messages.length - 1 ? _messages[index + 1] : null;
+        final nextIsMe = nextMessage != null &&
+            (nextMessage.sender.userId == 'me' ||
+             nextMessage.sender.name == 'You' ||
+             nextMessage.sender.userId == 'usr_123' ||
+             (otherUserId != null && nextMessage.sender.userId != otherUserId));
+             
+        final isSequential = nextMessage != null && (isMe == nextIsMe);
 
         return Column(
           children: [
@@ -437,7 +470,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             _ChatBubble(
               message: message,
               isMe: isMe,
-              showAvatar: showAvatar,
+              bottomPadding: isSequential ? 4.0 : 12.0,
             ),
           ],
         );
@@ -446,32 +479,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 
   Widget _buildDateDivider(DateTime date) {
+    final localDate = date.toLocal();
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
     String label;
-    if (_isSameDay(date, now)) {
+    if (_isSameDay(localDate, now)) {
       label = 'Today';
-    } else if (_isSameDay(date, yesterday)) {
+    } else if (_isSameDay(localDate, yesterday)) {
       label = 'Yesterday';
     } else {
-      label = '${date.day}/${date.month}/${date.year}';
+      label = '${localDate.day}/${localDate.month}/${localDate.year}';
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: [
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              label,
-              style: GoogleFonts.dmSans(
-                  fontSize: 11, color: _kGrey, fontWeight: FontWeight.w600),
-            ),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE5E7EB),
+            borderRadius: BorderRadius.circular(16),
           ),
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-        ],
+          child: Text(
+            label,
+            style: GoogleFonts.dmSans(
+                fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
+          ),
+        ),
       ),
     );
   }
@@ -651,105 +685,37 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 class _ChatBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
-  final bool showAvatar;
+  final double bottomPadding;
 
   const _ChatBubble({
     required this.message,
     required this.isMe,
-    required this.showAvatar,
+    this.bottomPadding = 12.0,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: 4,
-        left: isMe ? 48 : 0,
-        right: isMe ? 0 : 48,
-      ),
+      padding: EdgeInsets.only(bottom: bottomPadding),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment:
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!isMe) ...[
-            SizedBox(
-              width: 32,
-              child: showAvatar
-                  ? CircleAvatar(
-                      radius: 14,
-                      backgroundColor: _kDarkGreen.withValues(alpha:0.1),
-                      backgroundImage: message.sender.profilePicture != null &&
-                              message.sender.profilePicture!.startsWith('http')
-                          ? CachedNetworkImageProvider(
-                              message.sender.profilePicture!)
-                          : null,
-                      onBackgroundImageError: message.sender.profilePicture != null &&
-                              message.sender.profilePicture!.startsWith('http')
-                          ? (_, __) {}
-                          : null,
-                      child: message.sender.profilePicture == null
-                          ? Text(
-                              message.sender.name.isNotEmpty
-                                  ? message.sender.name[0].toUpperCase()
-                                  : 'F',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 11,
-                                color: _kDarkGreen,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            )
-                          : null,
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 6),
-          ],
           Flexible(
-            child: Column(
-              crossAxisAlignment:
-                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: isMe ? _kBubbleMe : _kBubbleThem,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(18),
-                      topRight: const Radius.circular(18),
-                      bottomLeft: Radius.circular(isMe ? 18 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 18),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+            child: Container(
+              decoration: BoxDecoration(
+                color: isMe ? _kBubbleMe : _kBubbleThem,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha:0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
-                  child: _buildContent(),
-                ),
-                const SizedBox(height: 3),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _formatTime(message.timestamp),
-                      style: GoogleFonts.dmSans(fontSize: 10, color: _kGrey),
-                    ),
-                    if (isMe) ...[
-                      const SizedBox(width: 3),
-                      Icon(
-                        message.isRead
-                            ? Icons.done_all_rounded
-                            : Icons.done_rounded,
-                        size: 13,
-                        color: message.isRead ? _kDarkGreen : _kGrey,
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                ],
+              ),
+              child: _buildContent(),
             ),
           ),
         ],
@@ -761,25 +727,53 @@ class _ChatBubble extends StatelessWidget {
     switch (message.type) {
       case 'text':
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          child: Text(
-            message.content ?? '',
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              color: isMe ? Colors.white : _kDarkGreen,
-              height: 1.4,
+          padding: const EdgeInsets.only(left: 14, right: 14, top: 9, bottom: 9),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: message.content ?? '',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    color: isMe ? Colors.white : _kDarkGreen,
+                    height: 1.4,
+                  ),
+                ),
+                const WidgetSpan(child: SizedBox(width: 12)),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.bottom,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10,
+                          color: isMe ? Colors.white70 : _kGrey,
+                        ),
+                      ),
+                      if (isMe) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.isRead
+                              ? Icons.done_all_rounded
+                              : Icons.done_rounded,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         );
 
       case 'image':
         return ClipRRect(
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomLeft: Radius.circular(isMe ? 18 : 4),
-            bottomRight: Radius.circular(isMe ? 4 : 18),
-          ),
+          borderRadius: BorderRadius.circular(18),
           child: message.images != null && message.images!.isNotEmpty
               ? Image.network(
                   message.images!.first.url,
@@ -829,8 +823,15 @@ class _ChatBubble extends StatelessWidget {
     }
   }
 
-  String _formatTime(DateTime t) =>
-      '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
+  String _formatTime(DateTime t) {
+    final localT = t.toLocal();
+    int h = localT.hour;
+    final m = localT.minute.toString().padLeft(2, '0');
+    final ampm = h >= 12 ? 'PM' : 'AM';
+    if (h == 0) h = 12;
+    if (h > 12) h -= 12;
+    return '$h:$m $ampm';
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
