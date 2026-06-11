@@ -51,8 +51,9 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'] ?? response.data;
-        return data.map((json) => FarmerModel.fromJson(json)).toList();
+        final responseData = response.data;
+        final List<dynamic> data = responseData is List ? responseData : responseData['data'];
+        return data.map((json) => _mapDropPointToFarmerModel(json as Map<String, dynamic>)).toList();
       } else {
         throw ServerException(
           'Failed to fetch farmers',
@@ -73,7 +74,11 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       final response = await dio.get(endpoint);
 
       if (response.statusCode == 200) {
-        return FarmerModel.fromJson(response.data['data'] ?? response.data);
+        final responseData = response.data;
+        final data = responseData is Map<String, dynamic> && responseData.containsKey('data') 
+            ? responseData['data'] 
+            : responseData;
+        return _mapDropPointToFarmerModel(data as Map<String, dynamic>);
       } else {
         throw ServerException(
           'Failed to fetch farmer',
@@ -104,8 +109,9 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'] ?? response.data;
-        return data.map((json) => FarmerModel.fromJson(json)).toList();
+        final responseData = response.data;
+        final List<dynamic> data = responseData is List ? responseData : responseData['data'];
+        return data.map((json) => _mapDropPointToFarmerModel(json as Map<String, dynamic>)).toList();
       } else {
         throw ServerException(
           'Failed to fetch nearby farmers',
@@ -142,5 +148,31 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       default:
         throw ServerException('An unexpected error occurred');
     }
+  }
+
+  FarmerModel _mapDropPointToFarmerModel(Map<String, dynamic> json) {
+    final farmer = json['farmer'] as Map<String, dynamic>? ?? {};
+    
+    return FarmerModel(
+      id: json['id'] ?? '',
+      farmerId: json['farmer_id'] ?? '',
+      farmer: InnerFarmerModel(
+        id: farmer['id'] ?? '',
+        name: farmer['name'] ?? 'Unknown Drop Point',
+        profileImage: farmer['profile_image']?.toString(),
+        isVerified: farmer['is_verified'] ?? false,
+        rating: (farmer['rating'] as num?)?.toDouble() ?? 0.0,
+        city: farmer['city'] ?? '',
+      ),
+      name: json['name'] ?? farmer['name'] ?? 'Unknown Drop Point',
+      description: json['description'] ?? '',
+      whatWeSell: json['what_we_sell']?.toString() ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      address: json['address'] ?? '',
+      imageUrl: json['image_url']?.toString(),
+      isActive: json['is_active'] ?? true,
+      createdAt: json['created_at'] ?? DateTime.now().toIso8601String(),
+    );
   }
 }

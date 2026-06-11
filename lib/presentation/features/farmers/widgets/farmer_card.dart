@@ -160,7 +160,7 @@ class FarmerCard extends StatelessWidget {
                           size: 14, color: kTextGrey),
                       const SizedBox(width: 4),
                       Text(
-                        '${farmer.city}, ${farmer.state} • ${farmer.distance.toStringAsFixed(1)} km away',
+                        '${farmer.city} • ${farmer.distanceLabel}',
                         style:
                             GoogleFonts.dmSans(color: kTextGrey, fontSize: 12),
                       ),

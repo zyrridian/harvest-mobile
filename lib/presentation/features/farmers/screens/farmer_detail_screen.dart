@@ -143,11 +143,11 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem('Products', '${widget.farmer.totalProducts}'),
+          _buildStatItem('Products', '0'),
           Container(width: 1, height: 30, color: Colors.grey[300]),
           _buildStatItem('Rating', widget.farmer.rating.toStringAsFixed(1)),
           Container(width: 1, height: 30, color: Colors.grey[300]),
-          _buildStatItem('Reviews', '${widget.farmer.totalReviews}'),
+          _buildStatItem('Reviews', '0'),
         ],
       ),
     );
@@ -404,9 +404,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
             ),
           ),
           const SizedBox(height: 16),
-          _buildContactRow(Icons.phone_outlined, widget.farmer.phoneNumber),
-          const SizedBox(height: 12),
-          _buildContactRow(Icons.email_outlined, widget.farmer.email),
+
           const SizedBox(height: 12),
           _buildContactRow(Icons.location_on_outlined, widget.farmer.address),
         ],
@@ -580,7 +578,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                               size: 14, color: kTextGrey),
                           const SizedBox(width: 4),
                           Text(
-                            '${farmer.city}, ${farmer.state} • ${farmer.distance.toStringAsFixed(1)} km',
+                            '${farmer.city} • ${farmer.distanceLabel}',
                             style: GoogleFonts.dmSans(
                                 color: kTextGrey, fontSize: 13),
                           ),

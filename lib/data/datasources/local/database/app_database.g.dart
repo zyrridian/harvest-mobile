@@ -13,6 +13,18 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _farmerIdMeta =
+      const VerificationMeta('farmerId');
+  @override
+  late final GeneratedColumn<String> farmerId = GeneratedColumn<String>(
+      'farmer_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _farmerProfileMeta =
+      const VerificationMeta('farmerProfile');
+  @override
+  late final GeneratedColumn<String> farmerProfile = GeneratedColumn<String>(
+      'farmer_profile', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -24,17 +36,11 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _profileImageMeta =
-      const VerificationMeta('profileImage');
+  static const VerificationMeta _whatWeSellMeta =
+      const VerificationMeta('whatWeSell');
   @override
-  late final GeneratedColumn<String> profileImage = GeneratedColumn<String>(
-      'profile_image', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _coverImageMeta =
-      const VerificationMeta('coverImage');
-  @override
-  late final GeneratedColumn<String> coverImage = GeneratedColumn<String>(
-      'cover_image', aliasedName, false,
+  late final GeneratedColumn<String> whatWeSell = GeneratedColumn<String>(
+      'what_we_sell', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _latitudeMeta =
       const VerificationMeta('latitude');
@@ -54,83 +60,27 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
   late final GeneratedColumn<String> address = GeneratedColumn<String>(
       'address', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _cityMeta = const VerificationMeta('city');
+  static const VerificationMeta _imageUrlMeta =
+      const VerificationMeta('imageUrl');
   @override
-  late final GeneratedColumn<String> city = GeneratedColumn<String>(
-      'city', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _stateMeta = const VerificationMeta('state');
-  @override
-  late final GeneratedColumn<String> state = GeneratedColumn<String>(
-      'state', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
-  @override
-  late final GeneratedColumn<double> rating = GeneratedColumn<double>(
-      'rating', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _totalReviewsMeta =
-      const VerificationMeta('totalReviews');
-  @override
-  late final GeneratedColumn<int> totalReviews = GeneratedColumn<int>(
-      'total_reviews', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _totalProductsMeta =
-      const VerificationMeta('totalProducts');
-  @override
-  late final GeneratedColumn<int> totalProducts = GeneratedColumn<int>(
-      'total_products', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _specialtiesMeta =
-      const VerificationMeta('specialties');
-  @override
-  late final GeneratedColumn<String> specialties = GeneratedColumn<String>(
-      'specialties', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isVerifiedMeta =
-      const VerificationMeta('isVerified');
-  @override
-  late final GeneratedColumn<bool> isVerified = GeneratedColumn<bool>(
-      'is_verified', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_verified" IN (0, 1))'));
-  static const VerificationMeta _hasMapFeatureMeta =
-      const VerificationMeta('hasMapFeature');
-  @override
-  late final GeneratedColumn<bool> hasMapFeature = GeneratedColumn<bool>(
-      'has_map_feature', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("has_map_feature" IN (0, 1))'));
-  static const VerificationMeta _phoneNumberMeta =
-      const VerificationMeta('phoneNumber');
-  @override
-  late final GeneratedColumn<String> phoneNumber = GeneratedColumn<String>(
-      'phone_number', aliasedName, true,
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+      'image_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
   @override
-  late final GeneratedColumn<String> email = GeneratedColumn<String>(
-      'email', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _joinedDateMeta =
-      const VerificationMeta('joinedDate');
-  @override
-  late final GeneratedColumn<DateTime> joinedDate = GeneratedColumn<DateTime>(
-      'joined_date', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _isOnlineMeta =
-      const VerificationMeta('isOnline');
-  @override
-  late final GeneratedColumn<bool> isOnline = GeneratedColumn<bool>(
-      'is_online', aliasedName, false,
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: true,
       defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_online" IN (0, 1))'));
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _distanceMeta =
       const VerificationMeta('distance');
   @override
@@ -156,25 +106,17 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        farmerId,
+        farmerProfile,
         name,
         description,
-        profileImage,
-        coverImage,
+        whatWeSell,
         latitude,
         longitude,
         address,
-        city,
-        state,
-        rating,
-        totalReviews,
-        totalProducts,
-        specialties,
-        isVerified,
-        hasMapFeature,
-        phoneNumber,
-        email,
-        joinedDate,
-        isOnline,
+        imageUrl,
+        isActive,
+        createdAt,
         distance,
         lastSyncedAt,
         isDirty
@@ -194,6 +136,20 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
+    if (data.containsKey('farmer_id')) {
+      context.handle(_farmerIdMeta,
+          farmerId.isAcceptableOrUnknown(data['farmer_id']!, _farmerIdMeta));
+    } else if (isInserting) {
+      context.missing(_farmerIdMeta);
+    }
+    if (data.containsKey('farmer_profile')) {
+      context.handle(
+          _farmerProfileMeta,
+          farmerProfile.isAcceptableOrUnknown(
+              data['farmer_profile']!, _farmerProfileMeta));
+    } else if (isInserting) {
+      context.missing(_farmerProfileMeta);
+    }
     if (data.containsKey('name')) {
       context.handle(
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
@@ -208,21 +164,13 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
-    if (data.containsKey('profile_image')) {
+    if (data.containsKey('what_we_sell')) {
       context.handle(
-          _profileImageMeta,
-          profileImage.isAcceptableOrUnknown(
-              data['profile_image']!, _profileImageMeta));
+          _whatWeSellMeta,
+          whatWeSell.isAcceptableOrUnknown(
+              data['what_we_sell']!, _whatWeSellMeta));
     } else if (isInserting) {
-      context.missing(_profileImageMeta);
-    }
-    if (data.containsKey('cover_image')) {
-      context.handle(
-          _coverImageMeta,
-          coverImage.isAcceptableOrUnknown(
-              data['cover_image']!, _coverImageMeta));
-    } else if (isInserting) {
-      context.missing(_coverImageMeta);
+      context.missing(_whatWeSellMeta);
     }
     if (data.containsKey('latitude')) {
       context.handle(_latitudeMeta,
@@ -242,87 +190,21 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
     } else if (isInserting) {
       context.missing(_addressMeta);
     }
-    if (data.containsKey('city')) {
-      context.handle(
-          _cityMeta, city.isAcceptableOrUnknown(data['city']!, _cityMeta));
+    if (data.containsKey('image_url')) {
+      context.handle(_imageUrlMeta,
+          imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
     } else if (isInserting) {
-      context.missing(_cityMeta);
+      context.missing(_isActiveMeta);
     }
-    if (data.containsKey('state')) {
-      context.handle(
-          _stateMeta, state.isAcceptableOrUnknown(data['state']!, _stateMeta));
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
-      context.missing(_stateMeta);
-    }
-    if (data.containsKey('rating')) {
-      context.handle(_ratingMeta,
-          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
-    } else if (isInserting) {
-      context.missing(_ratingMeta);
-    }
-    if (data.containsKey('total_reviews')) {
-      context.handle(
-          _totalReviewsMeta,
-          totalReviews.isAcceptableOrUnknown(
-              data['total_reviews']!, _totalReviewsMeta));
-    } else if (isInserting) {
-      context.missing(_totalReviewsMeta);
-    }
-    if (data.containsKey('total_products')) {
-      context.handle(
-          _totalProductsMeta,
-          totalProducts.isAcceptableOrUnknown(
-              data['total_products']!, _totalProductsMeta));
-    } else if (isInserting) {
-      context.missing(_totalProductsMeta);
-    }
-    if (data.containsKey('specialties')) {
-      context.handle(
-          _specialtiesMeta,
-          specialties.isAcceptableOrUnknown(
-              data['specialties']!, _specialtiesMeta));
-    } else if (isInserting) {
-      context.missing(_specialtiesMeta);
-    }
-    if (data.containsKey('is_verified')) {
-      context.handle(
-          _isVerifiedMeta,
-          isVerified.isAcceptableOrUnknown(
-              data['is_verified']!, _isVerifiedMeta));
-    } else if (isInserting) {
-      context.missing(_isVerifiedMeta);
-    }
-    if (data.containsKey('has_map_feature')) {
-      context.handle(
-          _hasMapFeatureMeta,
-          hasMapFeature.isAcceptableOrUnknown(
-              data['has_map_feature']!, _hasMapFeatureMeta));
-    } else if (isInserting) {
-      context.missing(_hasMapFeatureMeta);
-    }
-    if (data.containsKey('phone_number')) {
-      context.handle(
-          _phoneNumberMeta,
-          phoneNumber.isAcceptableOrUnknown(
-              data['phone_number']!, _phoneNumberMeta));
-    }
-    if (data.containsKey('email')) {
-      context.handle(
-          _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
-    }
-    if (data.containsKey('joined_date')) {
-      context.handle(
-          _joinedDateMeta,
-          joinedDate.isAcceptableOrUnknown(
-              data['joined_date']!, _joinedDateMeta));
-    } else if (isInserting) {
-      context.missing(_joinedDateMeta);
-    }
-    if (data.containsKey('is_online')) {
-      context.handle(_isOnlineMeta,
-          isOnline.isAcceptableOrUnknown(data['is_online']!, _isOnlineMeta));
-    } else if (isInserting) {
-      context.missing(_isOnlineMeta);
+      context.missing(_createdAtMeta);
     }
     if (data.containsKey('distance')) {
       context.handle(_distanceMeta,
@@ -351,44 +233,28 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
     return FarmerData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      farmerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}farmer_id'])!,
+      farmerProfile: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}farmer_profile'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
-      profileImage: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}profile_image'])!,
-      coverImage: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}cover_image'])!,
+      whatWeSell: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}what_we_sell'])!,
       latitude: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
       longitude: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
       address: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}address'])!,
-      city: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}city'])!,
-      state: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}state'])!,
-      rating: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}rating'])!,
-      totalReviews: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}total_reviews'])!,
-      totalProducts: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}total_products'])!,
-      specialties: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}specialties'])!,
-      isVerified: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_verified'])!,
-      hasMapFeature: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}has_map_feature'])!,
-      phoneNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}phone_number']),
-      email: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}email']),
-      joinedDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}joined_date'])!,
-      isOnline: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_online'])!,
+      imageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_url']),
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       distance: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}distance']),
       lastSyncedAt: attachedDatabase.typeMapping.read(
@@ -406,49 +272,33 @@ class $FarmersTable extends Farmers with TableInfo<$FarmersTable, FarmerData> {
 
 class FarmerData extends DataClass implements Insertable<FarmerData> {
   final String id;
+  final String farmerId;
+  final String farmerProfile;
   final String name;
   final String description;
-  final String profileImage;
-  final String coverImage;
+  final String whatWeSell;
   final double latitude;
   final double longitude;
   final String address;
-  final String city;
-  final String state;
-  final double rating;
-  final int totalReviews;
-  final int totalProducts;
-  final String specialties;
-  final bool isVerified;
-  final bool hasMapFeature;
-  final String? phoneNumber;
-  final String? email;
-  final DateTime joinedDate;
-  final bool isOnline;
+  final String? imageUrl;
+  final bool isActive;
+  final DateTime createdAt;
   final double? distance;
   final DateTime lastSyncedAt;
   final bool isDirty;
   const FarmerData(
       {required this.id,
+      required this.farmerId,
+      required this.farmerProfile,
       required this.name,
       required this.description,
-      required this.profileImage,
-      required this.coverImage,
+      required this.whatWeSell,
       required this.latitude,
       required this.longitude,
       required this.address,
-      required this.city,
-      required this.state,
-      required this.rating,
-      required this.totalReviews,
-      required this.totalProducts,
-      required this.specialties,
-      required this.isVerified,
-      required this.hasMapFeature,
-      this.phoneNumber,
-      this.email,
-      required this.joinedDate,
-      required this.isOnline,
+      this.imageUrl,
+      required this.isActive,
+      required this.createdAt,
       this.distance,
       required this.lastSyncedAt,
       required this.isDirty});
@@ -456,29 +306,19 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['farmer_id'] = Variable<String>(farmerId);
+    map['farmer_profile'] = Variable<String>(farmerProfile);
     map['name'] = Variable<String>(name);
     map['description'] = Variable<String>(description);
-    map['profile_image'] = Variable<String>(profileImage);
-    map['cover_image'] = Variable<String>(coverImage);
+    map['what_we_sell'] = Variable<String>(whatWeSell);
     map['latitude'] = Variable<double>(latitude);
     map['longitude'] = Variable<double>(longitude);
     map['address'] = Variable<String>(address);
-    map['city'] = Variable<String>(city);
-    map['state'] = Variable<String>(state);
-    map['rating'] = Variable<double>(rating);
-    map['total_reviews'] = Variable<int>(totalReviews);
-    map['total_products'] = Variable<int>(totalProducts);
-    map['specialties'] = Variable<String>(specialties);
-    map['is_verified'] = Variable<bool>(isVerified);
-    map['has_map_feature'] = Variable<bool>(hasMapFeature);
-    if (!nullToAbsent || phoneNumber != null) {
-      map['phone_number'] = Variable<String>(phoneNumber);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
     }
-    if (!nullToAbsent || email != null) {
-      map['email'] = Variable<String>(email);
-    }
-    map['joined_date'] = Variable<DateTime>(joinedDate);
-    map['is_online'] = Variable<bool>(isOnline);
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || distance != null) {
       map['distance'] = Variable<double>(distance);
     }
@@ -490,28 +330,19 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
   FarmersCompanion toCompanion(bool nullToAbsent) {
     return FarmersCompanion(
       id: Value(id),
+      farmerId: Value(farmerId),
+      farmerProfile: Value(farmerProfile),
       name: Value(name),
       description: Value(description),
-      profileImage: Value(profileImage),
-      coverImage: Value(coverImage),
+      whatWeSell: Value(whatWeSell),
       latitude: Value(latitude),
       longitude: Value(longitude),
       address: Value(address),
-      city: Value(city),
-      state: Value(state),
-      rating: Value(rating),
-      totalReviews: Value(totalReviews),
-      totalProducts: Value(totalProducts),
-      specialties: Value(specialties),
-      isVerified: Value(isVerified),
-      hasMapFeature: Value(hasMapFeature),
-      phoneNumber: phoneNumber == null && nullToAbsent
+      imageUrl: imageUrl == null && nullToAbsent
           ? const Value.absent()
-          : Value(phoneNumber),
-      email:
-          email == null && nullToAbsent ? const Value.absent() : Value(email),
-      joinedDate: Value(joinedDate),
-      isOnline: Value(isOnline),
+          : Value(imageUrl),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
       distance: distance == null && nullToAbsent
           ? const Value.absent()
           : Value(distance),
@@ -525,25 +356,17 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FarmerData(
       id: serializer.fromJson<String>(json['id']),
+      farmerId: serializer.fromJson<String>(json['farmerId']),
+      farmerProfile: serializer.fromJson<String>(json['farmerProfile']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String>(json['description']),
-      profileImage: serializer.fromJson<String>(json['profileImage']),
-      coverImage: serializer.fromJson<String>(json['coverImage']),
+      whatWeSell: serializer.fromJson<String>(json['whatWeSell']),
       latitude: serializer.fromJson<double>(json['latitude']),
       longitude: serializer.fromJson<double>(json['longitude']),
       address: serializer.fromJson<String>(json['address']),
-      city: serializer.fromJson<String>(json['city']),
-      state: serializer.fromJson<String>(json['state']),
-      rating: serializer.fromJson<double>(json['rating']),
-      totalReviews: serializer.fromJson<int>(json['totalReviews']),
-      totalProducts: serializer.fromJson<int>(json['totalProducts']),
-      specialties: serializer.fromJson<String>(json['specialties']),
-      isVerified: serializer.fromJson<bool>(json['isVerified']),
-      hasMapFeature: serializer.fromJson<bool>(json['hasMapFeature']),
-      phoneNumber: serializer.fromJson<String?>(json['phoneNumber']),
-      email: serializer.fromJson<String?>(json['email']),
-      joinedDate: serializer.fromJson<DateTime>(json['joinedDate']),
-      isOnline: serializer.fromJson<bool>(json['isOnline']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       distance: serializer.fromJson<double?>(json['distance']),
       lastSyncedAt: serializer.fromJson<DateTime>(json['lastSyncedAt']),
       isDirty: serializer.fromJson<bool>(json['isDirty']),
@@ -554,25 +377,17 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'farmerId': serializer.toJson<String>(farmerId),
+      'farmerProfile': serializer.toJson<String>(farmerProfile),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String>(description),
-      'profileImage': serializer.toJson<String>(profileImage),
-      'coverImage': serializer.toJson<String>(coverImage),
+      'whatWeSell': serializer.toJson<String>(whatWeSell),
       'latitude': serializer.toJson<double>(latitude),
       'longitude': serializer.toJson<double>(longitude),
       'address': serializer.toJson<String>(address),
-      'city': serializer.toJson<String>(city),
-      'state': serializer.toJson<String>(state),
-      'rating': serializer.toJson<double>(rating),
-      'totalReviews': serializer.toJson<int>(totalReviews),
-      'totalProducts': serializer.toJson<int>(totalProducts),
-      'specialties': serializer.toJson<String>(specialties),
-      'isVerified': serializer.toJson<bool>(isVerified),
-      'hasMapFeature': serializer.toJson<bool>(hasMapFeature),
-      'phoneNumber': serializer.toJson<String?>(phoneNumber),
-      'email': serializer.toJson<String?>(email),
-      'joinedDate': serializer.toJson<DateTime>(joinedDate),
-      'isOnline': serializer.toJson<bool>(isOnline),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
       'distance': serializer.toJson<double?>(distance),
       'lastSyncedAt': serializer.toJson<DateTime>(lastSyncedAt),
       'isDirty': serializer.toJson<bool>(isDirty),
@@ -581,49 +396,33 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
 
   FarmerData copyWith(
           {String? id,
+          String? farmerId,
+          String? farmerProfile,
           String? name,
           String? description,
-          String? profileImage,
-          String? coverImage,
+          String? whatWeSell,
           double? latitude,
           double? longitude,
           String? address,
-          String? city,
-          String? state,
-          double? rating,
-          int? totalReviews,
-          int? totalProducts,
-          String? specialties,
-          bool? isVerified,
-          bool? hasMapFeature,
-          Value<String?> phoneNumber = const Value.absent(),
-          Value<String?> email = const Value.absent(),
-          DateTime? joinedDate,
-          bool? isOnline,
+          Value<String?> imageUrl = const Value.absent(),
+          bool? isActive,
+          DateTime? createdAt,
           Value<double?> distance = const Value.absent(),
           DateTime? lastSyncedAt,
           bool? isDirty}) =>
       FarmerData(
         id: id ?? this.id,
+        farmerId: farmerId ?? this.farmerId,
+        farmerProfile: farmerProfile ?? this.farmerProfile,
         name: name ?? this.name,
         description: description ?? this.description,
-        profileImage: profileImage ?? this.profileImage,
-        coverImage: coverImage ?? this.coverImage,
+        whatWeSell: whatWeSell ?? this.whatWeSell,
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
         address: address ?? this.address,
-        city: city ?? this.city,
-        state: state ?? this.state,
-        rating: rating ?? this.rating,
-        totalReviews: totalReviews ?? this.totalReviews,
-        totalProducts: totalProducts ?? this.totalProducts,
-        specialties: specialties ?? this.specialties,
-        isVerified: isVerified ?? this.isVerified,
-        hasMapFeature: hasMapFeature ?? this.hasMapFeature,
-        phoneNumber: phoneNumber.present ? phoneNumber.value : this.phoneNumber,
-        email: email.present ? email.value : this.email,
-        joinedDate: joinedDate ?? this.joinedDate,
-        isOnline: isOnline ?? this.isOnline,
+        imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
         distance: distance.present ? distance.value : this.distance,
         lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
         isDirty: isDirty ?? this.isDirty,
@@ -631,39 +430,21 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
   FarmerData copyWithCompanion(FarmersCompanion data) {
     return FarmerData(
       id: data.id.present ? data.id.value : this.id,
+      farmerId: data.farmerId.present ? data.farmerId.value : this.farmerId,
+      farmerProfile: data.farmerProfile.present
+          ? data.farmerProfile.value
+          : this.farmerProfile,
       name: data.name.present ? data.name.value : this.name,
       description:
           data.description.present ? data.description.value : this.description,
-      profileImage: data.profileImage.present
-          ? data.profileImage.value
-          : this.profileImage,
-      coverImage:
-          data.coverImage.present ? data.coverImage.value : this.coverImage,
+      whatWeSell:
+          data.whatWeSell.present ? data.whatWeSell.value : this.whatWeSell,
       latitude: data.latitude.present ? data.latitude.value : this.latitude,
       longitude: data.longitude.present ? data.longitude.value : this.longitude,
       address: data.address.present ? data.address.value : this.address,
-      city: data.city.present ? data.city.value : this.city,
-      state: data.state.present ? data.state.value : this.state,
-      rating: data.rating.present ? data.rating.value : this.rating,
-      totalReviews: data.totalReviews.present
-          ? data.totalReviews.value
-          : this.totalReviews,
-      totalProducts: data.totalProducts.present
-          ? data.totalProducts.value
-          : this.totalProducts,
-      specialties:
-          data.specialties.present ? data.specialties.value : this.specialties,
-      isVerified:
-          data.isVerified.present ? data.isVerified.value : this.isVerified,
-      hasMapFeature: data.hasMapFeature.present
-          ? data.hasMapFeature.value
-          : this.hasMapFeature,
-      phoneNumber:
-          data.phoneNumber.present ? data.phoneNumber.value : this.phoneNumber,
-      email: data.email.present ? data.email.value : this.email,
-      joinedDate:
-          data.joinedDate.present ? data.joinedDate.value : this.joinedDate,
-      isOnline: data.isOnline.present ? data.isOnline.value : this.isOnline,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       distance: data.distance.present ? data.distance.value : this.distance,
       lastSyncedAt: data.lastSyncedAt.present
           ? data.lastSyncedAt.value
@@ -676,25 +457,17 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
   String toString() {
     return (StringBuffer('FarmerData(')
           ..write('id: $id, ')
+          ..write('farmerId: $farmerId, ')
+          ..write('farmerProfile: $farmerProfile, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
-          ..write('profileImage: $profileImage, ')
-          ..write('coverImage: $coverImage, ')
+          ..write('whatWeSell: $whatWeSell, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('address: $address, ')
-          ..write('city: $city, ')
-          ..write('state: $state, ')
-          ..write('rating: $rating, ')
-          ..write('totalReviews: $totalReviews, ')
-          ..write('totalProducts: $totalProducts, ')
-          ..write('specialties: $specialties, ')
-          ..write('isVerified: $isVerified, ')
-          ..write('hasMapFeature: $hasMapFeature, ')
-          ..write('phoneNumber: $phoneNumber, ')
-          ..write('email: $email, ')
-          ..write('joinedDate: $joinedDate, ')
-          ..write('isOnline: $isOnline, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
           ..write('distance: $distance, ')
           ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('isDirty: $isDirty')
@@ -703,55 +476,38 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        id,
-        name,
-        description,
-        profileImage,
-        coverImage,
-        latitude,
-        longitude,
-        address,
-        city,
-        state,
-        rating,
-        totalReviews,
-        totalProducts,
-        specialties,
-        isVerified,
-        hasMapFeature,
-        phoneNumber,
-        email,
-        joinedDate,
-        isOnline,
-        distance,
-        lastSyncedAt,
-        isDirty
-      ]);
+  int get hashCode => Object.hash(
+      id,
+      farmerId,
+      farmerProfile,
+      name,
+      description,
+      whatWeSell,
+      latitude,
+      longitude,
+      address,
+      imageUrl,
+      isActive,
+      createdAt,
+      distance,
+      lastSyncedAt,
+      isDirty);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FarmerData &&
           other.id == this.id &&
+          other.farmerId == this.farmerId &&
+          other.farmerProfile == this.farmerProfile &&
           other.name == this.name &&
           other.description == this.description &&
-          other.profileImage == this.profileImage &&
-          other.coverImage == this.coverImage &&
+          other.whatWeSell == this.whatWeSell &&
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.address == this.address &&
-          other.city == this.city &&
-          other.state == this.state &&
-          other.rating == this.rating &&
-          other.totalReviews == this.totalReviews &&
-          other.totalProducts == this.totalProducts &&
-          other.specialties == this.specialties &&
-          other.isVerified == this.isVerified &&
-          other.hasMapFeature == this.hasMapFeature &&
-          other.phoneNumber == this.phoneNumber &&
-          other.email == this.email &&
-          other.joinedDate == this.joinedDate &&
-          other.isOnline == this.isOnline &&
+          other.imageUrl == this.imageUrl &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt &&
           other.distance == this.distance &&
           other.lastSyncedAt == this.lastSyncedAt &&
           other.isDirty == this.isDirty);
@@ -759,50 +515,34 @@ class FarmerData extends DataClass implements Insertable<FarmerData> {
 
 class FarmersCompanion extends UpdateCompanion<FarmerData> {
   final Value<String> id;
+  final Value<String> farmerId;
+  final Value<String> farmerProfile;
   final Value<String> name;
   final Value<String> description;
-  final Value<String> profileImage;
-  final Value<String> coverImage;
+  final Value<String> whatWeSell;
   final Value<double> latitude;
   final Value<double> longitude;
   final Value<String> address;
-  final Value<String> city;
-  final Value<String> state;
-  final Value<double> rating;
-  final Value<int> totalReviews;
-  final Value<int> totalProducts;
-  final Value<String> specialties;
-  final Value<bool> isVerified;
-  final Value<bool> hasMapFeature;
-  final Value<String?> phoneNumber;
-  final Value<String?> email;
-  final Value<DateTime> joinedDate;
-  final Value<bool> isOnline;
+  final Value<String?> imageUrl;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
   final Value<double?> distance;
   final Value<DateTime> lastSyncedAt;
   final Value<bool> isDirty;
   final Value<int> rowid;
   const FarmersCompanion({
     this.id = const Value.absent(),
+    this.farmerId = const Value.absent(),
+    this.farmerProfile = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
-    this.profileImage = const Value.absent(),
-    this.coverImage = const Value.absent(),
+    this.whatWeSell = const Value.absent(),
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
     this.address = const Value.absent(),
-    this.city = const Value.absent(),
-    this.state = const Value.absent(),
-    this.rating = const Value.absent(),
-    this.totalReviews = const Value.absent(),
-    this.totalProducts = const Value.absent(),
-    this.specialties = const Value.absent(),
-    this.isVerified = const Value.absent(),
-    this.hasMapFeature = const Value.absent(),
-    this.phoneNumber = const Value.absent(),
-    this.email = const Value.absent(),
-    this.joinedDate = const Value.absent(),
-    this.isOnline = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.distance = const Value.absent(),
     this.lastSyncedAt = const Value.absent(),
     this.isDirty = const Value.absent(),
@@ -810,69 +550,46 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
   });
   FarmersCompanion.insert({
     required String id,
+    required String farmerId,
+    required String farmerProfile,
     required String name,
     required String description,
-    required String profileImage,
-    required String coverImage,
+    required String whatWeSell,
     required double latitude,
     required double longitude,
     required String address,
-    required String city,
-    required String state,
-    required double rating,
-    required int totalReviews,
-    required int totalProducts,
-    required String specialties,
-    required bool isVerified,
-    required bool hasMapFeature,
-    this.phoneNumber = const Value.absent(),
-    this.email = const Value.absent(),
-    required DateTime joinedDate,
-    required bool isOnline,
+    this.imageUrl = const Value.absent(),
+    required bool isActive,
+    required DateTime createdAt,
     this.distance = const Value.absent(),
     required DateTime lastSyncedAt,
     this.isDirty = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
+        farmerId = Value(farmerId),
+        farmerProfile = Value(farmerProfile),
         name = Value(name),
         description = Value(description),
-        profileImage = Value(profileImage),
-        coverImage = Value(coverImage),
+        whatWeSell = Value(whatWeSell),
         latitude = Value(latitude),
         longitude = Value(longitude),
         address = Value(address),
-        city = Value(city),
-        state = Value(state),
-        rating = Value(rating),
-        totalReviews = Value(totalReviews),
-        totalProducts = Value(totalProducts),
-        specialties = Value(specialties),
-        isVerified = Value(isVerified),
-        hasMapFeature = Value(hasMapFeature),
-        joinedDate = Value(joinedDate),
-        isOnline = Value(isOnline),
+        isActive = Value(isActive),
+        createdAt = Value(createdAt),
         lastSyncedAt = Value(lastSyncedAt);
   static Insertable<FarmerData> custom({
     Expression<String>? id,
+    Expression<String>? farmerId,
+    Expression<String>? farmerProfile,
     Expression<String>? name,
     Expression<String>? description,
-    Expression<String>? profileImage,
-    Expression<String>? coverImage,
+    Expression<String>? whatWeSell,
     Expression<double>? latitude,
     Expression<double>? longitude,
     Expression<String>? address,
-    Expression<String>? city,
-    Expression<String>? state,
-    Expression<double>? rating,
-    Expression<int>? totalReviews,
-    Expression<int>? totalProducts,
-    Expression<String>? specialties,
-    Expression<bool>? isVerified,
-    Expression<bool>? hasMapFeature,
-    Expression<String>? phoneNumber,
-    Expression<String>? email,
-    Expression<DateTime>? joinedDate,
-    Expression<bool>? isOnline,
+    Expression<String>? imageUrl,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
     Expression<double>? distance,
     Expression<DateTime>? lastSyncedAt,
     Expression<bool>? isDirty,
@@ -880,25 +597,17 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (farmerId != null) 'farmer_id': farmerId,
+      if (farmerProfile != null) 'farmer_profile': farmerProfile,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
-      if (profileImage != null) 'profile_image': profileImage,
-      if (coverImage != null) 'cover_image': coverImage,
+      if (whatWeSell != null) 'what_we_sell': whatWeSell,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
       if (address != null) 'address': address,
-      if (city != null) 'city': city,
-      if (state != null) 'state': state,
-      if (rating != null) 'rating': rating,
-      if (totalReviews != null) 'total_reviews': totalReviews,
-      if (totalProducts != null) 'total_products': totalProducts,
-      if (specialties != null) 'specialties': specialties,
-      if (isVerified != null) 'is_verified': isVerified,
-      if (hasMapFeature != null) 'has_map_feature': hasMapFeature,
-      if (phoneNumber != null) 'phone_number': phoneNumber,
-      if (email != null) 'email': email,
-      if (joinedDate != null) 'joined_date': joinedDate,
-      if (isOnline != null) 'is_online': isOnline,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
       if (distance != null) 'distance': distance,
       if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (isDirty != null) 'is_dirty': isDirty,
@@ -908,50 +617,34 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
 
   FarmersCompanion copyWith(
       {Value<String>? id,
+      Value<String>? farmerId,
+      Value<String>? farmerProfile,
       Value<String>? name,
       Value<String>? description,
-      Value<String>? profileImage,
-      Value<String>? coverImage,
+      Value<String>? whatWeSell,
       Value<double>? latitude,
       Value<double>? longitude,
       Value<String>? address,
-      Value<String>? city,
-      Value<String>? state,
-      Value<double>? rating,
-      Value<int>? totalReviews,
-      Value<int>? totalProducts,
-      Value<String>? specialties,
-      Value<bool>? isVerified,
-      Value<bool>? hasMapFeature,
-      Value<String?>? phoneNumber,
-      Value<String?>? email,
-      Value<DateTime>? joinedDate,
-      Value<bool>? isOnline,
+      Value<String?>? imageUrl,
+      Value<bool>? isActive,
+      Value<DateTime>? createdAt,
       Value<double?>? distance,
       Value<DateTime>? lastSyncedAt,
       Value<bool>? isDirty,
       Value<int>? rowid}) {
     return FarmersCompanion(
       id: id ?? this.id,
+      farmerId: farmerId ?? this.farmerId,
+      farmerProfile: farmerProfile ?? this.farmerProfile,
       name: name ?? this.name,
       description: description ?? this.description,
-      profileImage: profileImage ?? this.profileImage,
-      coverImage: coverImage ?? this.coverImage,
+      whatWeSell: whatWeSell ?? this.whatWeSell,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       address: address ?? this.address,
-      city: city ?? this.city,
-      state: state ?? this.state,
-      rating: rating ?? this.rating,
-      totalReviews: totalReviews ?? this.totalReviews,
-      totalProducts: totalProducts ?? this.totalProducts,
-      specialties: specialties ?? this.specialties,
-      isVerified: isVerified ?? this.isVerified,
-      hasMapFeature: hasMapFeature ?? this.hasMapFeature,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      email: email ?? this.email,
-      joinedDate: joinedDate ?? this.joinedDate,
-      isOnline: isOnline ?? this.isOnline,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
       distance: distance ?? this.distance,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       isDirty: isDirty ?? this.isDirty,
@@ -965,17 +658,20 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
+    if (farmerId.present) {
+      map['farmer_id'] = Variable<String>(farmerId.value);
+    }
+    if (farmerProfile.present) {
+      map['farmer_profile'] = Variable<String>(farmerProfile.value);
+    }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
-    if (profileImage.present) {
-      map['profile_image'] = Variable<String>(profileImage.value);
-    }
-    if (coverImage.present) {
-      map['cover_image'] = Variable<String>(coverImage.value);
+    if (whatWeSell.present) {
+      map['what_we_sell'] = Variable<String>(whatWeSell.value);
     }
     if (latitude.present) {
       map['latitude'] = Variable<double>(latitude.value);
@@ -986,41 +682,14 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
     if (address.present) {
       map['address'] = Variable<String>(address.value);
     }
-    if (city.present) {
-      map['city'] = Variable<String>(city.value);
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
     }
-    if (state.present) {
-      map['state'] = Variable<String>(state.value);
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
     }
-    if (rating.present) {
-      map['rating'] = Variable<double>(rating.value);
-    }
-    if (totalReviews.present) {
-      map['total_reviews'] = Variable<int>(totalReviews.value);
-    }
-    if (totalProducts.present) {
-      map['total_products'] = Variable<int>(totalProducts.value);
-    }
-    if (specialties.present) {
-      map['specialties'] = Variable<String>(specialties.value);
-    }
-    if (isVerified.present) {
-      map['is_verified'] = Variable<bool>(isVerified.value);
-    }
-    if (hasMapFeature.present) {
-      map['has_map_feature'] = Variable<bool>(hasMapFeature.value);
-    }
-    if (phoneNumber.present) {
-      map['phone_number'] = Variable<String>(phoneNumber.value);
-    }
-    if (email.present) {
-      map['email'] = Variable<String>(email.value);
-    }
-    if (joinedDate.present) {
-      map['joined_date'] = Variable<DateTime>(joinedDate.value);
-    }
-    if (isOnline.present) {
-      map['is_online'] = Variable<bool>(isOnline.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (distance.present) {
       map['distance'] = Variable<double>(distance.value);
@@ -1041,25 +710,17 @@ class FarmersCompanion extends UpdateCompanion<FarmerData> {
   String toString() {
     return (StringBuffer('FarmersCompanion(')
           ..write('id: $id, ')
+          ..write('farmerId: $farmerId, ')
+          ..write('farmerProfile: $farmerProfile, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
-          ..write('profileImage: $profileImage, ')
-          ..write('coverImage: $coverImage, ')
+          ..write('whatWeSell: $whatWeSell, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('address: $address, ')
-          ..write('city: $city, ')
-          ..write('state: $state, ')
-          ..write('rating: $rating, ')
-          ..write('totalReviews: $totalReviews, ')
-          ..write('totalProducts: $totalProducts, ')
-          ..write('specialties: $specialties, ')
-          ..write('isVerified: $isVerified, ')
-          ..write('hasMapFeature: $hasMapFeature, ')
-          ..write('phoneNumber: $phoneNumber, ')
-          ..write('email: $email, ')
-          ..write('joinedDate: $joinedDate, ')
-          ..write('isOnline: $isOnline, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
           ..write('distance: $distance, ')
           ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('isDirty: $isDirty, ')
@@ -1082,25 +743,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$FarmersTableCreateCompanionBuilder = FarmersCompanion Function({
   required String id,
+  required String farmerId,
+  required String farmerProfile,
   required String name,
   required String description,
-  required String profileImage,
-  required String coverImage,
+  required String whatWeSell,
   required double latitude,
   required double longitude,
   required String address,
-  required String city,
-  required String state,
-  required double rating,
-  required int totalReviews,
-  required int totalProducts,
-  required String specialties,
-  required bool isVerified,
-  required bool hasMapFeature,
-  Value<String?> phoneNumber,
-  Value<String?> email,
-  required DateTime joinedDate,
-  required bool isOnline,
+  Value<String?> imageUrl,
+  required bool isActive,
+  required DateTime createdAt,
   Value<double?> distance,
   required DateTime lastSyncedAt,
   Value<bool> isDirty,
@@ -1108,25 +761,17 @@ typedef $$FarmersTableCreateCompanionBuilder = FarmersCompanion Function({
 });
 typedef $$FarmersTableUpdateCompanionBuilder = FarmersCompanion Function({
   Value<String> id,
+  Value<String> farmerId,
+  Value<String> farmerProfile,
   Value<String> name,
   Value<String> description,
-  Value<String> profileImage,
-  Value<String> coverImage,
+  Value<String> whatWeSell,
   Value<double> latitude,
   Value<double> longitude,
   Value<String> address,
-  Value<String> city,
-  Value<String> state,
-  Value<double> rating,
-  Value<int> totalReviews,
-  Value<int> totalProducts,
-  Value<String> specialties,
-  Value<bool> isVerified,
-  Value<bool> hasMapFeature,
-  Value<String?> phoneNumber,
-  Value<String?> email,
-  Value<DateTime> joinedDate,
-  Value<bool> isOnline,
+  Value<String?> imageUrl,
+  Value<bool> isActive,
+  Value<DateTime> createdAt,
   Value<double?> distance,
   Value<DateTime> lastSyncedAt,
   Value<bool> isDirty,
@@ -1145,17 +790,20 @@ class $$FarmersTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get farmerId => $composableBuilder(
+      column: $table.farmerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get farmerProfile => $composableBuilder(
+      column: $table.farmerProfile, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get profileImage => $composableBuilder(
-      column: $table.profileImage, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get coverImage => $composableBuilder(
-      column: $table.coverImage, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get whatWeSell => $composableBuilder(
+      column: $table.whatWeSell, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get latitude => $composableBuilder(
       column: $table.latitude, builder: (column) => ColumnFilters(column));
@@ -1166,41 +814,14 @@ class $$FarmersTableFilterComposer
   ColumnFilters<String> get address => $composableBuilder(
       column: $table.address, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get city => $composableBuilder(
-      column: $table.city, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get state => $composableBuilder(
-      column: $table.state, builder: (column) => ColumnFilters(column));
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<double> get rating => $composableBuilder(
-      column: $table.rating, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get totalReviews => $composableBuilder(
-      column: $table.totalReviews, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get totalProducts => $composableBuilder(
-      column: $table.totalProducts, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get specialties => $composableBuilder(
-      column: $table.specialties, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isVerified => $composableBuilder(
-      column: $table.isVerified, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get hasMapFeature => $composableBuilder(
-      column: $table.hasMapFeature, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get phoneNumber => $composableBuilder(
-      column: $table.phoneNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get email => $composableBuilder(
-      column: $table.email, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get joinedDate => $composableBuilder(
-      column: $table.joinedDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isOnline => $composableBuilder(
-      column: $table.isOnline, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get distance => $composableBuilder(
       column: $table.distance, builder: (column) => ColumnFilters(column));
@@ -1224,18 +845,21 @@ class $$FarmersTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get farmerId => $composableBuilder(
+      column: $table.farmerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get farmerProfile => $composableBuilder(
+      column: $table.farmerProfile,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get profileImage => $composableBuilder(
-      column: $table.profileImage,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get coverImage => $composableBuilder(
-      column: $table.coverImage, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get whatWeSell => $composableBuilder(
+      column: $table.whatWeSell, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get latitude => $composableBuilder(
       column: $table.latitude, builder: (column) => ColumnOrderings(column));
@@ -1246,44 +870,14 @@ class $$FarmersTableOrderingComposer
   ColumnOrderings<String> get address => $composableBuilder(
       column: $table.address, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get city => $composableBuilder(
-      column: $table.city, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get state => $composableBuilder(
-      column: $table.state, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<double> get rating => $composableBuilder(
-      column: $table.rating, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get totalReviews => $composableBuilder(
-      column: $table.totalReviews,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get totalProducts => $composableBuilder(
-      column: $table.totalProducts,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get specialties => $composableBuilder(
-      column: $table.specialties, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isVerified => $composableBuilder(
-      column: $table.isVerified, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get hasMapFeature => $composableBuilder(
-      column: $table.hasMapFeature,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get phoneNumber => $composableBuilder(
-      column: $table.phoneNumber, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get email => $composableBuilder(
-      column: $table.email, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get joinedDate => $composableBuilder(
-      column: $table.joinedDate, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isOnline => $composableBuilder(
-      column: $table.isOnline, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get distance => $composableBuilder(
       column: $table.distance, builder: (column) => ColumnOrderings(column));
@@ -1308,17 +902,20 @@ class $$FarmersTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<String> get farmerId =>
+      $composableBuilder(column: $table.farmerId, builder: (column) => column);
+
+  GeneratedColumn<String> get farmerProfile => $composableBuilder(
+      column: $table.farmerProfile, builder: (column) => column);
+
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
 
-  GeneratedColumn<String> get profileImage => $composableBuilder(
-      column: $table.profileImage, builder: (column) => column);
-
-  GeneratedColumn<String> get coverImage => $composableBuilder(
-      column: $table.coverImage, builder: (column) => column);
+  GeneratedColumn<String> get whatWeSell => $composableBuilder(
+      column: $table.whatWeSell, builder: (column) => column);
 
   GeneratedColumn<double> get latitude =>
       $composableBuilder(column: $table.latitude, builder: (column) => column);
@@ -1329,41 +926,14 @@ class $$FarmersTableAnnotationComposer
   GeneratedColumn<String> get address =>
       $composableBuilder(column: $table.address, builder: (column) => column);
 
-  GeneratedColumn<String> get city =>
-      $composableBuilder(column: $table.city, builder: (column) => column);
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 
-  GeneratedColumn<String> get state =>
-      $composableBuilder(column: $table.state, builder: (column) => column);
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
 
-  GeneratedColumn<double> get rating =>
-      $composableBuilder(column: $table.rating, builder: (column) => column);
-
-  GeneratedColumn<int> get totalReviews => $composableBuilder(
-      column: $table.totalReviews, builder: (column) => column);
-
-  GeneratedColumn<int> get totalProducts => $composableBuilder(
-      column: $table.totalProducts, builder: (column) => column);
-
-  GeneratedColumn<String> get specialties => $composableBuilder(
-      column: $table.specialties, builder: (column) => column);
-
-  GeneratedColumn<bool> get isVerified => $composableBuilder(
-      column: $table.isVerified, builder: (column) => column);
-
-  GeneratedColumn<bool> get hasMapFeature => $composableBuilder(
-      column: $table.hasMapFeature, builder: (column) => column);
-
-  GeneratedColumn<String> get phoneNumber => $composableBuilder(
-      column: $table.phoneNumber, builder: (column) => column);
-
-  GeneratedColumn<String> get email =>
-      $composableBuilder(column: $table.email, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get joinedDate => $composableBuilder(
-      column: $table.joinedDate, builder: (column) => column);
-
-  GeneratedColumn<bool> get isOnline =>
-      $composableBuilder(column: $table.isOnline, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   GeneratedColumn<double> get distance =>
       $composableBuilder(column: $table.distance, builder: (column) => column);
@@ -1399,25 +969,17 @@ class $$FarmersTableTableManager extends RootTableManager<
               $$FarmersTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> farmerId = const Value.absent(),
+            Value<String> farmerProfile = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> description = const Value.absent(),
-            Value<String> profileImage = const Value.absent(),
-            Value<String> coverImage = const Value.absent(),
+            Value<String> whatWeSell = const Value.absent(),
             Value<double> latitude = const Value.absent(),
             Value<double> longitude = const Value.absent(),
             Value<String> address = const Value.absent(),
-            Value<String> city = const Value.absent(),
-            Value<String> state = const Value.absent(),
-            Value<double> rating = const Value.absent(),
-            Value<int> totalReviews = const Value.absent(),
-            Value<int> totalProducts = const Value.absent(),
-            Value<String> specialties = const Value.absent(),
-            Value<bool> isVerified = const Value.absent(),
-            Value<bool> hasMapFeature = const Value.absent(),
-            Value<String?> phoneNumber = const Value.absent(),
-            Value<String?> email = const Value.absent(),
-            Value<DateTime> joinedDate = const Value.absent(),
-            Value<bool> isOnline = const Value.absent(),
+            Value<String?> imageUrl = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
             Value<double?> distance = const Value.absent(),
             Value<DateTime> lastSyncedAt = const Value.absent(),
             Value<bool> isDirty = const Value.absent(),
@@ -1425,25 +987,17 @@ class $$FarmersTableTableManager extends RootTableManager<
           }) =>
               FarmersCompanion(
             id: id,
+            farmerId: farmerId,
+            farmerProfile: farmerProfile,
             name: name,
             description: description,
-            profileImage: profileImage,
-            coverImage: coverImage,
+            whatWeSell: whatWeSell,
             latitude: latitude,
             longitude: longitude,
             address: address,
-            city: city,
-            state: state,
-            rating: rating,
-            totalReviews: totalReviews,
-            totalProducts: totalProducts,
-            specialties: specialties,
-            isVerified: isVerified,
-            hasMapFeature: hasMapFeature,
-            phoneNumber: phoneNumber,
-            email: email,
-            joinedDate: joinedDate,
-            isOnline: isOnline,
+            imageUrl: imageUrl,
+            isActive: isActive,
+            createdAt: createdAt,
             distance: distance,
             lastSyncedAt: lastSyncedAt,
             isDirty: isDirty,
@@ -1451,25 +1005,17 @@ class $$FarmersTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            required String farmerId,
+            required String farmerProfile,
             required String name,
             required String description,
-            required String profileImage,
-            required String coverImage,
+            required String whatWeSell,
             required double latitude,
             required double longitude,
             required String address,
-            required String city,
-            required String state,
-            required double rating,
-            required int totalReviews,
-            required int totalProducts,
-            required String specialties,
-            required bool isVerified,
-            required bool hasMapFeature,
-            Value<String?> phoneNumber = const Value.absent(),
-            Value<String?> email = const Value.absent(),
-            required DateTime joinedDate,
-            required bool isOnline,
+            Value<String?> imageUrl = const Value.absent(),
+            required bool isActive,
+            required DateTime createdAt,
             Value<double?> distance = const Value.absent(),
             required DateTime lastSyncedAt,
             Value<bool> isDirty = const Value.absent(),
@@ -1477,25 +1023,17 @@ class $$FarmersTableTableManager extends RootTableManager<
           }) =>
               FarmersCompanion.insert(
             id: id,
+            farmerId: farmerId,
+            farmerProfile: farmerProfile,
             name: name,
             description: description,
-            profileImage: profileImage,
-            coverImage: coverImage,
+            whatWeSell: whatWeSell,
             latitude: latitude,
             longitude: longitude,
             address: address,
-            city: city,
-            state: state,
-            rating: rating,
-            totalReviews: totalReviews,
-            totalProducts: totalProducts,
-            specialties: specialties,
-            isVerified: isVerified,
-            hasMapFeature: hasMapFeature,
-            phoneNumber: phoneNumber,
-            email: email,
-            joinedDate: joinedDate,
-            isOnline: isOnline,
+            imageUrl: imageUrl,
+            isActive: isActive,
+            createdAt: createdAt,
             distance: distance,
             lastSyncedAt: lastSyncedAt,
             isDirty: isDirty,

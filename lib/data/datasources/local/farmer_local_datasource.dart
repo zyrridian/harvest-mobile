@@ -70,30 +70,20 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
             tbl.name.contains(query) | tbl.description.contains(query));
     }
 
-    if (hasMapFeature != null) {
-      selectQuery = selectQuery
-        ..where((tbl) => tbl.hasMapFeature.equals(hasMapFeature));
-    }
-
     if (maxDistance != null) {
       selectQuery = selectQuery
         ..where((tbl) => tbl.distance.isSmallerOrEqualValue(maxDistance));
     }
 
-    if (minRating != null) {
-      selectQuery = selectQuery
-        ..where((tbl) => tbl.rating.isBiggerOrEqualValue(minRating));
-    }
-
     final farmerDataList = await selectQuery.get();
 
-    // Filter by specialties (stored as JSON)
+    // Filter by specialties
     var farmers = farmerDataList.map(_toModel).toList();
 
     if (specialties != null && specialties.isNotEmpty) {
       farmers = farmers.where((farmer) {
         return specialties
-            .any((specialty) => farmer.specialties.contains(specialty));
+            .any((specialty) => farmer.whatWeSell.contains(specialty));
       }).toList();
     }
 
@@ -134,32 +124,7 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
   @override
   Future<void> saveFarmer(FarmerModel farmer) async {
     await database.into(database.farmers).insertOnConflictUpdate(
-          FarmersCompanion(
-            id: Value(farmer.id),
-            name: Value(farmer.name),
-            description: Value(farmer.description),
-            profileImage: Value(farmer.profileImage),
-            coverImage: Value(farmer.coverImage),
-            latitude: Value(farmer.latitude),
-            longitude: Value(farmer.longitude),
-            address: Value(farmer.address),
-            city: Value(farmer.city),
-            state: Value(farmer.state),
-            rating: Value(farmer.rating),
-            totalReviews: Value(farmer.totalReviews),
-            totalProducts: Value(farmer.totalProducts),
-            specialties: Value(jsonEncode(farmer.specialties)),
-            isVerified: Value(farmer.isVerified),
-            hasMapFeature: Value(farmer.hasMapFeature),
-            phoneNumber:
-                Value(farmer.phoneNumber.isEmpty ? null : farmer.phoneNumber),
-            email: Value(farmer.email.isEmpty ? null : farmer.email),
-            joinedDate: Value(DateTime.parse(farmer.joinedDate)),
-            isOnline: Value(farmer.isOnline),
-            distance: Value(farmer.distance),
-            lastSyncedAt: Value(DateTime.now()),
-            isDirty: const Value(false),
-          ),
+          _toCompanion(farmer),
         );
   }
 
@@ -168,32 +133,7 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
     await database.batch((batch) {
       batch.insertAllOnConflictUpdate(
         database.farmers,
-        farmers.map((farmer) => FarmersCompanion(
-              id: Value(farmer.id),
-              name: Value(farmer.name),
-              description: Value(farmer.description),
-              profileImage: Value(farmer.profileImage),
-              coverImage: Value(farmer.coverImage),
-              latitude: Value(farmer.latitude),
-              longitude: Value(farmer.longitude),
-              address: Value(farmer.address),
-              city: Value(farmer.city),
-              state: Value(farmer.state),
-              rating: Value(farmer.rating),
-              totalReviews: Value(farmer.totalReviews),
-              totalProducts: Value(farmer.totalProducts),
-              specialties: Value(jsonEncode(farmer.specialties)),
-              isVerified: Value(farmer.isVerified),
-              hasMapFeature: Value(farmer.hasMapFeature),
-              phoneNumber:
-                  Value(farmer.phoneNumber.isEmpty ? null : farmer.phoneNumber),
-              email: Value(farmer.email.isEmpty ? null : farmer.email),
-              joinedDate: Value(DateTime.parse(farmer.joinedDate)),
-              isOnline: Value(farmer.isOnline),
-              distance: Value(farmer.distance),
-              lastSyncedAt: Value(DateTime.now()),
-              isDirty: const Value(false),
-            )),
+        farmers.map((farmer) => _toCompanion(farmer)),
       );
     });
   }
@@ -245,31 +185,41 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
     // For now, it's a no-op since we track per-farmer sync times
   }
 
+  FarmersCompanion _toCompanion(FarmerModel farmer) {
+    return FarmersCompanion(
+      id: Value(farmer.id),
+      farmerId: Value(farmer.farmerId),
+      farmerProfile: Value(jsonEncode(farmer.farmer.toJson())),
+      name: Value(farmer.name),
+      description: Value(farmer.description),
+      whatWeSell: Value(farmer.whatWeSell),
+      latitude: Value(farmer.latitude),
+      longitude: Value(farmer.longitude),
+      address: Value(farmer.address),
+      imageUrl: Value(farmer.imageUrl),
+      isActive: Value(farmer.isActive),
+      createdAt: Value(DateTime.parse(farmer.createdAt)),
+      distance: Value(farmer.distance),
+      lastSyncedAt: Value(DateTime.now()),
+      isDirty: const Value(false),
+    );
+  }
+
   /// Helper method to convert FarmerData to FarmerModel
   FarmerModel _toModel(FarmerData data) {
     return FarmerModel(
       id: data.id,
+      farmerId: data.farmerId,
+      farmer: InnerFarmerModel.fromJson(jsonDecode(data.farmerProfile)),
       name: data.name,
       description: data.description,
-      profileImage: data.profileImage,
-      coverImage: data.coverImage,
+      whatWeSell: data.whatWeSell,
       latitude: data.latitude,
       longitude: data.longitude,
       address: data.address,
-      city: data.city,
-      state: data.state,
-      rating: data.rating,
-      totalReviews: data.totalReviews,
-      totalProducts: data.totalProducts,
-      specialties: (jsonDecode(data.specialties) as List<dynamic>)
-          .map((e) => e.toString())
-          .toList(),
-      isVerified: data.isVerified,
-      hasMapFeature: data.hasMapFeature,
-      phoneNumber: data.phoneNumber ?? '',
-      email: data.email ?? '',
-      joinedDate: data.joinedDate.toIso8601String(),
-      isOnline: data.isOnline,
+      imageUrl: data.imageUrl,
+      isActive: data.isActive,
+      createdAt: data.createdAt.toIso8601String(),
       distance: data.distance,
     );
   }
