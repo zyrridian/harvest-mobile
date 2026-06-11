@@ -11,6 +11,7 @@ import 'package:harvest_app/presentation/features/home/providers/home_controller
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:harvest_app/domain/entities/farmer.dart';
 
 // --- NEW 2025 DESIGN COLORS ---
 const kBgColor = Color(0xFFFAFAF8); // Warm off-white
@@ -978,8 +979,28 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
   Widget _buildModernFarmerCard(HomeFarmer farmer) {
     return GestureDetector(
       onTap: () {
-        // Navigate to farmer detail screen
-        context.push('${AppRouter.farmers}/${farmer.id}');
+        // Map HomeFarmer to Farmer and navigate
+        final fullFarmer = Farmer(
+          id: farmer.id,
+          userId: '', 
+          name: farmer.name,
+          description: '', 
+          profileImage: farmer.profileImage,
+          coverImage: null,
+          latitude: farmer.latitude ?? 0.0,
+          longitude: farmer.longitude ?? 0.0,
+          address: farmer.address ?? '',
+          rating: farmer.rating ?? 0.0,
+          totalReviews: 0,
+          totalProducts: farmer.totalProducts ?? 0,
+          specialties: const [],
+          isVerified: farmer.isVerified ?? false,
+          hasMapFeature: false,
+          joinedDate: DateTime.now(),
+          isOnline: false,
+          distance: farmer.distanceKm,
+        );
+        context.push(AppRouter.farmerDetail, extra: fullFarmer);
       },
       child: Container(
         width: 300,

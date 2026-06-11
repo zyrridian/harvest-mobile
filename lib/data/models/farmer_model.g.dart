@@ -8,53 +8,60 @@ part of 'farmer_model.dart';
 
 FarmerModel _$FarmerModelFromJson(Map<String, dynamic> json) => FarmerModel(
       id: json['id'] as String,
-      farmerId: json['farmer_id'] as String,
-      farmer: InnerFarmerModel.fromJson(json['farmer'] as Map<String, dynamic>),
+      userId: json['user_id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      whatWeSell: json['what_we_sell'] as String,
+      profileImage: json['profile_image'] as String?,
+      coverImage: json['cover_image'] as String?,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       address: json['address'] as String,
-      imageUrl: json['image_url'] as String?,
-      isActive: json['is_active'] as bool,
-      createdAt: json['created_at'] as String,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      rating: (json['rating'] as num).toDouble(),
+      totalReviews: (json['total_reviews'] as num).toInt(),
+      totalProducts: (json['total_products'] as num).toInt(),
+      specialties: (json['specialties'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      isVerified: json['is_verified'] as bool,
+      hasMapFeature: json['has_map_feature'] as bool,
+      phoneNumber: json['phone_number'] as String?,
+      email: json['email'] as String?,
+      joinedDate: json['joined_date'] as String,
+      isOnline: json['is_online'] as bool,
       distance: (json['distance'] as num?)?.toDouble(),
+      verificationBadge: json['verification_badge'] as String?,
+      responseRate: (json['response_rate'] as num?)?.toDouble(),
+      followersCount: (json['followers_count'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$FarmerModelToJson(FarmerModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'farmer_id': instance.farmerId,
-      'farmer': instance.farmer.toJson(),
+      'user_id': instance.userId,
       'name': instance.name,
       'description': instance.description,
-      'what_we_sell': instance.whatWeSell,
+      'profile_image': instance.profileImage,
+      'cover_image': instance.coverImage,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'address': instance.address,
-      'image_url': instance.imageUrl,
-      'is_active': instance.isActive,
-      'created_at': instance.createdAt,
-      'distance': instance.distance,
-    };
-
-InnerFarmerModel _$InnerFarmerModelFromJson(Map<String, dynamic> json) =>
-    InnerFarmerModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      profileImage: json['profile_image'] as String?,
-      isVerified: json['is_verified'] as bool,
-      rating: (json['rating'] as num).toDouble(),
-      city: json['city'] as String,
-    );
-
-Map<String, dynamic> _$InnerFarmerModelToJson(InnerFarmerModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'profile_image': instance.profileImage,
-      'is_verified': instance.isVerified,
-      'rating': instance.rating,
       'city': instance.city,
+      'state': instance.state,
+      'rating': instance.rating,
+      'total_reviews': instance.totalReviews,
+      'total_products': instance.totalProducts,
+      'specialties': instance.specialties,
+      'is_verified': instance.isVerified,
+      'has_map_feature': instance.hasMapFeature,
+      'phone_number': instance.phoneNumber,
+      'email': instance.email,
+      'joined_date': instance.joinedDate,
+      'is_online': instance.isOnline,
+      'distance': instance.distance,
+      'verification_badge': instance.verificationBadge,
+      'response_rate': instance.responseRate,
+      'followers_count': instance.followersCount,
     };

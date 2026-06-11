@@ -4,9 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/farmer.dart';
-import '../../../../domain/entities/product.dart'; // Ensure you have this
-import '../../../../domain/entities/review.dart'; // Ensure you have this
-// import '../../../../core/config/theme/app_colors.dart'; // Use if you have a central file
+import '../../../../domain/entities/product.dart';
+import '../../../../domain/entities/review.dart';
+import '../../../../domain/entities/community_post.dart';
+import '../../farmer_detail/providers/farmer_detail_controller.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -45,6 +46,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(farmerDetailControllerProvider(widget.farmer.id));
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -119,10 +122,10 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildProductsTab(),
-                _buildCommunityTab(),
+                _buildProductsTab(state.products),
+                _buildCommunityTab(state.posts),
                 _buildAboutTab(),
-                _buildReviewsTab(),
+                _buildReviewsTab(state.reviews),
               ],
             ),
           ),
@@ -224,119 +227,150 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
   // --- TABS CONTENT ---
 
-  Widget _buildProductsTab() {
-    // Mock Data for display
-    return GridView.builder(
-      padding: const EdgeInsets.all(24),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.70,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: 6,
-      itemBuilder: (context, index) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: kPillGrey),
+  Widget _buildProductsTab(AsyncValue<List<Product>> productsState) {
+    return productsState.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      error: (error, _) => Center(child: Text('Error: $error')),
+      data: (products) {
+        if (products.isEmpty) {
+          return Center(child: Text('No products available', style: GoogleFonts.dmSans(color: kTextGrey)));
+        }
+        return GridView.builder(
+          padding: const EdgeInsets.all(24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.70,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: kPillGrey,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: Center(
-                    child: Icon(Icons.shopping_bag_outlined,
-                        size: 40, color: kDarkGreen.withOpacity(0.2)),
-                  ),
-                ),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kPillGrey),
               ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Fresh Item ${index + 1}',
-                      style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.bold, color: kDarkGreen),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: kPillGrey,
+                        borderRadius:
+                            const BorderRadius.vertical(top: Radius.circular(20)),
+                        image: product.imageUrl.isNotEmpty && product.imageUrl.startsWith('http') ? DecorationImage(
+                          image: CachedNetworkImageProvider(product.imageUrl),
+                          fit: BoxFit.cover,
+                        ) : null,
+                      ),
+                      child: product.imageUrl.isEmpty || !product.imageUrl.startsWith('http') ? Center(
+                        child: Icon(Icons.shopping_bag_outlined,
+                            size: 40, color: kDarkGreen.withOpacity(0.2)),
+                      ) : null,
                     ),
-                    Text(
-                      'Rp ${(index + 1) * 15000}',
-                      style: GoogleFonts.dmSans(
-                          color: kAccentOrange, fontWeight: FontWeight.bold),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.bold, color: kDarkGreen),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Rp ${product.price}',
+                          style: GoogleFonts.dmSans(
+                              color: kAccentOrange, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildCommunityTab() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: 3,
-      separatorBuilder: (_, __) => const SizedBox(height: 24),
-      itemBuilder: (context, index) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: kPillGrey),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+  Widget _buildCommunityTab(AsyncValue<List<CommunityPost>> postsState) {
+    return postsState.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      error: (error, _) => Center(child: Text('Error: $error')),
+      data: (posts) {
+        if (posts.isEmpty) {
+          return Center(child: Text('No posts yet', style: GoogleFonts.dmSans(color: kTextGrey)));
+        }
+        return ListView.separated(
+          padding: const EdgeInsets.all(24),
+          itemCount: posts.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 24),
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kPillGrey),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundImage:
-                        CachedNetworkImageProvider(widget.farmer.profileImage),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(widget.farmer.name,
-                          style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.bold, color: kDarkGreen)),
-                      Text('2 hours ago',
-                          style: GoogleFonts.dmSans(
-                              fontSize: 12, color: kTextGrey)),
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: widget.farmer.profileImage != null && widget.farmer.profileImage!.startsWith('http')
+                            ? CachedNetworkImageProvider(widget.farmer.profileImage!)
+                            : null,
+                        onBackgroundImageError: (_, __) {},
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.farmer.name,
+                              style: GoogleFonts.dmSans(
+                                  fontWeight: FontWeight.bold, color: kDarkGreen)),
+                          Text(post.createdAt.toString().split(' ')[0],
+                              style: GoogleFonts.dmSans(
+                                  fontSize: 12, color: kTextGrey)),
+                        ],
+                      ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  Text(
+                    post.content,
+                    style: GoogleFonts.dmSans(color: kDarkGreen, height: 1.5),
+                  ),
+                  if (post.images.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: kPillGrey,
+                        borderRadius: BorderRadius.circular(12),
+                        image: post.images.first.startsWith('http') ? DecorationImage(
+                          image: CachedNetworkImageProvider(post.images.first),
+                          fit: BoxFit.cover,
+                        ) : null,
+                      ),
+                    ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Just harvested a fresh batch of organic spinach! Come visit us tomorrow morning for the best selection.',
-                style: GoogleFonts.dmSans(color: kDarkGreen, height: 1.5),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  color: kPillGrey,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child:
-                    const Center(child: Icon(Icons.image, color: Colors.grey)),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -427,52 +461,69 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     );
   }
 
-  Widget _buildReviewsTab() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: 5, // Mock count
-      separatorBuilder: (_, __) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Divider(color: kPillGrey),
-      ),
-      itemBuilder: (context, index) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+  Widget _buildReviewsTab(AsyncValue<List<Review>> reviewsState) {
+    return reviewsState.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      error: (error, _) => Center(child: Text('Error: $error')),
+      data: (reviews) {
+        if (reviews.isEmpty) {
+          return Center(child: Text('No reviews yet', style: GoogleFonts.dmSans(color: kTextGrey)));
+        }
+        return ListView.separated(
+          padding: const EdgeInsets.all(24),
+          itemCount: reviews.length,
+          separatorBuilder: (_, __) => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: kPillGrey),
+          ),
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(radius: 16, backgroundColor: kPillGrey),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text('User ${index + 1}',
-                        style: GoogleFonts.dmSans(
-                            fontWeight: FontWeight.bold, color: kDarkGreen)),
-                    Row(
-                      children: List.generate(
-                          5,
-                          (i) => Icon(
-                                i < 4
-                                    ? Icons.star_rounded
-                                    : Icons.star_border_rounded,
-                                size: 14,
-                                color: Colors.amber,
-                              )),
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: kPillGrey,
+                      backgroundImage: review.userAvatar != null && review.userAvatar!.startsWith('http')
+                        ? CachedNetworkImageProvider(review.userAvatar!)
+                        : null,
+                      onBackgroundImageError: (_, __) {},
                     ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(review.userName,
+                            style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.bold, color: kDarkGreen)),
+                        Row(
+                          children: List.generate(
+                              5,
+                              (i) => Icon(
+                                    i < review.rating
+                                        ? Icons.star_rounded
+                                        : Icons.star_border_rounded,
+                                    size: 14,
+                                    color: Colors.amber,
+                                  )),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Text(review.createdAt.toString().split(' ')[0],
+                        style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
                   ],
                 ),
-                const Spacer(),
-                Text('2 days ago',
-                    style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+                const SizedBox(height: 12),
+                Text(
+                  review.comment,
+                  style: GoogleFonts.dmSans(color: kTextGrey, height: 1.4),
+                ),
               ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Great products! Very fresh and delivered on time. Highly recommended.',
-              style: GoogleFonts.dmSans(color: kTextGrey, height: 1.4),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -517,7 +568,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
               fit: StackFit.expand,
               children: [
                 CachedNetworkImage(
-                  imageUrl: farmer.coverImage,
+                  imageUrl: farmer.coverImage ?? '',
                   fit: BoxFit.cover,
                   placeholder: (_, __) => Container(color: kPillGrey),
                   errorWidget: (_, __, ___) => Container(color: kPillGrey),
@@ -612,7 +663,8 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                   radius: profileRadius,
                   backgroundColor: kPillGrey,
                   backgroundImage:
-                      CachedNetworkImageProvider(farmer.profileImage),
+                      CachedNetworkImageProvider(farmer.profileImage ?? ''),
+                  onBackgroundImageError: (_, __) {},
                 ),
               ),
             ),

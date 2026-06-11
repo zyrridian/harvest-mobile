@@ -49,7 +49,7 @@ class FarmerCard extends StatelessWidget {
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(24)),
                     child: CachedNetworkImage(
-                      imageUrl: farmer.coverImage,
+                      imageUrl: farmer.coverImage ?? '',
                       height:
                           140, // Leaves 20px space at bottom for avatar overlap
                       width: double.infinity,
@@ -97,7 +97,7 @@ class FarmerCard extends StatelessWidget {
                         radius: 28,
                         backgroundColor: kPillGrey,
                         backgroundImage:
-                            CachedNetworkImageProvider(farmer.profileImage),
+                            CachedNetworkImageProvider(farmer.profileImage ?? ''),
                       ),
                     ),
                   ),

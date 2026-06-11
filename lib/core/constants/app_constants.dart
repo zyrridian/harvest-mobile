@@ -21,10 +21,13 @@ class AppConstants {
   // API Endpoints - Home
   static const String getHomeDataEndpoint = '/home';
 
-  // Farmers (Now Drop Points)
-  static const String farmersEndpoint = '/drop-points';
-  static const String farmerByIdEndpoint = '/drop-points/:id';
-  static const String nearbyFarmersEndpoint = '/drop-points'; // Assuming there's no specific nearby endpoint, or it accepts lat/long
+  // Farmers
+  static const String farmersEndpoint = '/farmers';
+  static const String farmerByIdEndpoint = '/farmers/:id';
+  static const String farmerProductsEndpoint = '/farmers/:id/products';
+  static const String farmerReviewsEndpoint = '/farmers/:id/reviews';
+  static const String nearbyFarmersEndpoint = '/farmers';
+  static const String farmerCommunityPostsEndpoint = '/community/posts';
 
   // Storage Keys
   static const String authTokenKey = 'auth_token';

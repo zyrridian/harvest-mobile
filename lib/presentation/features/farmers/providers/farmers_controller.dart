@@ -92,7 +92,7 @@ class FarmersController extends StateNotifier<FarmersState> {
 
     result.fold(
       (failure) => state = FarmersState.error(failure.message),
-      (farmers) => state = FarmersState.loaded(farmers),
+      (farmers) => state = FarmersState.loaded(farmers.data),
     );
   }
 
@@ -138,7 +138,7 @@ class FarmersController extends StateNotifier<FarmersState> {
 
     result.fold(
       (failure) => state = FarmersState.error(failure.message),
-      (farmers) => state = FarmersState.loaded(farmers),
+      (farmers) => state = FarmersState.loaded(farmers.data),
     );
   }
 

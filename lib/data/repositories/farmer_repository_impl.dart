@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failure.dart';
 import '../../domain/entities/farmer.dart';
+import '../../domain/entities/paginated_response.dart';
 import '../../domain/repositories/farmer_repository.dart';
 import '../datasources/local/farmer_local_datasource.dart';
 import '../datasources/remote/farmer_remote_datasource.dart';
@@ -16,27 +17,37 @@ class FarmerRepositoryImpl implements FarmerRepository {
   });
 
   @override
-  Future<Either<Failure, List<Farmer>>> getFarmers({
+  Future<Either<Failure, PaginatedResponse<Farmer>>> getFarmers({
     String? query,
     List<String>? specialties,
     bool? hasMapFeature,
     double? maxDistance,
     double? minRating,
+    int? limit,
+    int? page,
+    String? sortBy,
+    double? latitude,
+    double? longitude,
   }) async {
     try {
       // Always try to fetch fresh data from remote first
-      final remoteFarmers = await remoteDataSource.getFarmers(
+      final remoteResponse = await remoteDataSource.getFarmers(
         query: query,
         specialties: specialties,
         hasMapFeature: hasMapFeature,
         maxDistance: maxDistance,
         minRating: minRating,
+        limit: limit,
+        page: page,
+        sortBy: sortBy,
+        latitude: latitude,
+        longitude: longitude,
       );
 
       // Save to local storage for offline fallback
-      await localDataSource.saveFarmers(remoteFarmers);
+      await localDataSource.saveFarmers(remoteResponse.data);
 
-      return Right(remoteFarmers.map((model) => model.toEntity()).toList());
+      return Right(remoteResponse.toEntity((model) => model.toEntity()));
     } catch (e) {
       // If remote fails, try to get from local cache
       try {
@@ -48,7 +59,16 @@ class FarmerRepositoryImpl implements FarmerRepository {
           minRating: minRating,
         );
         if (localFarmers.isNotEmpty) {
-          return Right(localFarmers.map((model) => model.toEntity()).toList());
+          final mappedFarmers = localFarmers.map((model) => model.toEntity()).toList();
+          return Right(PaginatedResponse<Farmer>(
+            data: mappedFarmers,
+            pagination: Pagination(
+              currentPage: 1,
+              totalPages: 1,
+              totalItems: mappedFarmers.length,
+              itemsPerPage: mappedFarmers.length,
+            ),
+          ));
         }
       } catch (_) {
         // Ignore local cache error, handle the remote error below
@@ -100,23 +120,27 @@ class FarmerRepositoryImpl implements FarmerRepository {
   }
 
   @override
-  Future<Either<Failure, List<Farmer>>> getNearbyFarmers({
+  Future<Either<Failure, PaginatedResponse<Farmer>>> getNearbyFarmers({
     required double latitude,
     required double longitude,
     double radius = 10.0,
+    int? limit,
+    int? page,
   }) async {
     try {
       // Always try to fetch fresh data from remote first
-      final remoteFarmers = await remoteDataSource.getNearbyFarmers(
+      final remoteResponse = await remoteDataSource.getNearbyFarmers(
         latitude: latitude,
         longitude: longitude,
         radius: radius,
+        limit: limit,
+        page: page,
       );
 
       // Save to local
-      await localDataSource.saveFarmers(remoteFarmers);
+      await localDataSource.saveFarmers(remoteResponse.data);
 
-      return Right(remoteFarmers.map((model) => model.toEntity()).toList());
+      return Right(remoteResponse.toEntity((model) => model.toEntity()));
     } catch (e) {
       // If remote fails, try to get from local cache
       try {
@@ -126,7 +150,16 @@ class FarmerRepositoryImpl implements FarmerRepository {
           radius: radius,
         );
         if (localFarmers.isNotEmpty) {
-          return Right(localFarmers.map((model) => model.toEntity()).toList());
+          final mappedFarmers = localFarmers.map((model) => model.toEntity()).toList();
+          return Right(PaginatedResponse<Farmer>(
+            data: mappedFarmers,
+            pagination: Pagination(
+              currentPage: 1,
+              totalPages: 1,
+              totalItems: mappedFarmers.length,
+              itemsPerPage: mappedFarmers.length,
+            ),
+          ));
         }
       } catch (_) {
         // Ignore local cache error, handle the remote error below

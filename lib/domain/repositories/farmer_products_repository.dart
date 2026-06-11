@@ -2,8 +2,9 @@ import 'package:dartz/dartz.dart';
 import '../../../core/error/failures.dart';
 import '../entities/product.dart';
 import '../entities/review.dart';
+import '../entities/paginated_response.dart';
 
 abstract class FarmerProductsRepository {
-  Future<Either<Failure, List<Product>>> getFarmerProducts(String farmerId);
-  Future<Either<Failure, List<Review>>> getFarmerReviews(String farmerId);
+  Future<Either<Failure, PaginatedResponse<Product>>> getFarmerProducts(String farmerId, {int? limit, int? page});
+  Future<Either<Failure, PaginatedResponse<Review>>> getFarmerReviews(String farmerId, {int? limit, int? page});
 }

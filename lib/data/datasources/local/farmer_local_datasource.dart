@@ -83,7 +83,7 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
     if (specialties != null && specialties.isNotEmpty) {
       farmers = farmers.where((farmer) {
         return specialties
-            .any((specialty) => farmer.whatWeSell.contains(specialty));
+            .any((specialty) => farmer.specialties.contains(specialty));
       }).toList();
     }
 
@@ -188,18 +188,30 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
   FarmersCompanion _toCompanion(FarmerModel farmer) {
     return FarmersCompanion(
       id: Value(farmer.id),
-      farmerId: Value(farmer.farmerId),
-      farmerProfile: Value(jsonEncode(farmer.farmer.toJson())),
+      userId: Value(farmer.userId),
       name: Value(farmer.name),
       description: Value(farmer.description),
-      whatWeSell: Value(farmer.whatWeSell),
+      profileImage: Value(farmer.profileImage),
+      coverImage: Value(farmer.coverImage),
       latitude: Value(farmer.latitude),
       longitude: Value(farmer.longitude),
       address: Value(farmer.address),
-      imageUrl: Value(farmer.imageUrl),
-      isActive: Value(farmer.isActive),
-      createdAt: Value(DateTime.parse(farmer.createdAt)),
+      city: Value(farmer.city),
+      state: Value(farmer.state),
+      rating: Value(farmer.rating),
+      totalReviews: Value(farmer.totalReviews),
+      totalProducts: Value(farmer.totalProducts),
+      specialties: Value(jsonEncode(farmer.specialties)),
+      isVerified: Value(farmer.isVerified),
+      hasMapFeature: Value(farmer.hasMapFeature),
+      phoneNumber: Value(farmer.phoneNumber),
+      email: Value(farmer.email),
+      joinedDate: Value(DateTime.parse(farmer.joinedDate)),
+      isOnline: Value(farmer.isOnline),
       distance: Value(farmer.distance),
+      verificationBadge: Value(farmer.verificationBadge),
+      responseRate: Value(farmer.responseRate),
+      followersCount: Value(farmer.followersCount),
       lastSyncedAt: Value(DateTime.now()),
       isDirty: const Value(false),
     );
@@ -209,18 +221,30 @@ class FarmerLocalDataSourceImpl implements FarmerLocalDataSource {
   FarmerModel _toModel(FarmerData data) {
     return FarmerModel(
       id: data.id,
-      farmerId: data.farmerId,
-      farmer: InnerFarmerModel.fromJson(jsonDecode(data.farmerProfile)),
+      userId: data.userId,
       name: data.name,
       description: data.description,
-      whatWeSell: data.whatWeSell,
+      profileImage: data.profileImage,
+      coverImage: data.coverImage,
       latitude: data.latitude,
       longitude: data.longitude,
       address: data.address,
-      imageUrl: data.imageUrl,
-      isActive: data.isActive,
-      createdAt: data.createdAt.toIso8601String(),
+      city: data.city,
+      state: data.state,
+      rating: data.rating,
+      totalReviews: data.totalReviews,
+      totalProducts: data.totalProducts,
+      specialties: List<String>.from(jsonDecode(data.specialties)),
+      isVerified: data.isVerified,
+      hasMapFeature: data.hasMapFeature,
+      phoneNumber: data.phoneNumber,
+      email: data.email,
+      joinedDate: data.joinedDate.toIso8601String(),
+      isOnline: data.isOnline,
       distance: data.distance,
+      verificationBadge: data.verificationBadge,
+      responseRate: data.responseRate,
+      followersCount: data.followersCount,
     );
   }
 }

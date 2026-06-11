@@ -2,95 +2,100 @@ import 'package:equatable/equatable.dart';
 
 class Farmer extends Equatable {
   final String id;
-  final String farmerId;
-  final FarmerProfile farmerProfile;
+  final String userId;
   final String name;
   final String description;
-  final String whatWeSell;
+  final String? profileImage;
+  final String? coverImage;
   final double latitude;
   final double longitude;
   final String address;
-  final String? imageUrl;
-  final bool isActive;
-  final DateTime createdAt;
-  final double distance;
+  final String? city;
+  final String? state;
+  final double rating;
+  final int totalReviews;
+  final int totalProducts;
+  final List<String> specialties;
+  final bool isVerified;
+  final bool hasMapFeature;
+  final String? phoneNumber;
+  final String? email;
+  final DateTime joinedDate;
+  final bool isOnline;
+  final double? distance;
+  // Detail only fields
+  final String? verificationBadge;
+  final double? responseRate;
+  final int? followersCount;
 
-  // Compatibility getter to minimize UI changes immediately
-  bool get hasMapFeature => true;
-  String get profileImage => farmerProfile.profileImage ?? '';
-  String get coverImage => imageUrl ?? farmerProfile.profileImage ?? '';
-  double get rating => farmerProfile.rating;
-  String get city => farmerProfile.city;
-  bool get isVerified => farmerProfile.isVerified;
-  List<String> get specialties => [whatWeSell];
-  bool get isOnline => isActive;
+  // Compatibility getters for the UI to reduce some breakage
+  String get whatWeSell => specialties.isNotEmpty ? specialties.first : '';
+  bool get isActive => isOnline;
+  String? get imageUrl => coverImage;
 
   const Farmer({
     required this.id,
-    required this.farmerId,
-    required this.farmerProfile,
+    required this.userId,
     required this.name,
     required this.description,
-    required this.whatWeSell,
+    this.profileImage,
+    this.coverImage,
     required this.latitude,
     required this.longitude,
     required this.address,
-    this.imageUrl,
-    required this.isActive,
-    required this.createdAt,
-    this.distance = 0.0,
+    this.city,
+    this.state,
+    required this.rating,
+    required this.totalReviews,
+    required this.totalProducts,
+    required this.specialties,
+    required this.isVerified,
+    required this.hasMapFeature,
+    this.phoneNumber,
+    this.email,
+    required this.joinedDate,
+    required this.isOnline,
+    this.distance,
+    this.verificationBadge,
+    this.responseRate,
+    this.followersCount,
   });
 
   /// Format distance for display
   String get distanceLabel {
-    if (distance < 1) {
-      return '${(distance * 1000).toInt()}m away';
+    if (distance == null) return '';
+    if (distance! < 1) {
+      return '${(distance! * 1000).toInt()}m away';
     }
-    return '${distance.toStringAsFixed(1)}km away';
+    return '${distance!.toStringAsFixed(1)}km away';
   }
 
   @override
   List<Object?> get props => [
         id,
-        farmerId,
-        farmerProfile,
+        userId,
         name,
         description,
-        whatWeSell,
+        profileImage,
+        coverImage,
         latitude,
         longitude,
         address,
-        imageUrl,
-        isActive,
-        createdAt,
-        distance,
-      ];
-}
-
-class FarmerProfile extends Equatable {
-  final String id;
-  final String name;
-  final String? profileImage;
-  final bool isVerified;
-  final double rating;
-  final String city;
-
-  const FarmerProfile({
-    required this.id,
-    required this.name,
-    this.profileImage,
-    required this.isVerified,
-    required this.rating,
-    required this.city,
-  });
-
-  @override
-  List<Object?> get props => [
-        id,
-        name,
-        profileImage,
-        isVerified,
-        rating,
         city,
+        state,
+        rating,
+        totalReviews,
+        totalProducts,
+        specialties,
+        isVerified,
+        hasMapFeature,
+        phoneNumber,
+        email,
+        joinedDate,
+        isOnline,
+        distance,
+        verificationBadge,
+        responseRate,
+        followersCount,
       ];
 }

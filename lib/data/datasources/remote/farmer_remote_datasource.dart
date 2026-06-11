@@ -2,22 +2,30 @@ import 'package:dio/dio.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/error/exceptions.dart';
 import '../../models/farmer_model.dart';
+import '../../models/paginated_response_model.dart';
 
 abstract class FarmerRemoteDataSource {
-  Future<List<FarmerModel>> getFarmers({
+  Future<PaginatedResponseModel<FarmerModel>> getFarmers({
     String? query,
     List<String>? specialties,
     bool? hasMapFeature,
     double? maxDistance,
     double? minRating,
+    int? limit,
+    int? page,
+    String? sortBy,
+    double? latitude,
+    double? longitude,
   });
 
   Future<FarmerModel> getFarmerById(String id);
 
-  Future<List<FarmerModel>> getNearbyFarmers({
+  Future<PaginatedResponseModel<FarmerModel>> getNearbyFarmers({
     required double latitude,
     required double longitude,
     double radius = 10.0,
+    int? limit,
+    int? page,
   });
 }
 
@@ -27,12 +35,17 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
   FarmerRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<List<FarmerModel>> getFarmers({
+  Future<PaginatedResponseModel<FarmerModel>> getFarmers({
     String? query,
     List<String>? specialties,
     bool? hasMapFeature,
     double? maxDistance,
     double? minRating,
+    int? limit,
+    int? page,
+    String? sortBy,
+    double? latitude,
+    double? longitude,
   }) async {
     try {
       final queryParams = <String, dynamic>{};
@@ -44,6 +57,11 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       if (hasMapFeature != null) queryParams['has_map_feature'] = hasMapFeature;
       if (maxDistance != null) queryParams['max_distance'] = maxDistance;
       if (minRating != null) queryParams['min_rating'] = minRating;
+      if (limit != null) queryParams['limit'] = limit;
+      if (page != null) queryParams['page'] = page;
+      if (sortBy != null) queryParams['sort_by'] = sortBy;
+      if (latitude != null) queryParams['latitude'] = latitude;
+      if (longitude != null) queryParams['longitude'] = longitude;
 
       final response = await dio.get(
         AppConstants.farmersEndpoint,
@@ -51,9 +69,10 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final responseData = response.data;
-        final List<dynamic> data = responseData is List ? responseData : responseData['data'];
-        return data.map((json) => _mapDropPointToFarmerModel(json as Map<String, dynamic>)).toList();
+        return PaginatedResponseModel.fromJson(
+          response.data,
+          (json) => FarmerModel.fromJson(json),
+        );
       } else {
         throw ServerException(
           'Failed to fetch farmers',
@@ -75,10 +94,11 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
 
       if (response.statusCode == 200) {
         final responseData = response.data;
-        final data = responseData is Map<String, dynamic> && responseData.containsKey('data') 
-            ? responseData['data'] 
+        final data = responseData is Map<String, dynamic> &&
+                responseData.containsKey('data')
+            ? responseData['data']
             : responseData;
-        return _mapDropPointToFarmerModel(data as Map<String, dynamic>);
+        return FarmerModel.fromJson(data as Map<String, dynamic>);
       } else {
         throw ServerException(
           'Failed to fetch farmer',
@@ -93,31 +113,22 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
   }
 
   @override
-  Future<List<FarmerModel>> getNearbyFarmers({
+  Future<PaginatedResponseModel<FarmerModel>> getNearbyFarmers({
     required double latitude,
     required double longitude,
     double radius = 10.0,
+    int? limit,
+    int? page,
   }) async {
     try {
-      final response = await dio.get(
-        AppConstants.nearbyFarmersEndpoint,
-        queryParameters: {
-          'latitude': latitude,
-          'longitude': longitude,
-          'radius': radius,
-        },
+      // Using the main farmers endpoint with coordinates
+      return await getFarmers(
+        latitude: latitude,
+        longitude: longitude,
+        maxDistance: radius,
+        limit: limit,
+        page: page,
       );
-
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        final List<dynamic> data = responseData is List ? responseData : responseData['data'];
-        return data.map((json) => _mapDropPointToFarmerModel(json as Map<String, dynamic>)).toList();
-      } else {
-        throw ServerException(
-          'Failed to fetch nearby farmers',
-          statusCode: response.statusCode,
-        );
-      }
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -148,31 +159,5 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       default:
         throw ServerException('An unexpected error occurred');
     }
-  }
-
-  FarmerModel _mapDropPointToFarmerModel(Map<String, dynamic> json) {
-    final farmer = json['farmer'] as Map<String, dynamic>? ?? {};
-    
-    return FarmerModel(
-      id: json['id'] ?? '',
-      farmerId: json['farmer_id'] ?? '',
-      farmer: InnerFarmerModel(
-        id: farmer['id'] ?? '',
-        name: farmer['name'] ?? 'Unknown Drop Point',
-        profileImage: farmer['profile_image']?.toString(),
-        isVerified: farmer['is_verified'] ?? false,
-        rating: (farmer['rating'] as num?)?.toDouble() ?? 0.0,
-        city: farmer['city'] ?? '',
-      ),
-      name: json['name'] ?? farmer['name'] ?? 'Unknown Drop Point',
-      description: json['description'] ?? '',
-      whatWeSell: json['what_we_sell']?.toString() ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      address: json['address'] ?? '',
-      imageUrl: json['image_url']?.toString(),
-      isActive: json['is_active'] ?? true,
-      createdAt: json['created_at'] ?? DateTime.now().toIso8601String(),
-    );
   }
 }

@@ -424,14 +424,14 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
-                image: farmer.coverImage.isNotEmpty
+                image: farmer.coverImage?.isNotEmpty == true
                     ? DecorationImage(
-                        image: NetworkImage(farmer.coverImage),
+                        image: NetworkImage(farmer.coverImage!),
                         fit: BoxFit.cover,
                       )
                     : null,
               ),
-              child: farmer.coverImage.isEmpty
+              child: (farmer.coverImage?.isEmpty ?? true)
                   ? const Icon(Icons.store, color: Colors.grey)
                   : null,
             ),

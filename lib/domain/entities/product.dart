@@ -19,13 +19,13 @@ class Product extends Equatable {
   final double? discount;
   final double rating;
   final int reviewCount;
-  final String farmerId;
-  final String farmerName;
+  final String? farmerId;
+  final String? farmerName;
   final String? farmerProfileImage;
   final double? farmerDistance; // Distance from user in km
   final DateTime? harvestDate;
   final List<String> tags;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   // --- Perishable Product Fields ---
   final ProductType productType;
@@ -61,13 +61,13 @@ class Product extends Equatable {
     this.discount,
     required this.rating,
     required this.reviewCount,
-    required this.farmerId,
-    required this.farmerName,
+    this.farmerId,
+    this.farmerName,
     this.farmerProfileImage,
     this.farmerDistance,
     this.harvestDate,
     this.tags = const [],
-    required this.createdAt,
+    this.createdAt,
     // Perishable fields
     this.productType = ProductType.regular,
     this.isPerishable = false,

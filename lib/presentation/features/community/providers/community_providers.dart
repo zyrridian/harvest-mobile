@@ -38,7 +38,7 @@ final farmerPostsProvider =
 
   return result.fold(
     (failure) => throw Exception(_mapFailureToMessage(failure)),
-    (posts) => posts,
+    (posts) => posts.data,
   );
 });
 

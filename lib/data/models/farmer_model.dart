@@ -3,41 +3,75 @@ import '../../domain/entities/farmer.dart';
 
 part 'farmer_model.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 class FarmerModel {
   final String id;
-  @JsonKey(name: 'farmer_id')
-  final String farmerId;
-  final InnerFarmerModel farmer;
+  @JsonKey(name: 'user_id')
+  final String userId;
   final String name;
   final String description;
-  @JsonKey(name: 'what_we_sell')
-  final String whatWeSell;
+  @JsonKey(name: 'profile_image')
+  final String? profileImage;
+  @JsonKey(name: 'cover_image')
+  final String? coverImage;
   final double latitude;
   final double longitude;
   final String address;
-  @JsonKey(name: 'image_url')
-  final String? imageUrl;
-  @JsonKey(name: 'is_active')
-  final bool isActive;
-  @JsonKey(name: 'created_at')
-  final String createdAt;
+  final String? city;
+  final String? state;
+  final double rating;
+  @JsonKey(name: 'total_reviews')
+  final int totalReviews;
+  @JsonKey(name: 'total_products')
+  final int totalProducts;
+  @JsonKey(defaultValue: [])
+  final List<String> specialties;
+  @JsonKey(name: 'is_verified')
+  final bool isVerified;
+  @JsonKey(name: 'has_map_feature')
+  final bool hasMapFeature;
+  @JsonKey(name: 'phone_number')
+  final String? phoneNumber;
+  final String? email;
+  @JsonKey(name: 'joined_date')
+  final String joinedDate;
+  @JsonKey(name: 'is_online')
+  final bool isOnline;
   final double? distance;
+  // Detail only fields
+  @JsonKey(name: 'verification_badge')
+  final String? verificationBadge;
+  @JsonKey(name: 'response_rate')
+  final double? responseRate;
+  @JsonKey(name: 'followers_count')
+  final int? followersCount;
 
   FarmerModel({
     required this.id,
-    required this.farmerId,
-    required this.farmer,
+    required this.userId,
     required this.name,
     required this.description,
-    required this.whatWeSell,
+    this.profileImage,
+    this.coverImage,
     required this.latitude,
     required this.longitude,
     required this.address,
-    this.imageUrl,
-    required this.isActive,
-    required this.createdAt,
+    this.city,
+    this.state,
+    required this.rating,
+    required this.totalReviews,
+    required this.totalProducts,
+    required this.specialties,
+    required this.isVerified,
+    required this.hasMapFeature,
+    this.phoneNumber,
+    this.email,
+    required this.joinedDate,
+    required this.isOnline,
     this.distance,
+    this.verificationBadge,
+    this.responseRate,
+    this.followersCount,
   });
 
   factory FarmerModel.fromJson(Map<String, dynamic> json) =>
@@ -48,84 +82,60 @@ class FarmerModel {
   Farmer toEntity() {
     return Farmer(
       id: id,
-      farmerId: farmerId,
-      farmerProfile: farmer.toEntity(),
+      userId: userId,
       name: name,
       description: description,
-      whatWeSell: whatWeSell,
+      profileImage: profileImage,
+      coverImage: coverImage,
       latitude: latitude,
       longitude: longitude,
       address: address,
-      imageUrl: imageUrl,
-      isActive: isActive,
-      createdAt: DateTime.parse(createdAt),
-      distance: distance ?? 0.0,
-    );
-  }
-
-  factory FarmerModel.fromEntity(Farmer farmerEntity) {
-    return FarmerModel(
-      id: farmerEntity.id,
-      farmerId: farmerEntity.farmerId,
-      farmer: InnerFarmerModel.fromEntity(farmerEntity.farmerProfile),
-      name: farmerEntity.name,
-      description: farmerEntity.description,
-      whatWeSell: farmerEntity.whatWeSell,
-      latitude: farmerEntity.latitude,
-      longitude: farmerEntity.longitude,
-      address: farmerEntity.address,
-      imageUrl: farmerEntity.imageUrl,
-      isActive: farmerEntity.isActive,
-      createdAt: farmerEntity.createdAt.toIso8601String(),
-      distance: farmerEntity.distance,
-    );
-  }
-}
-
-@JsonSerializable()
-class InnerFarmerModel {
-  final String id;
-  final String name;
-  @JsonKey(name: 'profile_image')
-  final String? profileImage;
-  @JsonKey(name: 'is_verified')
-  final bool isVerified;
-  final double rating;
-  final String city;
-
-  InnerFarmerModel({
-    required this.id,
-    required this.name,
-    this.profileImage,
-    required this.isVerified,
-    required this.rating,
-    required this.city,
-  });
-
-  factory InnerFarmerModel.fromJson(Map<String, dynamic> json) =>
-      _$InnerFarmerModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$InnerFarmerModelToJson(this);
-
-  FarmerProfile toEntity() {
-    return FarmerProfile(
-      id: id,
-      name: name,
-      profileImage: profileImage,
-      isVerified: isVerified,
-      rating: rating,
       city: city,
+      state: state,
+      rating: rating,
+      totalReviews: totalReviews,
+      totalProducts: totalProducts,
+      specialties: specialties,
+      isVerified: isVerified,
+      hasMapFeature: hasMapFeature,
+      phoneNumber: phoneNumber,
+      email: email,
+      joinedDate: DateTime.parse(joinedDate),
+      isOnline: isOnline,
+      distance: distance,
+      verificationBadge: verificationBadge,
+      responseRate: responseRate,
+      followersCount: followersCount,
     );
   }
 
-  factory InnerFarmerModel.fromEntity(FarmerProfile profile) {
-    return InnerFarmerModel(
-      id: profile.id,
-      name: profile.name,
-      profileImage: profile.profileImage,
-      isVerified: profile.isVerified,
-      rating: profile.rating,
-      city: profile.city,
+  factory FarmerModel.fromEntity(Farmer entity) {
+    return FarmerModel(
+      id: entity.id,
+      userId: entity.userId,
+      name: entity.name,
+      description: entity.description,
+      profileImage: entity.profileImage,
+      coverImage: entity.coverImage,
+      latitude: entity.latitude,
+      longitude: entity.longitude,
+      address: entity.address,
+      city: entity.city,
+      state: entity.state,
+      rating: entity.rating,
+      totalReviews: entity.totalReviews,
+      totalProducts: entity.totalProducts,
+      specialties: entity.specialties,
+      isVerified: entity.isVerified,
+      hasMapFeature: entity.hasMapFeature,
+      phoneNumber: entity.phoneNumber,
+      email: entity.email,
+      joinedDate: entity.joinedDate.toIso8601String(),
+      isOnline: entity.isOnline,
+      distance: entity.distance,
+      verificationBadge: entity.verificationBadge,
+      responseRate: entity.responseRate,
+      followersCount: entity.followersCount,
     );
   }
 }
