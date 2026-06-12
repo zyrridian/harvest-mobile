@@ -40,7 +40,7 @@ class ProfileScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Text(
           context.l10n.profile,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -101,7 +101,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     profile.name,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -110,7 +110,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     profile.email,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       color: kTextGrey,
                       fontSize: 14,
                     ),
@@ -136,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       context.l10n.editProfile,
-                      style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -190,7 +190,7 @@ class ProfileScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 context.l10n.harvestPremium,
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -199,7 +199,7 @@ class ProfileScreen extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Text(
                                 context.l10n.premiumDescription,
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                   color: Colors.white70,
                                   fontSize: 12,
                                 ),
@@ -342,7 +342,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   context.l10n.logout,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: const Color(0xFFDC2626), // Dark Red
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -355,7 +355,7 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Text(
                 context.l10n.version,
-                style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 12),
+                style: GoogleFonts.inter(color: kTextGrey, fontSize: 12),
               ),
             ),
             const SizedBox(height: 40),
@@ -372,7 +372,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 context.l10n.error,
-                style: GoogleFonts.dmSans(color: kTextGrey),
+                style: GoogleFonts.inter(color: kTextGrey),
               ),
             ],
           ),
@@ -388,7 +388,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 8),
       child: Text(
         title,
-        style: GoogleFonts.dmSans(
+        style: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: kTextGrey,
@@ -416,7 +416,7 @@ class ProfileScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: kDarkGreen,
@@ -428,7 +428,7 @@ class ProfileScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(right: 8),
                   child: Text(
                     trailingText,
-                    style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 13),
+                    style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
                   ),
                 ),
               Icon(Icons.chevron_right_rounded, color: kPillGrey, size: 20),
@@ -451,16 +451,16 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(context.l10n.logout,
-            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold)),
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: Text(
           context.l10n.logoutConfirm,
-          style: GoogleFonts.dmSans(color: kTextGrey),
+          style: GoogleFonts.inter(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.cancel,
-                style: GoogleFonts.dmSans(color: kTextGrey)),
+                style: GoogleFonts.inter(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () async {
@@ -489,7 +489,7 @@ class ProfileScreen extends ConsumerWidget {
             },
             child: Text(
               context.l10n.logout,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   color: const Color(0xFFDC2626), fontWeight: FontWeight.bold),
             ),
           ),

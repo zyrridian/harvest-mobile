@@ -98,7 +98,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
             toolbarHeight: 70,
             title: Text(
               'Farmers Directory',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                 fontWeight: FontWeight.w700,
                 fontSize: 24,
                 color: kDarkGreen,
@@ -144,11 +144,11 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                           Expanded(
                             child: TextField(
                               controller: _searchController,
-                              style: GoogleFonts.dmSans(color: kDarkGreen),
+                              style: GoogleFonts.inter(color: kDarkGreen),
                               decoration: InputDecoration(
                                 hintText: 'Search local farmers...',
                                 hintStyle:
-                                    GoogleFonts.dmSans(color: Colors.grey[500]),
+                                    GoogleFonts.inter(color: Colors.grey[500]),
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -253,7 +253,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                 ref.read(farmersControllerProvider.notifier).clearFilters(),
             child: Text(
               'Clear all',
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   color: kTextGrey, fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ),
@@ -304,7 +304,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 color: kDarkGreen, fontWeight: FontWeight.w500, fontSize: 13),
           ),
           const SizedBox(width: 6),
@@ -360,12 +360,12 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
           ),
           const SizedBox(height: 16),
           Text('No farmers found',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen)),
           Text('Try adjusting your filters.',
-              style: GoogleFonts.dmSans(color: kTextGrey)),
+              style: GoogleFonts.inter(color: kTextGrey)),
         ],
       ),
     );

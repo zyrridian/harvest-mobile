@@ -59,12 +59,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             enabled: !widget.isLoading,
-            style: GoogleFonts.dmSans(color: kDarkGreen),
+            style: GoogleFonts.inter(color: kDarkGreen),
             decoration: InputDecoration(
               labelText: 'Email',
-              labelStyle: GoogleFonts.dmSans(color: kTextGrey),
+              labelStyle: GoogleFonts.inter(color: kTextGrey),
               hintText: 'Enter your email',
-              hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+              hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
               prefixIcon: const Icon(Icons.email_outlined, color: kDarkGreen),
               filled: true,
               fillColor: Colors.white,
@@ -95,12 +95,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
             enabled: !widget.isLoading,
-            style: GoogleFonts.dmSans(color: kDarkGreen),
+            style: GoogleFonts.inter(color: kDarkGreen),
             decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: GoogleFonts.dmSans(color: kTextGrey),
+              labelStyle: GoogleFonts.inter(color: kTextGrey),
               hintText: 'Enter your password',
-              hintStyle: GoogleFonts.dmSans(color: kTextGrey.withOpacity(0.5)),
+              hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
               prefixIcon: const Icon(Icons.lock_outlined, color: kDarkGreen),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -163,7 +163,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   )
                 : Text(
                     'Login',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

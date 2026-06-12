@@ -29,7 +29,7 @@ class LoginScreen extends ConsumerWidget {
             SnackBar(
               content: Text(
                 message,
-                style: GoogleFonts.dmSans(),
+                style: GoogleFonts.inter(),
               ),
               backgroundColor: const Color(0xFFDC2626),
               behavior: SnackBarBehavior.floating,
@@ -75,7 +75,7 @@ class LoginScreen extends ConsumerWidget {
 
                 Text(
                   'Welcome Back',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -86,7 +86,7 @@ class LoginScreen extends ConsumerWidget {
 
                 Text(
                   'Login to your account to continue',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: kTextGrey,
                     fontSize: 15,
                   ),
@@ -116,7 +116,7 @@ class LoginScreen extends ConsumerWidget {
                     onPressed: () => context.push(AppRouter.forgotPassword),
                     child: Text(
                       'Forgot Password?',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         color: kDarkGreen,
                         fontWeight: FontWeight.w600,
                       ),
@@ -131,7 +131,7 @@ class LoginScreen extends ConsumerWidget {
                   children: [
                     Text(
                       "Don't have an account? ",
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         color: kTextGrey,
                         fontSize: 15,
                       ),
@@ -143,7 +143,7 @@ class LoginScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         'Sign Up',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           color: kDarkGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,

@@ -32,7 +32,7 @@ class CartScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Text(
           'My Cart',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -107,7 +107,7 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text(
             'Your cart is empty',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -116,7 +116,7 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             'Fresh products are waiting for you!',
-            style: GoogleFonts.dmSans(color: kTextGrey),
+            style: GoogleFonts.inter(color: kTextGrey),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
@@ -183,7 +183,7 @@ class CartScreen extends ConsumerWidget {
               child: Center(
                 child: Text(
                   item.name.isNotEmpty ? item.name[0] : '?',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen.withOpacity(0.4),
@@ -200,7 +200,7 @@ class CartScreen extends ConsumerWidget {
                 children: [
                   Text(
                     item.name,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: kDarkGreen,
@@ -211,7 +211,7 @@ class CartScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Rp ${item.subtotal}', // Or unit price if available
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: kAccentOrange,
@@ -240,7 +240,7 @@ class CartScreen extends ConsumerWidget {
                     child: Text(
                       '${item.quantity}',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
                       ),
@@ -297,10 +297,10 @@ class CartScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Subtotal', style: GoogleFonts.dmSans(color: kTextGrey)),
+                Text('Subtotal', style: GoogleFonts.inter(color: kTextGrey)),
                 Text(
                   'Rp $total',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
               ],
@@ -311,10 +311,10 @@ class CartScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Delivery Fee',
-                    style: GoogleFonts.dmSans(color: kTextGrey)),
+                    style: GoogleFonts.inter(color: kTextGrey)),
                 Text(
                   'Rp 15.000',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
               ],
@@ -329,7 +329,7 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Total',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -337,7 +337,7 @@ class CartScreen extends ConsumerWidget {
                 ),
                 Text(
                   'Rp ${total + 15000}', // Adding dummy delivery fee
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kAccentOrange,
@@ -362,7 +362,7 @@ class CartScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   'Checkout Now',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),

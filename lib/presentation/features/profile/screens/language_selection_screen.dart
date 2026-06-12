@@ -32,7 +32,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
         ),
         title: Text(
           'Select Language',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -46,7 +46,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
           // Description
           Text(
             'Choose your preferred language for the app',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: kTextGrey,
             ),
@@ -145,7 +145,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     'The app will restart to apply the new language',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
                       color: kDarkGreen,
                     ),
@@ -179,7 +179,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               SnackBar(
                 content: Text(
                   'Language changed to $languageName',
-                  style: GoogleFonts.dmSans(),
+                  style: GoogleFonts.inter(),
                 ),
                 backgroundColor: kDarkGreen,
                 behavior: SnackBarBehavior.floating,
@@ -216,7 +216,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   languageName,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected ? kDarkGreen : kDarkGreen.withOpacity(0.7),

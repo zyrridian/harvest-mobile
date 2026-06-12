@@ -115,7 +115,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 children: [
                   Text(
                     widget.recipeName,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen),
@@ -128,13 +128,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                       const SizedBox(width: 4),
                       Text(
                         '${widget.rating} (${reviews.length} reviews)',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.w600, color: kDarkGreen),
                       ),
                       const Spacer(),
                       Text(
                         '${widget.calories} kcal',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold, color: kAccentOrange),
                       ),
                     ],
@@ -174,7 +174,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 labelColor: Colors.white,
                 unselectedLabelColor: kTextGrey,
                 dividerColor: Colors.transparent,
-                labelStyle: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 tabs: const [
@@ -195,7 +195,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 _buildInstructionsTab(),
                 Center(
                     child: Text("Reviews coming soon",
-                        style: GoogleFonts.dmSans())),
+                        style: GoogleFonts.inter())),
               ],
             ),
           ),
@@ -212,7 +212,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               onPressed: () {},
               icon: const Icon(Icons.shopping_basket_outlined),
               label: Text('Add Ingredients to Cart',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold, fontSize: 16)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
@@ -251,7 +251,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Text(label,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold, color: color, fontSize: 12)),
         ],
       ),
@@ -278,7 +278,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               Expanded(
                   child: Text(widget.ingredients[index],
                       style:
-                          GoogleFonts.dmSans(fontSize: 15, color: kDarkGreen))),
+                          GoogleFonts.inter(fontSize: 15, color: kDarkGreen))),
             ],
           ),
         );
@@ -301,7 +301,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                   BoxDecoration(color: kDarkGreen, shape: BoxShape.circle),
               child: Center(
                   child: Text('${index + 1}',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           color: Colors.white, fontWeight: FontWeight.bold))),
             ),
             const SizedBox(width: 16),
@@ -309,7 +309,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Text(widget.instructions[index],
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontSize: 15, height: 1.6, color: kDarkGreen)),
               ),
             ),

@@ -28,7 +28,7 @@ class AddressesScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Text(
           'My Addresses',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -80,7 +80,7 @@ class AddressesScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'No addresses saved',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -89,7 +89,7 @@ class AddressesScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               'Add a location to start ordering.',
-              style: GoogleFonts.dmSans(color: kTextGrey),
+              style: GoogleFonts.inter(color: kTextGrey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -159,7 +159,7 @@ class AddressesScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         address.label.toUpperCase(),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           color: kDarkGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
@@ -177,7 +177,7 @@ class AddressesScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           'Primary',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             color: kDarkGreen,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
@@ -201,7 +201,7 @@ class AddressesScreen extends ConsumerWidget {
                         children: [
                           Text(
                             address.recipientName,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: kDarkGreen,
@@ -210,13 +210,13 @@ class AddressesScreen extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             address.phone,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: kTextGrey, fontSize: 13),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: kDarkGreen, height: 1.4),
                           ),
                           if (address.notes != null) ...[
@@ -235,7 +235,7 @@ class AddressesScreen extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       address.notes!,
-                                      style: GoogleFonts.dmSans(
+                                      style: GoogleFonts.inter(
                                         color: const Color(0xFF92400E),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -296,7 +296,7 @@ class AddressesScreen extends ConsumerWidget {
                 ),
                 title: Text(
                   'Set as Primary',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -314,7 +314,7 @@ class AddressesScreen extends ConsumerWidget {
               ),
               title: Text(
                 'Edit Address',
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -339,7 +339,7 @@ class AddressesScreen extends ConsumerWidget {
                 ),
                 title: Text(
                   'Delete Address',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     color: Colors.red,
                   ),

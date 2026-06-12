@@ -50,7 +50,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ),
         title: Text(
           'Checkout',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -150,11 +150,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: TextField(
                     controller: _notesController,
                     maxLines: 3,
-                    style: GoogleFonts.dmSans(color: kDarkGreen),
+                    style: GoogleFonts.inter(color: kDarkGreen),
                     decoration: InputDecoration(
                       hintText:
                           'Any special instructions? (e.g. Leave at door)',
-                      hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
+                      hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
                     ),
@@ -183,7 +183,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     children: [
                       Text(
                         'Order Summary',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.inter(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
@@ -208,7 +208,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         children: [
                           Text(
                             'Grand Total',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -216,7 +216,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                           Text(
                             'Rp ${cart.summary.grandTotal}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: kAccentOrange,
@@ -253,7 +253,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
               child: Text(
                 'Place Order',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -270,7 +270,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.dmSans(
+      style: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: kDarkGreen,
@@ -299,7 +299,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             child: Center(
               child: Text(
                 item.name.isNotEmpty ? item.name[0] : '?',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold, color: kDarkGreen),
               ),
             ),
@@ -311,19 +311,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               children: [
                 Text(
                   item.name,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.w600, color: kDarkGreen),
                 ),
                 Text(
                   '${item.quantity} x Rp ${item.subtotal ~/ item.quantity}',
-                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),
           ),
           Text(
             'Rp ${item.subtotal}',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold, color: kDarkGreen),
           ),
         ],
@@ -365,7 +365,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             SizedBox(width: isWide ? 16 : 8),
             Text(
               title,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? kDarkGreen : kTextGrey,
               ),
@@ -388,10 +388,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.dmSans(color: kTextGrey)),
+          Text(label, style: GoogleFonts.inter(color: kTextGrey)),
           Text(
             value,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w600,
               color: isDiscount ? kAccentOrange : kDarkGreen,
             ),

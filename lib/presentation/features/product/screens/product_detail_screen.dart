@@ -185,7 +185,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               children: [
                 Text(
                   freshnessText,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                     color: freshnessColor,
@@ -194,7 +194,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 if (product.harvestDate != null)
                   Text(
                     'Harvested ${_formatHarvestDate(product.harvestDate!)}',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       color: kTextGrey,
                     ),
@@ -202,7 +202,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 if (product.shelfLifeDays != null)
                   Text(
                     'Best within ${product.shelfLifeDays} days',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       color: kTextGrey,
                     ),
@@ -220,7 +220,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
               child: Text(
                 '${product.daysUntilExpiry}d left',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -291,7 +291,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   children: [
                     Text(
                       'Pre-Order Available',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kDarkGreen,
@@ -299,7 +299,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     Text(
                       'Harvest on ${DateFormat('EEEE, MMM d').format(preOrderInfo.harvestDate)}',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 13,
                         color: kTextGrey,
                       ),
@@ -325,7 +325,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           : daysUntil == 1
                               ? 'Tomorrow'
                               : '$daysUntil days',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -347,14 +347,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 children: [
                   Text(
                     '${preOrderInfo.preOrderCount} people pre-ordered',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       color: kTextGrey,
                     ),
                   ),
                   Text(
                     '${preOrderInfo.availableQuantity} ${product.unit} available',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: preOrderInfo.isAlmostSoldOut
@@ -409,7 +409,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   Expanded(
                     child: Text(
                       'Requires ${preOrderInfo.depositPercentage?.toStringAsFixed(0) ?? '20'}% deposit (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)})',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Colors.amber[800],
                       ),
@@ -439,7 +439,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           const SizedBox(width: 4),
           Text(
             text,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w500,
               color: kDarkGreen,
@@ -560,7 +560,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ),
                   child: Text(
                     '-${product.discount!.value.toStringAsFixed(0)}%',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -580,7 +580,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           product.name,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -594,7 +594,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const SizedBox(width: 4),
             Text(
               product.rating.average.toStringAsFixed(1),
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
                 fontSize: 14,
@@ -603,12 +603,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const SizedBox(width: 4),
             Text(
               '(${product.rating.count} reviews)',
-              style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+              style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
             ),
             const Spacer(),
             Text(
               '${NumberFormat('#,###').format(product.stats.orders)} sold',
-              style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+              style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
             ),
           ],
         ),
@@ -634,7 +634,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               NumberFormat.currency(
                       locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                   .format(product.price),
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 decoration: TextDecoration.lineThrough,
                 color: kTextGrey,
                 fontSize: 14,
@@ -649,7 +649,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 NumberFormat.currency(
                         locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                     .format(product.finalPrice),
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -658,7 +658,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               const SizedBox(width: 8),
               Text(
                 '/ ${product.unit}',
-                style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 16),
+                style: GoogleFonts.inter(color: kTextGrey, fontSize: 16),
               ),
             ],
           ),
@@ -666,7 +666,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const SizedBox(height: 4),
             Text(
               'Save ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.discount!.savings)}',
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 color: const Color(0xFF10B981),
                 fontWeight: FontWeight.bold,
               ),
@@ -718,7 +718,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       ),
       child: Text(
         label,
-        style: GoogleFonts.dmSans(
+        style: GoogleFonts.inter(
           color: kAccentOrange,
           fontWeight: FontWeight.w600,
           fontSize: 12,
@@ -760,7 +760,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 Row(
                   children: [
                     Text(seller.name,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: kDarkGreen)),
@@ -772,7 +772,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
                 Text(
                   '${seller.location.city}, ${seller.location.province}',
-                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),
@@ -788,7 +788,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               minimumSize: const Size(80, 36),
             ),
             child: Text('Visit',
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -801,7 +801,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           'Description',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -810,7 +810,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         const SizedBox(height: 12),
         Text(
           product.description,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             color: kTextGrey,
             height: 1.6,
@@ -820,7 +820,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           const SizedBox(height: 12),
           Text(
             product.longDescription!,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: kTextGrey,
               height: 1.6,
@@ -837,7 +837,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           'Specifications',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -862,13 +862,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       child: Text(
                         spec.key,
                         style:
-                            GoogleFonts.dmSans(color: kTextGrey, fontSize: 14),
+                            GoogleFonts.inter(color: kTextGrey, fontSize: 14),
                       ),
                     ),
                     Expanded(
                       child: Text(
                         spec.value,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.w600,
                             color: kDarkGreen,
                             fontSize: 14),
@@ -892,7 +892,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         children: [
           Text(
             'Certifications',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -926,16 +926,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(cert.name,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 color: kDarkGreen)),
                         const SizedBox(height: 4),
                         Text('Issued by: ${cert.issuer}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12, color: kTextGrey)),
                         Text(
                             'Valid until: ${DateFormat('dd MMM yyyy').format(cert.expiryDate)}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12, color: kTextGrey)),
                       ],
                     ),
@@ -955,7 +955,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           'Delivery Options',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -1034,13 +1034,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                       color: kDarkGreen)),
               const SizedBox(height: 2),
               Text(subtitle,
-                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey)),
             ],
           ),
         ),
@@ -1056,7 +1056,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         children: [
           Text(
             'Bulk Pricing',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -1080,13 +1080,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     children: [
                       Text(
                         '${bulk.minQuantity}${bulk.maxQuantity != null ? '-${bulk.maxQuantity}' : '+'} ${product.unit}',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold, color: kDarkGreen),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Save ${bulk.discountPercentage.toStringAsFixed(1)}%',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             color: const Color(0xFF10B981), fontSize: 12),
                       ),
                     ],
@@ -1095,7 +1095,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     NumberFormat.currency(
                             locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                         .format(bulk.pricePerUnit),
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen),
@@ -1120,7 +1120,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Text(
                 'Ratings & Reviews',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -1129,7 +1129,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               TextButton(
                 onPressed: () => _viewAllReviews(product),
                 child: Text('View All',
-                    style: GoogleFonts.dmSans(color: kAccentOrange)),
+                    style: GoogleFonts.inter(color: kAccentOrange)),
               ),
             ],
           ),
@@ -1138,7 +1138,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Text(
                 product.rating.average.toStringAsFixed(1),
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen),
@@ -1162,7 +1162,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text('Based on ${product.rating.count} reviews',
-                        style: GoogleFonts.dmSans(color: kTextGrey)),
+                        style: GoogleFonts.inter(color: kTextGrey)),
                   ],
                 ),
               ),
@@ -1272,7 +1272,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         children: [
           Text(
             'Related Products',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -1327,7 +1327,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 relatedProduct.name,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: kDarkGreen),
@@ -1339,7 +1339,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                         symbol: 'Rp ',
                                         decimalDigits: 0)
                                     .format(relatedProduct.price),
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                     color: kDarkGreen),
@@ -1353,7 +1353,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                     const SizedBox(width: 2),
                                     Text(
                                       relatedProduct.rating!.toStringAsFixed(1),
-                                      style: GoogleFonts.dmSans(
+                                      style: GoogleFonts.inter(
                                           fontSize: 11, color: kTextGrey),
                                     ),
                                   ],
@@ -1425,7 +1425,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   );
                   return Text(
                     '$quantity',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kDarkGreen),
@@ -1474,7 +1474,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   borderRadius: BorderRadius.circular(12)),
             ),
             child: Text('Buy Now',
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -1502,7 +1502,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               const SizedBox(width: 6),
               Text(
                 'Harvest in ${preOrderInfo.daysUntilHarvest} days • ${preOrderInfo.availableQuantity} ${product.unit} left',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: kPreOrderBlue,
@@ -1536,7 +1536,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       );
                       return Text(
                         '$quantity',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: kDarkGreen),
@@ -1575,7 +1575,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       preOrderInfo.requiresDeposit
                           ? 'Pre-Order (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)} deposit)'
                           : 'Pre-Order Now',
-                      style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -1641,7 +1641,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     children: [
                       Text(
                         'Confirm Pre-Order',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.inter(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
@@ -1649,7 +1649,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                       Text(
                         'Reserve your fresh produce',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
                           color: kTextGrey,
                         ),
@@ -1690,14 +1690,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: [
                         Text(
                           product.name,
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
                         ),
                         Text(
                           '$quantity ${product.unit} × ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.finalPrice)}',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 13,
                             color: kTextGrey,
                           ),
@@ -1709,7 +1709,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     NumberFormat.currency(
                             locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                         .format(totalPrice),
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: kDarkGreen,
@@ -1738,7 +1738,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: [
                         Text(
                           'Harvest Date',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
                             color: kTextGrey,
                           ),
@@ -1746,7 +1746,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         Text(
                           DateFormat('EEEE, MMMM d, yyyy')
                               .format(preOrderInfo.harvestDate),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
@@ -1763,7 +1763,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     child: Text(
                       '${preOrderInfo.daysUntilHarvest} days',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -1794,7 +1794,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'Deposit Required',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             color: Colors.amber[800],
                           ),
@@ -1807,13 +1807,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: [
                         Text(
                           'Pay now:',
-                          style: GoogleFonts.dmSans(color: kTextGrey),
+                          style: GoogleFonts.inter(color: kTextGrey),
                         ),
                         Text(
                           NumberFormat.currency(
                                   locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                               .format(depositAmount),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
@@ -1825,13 +1825,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: [
                         Text(
                           'Pay on delivery:',
-                          style: GoogleFonts.dmSans(color: kTextGrey),
+                          style: GoogleFonts.inter(color: kTextGrey),
                         ),
                         Text(
                           NumberFormat.currency(
                                   locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                               .format(totalPrice - depositAmount),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
@@ -1865,7 +1865,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   preOrderInfo.requiresDeposit
                       ? 'Pay Deposit & Reserve'
                       : 'Confirm Pre-Order',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -1876,7 +1876,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             Center(
               child: Text(
                 'You can cancel up to 24 hours before harvest',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   color: kTextGrey,
                 ),

@@ -67,7 +67,7 @@ class _SeasonalCalendarScreenState
         ),
         title: Text(
           'Seasonal Calendar',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -106,7 +106,7 @@ class _SeasonalCalendarScreenState
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
-                  titleTextStyle: GoogleFonts.dmSans(
+                  titleTextStyle: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -117,8 +117,8 @@ class _SeasonalCalendarScreenState
                       const Icon(Icons.chevron_right, color: kDarkGreen),
                 ),
                 calendarStyle: CalendarStyle(
-                  defaultTextStyle: GoogleFonts.dmSans(color: kDarkGreen),
-                  weekendTextStyle: GoogleFonts.dmSans(color: kAccentOrange),
+                  defaultTextStyle: GoogleFonts.inter(color: kDarkGreen),
+                  weekendTextStyle: GoogleFonts.inter(color: kAccentOrange),
                   selectedDecoration: const BoxDecoration(
                     color: kDarkGreen,
                     shape: BoxShape.circle,
@@ -127,7 +127,7 @@ class _SeasonalCalendarScreenState
                     color: kDarkGreen.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  todayTextStyle: GoogleFonts.dmSans(
+                  todayTextStyle: GoogleFonts.inter(
                     color: kDarkGreen,
                     fontWeight: FontWeight.bold,
                   ),
@@ -159,7 +159,7 @@ class _SeasonalCalendarScreenState
                 children: [
                   Text(
                     currentMonthData.month,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -184,7 +184,7 @@ class _SeasonalCalendarScreenState
                         Expanded(
                           child: Text(
                             currentMonthData.tips,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               color: const Color(0xFF92400E),
                               height: 1.4,
@@ -218,7 +218,7 @@ class _SeasonalCalendarScreenState
                       icon: const Icon(Icons.restaurant_menu_rounded),
                       label: Text(
                         'Plan Meals with Seasonal Produce',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -260,7 +260,7 @@ class _SeasonalCalendarScreenState
             const SizedBox(width: 12),
             Text(
               title,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -282,7 +282,7 @@ class _SeasonalCalendarScreenState
               ),
               child: Text(
                 item,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
@@ -302,16 +302,16 @@ class _SeasonalCalendarScreenState
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Seasonal Calendar',
-            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold)),
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: Text(
           'This calendar helps you identify which produce is at its peak flavor and lowest price during specific months.',
-          style: GoogleFonts.dmSans(color: kTextGrey),
+          style: GoogleFonts.inter(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Got it',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     color: kDarkGreen, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -350,7 +350,7 @@ class _SeasonalCalendarScreenState
               const SizedBox(height: 24),
               Text(
                 'Weekly Meal Plan',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen),
@@ -358,7 +358,7 @@ class _SeasonalCalendarScreenState
               const SizedBox(height: 8),
               Text(
                 'Based on ${currentMonthData.month} ingredients',
-                style: GoogleFonts.dmSans(color: kTextGrey),
+                style: GoogleFonts.inter(color: kTextGrey),
               ),
               const SizedBox(height: 24),
               _buildMealCard('Mon', 'Roasted Root Veggie Salad',
@@ -393,7 +393,7 @@ class _SeasonalCalendarScreenState
             ),
             child: Text(
               day,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
           ),
@@ -404,7 +404,7 @@ class _SeasonalCalendarScreenState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: kDarkGreen),
@@ -412,7 +412,7 @@ class _SeasonalCalendarScreenState
                 const SizedBox(height: 4),
                 Text(
                   ingredients,
-                  style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),

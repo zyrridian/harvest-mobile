@@ -51,7 +51,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         scrolledUnderElevation: 0,
         title: Text(
           'Notifications',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -99,9 +99,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               labelColor: Colors.white,
               unselectedLabelColor: kTextGrey,
               labelStyle:
-                  GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 13),
+                  GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
               unselectedLabelStyle:
-                  GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 13),
+                  GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
               dividerColor: Colors.transparent,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
 
@@ -171,12 +171,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             const SizedBox(height: 16),
             Text(
               'All caught up!',
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
             Text(
               'No new notifications to show.',
-              style: GoogleFonts.dmSans(color: kTextGrey),
+              style: GoogleFonts.inter(color: kTextGrey),
             ),
           ],
         ),
@@ -214,7 +214,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       const SizedBox(width: 12),
                       Text(
                         'You have ${notificationList.stats.totalUnread} unread notifications',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           color: const Color(0xFF92400E),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -283,7 +283,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                           Expanded(
                             child: Text(
                               notification.title,
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontWeight: isUnread
                                     ? FontWeight.w700
                                     : FontWeight.w600,
@@ -297,7 +297,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                             padding: const EdgeInsets.only(left: 8),
                             child: Text(
                               _formatTime(notification.createdAt),
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 color: kTextGrey,
                                 fontSize: 11,
                               ),
@@ -308,7 +308,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       const SizedBox(height: 4),
                       Text(
                         notification.message,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           color: isUnread
                               ? kDarkGreen.withOpacity(0.8)
                               : kTextGrey,
@@ -334,7 +334,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                             ),
                             child: Text(
                               notification.priority.name.toUpperCase(),
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 color: _getPriorityColor(notification.priority),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -478,7 +478,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Notification deleted', style: GoogleFonts.dmSans()),
+          content: Text('Notification deleted', style: GoogleFonts.inter()),
           backgroundColor: kDarkGreen,
           behavior: SnackBarBehavior.floating,
         ),

@@ -63,7 +63,7 @@ class _PersonalInformationScreenState
         ),
         title: Text(
           'Personal Information',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -77,7 +77,7 @@ class _PersonalInformationScreenState
               },
               child: Text(
                 'Edit',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w600,
                 ),
@@ -151,7 +151,7 @@ class _PersonalInformationScreenState
                     onPressed: _isLoading ? null : _changeProfilePicture,
                     child: Text(
                       'Change Profile Picture',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         color: kDarkGreen,
                         fontWeight: FontWeight.w600,
                       ),
@@ -252,7 +252,7 @@ class _PersonalInformationScreenState
                             ),
                             child: Text(
                               'Cancel',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -281,7 +281,7 @@ class _PersonalInformationScreenState
                                   )
                                 : Text(
                                     'Save Changes',
-                                    style: GoogleFonts.dmSans(
+                                    style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -298,7 +298,7 @@ class _PersonalInformationScreenState
         error: (error, stack) => Center(
           child: Text(
             'Error loading profile',
-            style: GoogleFonts.dmSans(color: kTextGrey),
+            style: GoogleFonts.inter(color: kTextGrey),
           ),
         ),
       ),
@@ -320,12 +320,12 @@ class _PersonalInformationScreenState
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
-      style: GoogleFonts.dmSans(
+      style: GoogleFonts.inter(
         color: enabled ? kDarkGreen : kTextGrey,
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.dmSans(color: kTextGrey),
+        labelStyle: GoogleFonts.inter(color: kTextGrey),
         prefixIcon: Icon(icon, color: kTextGrey),
         filled: true,
         fillColor: enabled ? Colors.white : kPillGrey,
@@ -355,14 +355,14 @@ class _PersonalInformationScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             color: kTextGrey,
             fontSize: 13,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             color: kDarkGreen,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -413,7 +413,7 @@ class _PersonalInformationScreenState
           SnackBar(
             content: Text(
               'Profile updated successfully',
-              style: GoogleFonts.dmSans(),
+              style: GoogleFonts.inter(),
             ),
             backgroundColor: kDarkGreen,
           ),
@@ -427,7 +427,7 @@ class _PersonalInformationScreenState
           SnackBar(
             content: Text(
               'Failed to update profile',
-              style: GoogleFonts.dmSans(),
+              style: GoogleFonts.inter(),
             ),
             backgroundColor: Colors.red,
           ),
@@ -442,7 +442,7 @@ class _PersonalInformationScreenState
       SnackBar(
         content: Text(
           'Image picker not implemented yet',
-          style: GoogleFonts.dmSans(),
+          style: GoogleFonts.inter(),
         ),
         backgroundColor: kTextGrey,
       ),

@@ -34,7 +34,7 @@ class OrderDetailScreen extends ConsumerWidget {
         ),
         title: Text(
           'Order Details',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -64,14 +64,14 @@ class OrderDetailScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'Order Number',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               color: kTextGrey,
                             ),
                           ),
                           Text(
                             order.orderNumber,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -85,7 +85,7 @@ class OrderDetailScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'Status',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               color: kTextGrey,
                             ),
@@ -123,7 +123,7 @@ class OrderDetailScreen extends ConsumerWidget {
                             order.seller.name.isNotEmpty
                                 ? order.seller.name[0]
                                 : 'S',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.inter(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -138,7 +138,7 @@ class OrderDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               order.seller.name,
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: kDarkGreen,
@@ -146,7 +146,7 @@ class OrderDetailScreen extends ConsumerWidget {
                             ),
                             Text(
                               'Farmer • Verified',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: kTextGrey,
                               ),
@@ -189,7 +189,7 @@ class OrderDetailScreen extends ConsumerWidget {
                               child: Center(
                                 child: Text(
                                   item.name.isNotEmpty ? item.name[0] : '?',
-                                  style: GoogleFonts.playfairDisplay(
+                                  style: GoogleFonts.inter(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     color: kDarkGreen,
@@ -204,7 +204,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     item.name,
-                                    style: GoogleFonts.dmSans(
+                                    style: GoogleFonts.inter(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: kDarkGreen,
@@ -212,7 +212,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                   ),
                                   Text(
                                     'Qty: ${item.quantity} • Rp ${item.unitPrice}',
-                                    style: GoogleFonts.dmSans(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       color: kTextGrey,
                                     ),
@@ -222,7 +222,7 @@ class OrderDetailScreen extends ConsumerWidget {
                             ),
                             Text(
                               'Rp ${item.subtotal}',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: kDarkGreen,
@@ -288,7 +288,7 @@ class OrderDetailScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'Total',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -296,7 +296,7 @@ class OrderDetailScreen extends ConsumerWidget {
                           ),
                           Text(
                             'Rp ${order.totalAmount}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -326,7 +326,7 @@ class OrderDetailScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         'Cancel Order',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -345,7 +345,7 @@ class OrderDetailScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.error_outline, size: 48, color: kTextGrey),
               const SizedBox(height: 16),
-              Text('Error: $e', style: GoogleFonts.dmSans(color: kTextGrey)),
+              Text('Error: $e', style: GoogleFonts.inter(color: kTextGrey)),
             ],
           ),
         ),
@@ -356,7 +356,7 @@ class OrderDetailScreen extends ConsumerWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.dmSans(
+      style: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: kDarkGreen,
@@ -404,7 +404,7 @@ class OrderDetailScreen extends ConsumerWidget {
           const SizedBox(width: 4),
           Text(
             status,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,
@@ -422,7 +422,7 @@ class OrderDetailScreen extends ConsumerWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             color: kTextGrey,
           ),
@@ -431,7 +431,7 @@ class OrderDetailScreen extends ConsumerWidget {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: kDarkGreen,
@@ -449,14 +449,14 @@ class OrderDetailScreen extends ConsumerWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             color: kTextGrey,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: kDarkGreen,
@@ -472,7 +472,7 @@ class OrderDetailScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: Text(
           'Cancel Order?',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -480,12 +480,12 @@ class OrderDetailScreen extends ConsumerWidget {
         ),
         content: Text(
           'Are you sure you want to cancel this order? This action cannot be undone.',
-          style: GoogleFonts.dmSans(color: kTextGrey),
+          style: GoogleFonts.inter(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('No', style: GoogleFonts.dmSans(color: kTextGrey)),
+            child: Text('No', style: GoogleFonts.inter(color: kTextGrey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -493,7 +493,7 @@ class OrderDetailScreen extends ConsumerWidget {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: Text('Yes, Cancel', style: GoogleFonts.dmSans()),
+            child: Text('Yes, Cancel', style: GoogleFonts.inter()),
           ),
         ],
       ),

@@ -167,7 +167,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
               titlePadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               title: Text(
                 'Learn & Grow',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w700,
                   fontSize: 24,
@@ -226,7 +226,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                             const SizedBox(width: 8),
                             Text(
                               season.name,
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 color: isSelected ? Colors.white : kTextGrey,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -252,7 +252,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Explore',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen)),
@@ -402,7 +402,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
       children: [
         Text(
           title,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -413,7 +413,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
             onTap: onTap,
             child: Text(
               action,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: kTextGrey,
@@ -461,7 +461,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
             // Text
             Text(
               title,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
                 color: kDarkGreen,
@@ -505,7 +505,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
               children: [
                 Text(
                   produce.name,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                       color: kDarkGreen),
@@ -522,7 +522,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                   ),
                   child: Text(
                     produce.harvestTime,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: kAccentOrange),
@@ -602,7 +602,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                       ),
                       child: Text(
                         recipe.difficulty,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen),
@@ -618,7 +618,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                   children: [
                     Text(
                       recipe.name,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                           color: kDarkGreen),
@@ -631,13 +631,13 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                         Icon(Icons.access_time, size: 14, color: kTextGrey),
                         const SizedBox(width: 4),
                         Text(recipe.time,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12, color: kTextGrey)),
                         const Spacer(),
                         const Icon(Icons.star_rounded,
                             size: 16, color: Colors.amber),
                         Text(recipe.rating.toString(),
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: kDarkGreen)),
@@ -703,7 +703,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                       ),
                       child: Text(
                         article.category.toUpperCase(),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: kTextGrey),
@@ -712,7 +712,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                     const SizedBox(height: 6),
                     Text(
                       article.title,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: kDarkGreen),
@@ -722,7 +722,7 @@ class _HarvestScreenState extends ConsumerState<HarvestScreen> {
                     const SizedBox(height: 6),
                     Text(
                       '${article.readTime} read',
-                      style: GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                      style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                     ),
                   ],
                 ),

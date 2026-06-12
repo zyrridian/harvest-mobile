@@ -68,7 +68,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
         ),
         title: Text(
           'Latest Articles',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -110,7 +110,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       category,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         color: isSelected ? Colors.white : kTextGrey,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -199,7 +199,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                     ),
                     child: Text(
                       article.category,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: kAccentOrange,
@@ -211,7 +211,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                   // Title
                   Text(
                     article.title,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -224,7 +224,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                   // Excerpt
                   Text(
                     article.excerpt,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
                       color: kTextGrey,
                       height: 1.5,
@@ -242,7 +242,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                       Text(
                         '${article.readTime} min read',
                         style:
-                            GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                            GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                       ),
                       const SizedBox(width: 16),
                       const Icon(Icons.person_outline,
@@ -251,7 +251,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                       Expanded(
                         child: Text(
                           article.author,
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                               fontSize: 12, color: kTextGrey),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

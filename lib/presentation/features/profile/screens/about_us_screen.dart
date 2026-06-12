@@ -26,7 +26,7 @@ class AboutUsScreen extends StatelessWidget {
         ),
         title: Text(
           'About Us',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -71,7 +71,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   'Harvest',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -80,7 +80,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Farm to Table, Simplified',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
@@ -88,7 +88,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Version 1.0.0',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     color: Colors.white60,
                   ),
@@ -149,7 +149,7 @@ class AboutUsScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Text(
                       'Our Values',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -198,7 +198,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   'By the Numbers',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -245,7 +245,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   'Get in Touch',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -274,7 +274,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   'Follow Us',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -320,7 +320,7 @@ class AboutUsScreen extends StatelessWidget {
                 },
                 child: Text(
                   'Terms of Service',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: kTextGrey,
                     fontSize: 13,
                     decoration: TextDecoration.underline,
@@ -334,7 +334,7 @@ class AboutUsScreen extends StatelessWidget {
                 },
                 child: Text(
                   'Privacy Policy',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: kTextGrey,
                     fontSize: 13,
                     decoration: TextDecoration.underline,
@@ -348,7 +348,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             '© 2024 Harvest. All rights reserved.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               color: kTextGrey,
               fontSize: 12,
             ),
@@ -397,7 +397,7 @@ class AboutUsScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 title,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -408,7 +408,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             content,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: kTextGrey,
               height: 1.7,
@@ -437,7 +437,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -446,7 +446,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 13,
                     color: kTextGrey,
                   ),
@@ -471,7 +471,7 @@ class AboutUsScreen extends StatelessWidget {
         children: [
           Text(
             number,
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -481,7 +481,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: kTextGrey,
             ),
@@ -514,14 +514,14 @@ class AboutUsScreen extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: kTextGrey,
                       ),
                     ),
                     Text(
                       value,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: kDarkGreen,

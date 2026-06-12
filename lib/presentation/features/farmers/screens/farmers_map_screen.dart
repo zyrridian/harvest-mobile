@@ -192,10 +192,10 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                             Expanded(
                               child: TextField(
                                 controller: _searchController,
-                                style: GoogleFonts.dmSans(color: kDarkGreen),
+                                style: GoogleFonts.inter(color: kDarkGreen),
                                 decoration: InputDecoration(
                                   hintText: 'Search map area...',
-                                  hintStyle: GoogleFonts.dmSans(
+                                  hintStyle: GoogleFonts.inter(
                                       color: Colors.grey[500]),
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
@@ -257,7 +257,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                           const SizedBox(width: 8),
                           Text(
                             '$count farmers nearby',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -364,7 +364,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                           children: [
                             Text(
                               '${visibleFarmers.length} Farmers Nearby',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: kDarkGreen,
@@ -443,7 +443,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                 children: [
                   Text(
                     farmer.name,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -454,7 +454,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                   const SizedBox(height: 4),
                   Text(
                     farmer.description,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
@@ -470,7 +470,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                       Expanded(
                         child: Text(
                           farmer.address,
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.grey[500],
                           ),

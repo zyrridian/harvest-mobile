@@ -69,7 +69,7 @@ class _CategoryProductsScreenState
             ),
             title: Text(
               widget.categoryName,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -160,7 +160,7 @@ class _CategoryProductsScreenState
                         const SizedBox(height: 16),
                         Text(
                           'No products found',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             color: kTextGrey,
                           ),
@@ -203,7 +203,7 @@ class _CategoryProductsScreenState
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load products',
-                      style: GoogleFonts.dmSans(fontSize: 16, color: kTextGrey),
+                      style: GoogleFonts.inter(fontSize: 16, color: kTextGrey),
                     ),
                   ],
                 ),
@@ -296,7 +296,7 @@ class _CategoryProductsScreenState
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: kDarkGreen,
@@ -320,7 +320,7 @@ class _CategoryProductsScreenState
         children: [
           Text(
             label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -378,7 +378,7 @@ class _CategoryProductsScreenState
                       ),
                       child: Text(
                         product.discount!,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -415,7 +415,7 @@ class _CategoryProductsScreenState
                             ),
                             child: Text(
                               'ORGANIC',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -434,7 +434,7 @@ class _CategoryProductsScreenState
                             ),
                             child: Text(
                               'PREMIUM',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -453,7 +453,7 @@ class _CategoryProductsScreenState
                 children: [
                   Text(
                     product.name,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: kDarkGreen,
@@ -464,7 +464,7 @@ class _CategoryProductsScreenState
                   const SizedBox(height: 2),
                   Text(
                     product.sellerName,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 11,
                       color: kTextGrey,
                     ),
@@ -478,7 +478,7 @@ class _CategoryProductsScreenState
                       const SizedBox(width: 2),
                       Text(
                         product.rating.toString(),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: kDarkGreen,
@@ -486,7 +486,7 @@ class _CategoryProductsScreenState
                       ),
                       Text(
                         ' (${product.reviewCount})',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 10,
                           color: kTextGrey,
                         ),
@@ -499,7 +499,7 @@ class _CategoryProductsScreenState
                     children: [
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: kDarkGreen,
@@ -507,7 +507,7 @@ class _CategoryProductsScreenState
                       ),
                       Text(
                         product.unit,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 11,
                           color: kTextGrey,
                         ),
@@ -538,7 +538,7 @@ class _CategoryProductsScreenState
           children: [
             Text(
               'Sort by',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -551,7 +551,7 @@ class _CategoryProductsScreenState
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   _getSortLabel(option),
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontWeight:
                         isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected ? kDarkGreen : kTextGrey,
@@ -587,7 +587,7 @@ class _CategoryProductsScreenState
           children: [
             Text(
               'Filter',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -605,7 +605,7 @@ class _CategoryProductsScreenState
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'Organic Only',
-                        style: GoogleFonts.dmSans(color: kDarkGreen),
+                        style: GoogleFonts.inter(color: kDarkGreen),
                       ),
                       value: organic,
                       activeColor: kDarkGreen,
@@ -618,7 +618,7 @@ class _CategoryProductsScreenState
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'Premium Only',
-                        style: GoogleFonts.dmSans(color: kDarkGreen),
+                        style: GoogleFonts.inter(color: kDarkGreen),
                       ),
                       value: premium,
                       activeColor: kDarkGreen,
@@ -641,7 +641,7 @@ class _CategoryProductsScreenState
                         ),
                         child: Text(
                           'Apply Filters',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),

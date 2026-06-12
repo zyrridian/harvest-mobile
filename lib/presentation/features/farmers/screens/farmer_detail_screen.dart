@@ -103,7 +103,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                   borderRadius: BorderRadius.circular(30),
                   color: kDarkGreen,
                 ),
-                labelStyle: GoogleFonts.dmSans(
+                labelStyle: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
@@ -163,7 +163,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
       children: [
         Text(
           value,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -171,7 +171,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         ),
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 12,
             color: kTextGrey,
           ),
@@ -237,7 +237,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+              textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -272,7 +272,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         if (products.isEmpty) {
           return Center(
               child: Text('No products available',
-                  style: GoogleFonts.dmSans(color: kTextGrey)));
+                  style: GoogleFonts.inter(color: kTextGrey)));
         }
         return GridView.builder(
           padding: const EdgeInsets.all(24),
@@ -325,14 +325,14 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       children: [
                         Text(
                           product.name,
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold, color: kDarkGreen),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'Rp ${product.price}',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                               color: kAccentOrange,
                               fontWeight: FontWeight.bold),
                         ),
@@ -357,7 +357,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         if (posts.isEmpty) {
           return Center(
               child: Text('No posts yet',
-                  style: GoogleFonts.dmSans(color: kTextGrey)));
+                  style: GoogleFonts.inter(color: kTextGrey)));
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
@@ -391,11 +391,11 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(widget.farmer.name,
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
                                   color: kDarkGreen)),
                           Text(post.createdAt.toString().split(' ')[0],
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 12, color: kTextGrey)),
                         ],
                       ),
@@ -404,7 +404,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                   const SizedBox(height: 12),
                   Text(
                     post.content,
-                    style: GoogleFonts.dmSans(color: kDarkGreen, height: 1.5),
+                    style: GoogleFonts.inter(color: kDarkGreen, height: 1.5),
                   ),
                   if (post.images.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -440,7 +440,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         children: [
           Text(
             'About the Farmer',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -449,7 +449,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           const SizedBox(height: 12),
           Text(
             widget.farmer.description,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               color: kTextGrey,
               height: 1.6,
               fontSize: 15,
@@ -458,7 +458,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           const SizedBox(height: 32),
           Text(
             'Specialties',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -478,7 +478,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       ),
                       child: Text(
                         s,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             color: kDarkGreen, fontWeight: FontWeight.w500),
                       ),
                     ))
@@ -487,7 +487,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           const SizedBox(height: 32),
           Text(
             'Contact Info',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -509,7 +509,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.dmSans(color: kDarkGreen, fontSize: 15),
+            style: GoogleFonts.inter(color: kDarkGreen, fontSize: 15),
           ),
         ),
       ],
@@ -525,7 +525,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         if (reviews.isEmpty) {
           return Center(
               child: Text('No reviews yet',
-                  style: GoogleFonts.dmSans(color: kTextGrey)));
+                  style: GoogleFonts.inter(color: kTextGrey)));
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
@@ -555,7 +555,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(review.userName,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 color: kDarkGreen)),
                         Row(
@@ -574,13 +574,13 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     const Spacer(),
                     Text(review.createdAt.toString().split(' ')[0],
                         style:
-                            GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+                            GoogleFonts.inter(fontSize: 12, color: kTextGrey)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   review.comment,
-                  style: GoogleFonts.dmSans(color: kTextGrey, height: 1.4),
+                  style: GoogleFonts.inter(color: kTextGrey, height: 1.4),
                 ),
               ],
             );
@@ -669,7 +669,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                         children: [
                           Text(
                             farmer.name,
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.inter(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                               color: kDarkGreen,
@@ -691,7 +691,7 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                           const SizedBox(width: 4),
                           Text(
                             '${farmer.city} • ${farmer.distanceLabel}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: kTextGrey, fontSize: 13),
                           ),
                         ],

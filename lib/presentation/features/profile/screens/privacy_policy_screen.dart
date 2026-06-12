@@ -25,7 +25,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         ),
         title: Text(
           'Privacy Policy',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -49,7 +49,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   'Last updated: December 25, 2025',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: kDarkGreen,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -158,7 +158,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Questions about your privacy?',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -168,7 +168,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Our team is here to help you understand how we protect your data',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     color: Colors.white70,
                     fontSize: 14,
                   ),
@@ -182,7 +182,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   icon: const Icon(Icons.email_outlined, color: kDarkGreen),
                   label: Text(
                     'Contact Privacy Team',
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -216,7 +216,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -226,7 +226,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           if (content != null)
             Text(
               content,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 color: kTextGrey,
                 height: 1.7,
@@ -241,7 +241,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   children: [
                     Text(
                       subsection['subtitle']!,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: kDarkGreen,
@@ -250,7 +250,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       subsection['content']!,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         color: kTextGrey,
                         height: 1.7,

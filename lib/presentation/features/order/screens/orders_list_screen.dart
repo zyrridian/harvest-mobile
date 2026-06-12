@@ -54,7 +54,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         ),
         title: Text(
           'My Orders',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -67,11 +67,11 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           unselectedLabelColor: kTextGrey,
           indicatorColor: kDarkGreen,
           indicatorWeight: 3,
-          labelStyle: GoogleFonts.dmSans(
+          labelStyle: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
-          unselectedLabelStyle: GoogleFonts.dmSans(
+          unselectedLabelStyle: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.normal,
           ),
@@ -110,7 +110,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
             children: [
               const Icon(Icons.error_outline, size: 48, color: kTextGrey),
               const SizedBox(height: 16),
-              Text('Error: $e', style: GoogleFonts.dmSans(color: kTextGrey)),
+              Text('Error: $e', style: GoogleFonts.inter(color: kTextGrey)),
             ],
           ),
         ),
@@ -135,7 +135,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           const SizedBox(height: 24),
           Text(
             'No orders yet',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -144,7 +144,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           const SizedBox(height: 8),
           Text(
             'Your orders will appear here',
-            style: GoogleFonts.dmSans(color: kTextGrey),
+            style: GoogleFonts.inter(color: kTextGrey),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
@@ -168,7 +168,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       return Center(
         child: Text(
           'No orders in this category',
-          style: GoogleFonts.dmSans(color: kTextGrey),
+          style: GoogleFonts.inter(color: kTextGrey),
         ),
       );
     }
@@ -212,7 +212,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
               children: [
                 Text(
                   order.orderNumber,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -236,7 +236,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   child: Center(
                     child: Text(
                       order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
                       ),
@@ -250,7 +250,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     children: [
                       Text(
                         order.seller.name,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: kDarkGreen,
@@ -258,7 +258,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                       ),
                       Text(
                         '${order.items.length} item${order.items.length > 1 ? 's' : ''}',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 12,
                           color: kTextGrey,
                         ),
@@ -283,14 +283,14 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   children: [
                     Text(
                       'Total Amount',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: kTextGrey,
                       ),
                     ),
                     Text(
                       'Rp ${order.totalAmount}',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -358,7 +358,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           const SizedBox(width: 4),
           Text(
             status,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,

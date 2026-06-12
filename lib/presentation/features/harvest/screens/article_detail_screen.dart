@@ -175,7 +175,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
                         ),
                         child: Text(
                           widget.category.toUpperCase(),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                             color: kAccentOrange,
@@ -186,7 +186,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
                       Text(
                         '${_formatDate(widget.publishDate)} • ${widget.readTime} min read',
                         style:
-                            GoogleFonts.dmSans(color: kTextGrey, fontSize: 13),
+                            GoogleFonts.inter(color: kTextGrey, fontSize: 13),
                       ),
                     ],
                   ),
@@ -195,7 +195,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
                   // Title
                   Text(
                     widget.title,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -218,11 +218,11 @@ Sustainable farming practices offer a path forward that balances productivity wi
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(widget.author,
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: kDarkGreen)),
                             Text('Author',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 12, color: kTextGrey)),
                           ],
                         ),
@@ -280,7 +280,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
 
                   // Related Articles Header
                   Text('Related Articles',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen)),
@@ -310,14 +310,14 @@ Sustainable farming practices offer a path forward that balances productivity wi
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Comments (${comments.length})',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen)),
                   TextButton(
                     onPressed: _showAddCommentDialog,
                     child: Text('Add Comment',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             color: kAccentOrange, fontWeight: FontWeight.bold)),
                   ),
                 ],
@@ -361,7 +361,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
         Icon(icon, size: 18, color: kDarkGreen),
         const SizedBox(width: 8),
         Text(label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600, color: kDarkGreen, fontSize: 13)),
       ],
     );
@@ -389,12 +389,12 @@ Sustainable farming practices offer a path forward that balances productivity wi
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(article.title,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold, color: kDarkGreen),
                     maxLines: 2),
                 const SizedBox(height: 4),
                 Text('${article.readTime} min read',
-                    style: GoogleFonts.dmSans(color: kTextGrey, fontSize: 12)),
+                    style: GoogleFonts.inter(color: kTextGrey, fontSize: 12)),
               ],
             ),
           ),
@@ -419,17 +419,17 @@ Sustainable farming practices offer a path forward that balances productivity wi
                 Row(
                   children: [
                     Text(comment.userName,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontWeight: FontWeight.bold, color: kDarkGreen)),
                     const SizedBox(width: 8),
                     Text(_formatDate(comment.date),
                         style:
-                            GoogleFonts.dmSans(fontSize: 11, color: kTextGrey)),
+                            GoogleFonts.inter(fontSize: 11, color: kTextGrey)),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(comment.comment,
-                    style: GoogleFonts.dmSans(color: kDarkGreen, height: 1.4)),
+                    style: GoogleFonts.inter(color: kDarkGreen, height: 1.4)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -438,10 +438,10 @@ Sustainable farming practices offer a path forward that balances productivity wi
                     const SizedBox(width: 4),
                     Text('${comment.likes}',
                         style:
-                            GoogleFonts.dmSans(fontSize: 12, color: kTextGrey)),
+                            GoogleFonts.inter(fontSize: 12, color: kTextGrey)),
                     const SizedBox(width: 16),
                     Text('Reply',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: kTextGrey)),
@@ -463,7 +463,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
         return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(section.substring(2),
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)));
@@ -471,7 +471,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
         return Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 12),
             child: Text(section.substring(3),
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)));
@@ -479,7 +479,7 @@ Sustainable farming practices offer a path forward that balances productivity wi
         return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(section,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     fontSize: 16, height: 1.6, color: Colors.black87)));
       }
     }).toList();

@@ -507,7 +507,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Text(
                     'Harvest Market.',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       color: kDarkGreen,
@@ -560,7 +560,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                       Expanded(
                         child: Text(
                           'Search fresh products...',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             color: Colors.grey[500],
                             fontSize: 15,
                           ),
@@ -620,7 +620,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Reserve perishable items before harvest day',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
                       color: Colors.grey[600],
                     ),
@@ -715,7 +715,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                     children: [
                                       Text(
                                         '3 Markets Open',
-                                        style: GoogleFonts.dmSans(
+                                        style: GoogleFonts.inter(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
                                           color: kDarkGreen,
@@ -723,7 +723,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                       ),
                                       Text(
                                         'Within 5km range',
-                                        style: GoogleFonts.dmSans(
+                                        style: GoogleFonts.inter(
                                           fontSize: 12,
                                           color: Colors.grey,
                                         ),
@@ -742,7 +742,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                       ),
                                       child: Text(
                                         'View Map',
-                                        style: GoogleFonts.dmSans(
+                                        style: GoogleFonts.inter(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
@@ -830,7 +830,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
       children: [
         Text(
           title,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -841,7 +841,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
             onTap: onSeeAllTap,
             child: Text(
               'See all',
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[500],
@@ -945,7 +945,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
           Text(
             category.name,
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: kDarkGreen,
@@ -1057,7 +1057,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                         Expanded(
                           child: Text(
                             farmer.name,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                               color: kDarkGreen,
@@ -1083,7 +1083,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                 const SizedBox(width: 2),
                                 Text(
                                   farmer.rating.toString(),
-                                  style: GoogleFonts.dmSans(
+                                  style: GoogleFonts.inter(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
                                     color: kAccentOrange,
@@ -1097,7 +1097,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '${farmer.distanceKm?.toStringAsFixed(1) ?? '?'}km • ${farmer.address ?? 'Unknown Location'}',
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                         color: Colors.grey[500],
                         fontSize: 12,
                       ),
@@ -1113,7 +1113,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                           const SizedBox(width: 4),
                           Text(
                             '${farmer.totalProducts} Products Available',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: kFreshGreen,
@@ -1210,7 +1210,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                                   : daysUntil == 1
                                       ? 'Tomorrow'
                                       : '$daysUntil days'),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -1244,7 +1244,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Text(
                     harvest.name,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: kDarkGreen,
@@ -1266,7 +1266,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                       Expanded(
                         child: Text(
                           harvest.farmer?.name ?? 'Unknown Farmer',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 11,
                             color: Colors.grey[600],
                           ),
@@ -1286,14 +1286,14 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Text(
                             '$currentBooked pre-orders',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 10,
                               color: Colors.grey[500],
                             ),
                           ),
                           Text(
                             '$availableQty ${harvest.unit ?? 'kg'} left',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: availableQty < 20
@@ -1330,7 +1330,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                           symbol: 'Rp ',
                           decimalDigits: 0,
                         ).format(harvest.price ?? 0),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                           color: kDarkGreen,
@@ -1347,7 +1347,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                         ),
                         child: Text(
                           'Pre-Order',
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -1415,14 +1415,14 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Text(
                     product.name,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.w700,
                       color: kDarkGreen,
                     ),
                   ),
                   Text(
                     product.seller,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       color: Colors.grey[500],
                     ),
@@ -1430,7 +1430,7 @@ class _DashboardScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     '\$${product.price}',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
                     ),

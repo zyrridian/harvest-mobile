@@ -328,7 +328,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                 child: avatar == null || !avatar.startsWith('http')
                     ? Text(
                         name.isNotEmpty ? name[0].toUpperCase() : 'F',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             color: _kDarkGreen, fontWeight: FontWeight.w700),
                       )
                     : null,
@@ -358,7 +358,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: _kDarkGreen,
@@ -374,7 +374,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                               : 'Tap to view profile',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
                     color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
                     fontWeight: FontWeight.w500,
@@ -424,7 +424,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             const SizedBox(height: 16),
             Text(
               'No messages yet',
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: _kDarkGreen,
@@ -433,7 +433,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             const SizedBox(height: 6),
             Text(
               'Say hello to start the conversation!',
-              style: GoogleFonts.dmSans(fontSize: 13, color: _kGrey),
+              style: GoogleFonts.inter(fontSize: 13, color: _kGrey),
             ),
           ],
         ),
@@ -502,7 +502,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           ),
           child: Text(
             label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
           ),
         ),
@@ -524,7 +524,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           const SizedBox(width: 8),
           Text(
             'typing…',
-            style: GoogleFonts.dmSans(fontSize: 12, color: _kGrey),
+            style: GoogleFonts.inter(fontSize: 12, color: _kGrey),
           ),
         ],
       ),
@@ -580,10 +580,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     minLines: 1,
                     maxLines: 5,
                     textInputAction: TextInputAction.newline,
-                    style: GoogleFonts.dmSans(fontSize: 14, color: _kDarkGreen),
+                    style: GoogleFonts.inter(fontSize: 14, color: _kDarkGreen),
                     decoration: InputDecoration(
                       hintText: 'Message…',
-                      hintStyle: GoogleFonts.dmSans(
+                      hintStyle: GoogleFonts.inter(
                           fontSize: 14, color: const Color(0xFFBCC0C4)),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
@@ -671,7 +671,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     return ListTile(
       leading: Icon(icon, color: color ?? _kDarkGreen, size: 22),
       title: Text(label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
               color: color ?? _kDarkGreen, fontWeight: FontWeight.w500)),
       onTap: () => Navigator.pop(context),
     );
@@ -733,7 +733,7 @@ class _ChatBubble extends StatelessWidget {
               children: [
                 TextSpan(
                   text: message.content ?? '',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     color: isMe ? Colors.white : _kDarkGreen,
                     height: 1.4,
@@ -748,7 +748,7 @@ class _ChatBubble extends StatelessWidget {
                     children: [
                       Text(
                         _formatTime(message.timestamp),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 10,
                           color: isMe ? Colors.white70 : _kGrey,
                         ),
@@ -800,7 +800,7 @@ class _ChatBubble extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '${message.voice?.duration ?? 0}s',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   color: isMe ? Colors.white : _kDarkGreen,
                   fontWeight: FontWeight.w600,
                 ),
@@ -814,7 +814,7 @@ class _ChatBubble extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           child: Text(
             message.content ?? '(unsupported message)',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 13,
               color: isMe ? Colors.white70 : _kGrey,
             ),
@@ -865,7 +865,7 @@ class _ProductCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             product?.name ?? '',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w700,
               fontSize: 13,
               color: isMe ? Colors.white : _kDarkGreen,
@@ -873,7 +873,7 @@ class _ProductCard extends StatelessWidget {
           ),
           Text(
             'Rp ${product?.price ?? 0}/${product?.unit ?? ''}',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: isMe ? Colors.white70 : _kGrey,
             ),
@@ -882,7 +882,7 @@ class _ProductCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               message.text!,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontSize: 13, color: isMe ? Colors.white : _kDarkGreen),
             ),
           ],
@@ -917,7 +917,7 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 'Order',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     fontSize: 11, color: isMe ? Colors.white70 : _kGrey),
               ),
             ],
@@ -925,7 +925,7 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '#${order?.orderNumber ?? ''}',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w700,
               fontSize: 14,
               color: isMe ? Colors.white : _kDarkGreen,
@@ -933,14 +933,14 @@ class _OrderCard extends StatelessWidget {
           ),
           Text(
             'Status: ${order?.status ?? ''}',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 fontSize: 12, color: isMe ? Colors.white70 : _kGrey),
           ),
           if (message.text != null) ...[
             const SizedBox(height: 4),
             Text(
               message.text!,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontSize: 13, color: isMe ? Colors.white : _kDarkGreen),
             ),
           ],

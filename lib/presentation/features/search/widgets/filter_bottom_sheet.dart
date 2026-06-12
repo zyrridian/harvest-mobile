@@ -67,7 +67,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   children: [
                     Text(
                       'Filters',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.inter(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: kDarkGreen,
@@ -83,7 +83,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       },
                       child: Text(
                         'Reset',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           color: kTextGrey,
                           fontWeight: FontWeight.w500,
                         ),
@@ -116,7 +116,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         ),
                         valueIndicatorColor: kDarkGreen,
                         valueIndicatorTextStyle:
-                            GoogleFonts.dmSans(color: Colors.white),
+                            GoogleFonts.inter(color: Colors.white),
                       ),
                       child: RangeSlider(
                         values: _priceRange,
@@ -141,12 +141,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         children: [
                           Text(
                             '\$${_priceRange.start.toStringAsFixed(0)}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold, color: kDarkGreen),
                           ),
                           Text(
                             '\$${_priceRange.end.toStringAsFixed(0)}',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold, color: kDarkGreen),
                           ),
                         ],
@@ -245,7 +245,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                       child: Text(
                         'Apply Filters',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -266,7 +266,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.dmSans(
+      style: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: kDarkGreen,
@@ -294,7 +294,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             fontSize: 14,

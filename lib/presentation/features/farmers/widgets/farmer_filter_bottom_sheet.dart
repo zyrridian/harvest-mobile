@@ -72,7 +72,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
               children: [
                 Text(
                   'Filters',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.inter(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: kDarkGreen,
@@ -90,7 +90,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                   },
                   child: Text(
                     'Reset',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         color: kTextGrey, fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -186,7 +186,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                   ),
                   child: Text(
                     'Apply Filters',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
@@ -201,7 +201,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.dmSans(
+      style: GoogleFonts.inter(
           fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
     );
   }
@@ -222,7 +222,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: FontWeight.w600,
           ),
@@ -240,7 +240,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
         child: Row(
           children: [
             Text(title,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     color: isSelected ? kDarkGreen : kTextGrey,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal)),

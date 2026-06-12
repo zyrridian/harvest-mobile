@@ -199,7 +199,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
         ),
         title: Text(
           isEdit ? 'Edit Address' : 'Add New Address',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -224,7 +224,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
 
             // Contact Info Section
             Text('Contact Info',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)),
@@ -251,7 +251,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
 
             // Location Section
             Text('Location Details',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)),
@@ -262,7 +262,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               onPressed: _showLocationPicker,
               icon: const Icon(Icons.map_outlined, color: kDarkGreen),
               label: Text('Pin Location on Map',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: kDarkGreen,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -369,7 +369,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
                             color: Colors.white, strokeWidth: 2))
                     : Text(
                         isEdit ? 'Update Address' : 'Save Address',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -396,7 +396,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: kTextGrey,
@@ -411,11 +411,11 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
           readOnly: readOnly,
           onTap: onTap,
           textAlignVertical: TextAlignVertical.top,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
               color: kDarkGreen, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
+            hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
             filled: true,
             fillColor: Colors.white,
             prefixIcon:
@@ -495,14 +495,14 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title,
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)),
             const SizedBox(height: 16),
             ...items.map((item) => ListTile(
                   title: Text(item.label,
-                      style: GoogleFonts.dmSans(color: kDarkGreen)),
+                      style: GoogleFonts.inter(color: kDarkGreen)),
                   onTap: () {
                     onSelect(item);
                     Navigator.pop(context);
@@ -518,7 +518,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content:
-            Text('Map picker would open here', style: GoogleFonts.dmSans()),
+            Text('Map picker would open here', style: GoogleFonts.inter()),
         backgroundColor: kDarkGreen,
         behavior: SnackBarBehavior.floating,
       ),

@@ -172,7 +172,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         ),
         title: Text(
           'Help Center',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -189,7 +189,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
                 hintText: 'Search for help...',
-                hintStyle: GoogleFonts.dmSans(color: kTextGrey),
+                hintStyle: GoogleFonts.inter(color: kTextGrey),
                 prefixIcon: const Icon(Icons.search, color: kTextGrey),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -260,7 +260,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 children: [
                   Text(
                     'Still need help?',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -269,7 +269,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Our support team is available 24/7',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       color: Colors.white70,
                       fontSize: 13,
                     ),
@@ -285,7 +285,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                           icon: const Icon(Icons.chat_bubble_outline, size: 18, color: kDarkGreen,),
                           label: Text(
                             'Chat',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -309,7 +309,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                           icon: const Icon(Icons.email_outlined, size: 18, color: Colors.white,),
                           label: Text(
                             'Email',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -371,7 +371,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -416,7 +416,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         title: Text(
           question,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: kDarkGreen,
@@ -427,7 +427,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         children: [
           Text(
             answer,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: kTextGrey,
               height: 1.6,

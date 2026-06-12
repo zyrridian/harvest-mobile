@@ -119,7 +119,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
         ),
         title: Text(
           'Courses',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -145,7 +145,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
               unselectedLabelColor: kTextGrey,
               dividerColor: Colors.transparent,
               labelStyle:
-                  GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 14),
+                  GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
               tabs: const [
                 Tab(text: 'Discover'),
                 Tab(text: 'My Learning'),
@@ -219,13 +219,13 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
             const SizedBox(height: 16),
             Text(
               'No courses yet',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.inter(
                   fontSize: 20, fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
             const SizedBox(height: 8),
             Text(
               'Enroll in a course to start learning.',
-              style: GoogleFonts.dmSans(color: kTextGrey),
+              style: GoogleFonts.inter(color: kTextGrey),
             ),
           ],
         ),
@@ -261,7 +261,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.inter(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: FontWeight.w600,
             fontSize: 13,
@@ -317,7 +317,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                     ),
                     child: Text(
                       course.price,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 12),
@@ -337,7 +337,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                     children: [
                       Text(
                         course.category.toUpperCase(),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: kAccentOrange),
@@ -352,14 +352,14 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                       Text(
                         course.level,
                         style:
-                            GoogleFonts.dmSans(fontSize: 11, color: kTextGrey),
+                            GoogleFonts.inter(fontSize: 11, color: kTextGrey),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
                     course.title,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen),
@@ -379,7 +379,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                       Text(
                         course.instructor,
                         style:
-                            GoogleFonts.dmSans(fontSize: 12, color: kTextGrey),
+                            GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                       ),
                       const Spacer(),
                       const Icon(Icons.star_rounded,
@@ -387,7 +387,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                       const SizedBox(width: 4),
                       Text(
                         course.rating.toString(),
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen),
@@ -439,7 +439,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                 children: [
                   Text(
                     course.title,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen),
@@ -464,7 +464,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                     children: [
                       Text(
                         '${course.progress}% Complete',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen),
@@ -472,7 +472,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                       Text(
                         '${course.lessons} Lessons',
                         style:
-                            GoogleFonts.dmSans(fontSize: 11, color: kTextGrey),
+                            GoogleFonts.inter(fontSize: 11, color: kTextGrey),
                       ),
                     ],
                   ),
@@ -527,7 +527,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                     const SizedBox(height: 24),
                     Text(
                       course.title,
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.inter(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen),
@@ -545,11 +545,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(course.instructor,
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: kDarkGreen)),
                             Text('Instructor',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 12, color: kTextGrey)),
                           ],
                         ),
@@ -574,21 +574,21 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
 
                     // Description
                     Text('About Course',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen)),
                     const SizedBox(height: 8),
                     Text(
                       course.description,
-                      style: GoogleFonts.dmSans(
+                      style: GoogleFonts.inter(
                           fontSize: 15, color: kTextGrey, height: 1.6),
                     ),
                     const SizedBox(height: 24),
 
                     // Syllabus
                     Text('Syllabus',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen)),
@@ -604,14 +604,14 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                                     color: kPillGrey, shape: BoxShape.circle),
                                 child: Center(
                                     child: Text('${entry.key + 1}',
-                                        style: GoogleFonts.dmSans(
+                                        style: GoogleFonts.inter(
                                             fontWeight: FontWeight.bold,
                                             color: kDarkGreen))),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                   child: Text(entry.value,
-                                      style: GoogleFonts.dmSans(
+                                      style: GoogleFonts.inter(
                                           fontSize: 15, color: kDarkGreen))),
                               Icon(Icons.lock_outline,
                                   size: 16, color: kTextGrey),
@@ -645,7 +645,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
                       ),
                       child: Text(
                         course.enrolled ? 'Continue Learning' : 'Enroll Now',
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.inter(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -665,7 +665,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
         Icon(icon, color: kAccentOrange, size: 20),
         const SizedBox(width: 6),
         Text(label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600, color: kDarkGreen)),
       ],
     );

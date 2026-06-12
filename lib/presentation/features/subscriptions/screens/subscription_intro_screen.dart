@@ -67,7 +67,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             '-15%',
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -81,7 +81,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
 
               Text(
                 'Subscribe & Save',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -90,7 +90,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               Text(
                 'Get fresh produce delivered regularly. Save money and never run out of your essentials.',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 16,
                   color: const Color(0xFF6E7A75),
                   height: 1.5,
@@ -100,7 +100,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
 
               // 2. BENEFITS GRID
               Text('Why Subscribe?',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen)),
@@ -128,7 +128,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
 
               // 3. STEPS
               Text('How It Works',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen)),
@@ -160,7 +160,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     'Create Subscription',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -173,7 +173,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
                   },
                   child: Text(
                     'View My Subscriptions',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                         color: kDarkGreen, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -201,10 +201,10 @@ class SubscriptionIntroScreen extends ConsumerWidget {
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 12),
           Text(title,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold, color: kDarkGreen)),
           Text(sub,
-              style: GoogleFonts.dmSans(
+              style: GoogleFonts.inter(
                   fontSize: 12, color: const Color(0xFF6E7A75))),
         ],
       ),
@@ -220,7 +220,7 @@ class SubscriptionIntroScreen extends ConsumerWidget {
           decoration: BoxDecoration(color: kDarkGreen, shape: BoxShape.circle),
           child: Center(
               child: Text(num,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       color: Colors.white, fontWeight: FontWeight.bold))),
         ),
         const SizedBox(width: 16),
@@ -229,10 +229,10 @@ class SubscriptionIntroScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold, color: kDarkGreen)),
               Text(desc,
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                       fontSize: 13, color: const Color(0xFF6E7A75))),
             ],
           ),

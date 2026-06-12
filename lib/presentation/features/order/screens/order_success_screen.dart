@@ -53,7 +53,7 @@ class OrderSuccessScreen extends StatelessWidget {
               // Success Title
               Text(
                 'Order Placed!',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.inter(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   color: kDarkGreen,
@@ -74,7 +74,7 @@ class OrderSuccessScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'Order #$orderNumber',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -87,7 +87,7 @@ class OrderSuccessScreen extends StatelessWidget {
               // Description
               Text(
                 'Thank you for your order!\nWe\'ll notify you when it\'s on the way.',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.inter(
                   fontSize: 16,
                   color: kTextGrey,
                   height: 1.5,
@@ -115,7 +115,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'View Order Details',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -141,7 +141,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Continue Shopping',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -157,7 +157,7 @@ class OrderSuccessScreen extends StatelessWidget {
                 },
                 child: Text(
                   'View All Orders',
-                  style: GoogleFonts.dmSans(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     color: kTextGrey,
                     decoration: TextDecoration.underline,

@@ -76,7 +76,7 @@ class FarmerCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Verified',
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: kDarkGreen),
@@ -118,7 +118,7 @@ class FarmerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           farmer.name,
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
@@ -141,7 +141,7 @@ class FarmerCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               farmer.rating.toStringAsFixed(1),
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                   color: const Color(0xFF92400E)),
@@ -162,7 +162,7 @@ class FarmerCard extends StatelessWidget {
                       Text(
                         '${farmer.city} • ${farmer.distanceLabel}',
                         style:
-                            GoogleFonts.dmSans(color: kTextGrey, fontSize: 12),
+                            GoogleFonts.inter(color: kTextGrey, fontSize: 12),
                       ),
                     ],
                   ),
@@ -183,7 +183,7 @@ class FarmerCard extends StatelessWidget {
                           ),
                           child: Text(
                             tag,
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.inter(
                                 color: kDarkGreen,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500),
