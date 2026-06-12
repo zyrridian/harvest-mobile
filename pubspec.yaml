@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.3.2
   pretty_dio_logger: ^1.4.0
   socket_io_client: ^3.0.0
+  phosphor_flutter: ^2.1.0
 
 dev_dependencies:
   flutter_test:

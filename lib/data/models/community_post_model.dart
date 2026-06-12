@@ -6,40 +6,36 @@ part 'community_post_model.g.dart';
 @JsonSerializable()
 class CommunityPostModel {
   final String id;
-  @JsonKey(name: 'farmer_id')
-  final String farmerId;
-  @JsonKey(name: 'farmer_name')
-  final String farmerName;
-  @JsonKey(name: 'farmer_avatar')
-  final String farmerAvatar;
+  final String userId;
+  final String? farmerId;
+  final String title;
   final String content;
-  final List<String> images;
-  final String? location;
-  final String type;
-  @JsonKey(name: 'created_at')
+  final int likesCount;
+  final int commentsCount;
   final String createdAt;
-  @JsonKey(name: 'like_count')
-  final int likeCount;
-  @JsonKey(name: 'comment_count')
-  final int commentCount;
-  @JsonKey(name: 'is_liked')
-  final bool isLiked;
-  final List<String> tags;
+  final String updatedAt;
+  final CommunityUserModel user;
+  final CommunityFarmerModel? farmer;
+  final List<CommunityPostImageModel> images;
+  final List<CommunityTagModel> tags;
+  @JsonKey(name: 'is_liked_by_user')
+  final bool isLikedByUser;
 
   const CommunityPostModel({
     required this.id,
-    required this.farmerId,
-    required this.farmerName,
-    required this.farmerAvatar,
+    required this.userId,
+    this.farmerId,
+    required this.title,
     required this.content,
-    this.images = const [],
-    this.location,
-    required this.type,
+    required this.likesCount,
+    required this.commentsCount,
     required this.createdAt,
-    this.likeCount = 0,
-    this.commentCount = 0,
-    this.isLiked = false,
+    required this.updatedAt,
+    required this.user,
+    this.farmer,
+    this.images = const [],
     this.tags = const [],
+    this.isLikedByUser = false,
   });
 
   factory CommunityPostModel.fromJson(Map<String, dynamic> json) =>
@@ -50,51 +46,165 @@ class CommunityPostModel {
   CommunityPost toEntity() {
     return CommunityPost(
       id: id,
+      userId: userId,
       farmerId: farmerId,
-      farmerName: farmerName,
-      farmerAvatar: farmerAvatar,
+      title: title,
       content: content,
-      images: images,
-      location: location,
-      type: _parsePostType(type),
+      likesCount: likesCount,
+      commentsCount: commentsCount,
       createdAt: DateTime.parse(createdAt),
-      likeCount: likeCount,
-      commentCount: commentCount,
-      isLiked: isLiked,
-      tags: tags,
+      updatedAt: DateTime.parse(updatedAt),
+      user: user.toEntity(),
+      farmer: farmer?.toEntity(),
+      images: images.map((i) => i.url).toList(),
+      tags: tags.map((t) => t.toEntity()).toList(),
+      isLikedByUser: isLikedByUser,
     );
   }
 
-  factory CommunityPostModel.fromEntity(CommunityPost post) {
+  factory CommunityPostModel.fromEntity(CommunityPost entity) {
     return CommunityPostModel(
-      id: post.id,
-      farmerId: post.farmerId,
-      farmerName: post.farmerName,
-      farmerAvatar: post.farmerAvatar,
-      content: post.content,
-      images: post.images,
-      location: post.location,
-      type: post.type.name,
-      createdAt: post.createdAt.toIso8601String(),
-      likeCount: post.likeCount,
-      commentCount: post.commentCount,
-      isLiked: post.isLiked,
-      tags: post.tags,
+      id: entity.id,
+      userId: entity.userId,
+      farmerId: entity.farmerId,
+      title: entity.title,
+      content: entity.content,
+      likesCount: entity.likesCount,
+      commentsCount: entity.commentsCount,
+      createdAt: entity.createdAt.toIso8601String(),
+      updatedAt: entity.updatedAt.toIso8601String(),
+      user: CommunityUserModel.fromEntity(entity.user),
+      farmer: entity.farmer != null
+          ? CommunityFarmerModel.fromEntity(entity.farmer!)
+          : null,
+      images: entity.images.map((url) => CommunityPostImageModel(id: '', postId: entity.id, url: url)).toList(),
+      tags: entity.tags.map((t) => CommunityTagModel.fromEntity(t)).toList(),
+      isLikedByUser: entity.isLikedByUser,
     );
-  }
-
-  static PostType _parsePostType(String type) {
-    switch (type.toLowerCase()) {
-      case 'announcement':
-        return PostType.announcement;
-      case 'harvest':
-        return PostType.harvest;
-      case 'tips':
-        return PostType.tips;
-      case 'event':
-        return PostType.event;
-      default:
-        return PostType.general;
-    }
   }
 }
+
+@JsonSerializable()
+class CommunityUserModel {
+  final String id;
+  final String name;
+  final String? avatarUrl;
+  final String? userType;
+
+  const CommunityUserModel({
+    required this.id,
+    required this.name,
+    this.avatarUrl,
+    this.userType,
+  });
+
+  factory CommunityUserModel.fromJson(Map<String, dynamic> json) =>
+      _$CommunityUserModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommunityUserModelToJson(this);
+
+  CommunityUser toEntity() {
+    return CommunityUser(
+      id: id,
+      name: name,
+      avatarUrl: avatarUrl,
+      userType: userType,
+    );
+  }
+
+  factory CommunityUserModel.fromEntity(CommunityUser entity) {
+    return CommunityUserModel(
+      id: entity.id,
+      name: entity.name,
+      avatarUrl: entity.avatarUrl,
+      userType: entity.userType,
+    );
+  }
+}
+
+@JsonSerializable()
+class CommunityFarmerModel {
+  final String id;
+  final String name;
+  final String? avatarUrl;
+
+  const CommunityFarmerModel({
+    required this.id,
+    required this.name,
+    this.avatarUrl,
+  });
+
+  factory CommunityFarmerModel.fromJson(Map<String, dynamic> json) =>
+      _$CommunityFarmerModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommunityFarmerModelToJson(this);
+
+  CommunityFarmer toEntity() {
+    return CommunityFarmer(
+      id: id,
+      name: name,
+      avatarUrl: avatarUrl,
+    );
+  }
+
+  factory CommunityFarmerModel.fromEntity(CommunityFarmer entity) {
+    return CommunityFarmerModel(
+      id: entity.id,
+      name: entity.name,
+      avatarUrl: entity.avatarUrl,
+    );
+  }
+}
+
+@JsonSerializable()
+class CommunityTagModel {
+  final String postId;
+  final String tag;
+
+  const CommunityTagModel({
+    required this.postId,
+    required this.tag,
+  });
+
+  factory CommunityTagModel.fromJson(Map<String, dynamic> json) =>
+      _$CommunityTagModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommunityTagModelToJson(this);
+
+  CommunityTag toEntity() {
+    return CommunityTag(
+      postId: postId,
+      tag: tag,
+    );
+  }
+
+  factory CommunityTagModel.fromEntity(CommunityTag entity) {
+    return CommunityTagModel(
+      postId: entity.postId,
+      tag: entity.tag,
+    );
+  }
+}
+
+@JsonSerializable()
+class CommunityPostImageModel {
+  final String id;
+  final String postId;
+  final String url;
+  final String? thumbnailUrl;
+  final int? displayOrder;
+
+  const CommunityPostImageModel({
+    required this.id,
+    required this.postId,
+    required this.url,
+    this.thumbnailUrl,
+    this.displayOrder,
+  });
+
+  factory CommunityPostImageModel.fromJson(Map<String, dynamic> json) =>
+      _$CommunityPostImageModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommunityPostImageModelToJson(this);
+}
+

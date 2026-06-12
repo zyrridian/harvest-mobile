@@ -36,4 +36,14 @@ class PaginatedResponse<T> extends Equatable {
 
   @override
   List<Object?> get props => [data, pagination];
+
+  PaginatedResponse<T> copyWith({
+    List<T>? data,
+    Pagination? pagination,
+  }) {
+    return PaginatedResponse<T>(
+      data: data ?? this.data,
+      pagination: pagination ?? this.pagination,
+    );
+  }
 }

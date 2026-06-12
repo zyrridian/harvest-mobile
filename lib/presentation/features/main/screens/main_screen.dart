@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/presentation/features/farmers/screens/farmers_screen.dart';
@@ -6,11 +7,7 @@ import '../../home/screens/home_screen.dart';
 import '../../harvest/screens/harvest_screen.dart';
 import '../../order/screens/orders_list_screen.dart';
 import '../../profile/screens/profile_screen.dart';
-
-// --- DESIGN CONSTANTS ---
-const kNavBgColor = Color(0xFF1A2F25); // Dark Forest Green
-final kNavOverlayColor =
-    Colors.white.withOpacity(0.15); // Subtle selection overlay
+import '../../community/screens/community_screen.dart';
 
 // Provider to manage which tab is active
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -33,150 +30,73 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final screens = [
       const HomeScreen(),
       const HarvestScreen(),
+      const CommunityScreen(),
       const FarmersScreen(),
       const OrdersListScreen(),
       const ProfileScreen(),
     ];
 
     return Scaffold(
-      extendBody: true, // IMPORTANT: Allows content to be behind the nav bar
-
-      // 1. SCROLL LISTENER
-      body: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          if (notification.direction == ScrollDirection.reverse &&
-              _isNavVisible) {
-            // Scrolling Down -> Hide
-            setState(() => _isNavVisible = false);
-          } else if (notification.direction == ScrollDirection.forward &&
-              !_isNavVisible) {
-            // Scrolling Up -> Show
-            setState(() => _isNavVisible = true);
-          }
-          return true;
-        },
-        child: IndexedStack(
-          index: currentIndex,
-          children: screens,
-        ),
+      body: IndexedStack(
+        index: currentIndex,
+        children: screens,
       ),
-
-      // 2. ANIMATED SLIDE (Fixes the "Push Down" issue)
-      // Instead of changing height (which shifts layout), we just translate it Y-axis.
-      bottomNavigationBar: AnimatedSlide(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        offset: _isNavVisible
-            ? Offset.zero
-            : const Offset(0, 2), // Slide down 200% to hide
-        child: SafeArea(
-          top: false,
-          child: Container(
-            height: 70,
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 24), // Float margins
-            decoration: BoxDecoration(
-              color: kNavBgColor,
-              borderRadius: BorderRadius.circular(35), // Parent Radius (Pill)
-              boxShadow: [
-                BoxShadow(
-                  color: kNavBgColor.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNavItem(
-                    index: 0,
-                    icon: Icons.home_rounded,
-                    label: 'Home',
-                    currentIndex: currentIndex),
-                _buildNavItem(
-                    index: 1,
-                    icon: Icons.school_outlined,
-                    label: 'Learn',
-                    currentIndex: currentIndex),
-                _buildNavItem(
-                    index: 2,
-                    icon: Icons.people_outline_rounded,
-                    label: 'Farmers',
-                    currentIndex: currentIndex),
-                _buildNavItem(
-                    index: 3,
-                    icon: Icons.receipt_long_outlined,
-                    label: 'Orders',
-                    currentIndex: currentIndex),
-                _buildNavItem(
-                    index: 4,
-                    icon: Icons.person_outline_rounded,
-                    label: 'Profile',
-                    currentIndex: currentIndex),
-              ],
-            ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: Colors.grey.shade300, width: 1),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required String label,
-    required int currentIndex,
-  }) {
-    final isSelected = index == currentIndex;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => ref.read(bottomNavIndexProvider.notifier).state = index,
-        behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            height: 56, // Fits nicely inside the 70px parent
-            width: isSelected ? 80 : 50, // Grows when selected
-            decoration: BoxDecoration(
-              color: isSelected ? kNavOverlayColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(35), // Matches parent radius
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
+          ),
+          child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (index) =>
+                ref.read(bottomNavIndexProvider.notifier).state = index,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: const Color(0xFF166534),
+            unselectedItemColor: Colors.grey.shade600,
+            selectedFontSize: 11,
+            unselectedFontSize: 11,
+            items: [
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.house),
+              activeIcon: Icon(PhosphorIconsFill.house),
+              label: 'Home',
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 24,
-                  // Pure white if selected, faded if not
-                  color:
-                      isSelected ? Colors.white : Colors.white.withOpacity(0.6),
-                ),
-                if (isSelected) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ] else ...[
-                  // Optional: Show faded label or nothing
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white.withOpacity(0.6),
-                    ),
-                  ),
-                ]
-              ],
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.bookOpen),
+              activeIcon: Icon(PhosphorIconsFill.bookOpen),
+              label: 'Learn',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.users),
+              activeIcon: Icon(PhosphorIconsFill.users),
+              label: 'Community',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.plant),
+              activeIcon: Icon(PhosphorIconsFill.plant),
+              label: 'Farmers',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.receipt),
+              activeIcon: Icon(PhosphorIconsFill.receipt),
+              label: 'Orders',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(PhosphorIconsRegular.user),
+              activeIcon: Icon(PhosphorIconsFill.user),
+              label: 'Profile',
+            ),
+          ],
           ),
         ),
       ),

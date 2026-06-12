@@ -65,7 +65,7 @@ final getFarmerReviewsUseCaseProvider =
 // ignore: unused_element
 typedef GetFarmerReviewsUseCaseRef = AutoDisposeProviderRef<GetFarmerReviews>;
 String _$farmerDetailControllerHash() =>
-    r'23563f0b7eeb251c430a5414f2d4c40e49046c12';
+    r'6b624b9adfd3cec2a42ce4f9a0f0e488f3179515';
 
 /// Copied from Dart SDK
 class _SystemHash {

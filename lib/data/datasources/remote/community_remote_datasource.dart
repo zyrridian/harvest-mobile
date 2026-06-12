@@ -2,12 +2,53 @@ import 'package:dio/dio.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/error/exceptions.dart';
 import '../../models/community_post_model.dart';
-import '../../models/post_comment_model.dart';
+import '../../models/recipe_model.dart';
 import '../../models/paginated_response_model.dart';
+import '../../models/community_comment_model.dart';
 
 abstract class CommunityRemoteDataSource {
-  Future<PaginatedResponseModel<CommunityPostModel>> getFarmerPosts(String farmerId, {int? limit, int? page});
-  Future<List<PostCommentModel>> getPostComments(String postId);
+  Future<PaginatedResponseModel<CommunityPostModel>> getCommunityPosts({
+    required int page,
+    required int limit,
+    required String filter,
+    String? tag,
+  });
+
+  Future<List<RecipeModel>> getRecipes();
+
+  Future<void> likePost(String postId);
+
+  Future<void> unlikePost(String postId);
+
+  Future<CommunityPostModel> createPost({
+    required String title,
+    required String content,
+    List<String> images = const [],
+    List<String> tags = const [],
+  });
+
+  Future<CommunityPostModel> editPost({
+    required String postId,
+    required String title,
+    required String content,
+  });
+
+  Future<void> deletePost(String postId);
+
+  Future<PaginatedResponseModel<CommunityCommentModel>> getPostComments({
+    required String postId,
+    required int page,
+    required int limit,
+  });
+
+  Future<CommunityCommentModel> createComment({
+    required String postId,
+    required String content,
+    String? parentId,
+    String? replyToUserId,
+  });
+
+  Future<void> likeComment(String commentId);
 }
 
 class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
@@ -16,16 +57,24 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   CommunityRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<PaginatedResponseModel<CommunityPostModel>> getFarmerPosts(String farmerId, {int? limit, int? page}) async {
+  Future<PaginatedResponseModel<CommunityPostModel>> getCommunityPosts({
+    required int page,
+    required int limit,
+    required String filter,
+    String? tag,
+  }) async {
     try {
       final queryParams = <String, dynamic>{
-        'farmer_id': farmerId,
+        'page': page,
+        'limit': limit,
+        'filter': filter,
       };
-      if (limit != null) queryParams['limit'] = limit;
-      if (page != null) queryParams['page'] = page;
+      if (tag != null) {
+        queryParams['tag'] = tag;
+      }
 
       final response = await dio.get(
-        AppConstants.farmerCommunityPostsEndpoint,
+        '/community/posts',
         queryParameters: queryParams,
       );
 
@@ -36,7 +85,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         );
       } else {
         throw ServerException(
-          'Failed to fetch farmer posts',
+          'Failed to fetch community posts',
           statusCode: response.statusCode,
         );
       }
@@ -48,44 +97,58 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }
 
   @override
-  Future<List<PostCommentModel>> getPostComments(String postId) async {
-    // Simulate API delay
-    await Future.delayed(const Duration(milliseconds: 600));
+  Future<List<RecipeModel>> getRecipes() async {
+    try {
+      final response = await dio.get('/recipes');
 
-    // Mock data - post comments
-    final mockComments = _getMockComments(postId);
-
-    return mockComments.map((json) => PostCommentModel.fromJson(json)).toList();
+      if (response.statusCode == 200) {
+        final data = response.data['data']['recipes'] as List;
+        return data.map((json) => RecipeModel.fromJson(json)).toList();
+      } else {
+        throw ServerException(
+          'Failed to fetch recipes',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
   }
 
-  List<Map<String, dynamic>> _getMockComments(String postId) {
-    return [
-      {
-        'id': 'comment_001',
-        'post_id': postId,
-        'user_id': 'user_001',
-        'user_name': 'Sarah Johnson',
-        'user_avatar': null,
-        'content': 'This looks amazing! Can\'t wait to visit this weekend 🌿',
-        'created_at':
-            DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
-        'like_count': 5,
-        'is_liked': false,
-      },
-      {
-        'id': 'comment_002',
-        'post_id': postId,
-        'user_id': 'user_002',
-        'user_name': 'Ahmad Fauzi',
-        'user_avatar': null,
-        'content':
-            'Do you deliver to Jakarta? I\'d love to order some tomatoes!',
-        'created_at':
-            DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
-        'like_count': 2,
-        'is_liked': false,
-      },
-    ];
+  @override
+  Future<void> likePost(String postId) async {
+    try {
+      final response = await dio.post('/community/posts/$postId/like');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException(
+          'Failed to like post',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> unlikePost(String postId) async {
+    try {
+      final response = await dio.delete('/community/posts/$postId/like');
+      if (response.statusCode != 200) {
+        throw ServerException(
+          'Failed to unlike post',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
   }
 
   ServerException _handleDioException(DioException e) {
@@ -106,6 +169,148 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         throw NetworkException('No internet connection');
       default:
         throw ServerException('An unexpected error occurred');
+    }
+  }
+
+  @override
+  Future<CommunityPostModel> createPost({
+    required String title,
+    required String content,
+    List<String> images = const [],
+    List<String> tags = const [],
+  }) async {
+    try {
+      final response = await dio.post(
+        '/community/posts',
+        data: {
+          'title': title,
+          'content': content,
+          'images': images,
+          'tags': tags,
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return CommunityPostModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to create post', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<CommunityPostModel> editPost({
+    required String postId,
+    required String title,
+    required String content,
+  }) async {
+    try {
+      final response = await dio.put(
+        '/community/posts/$postId',
+        data: {
+          'title': title,
+          'content': content,
+        },
+      );
+      if (response.statusCode == 200) {
+        return CommunityPostModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to edit post', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deletePost(String postId) async {
+    try {
+      final response = await dio.delete('/community/posts/$postId');
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to delete post', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<PaginatedResponseModel<CommunityCommentModel>> getPostComments({
+    required String postId,
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/community/posts/$postId/comments',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+        },
+      );
+      if (response.statusCode == 200) {
+        return PaginatedResponseModel.fromJson(
+          response.data,
+          (json) => CommunityCommentModel.fromJson(json),
+        );
+      } else {
+        throw ServerException('Failed to fetch comments', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<CommunityCommentModel> createComment({
+    required String postId,
+    required String content,
+    String? parentId,
+    String? replyToUserId,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        'content': content,
+      };
+      if (parentId != null) data['parent_id'] = parentId;
+      if (replyToUserId != null) data['reply_to_user_id'] = replyToUserId;
+
+      final response = await dio.post(
+        '/community/posts/$postId/comments',
+        data: data,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return CommunityCommentModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to create comment', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> likeComment(String commentId) async {
+    try {
+      final response = await dio.post('/community/comments/$commentId/like');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException('Failed to like comment', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 }

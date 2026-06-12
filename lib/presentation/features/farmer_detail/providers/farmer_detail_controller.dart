@@ -59,8 +59,8 @@ class FarmerDetailController extends _$FarmerDetailController {
 
   Future<void> loadPosts() async {
     state = state.copyWith(posts: const AsyncValue.loading());
-    final useCase = ref.read(getFarmerPostsUseCaseProvider);
-    final result = await useCase(farmerId);
+    final useCase = ref.read(getCommunityPostsUseCaseProvider);
+    final result = await useCase(page: 1, limit: 10, filter: 'farmers');
 
     result.fold(
       (failure) => state = state.copyWith(
