@@ -12,7 +12,8 @@ const kDarkGreen = Color(0xFF1A2F25);
 const kPillGrey = Color(0xFFF0F2F0);
 
 class FarmersMapScreen extends ConsumerStatefulWidget {
-  const FarmersMapScreen({super.key});
+  final bool isTab;
+  const FarmersMapScreen({super.key, this.isTab = false});
 
   @override
   ConsumerState<FarmersMapScreen> createState() => _FarmersMapScreenState();
@@ -148,27 +149,30 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
-                    // Floating Back Button
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4)),
-                        ],
+                    // Floating Back Button — hidden when used as a tab
+                    if (!widget.isTab) ...
+                    [
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4)),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded,
+                              color: kDarkGreen),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded,
-                            color: kDarkGreen),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+                      const SizedBox(width: 12),
+                    ],
 
                     // Floating Search
                     Expanded(

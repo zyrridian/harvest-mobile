@@ -1,38 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/presentation/features/farmers/screens/farmers_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../home/screens/home_screen.dart';
-import '../../harvest/screens/harvest_screen.dart';
-import '../../order/screens/orders_list_screen.dart';
-import '../../profile/screens/profile_screen.dart';
 import '../../community/screens/community_screen.dart';
+import '../../profile/screens/profile_screen.dart';
+import '../../farmers/screens/farmers_map_screen.dart';
 
 // Provider to manage which tab is active
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
 
-class MainScreen extends ConsumerStatefulWidget {
+class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
   @override
-  ConsumerState<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends ConsumerState<MainScreen> {
-  // Track visibility internally to avoid global rebuilds for scrolling
-  bool _isNavVisible = true;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(bottomNavIndexProvider);
 
     final screens = [
       const HomeScreen(),
-      const HarvestScreen(),
+      const FarmersMapScreen(isTab: true), // Explore tab → full-screen map, no back button
       const CommunityScreen(),
-      const FarmersScreen(),
-      const OrdersListScreen(),
       const ProfileScreen(),
     ];
 
@@ -41,62 +29,151 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         index: currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade300, width: 1),
+      bottomNavigationBar: _HarvestBottomNav(
+        currentIndex: currentIndex,
+        onTap: (i) =>
+            ref.read(bottomNavIndexProvider.notifier).state = i,
+      ),
+    );
+  }
+}
+
+// ─── Custom Bottom Navigation Bar ────────────────────────────────────────────
+
+class _HarvestBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const _HarvestBottomNav({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              _NavItem(
+                index: 0,
+                currentIndex: currentIndex,
+                label: 'Home',
+                activeIcon: PhosphorIconsFill.house,
+                inactiveIcon: PhosphorIconsRegular.house,
+                onTap: onTap,
+              ),
+              _NavItem(
+                index: 1,
+                currentIndex: currentIndex,
+                label: 'Explore',
+                activeIcon: PhosphorIconsFill.mapPin,
+                inactiveIcon: PhosphorIconsRegular.mapPin,
+                onTap: onTap,
+              ),
+              _NavItem(
+                index: 2,
+                currentIndex: currentIndex,
+                label: 'Community',
+                activeIcon: PhosphorIconsFill.users,
+                inactiveIcon: PhosphorIconsRegular.users,
+                onTap: onTap,
+              ),
+              _NavItem(
+                index: 3,
+                currentIndex: currentIndex,
+                label: 'Profile',
+                activeIcon: PhosphorIconsFill.user,
+                inactiveIcon: PhosphorIconsRegular.user,
+                onTap: onTap,
+              ),
+            ],
           ),
         ),
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            splashFactory: NoSplash.splashFactory,
-          ),
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (index) =>
-                ref.read(bottomNavIndexProvider.notifier).state = index,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color(0xFF166534),
-            unselectedItemColor: Colors.grey.shade600,
-            selectedFontSize: 11,
-            unselectedFontSize: 11,
-            items: [
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.house),
-              activeIcon: Icon(PhosphorIconsFill.house),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.bookOpen),
-              activeIcon: Icon(PhosphorIconsFill.bookOpen),
-              label: 'Learn',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.users),
-              activeIcon: Icon(PhosphorIconsFill.users),
-              label: 'Community',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.plant),
-              activeIcon: Icon(PhosphorIconsFill.plant),
-              label: 'Farmers',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.receipt),
-              activeIcon: Icon(PhosphorIconsFill.receipt),
-              label: 'Orders',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(PhosphorIconsRegular.user),
-              activeIcon: Icon(PhosphorIconsFill.user),
-              label: 'Profile',
-            ),
-          ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final int index;
+  final int currentIndex;
+  final String label;
+  final IconData activeIcon;
+  final IconData inactiveIcon;
+  final ValueChanged<int> onTap;
+
+  const _NavItem({
+    required this.index,
+    required this.currentIndex,
+    required this.label,
+    required this.activeIcon,
+    required this.inactiveIcon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = currentIndex == index;
+    const activeColor = Color(0xFF1A2F25);
+    const inactiveColor = Color(0xFF9CA3AF);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon with animated background pill
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isActive ? 18 : 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? activeColor.withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  isActive ? activeIcon : inactiveIcon,
+                  color: isActive ? activeColor : inactiveColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(height: 3),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight:
+                      isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: isActive ? activeColor : inactiveColor,
+                ),
+                child: Text(label),
+              ),
+            ],
           ),
         ),
       ),

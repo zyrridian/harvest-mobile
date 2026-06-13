@@ -1,0 +1,187 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+const _kDarkGreen = Color(0xFF1A2F25);
+
+/// A data model for a single quick-action button.
+class QuickAction {
+  final String label;
+  final String emoji;
+  final List<Color> gradientColors;
+  final String? badge;
+  final bool isNewBadge;
+  final VoidCallback onTap;
+
+  const QuickAction({
+    required this.label,
+    required this.emoji,
+    required this.gradientColors,
+    this.badge,
+    this.isNewBadge = false,
+    required this.onTap,
+  });
+}
+
+/// Gojek-style 4×2 quick action grid.
+class QuickActionGrid extends StatelessWidget {
+  final List<QuickAction> actions;
+
+  const QuickActionGrid({
+    super.key,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Show max 8 items
+    final displayActions = actions.take(8).toList();
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        childAspectRatio: 0.8,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: displayActions.length,
+      itemBuilder: (context, index) {
+        return _QuickActionButton(action: displayActions[index]);
+      },
+    );
+  }
+}
+
+class _QuickActionButton extends StatefulWidget {
+  final QuickAction action;
+  const _QuickActionButton({required this.action});
+
+  @override
+  State<_QuickActionButton> createState() => _QuickActionButtonState();
+}
+
+class _QuickActionButtonState extends State<_QuickActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.88).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final action = widget.action;
+
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        action.onTap();
+      },
+      onTapCancel: () => _controller.reverse(),
+      child: AnimatedBuilder(
+        animation: _scaleAnim,
+        builder: (context, child) => Transform.scale(
+          scale: _scaleAnim.value,
+          child: child,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Blob/circle icon container
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: action.gradientColors,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: action.gradientColors.last.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      action.emoji,
+                      style: const TextStyle(fontSize: 26),
+                    ),
+                  ),
+                ),
+                // Badge
+                if (action.badge != null)
+                  Positioned(
+                    top: -6,
+                    right: -8,
+                    child: Container(
+                      padding: action.isNewBadge
+                          ? const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 2)
+                          : const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: action.isNewBadge
+                            ? const Color(0xFFE86A33)
+                            : const Color(0xFFDC2626),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: Text(
+                        action.badge!,
+                        style: GoogleFonts.inter(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              action.label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _kDarkGreen,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
