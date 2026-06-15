@@ -1,7 +1,7 @@
 class AppConstants {
   // Image Placeholders
   static const String placeholderImage =
-      'https://static.vecteezy.com/system/resources/previews/047/566/732/non_2x/photo-gallery-icon-for-digital-albums-and-media-libraries-vector.jpge';
+      'https://picsum.photos/400/400';
 
   // API Configuration
   // TODO: Update this to your actual API URL

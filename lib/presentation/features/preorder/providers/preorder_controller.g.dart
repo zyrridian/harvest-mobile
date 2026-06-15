@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'community_controller.dart';
+part of 'preorder_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$communityControllerHash() =>
-    r'8603f9d8c2528d0c9dd9822a02a0d6e21fd37adc';
+String _$preOrderControllerHash() =>
+    r'568b1791a2afe81694bbd62a30e42aa251518bfb';
 
-/// See also [CommunityController].
-@ProviderFor(CommunityController)
-final communityControllerProvider =
-    AutoDisposeNotifierProvider<CommunityController, CommunityState>.internal(
-  CommunityController.new,
-  name: r'communityControllerProvider',
+/// See also [PreOrderController].
+@ProviderFor(PreOrderController)
+final preOrderControllerProvider =
+    AutoDisposeNotifierProvider<PreOrderController, PreOrderState>.internal(
+  PreOrderController.new,
+  name: r'preOrderControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$communityControllerHash,
+      : _$preOrderControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CommunityController = AutoDisposeNotifier<CommunityState>;
+typedef _$PreOrderController = AutoDisposeNotifier<PreOrderState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

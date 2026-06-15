@@ -22,6 +22,10 @@ import '../../../presentation/features/order/screens/order_detail_screen.dart';
 import '../../../presentation/features/order/screens/order_success_screen.dart';
 import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
+import '../../../presentation/features/marketplace/screens/marketplace_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_screen.dart';
+import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
+import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -37,6 +41,8 @@ class AppRouter {
   static const String farmersMap = '/farmers-map';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
+  static const String preorder = '/preorder'; // preorder list
+  static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
@@ -91,7 +97,7 @@ class AppRouter {
       GoRoute(
         path: farmersMap,
         name: 'farmersMap',
-        builder: (context, state) => const FarmersMapScreen(),
+        builder: (context, state) => const NearbyFarmerScreen(),
       ),
       GoRoute(
         path: farmerDetail,
@@ -144,6 +150,21 @@ class AppRouter {
               state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
           return ProductDetailScreen(slug: slug);
         },
+      ),
+      GoRoute(
+        path: products,
+        name: 'products',
+        builder: (context, state) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: preorder,
+        name: 'preorder',
+        builder: (context, state) => const PreOrderScreen(),
+      ),
+      GoRoute(
+        path: harvestSchedule,
+        name: 'harvestSchedule',
+        builder: (context, state) => const HarvestScheduleScreen(),
       ),
       GoRoute(
         path: cart,

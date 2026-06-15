@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'community_controller.dart';
+part of 'marketplace_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$communityControllerHash() =>
-    r'8603f9d8c2528d0c9dd9822a02a0d6e21fd37adc';
+String _$marketplaceControllerHash() =>
+    r'2f12d07f164ca143729fb237aac5d198c5e70fb5';
 
-/// See also [CommunityController].
-@ProviderFor(CommunityController)
-final communityControllerProvider =
-    AutoDisposeNotifierProvider<CommunityController, CommunityState>.internal(
-  CommunityController.new,
-  name: r'communityControllerProvider',
+/// See also [MarketplaceController].
+@ProviderFor(MarketplaceController)
+final marketplaceControllerProvider = AutoDisposeNotifierProvider<
+    MarketplaceController, MarketplaceState>.internal(
+  MarketplaceController.new,
+  name: r'marketplaceControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$communityControllerHash,
+      : _$marketplaceControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CommunityController = AutoDisposeNotifier<CommunityState>;
+typedef _$MarketplaceController = AutoDisposeNotifier<MarketplaceState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

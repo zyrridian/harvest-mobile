@@ -448,7 +448,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ],
                         badge: 'NEW',
                         isNewBadge: true,
-                        onTap: () => context.push(AppRouter.products),
+                        onTap: () => context.push(AppRouter.preorder),
+                      ),
+                      QuickAction(
+                        label: 'Harvest Schedule',
+                        emoji: '📅',
+                        gradientColors: [
+                          const Color(0xFF6A994E),
+                          const Color(0xFF386641)
+                        ],
+                        badge: '3',
+                        onTap: () => context.push(AppRouter.harvestSchedule),
                       ),
                       QuickAction(
                         label: 'Nearby Farmers',
@@ -462,15 +472,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             : null,
                         onTap: () => context.push(AppRouter.farmersMap),
                       ),
-                      QuickAction(
-                        label: 'Harvest Schedule',
-                        emoji: '🌾',
-                        gradientColors: [
-                          const Color(0xFF10B981),
-                          const Color(0xFF059669)
-                        ],
-                        onTap: () => context.push(AppRouter.farmersMap),
-                      ),
+
                       QuickAction(
                         label: 'My Orders',
                         emoji: '📋',
