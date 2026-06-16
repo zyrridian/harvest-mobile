@@ -266,16 +266,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             gradient: [const Color(0xFFF3F4F6), const Color(0xFFD1D5DB)],
           ));
 
-          final apiFreshToday = homeData.freshToday.map((item) => Product(
-                id: item.slug,
-                name: item.name,
-                seller: item.farmer.name,
-                price: item.price.toDouble(),
-                unit: item.unit,
-                imageUrl: item.image ?? AppConstants.placeholderImage,
-                rating: item.rating.toDouble(),
-                isPerishable: true,
-              )).toList();
+          final apiFreshToday = homeData.freshToday
+              .map((item) => Product(
+                    id: item.slug,
+                    name: item.name,
+                    seller: item.farmer.name,
+                    price: item.price.toDouble(),
+                    unit: item.unit,
+                    imageUrl: item.image ?? AppConstants.placeholderImage,
+                    rating: item.rating.toDouble(),
+                    isPerishable: true,
+                  ))
+              .toList();
 
           return _buildContent(
             dynamicCategories.isNotEmpty
@@ -352,11 +354,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         hasDot: true,
                         onTap: () => context.push(AppRouter.notifications),
                       ),
-                      const SizedBox(width: 10),
-                      _iconBtn(
-                        icon: Icons.shopping_bag_outlined,
-                        onTap: () => context.push(AppRouter.cart),
-                      ),
+                      // const SizedBox(width: 10),
+                      // _iconBtn(
+                      //   icon: Icons.shopping_bag_outlined,
+                      //   onTap: () => context.push(AppRouter.cart),
+                      // ),
                     ],
                   ),
                 ],
@@ -427,59 +429,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader('Our Services', showSeeAll: false),
-                  const SizedBox(height: 16),
+                  // const SizedBox(height: 16),
                   QuickActionGrid(
                     actions: [
                       QuickAction(
                         label: 'Marketplace',
-                        emoji: '🛒',
-                        gradientColors: [
-                          const Color(0xFF1A2F25),
-                          const Color(0xFF2D5240)
-                        ],
+                        iconPath: 'assets/icons/ic_marketplace.svg',
                         onTap: () => context.push(AppRouter.products),
                       ),
                       QuickAction(
                         label: 'Pre-Order',
-                        emoji: '📦',
-                        gradientColors: [
-                          const Color(0xFF3B82F6),
-                          const Color(0xFF1E5FA3)
-                        ],
+                        iconPath: 'assets/icons/ic_preorder.svg',
                         badge: 'NEW',
                         isNewBadge: true,
                         onTap: () => context.push(AppRouter.preorder),
                       ),
                       QuickAction(
                         label: 'Harvest Schedule',
-                        emoji: '📅',
-                        gradientColors: [
-                          const Color(0xFF6A994E),
-                          const Color(0xFF386641)
-                        ],
+                        iconPath: 'assets/icons/ic_harvest_schedule.svg',
                         badge: '3',
                         onTap: () => context.push(AppRouter.harvestSchedule),
                       ),
                       QuickAction(
                         label: 'Nearby Farmers',
-                        emoji: '🗺️',
-                        gradientColors: [
-                          const Color(0xFFE86A33),
-                          const Color(0xFFD4522A)
-                        ],
+                        iconPath: 'assets/icons/ic_nearby_farmer.svg',
                         badge: nearbyFarmers.isNotEmpty
                             ? '${nearbyFarmers.length}'
                             : null,
                         onTap: () => context.push(AppRouter.farmersMap),
                       ),
-
                       QuickAction(
                         label: 'My Orders',
-                        emoji: '📋',
-                        gradientColors: [
-                          const Color(0xFF8B5CF6),
-                          const Color(0xFF6D28D9)
-                        ],
+                        iconPath: 'assets/icons/ic_orders.svg',
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -488,35 +469,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       QuickAction(
                         label: 'Chat',
-                        emoji: '💬',
-                        gradientColors: [
-                          const Color(0xFFF59E0B),
-                          const Color(0xFFD97706)
-                        ],
+                        iconPath: 'assets/icons/ic_chat.svg',
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) =>
-                                  const ConversationsListScreen()),
+                              builder: (_) => const ConversationsListScreen()),
                         ),
                       ),
                       QuickAction(
                         label: 'Promos',
-                        emoji: '🏷️',
-                        gradientColors: [
-                          const Color(0xFFEC4899),
-                          const Color(0xFFBE185D)
-                        ],
+                        iconPath: 'assets/icons/ic_promo.svg',
                         badge: 'HOT',
                         onTap: () {},
                       ),
                       QuickAction(
                         label: 'More',
-                        emoji: '⋯',
-                        gradientColors: [
-                          const Color(0xFF9CA3AF),
-                          const Color(0xFF6B7280)
-                        ],
+                        iconData: Icons.more_horiz,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -578,45 +546,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // ── 7. PRE-ORDER HARVESTS ──────────────────────────────────────────
-          if (preOrders.isNotEmpty) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sectionHeader(
-                      '🔥 Pre-Order Harvests',
-                      showSeeAll: true,
-                      onSeeAllTap: () => context.push(AppRouter.products),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Reserve fresh produce before harvest day',
-                      style: GoogleFonts.inter(
-                          fontSize: 13, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 285,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  itemCount: preOrders.length,
-                  itemBuilder: (context, index) =>
-                      _buildPreOrderCard(preOrders[index]),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
-
-          // ── 8. FARMERS NEAR YOU ───────────────────────────────────────────
+          // ── 7. FARMERS NEAR YOU ───────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -655,6 +585,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+          // ── 8. PRE-ORDER HARVESTS ──────────────────────────────────────────
+          if (preOrders.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader(
+                      '🔥 Pre-Order Harvests',
+                      showSeeAll: true,
+                      onSeeAllTap: () => context.push(AppRouter.products),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Reserve fresh produce before harvest day',
+                      style: GoogleFonts.inter(
+                          fontSize: 13, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 285,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: preOrders.length,
+                  itemBuilder: (context, index) =>
+                      _buildPreOrderCard(preOrders[index]),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+          ],
 
           // ── 9. FRESH TODAY ────────────────────────────────────────────────
           SliverToBoxAdapter(
@@ -758,8 +726,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           GestureDetector(
             onTap: onSeeAllTap,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
                 color: kPillGrey,
                 borderRadius: BorderRadius.circular(20),
@@ -864,25 +831,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               // Farmer pins
               Positioned(
-                  top: 45,
-                  left: 80,
-                  child: _mapPin(kAccentOrange, '🧑‍🌾')),
-              Positioned(
-                  top: 80,
-                  right: 90,
-                  child: _mapPin(kDarkGreen, '🌾')),
-              Positioned(
-                  top: 30,
-                  right: 50,
-                  child: _mapPin(kFreshGreen, '🥦')),
+                  top: 45, left: 80, child: _mapPin(kAccentOrange, '🧑‍🌾')),
+              Positioned(top: 80, right: 90, child: _mapPin(kDarkGreen, '🌾')),
+              Positioned(top: 30, right: 50, child: _mapPin(kFreshGreen, '🥦')),
               // Floating overlay
               Positioned(
                 left: 16,
                 right: 16,
                 bottom: 14,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.92),
                     borderRadius: BorderRadius.circular(16),
@@ -1119,11 +1078,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 9, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     decoration: BoxDecoration(
-                      color:
-                          daysUntil <= 1 ? kAccentOrange : kDarkGreen,
+                      color: daysUntil <= 1 ? kAccentOrange : kDarkGreen,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -1156,8 +1114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: const EdgeInsets.all(5),
                       decoration: const BoxDecoration(
                           color: Colors.white, shape: BoxShape.circle),
-                      child: const Text('🌿',
-                          style: TextStyle(fontSize: 11)),
+                      child: const Text('🌿', style: TextStyle(fontSize: 11)),
                     ),
                   ),
               ],
@@ -1199,9 +1156,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: availableQty < 20
-                              ? kAccentOrange
-                              : kFreshGreen,
+                          color:
+                              availableQty < 20 ? kAccentOrange : kFreshGreen,
                         ),
                       ),
                     ],
@@ -1263,8 +1219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildProductCard(Product product) {
     return GestureDetector(
-      onTap: () =>
-          context.push('${AppRouter.products}/${product.id}'),
+      onTap: () => context.push('${AppRouter.products}/${product.id}'),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -1439,8 +1394,8 @@ class _MapRoadPainter extends CustomPainter {
 
     final path2 = Path()
       ..moveTo(size.width * 0.3, 0)
-      ..quadraticBezierTo(size.width * 0.4, size.height * 0.4,
-          size.width * 0.5, size.height);
+      ..quadraticBezierTo(
+          size.width * 0.4, size.height * 0.4, size.width * 0.5, size.height);
 
     canvas.drawPath(path, paint);
     canvas.drawPath(path2, paint..strokeWidth = 6);

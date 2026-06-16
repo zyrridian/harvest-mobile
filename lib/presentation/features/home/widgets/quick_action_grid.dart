@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const _kDarkGreen = Color(0xFF1A2F25);
 
 /// A data model for a single quick-action button.
 class QuickAction {
   final String label;
-  final String emoji;
-  final List<Color> gradientColors;
+  final String? emoji;
+  final String? iconPath;
+  final IconData? iconData;
   final String? badge;
   final bool isNewBadge;
   final VoidCallback onTap;
 
   const QuickAction({
     required this.label,
-    required this.emoji,
-    required this.gradientColors,
+    this.emoji,
+    this.iconPath,
+    this.iconData,
     this.badge,
     this.isNewBadge = false,
     required this.onTap,
@@ -115,25 +118,24 @@ class _QuickActionButtonState extends State<_QuickActionButton>
                   width: 58,
                   height: 58,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: action.gradientColors,
-                    ),
+                    color: const Color(0xFFF9F8F4),
                     borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: action.gradientColors.last.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    // border: Border.all(color: const Color(0xFFE0E0E0), width: .5),
                   ),
                   child: Center(
-                    child: Text(
-                      action.emoji,
-                      style: const TextStyle(fontSize: 26),
-                    ),
+                    child: action.iconPath != null
+                        ? SvgPicture.asset(
+                            action.iconPath!,
+                            width: 40,
+                            height: 40,
+                          )
+                        : action.iconData != null
+                            ? Icon(action.iconData,
+                                color: _kDarkGreen, size: 26)
+                            : Text(
+                                action.emoji ?? '',
+                                style: const TextStyle(fontSize: 26),
+                              ),
                   ),
                 ),
                 // Badge

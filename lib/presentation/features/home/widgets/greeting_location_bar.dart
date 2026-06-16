@@ -76,7 +76,7 @@ class GreetingLocationBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _kTerra.withOpacity(0.3)),
+                // border: Border.all(color: _kTerra.withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
