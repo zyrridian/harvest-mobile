@@ -1,51 +1,56 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 
 part 'harvest_schedule_state.freezed.dart';
-
-class HarvestScheduleItem {
-  final String id;
-  final String title;
-  final String farmerName;
-  final double distance;
-  final String imageUrl;
-  final String statusText;
-  final double price;
-  final List<String> badges;
-  final String descriptionText;
-  final String actionButton1;
-  final String actionButton2;
-  final String dateGroup;
-  final bool isToday;
-
-  HarvestScheduleItem({
-    required this.id,
-    required this.title,
-    required this.farmerName,
-    required this.distance,
-    required this.imageUrl,
-    required this.statusText,
-    required this.price,
-    required this.badges,
-    required this.descriptionText,
-    required this.actionButton1,
-    required this.actionButton2,
-    required this.dateGroup,
-    this.isToday = false,
-  });
-}
 
 class HarvestScheduleData {
   final int thisWeekCount;
   final int readyTodayCount;
   final int thisMonthCount;
-  final List<HarvestScheduleItem> items;
+  final List<HarvestScheduleItemEntity> items;
+  final String? selectedDateFilter;
 
   HarvestScheduleData({
     required this.thisWeekCount,
     required this.readyTodayCount,
     required this.thisMonthCount,
     required this.items,
+    this.selectedDateFilter,
   });
+
+  factory HarvestScheduleData.fromEntity(
+      HarvestScheduleDashboardEntity entity, {String? selectedDateFilter}) {
+    return HarvestScheduleData(
+      thisWeekCount: entity.thisWeekCount,
+      readyTodayCount: entity.readyTodayCount,
+      thisMonthCount: entity.thisMonthCount,
+      items: entity.items,
+      selectedDateFilter: selectedDateFilter,
+    );
+  }
+
+  HarvestScheduleData copyWith({
+    int? thisWeekCount,
+    int? readyTodayCount,
+    int? thisMonthCount,
+    List<HarvestScheduleItemEntity>? items,
+    String? selectedDateFilter,
+    bool clearFilter = false,
+  }) {
+    return HarvestScheduleData(
+      thisWeekCount: thisWeekCount ?? this.thisWeekCount,
+      readyTodayCount: readyTodayCount ?? this.readyTodayCount,
+      thisMonthCount: thisMonthCount ?? this.thisMonthCount,
+      items: items ?? this.items,
+      selectedDateFilter:
+          clearFilter ? null : (selectedDateFilter ?? this.selectedDateFilter),
+    );
+  }
+
+  List<HarvestScheduleItemEntity> get filteredItems {
+    if (selectedDateFilter == null) return items;
+    return items.where((i) => i.dateDayFilter == selectedDateFilter).toList();
+  }
 }
 
 @freezed

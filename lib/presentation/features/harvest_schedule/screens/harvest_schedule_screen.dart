@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/presentation/features/harvest_schedule/providers/harvest_schedule_controller.dart';
 import 'package:harvest_app/presentation/features/harvest_schedule/providers/harvest_schedule_state.dart';
 import 'package:intl/intl.dart';
@@ -84,8 +85,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
             const Center(child: CircularProgressIndicator(color: kTextGreen)),
         error: (err) => Center(child: Text('Error: $err')),
         data: (data) {
-          final groupedItems = <String, List<HarvestScheduleItem>>{};
-          for (var item in data.items) {
+          final groupedItems = <String, List<HarvestScheduleItemEntity>>{};
+          for (var item in data.filteredItems) {
             groupedItems.putIfAbsent(item.dateGroup, () => []).add(item);
           }
 
@@ -143,13 +144,20 @@ class HarvestScheduleScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildDayColumn('SUN', '8', hasDot: false),
-                          _buildDayColumn('MON', '9', hasDot: true),
-                          _buildDayColumn('TUE', '10', hasDot: false),
-                          _buildDayColumn('WED', '11', hasDot: true),
-                          _buildDayColumn('THU', '12', hasDot: false),
-                          _buildDayColumn('FRI', '13', isSelected: true),
-                          _buildDayColumn('SAT', '14', hasDot: true),
+                          _buildDayColumn(context, ref, data, 'SUN', '8',
+                              hasDot: false),
+                          _buildDayColumn(context, ref, data, 'MON', '9',
+                              hasDot: true),
+                          _buildDayColumn(context, ref, data, 'TUE', '10',
+                              hasDot: false),
+                          _buildDayColumn(context, ref, data, 'WED', '11',
+                              hasDot: true),
+                          _buildDayColumn(context, ref, data, 'THU', '12',
+                              hasDot: false),
+                          _buildDayColumn(context, ref, data, 'FRI', '13',
+                              hasDot: false),
+                          _buildDayColumn(context, ref, data, 'SAT', '14',
+                              hasDot: true),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -267,7 +275,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
                         ...entry.value.map((item) => Padding(
                               padding: const EdgeInsets.only(bottom: 16.0),
-                              child: _buildHarvestCard(item),
+                              child: _buildHarvestCard(context, ref, item),
                             )),
                       ],
                     ),
@@ -334,47 +342,56 @@ class HarvestScheduleScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDayColumn(String day, String date,
-      {bool isSelected = false, bool hasDot = false}) {
-    return Column(
-      children: [
-        Text(
-          day,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? kHighlightGreen : Colors.grey[600],
+  Widget _buildDayColumn(BuildContext context, WidgetRef ref,
+      HarvestScheduleData data, String day, String date,
+      {bool hasDot = false}) {
+    bool isSelected = data.selectedDateFilter == date;
+    return GestureDetector(
+      onTap: () {
+        ref
+            .read(harvestScheduleControllerProvider.notifier)
+            .toggleDateFilter(date);
+      },
+      child: Column(
+        children: [
+          Text(
+            day,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? kHighlightGreen : Colors.grey[600],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: isSelected ? kHighlightGreen : Colors.transparent,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              date,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : Colors.black87,
+          const SizedBox(height: 8),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isSelected ? kHighlightGreen : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                date,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          width: 4,
-          height: 4,
-          decoration: BoxDecoration(
-            color: hasDot ? Colors.orange : Colors.transparent,
-            shape: BoxShape.circle,
+          const SizedBox(height: 4),
+          Container(
+            width: 4,
+            height: 4,
+            decoration: BoxDecoration(
+              color: hasDot ? Colors.orange : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -410,7 +427,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHarvestCard(HarvestScheduleItem item) {
+  Widget _buildHarvestCard(
+      BuildContext context, WidgetRef ref, HarvestScheduleItemEntity item) {
     Color leftBorderColor = kHighlightGreen;
     if (item.badges.contains('Pending confirmation'))
       leftBorderColor = const Color(0xFFD4833D);
@@ -551,32 +569,47 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         children: [
                           if (item.actionButton1.isNotEmpty)
                             Expanded(
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (item.actionButton1.contains('Chat'))
-                                        const Icon(Icons.chat_bubble_outline,
-                                            size: 14),
-                                      if (item.actionButton1.contains('Chat'))
-                                        const SizedBox(width: 4),
-                                      Text(
-                                        item.actionButton1
-                                            .replaceAll('\n', ' '),
-                                        style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black87),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (item.actionButton1.contains('Chat')) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Opening chat with ${item.farmerName}...'),
+                                      duration: const Duration(seconds: 2),
+                                    ));
+                                  }
+                                },
+                                child: Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        if (item.actionButton1.contains('Chat'))
+                                          const Icon(Icons.chat_bubble_outline,
+                                              size: 14),
+                                        if (item.actionButton1.contains('Chat'))
+                                          const SizedBox(width: 4),
+                                        Text(
+                                          item.actionButton1
+                                              .replaceAll('\\n', ' ')
+                                              .replaceAll('\n', ' '),
+                                          style: GoogleFonts.inter(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -586,21 +619,48 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             const SizedBox(width: 12),
                           if (item.actionButton2.isNotEmpty)
                             Expanded(
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    item.actionButton2.replaceAll('\n', ' '),
-                                    style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87),
-                                    textAlign: TextAlign.center,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (item.actionButton2.contains('Pay')) {
+                                    ref
+                                        .read(harvestScheduleControllerProvider
+                                            .notifier)
+                                        .payDeposit(item);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content:
+                                                Text('Paying deposit...')));
+                                  } else if (item.actionButton2
+                                      .contains('Arrange')) {
+                                    ref
+                                        .read(harvestScheduleControllerProvider
+                                            .notifier)
+                                        .arrangePickup(item);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content:
+                                                Text('Arranging pickup...')));
+                                  }
+                                },
+                                child: Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      item.actionButton2
+                                          .replaceAll('\\n', ' ')
+                                          .replaceAll('\n', ' '),
+                                      style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 ),
                               ),
