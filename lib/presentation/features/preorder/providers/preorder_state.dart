@@ -1,57 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:harvest_app/domain/entities/preorder.dart';
 
 part 'preorder_state.freezed.dart';
-
-class PreOrderHarvest {
-  final String id;
-  final String title;
-  final String farmerName;
-  final String distance;
-  final String imageUrl;
-  final double price;
-  final String unit;
-  final double bookedQuantity;
-  final double totalQuantity;
-  final int daysLeft;
-  final String status;
-
-  PreOrderHarvest({
-    required this.id,
-    required this.title,
-    required this.farmerName,
-    required this.distance,
-    required this.imageUrl,
-    required this.price,
-    required this.unit,
-    required this.bookedQuantity,
-    required this.totalQuantity,
-    required this.daysLeft,
-    required this.status,
-  });
-
-  double get progressPercentage => (bookedQuantity / totalQuantity) * 100;
-  double get remainingQuantity => totalQuantity - bookedQuantity;
-}
-
-class PreOrderReservation {
-  final String id;
-  final String title;
-  final String farmerName;
-  final String quantityStr;
-  final String imageUrl;
-  final String status;
-  final int daysToHarvest;
-
-  PreOrderReservation({
-    required this.id,
-    required this.title,
-    required this.farmerName,
-    required this.quantityStr,
-    required this.imageUrl,
-    required this.status,
-    required this.daysToHarvest,
-  });
-}
 
 class PreOrderData {
   final int activeHarvests;
@@ -59,6 +9,7 @@ class PreOrderData {
   final String avgSavings;
   final List<PreOrderHarvest> availableHarvests;
   final List<PreOrderReservation> activeReservations;
+  final int selectedTabIndex;
 
   PreOrderData({
     required this.activeHarvests,
@@ -66,7 +17,40 @@ class PreOrderData {
     required this.avgSavings,
     required this.availableHarvests,
     required this.activeReservations,
+    this.selectedTabIndex = 0,
   });
+
+  factory PreOrderData.fromResponseEntity(
+    PreOrderResponseEntity entity, {
+    int selectedTabIndex = 0,
+  }) {
+    return PreOrderData(
+      activeHarvests: entity.activeHarvests,
+      yourReservations: entity.yourReservations,
+      avgSavings: entity.avgSavings,
+      availableHarvests: entity.availableHarvests,
+      activeReservations: entity.activeReservations,
+      selectedTabIndex: selectedTabIndex,
+    );
+  }
+
+  PreOrderData copyWith({
+    int? activeHarvests,
+    int? yourReservations,
+    String? avgSavings,
+    List<PreOrderHarvest>? availableHarvests,
+    List<PreOrderReservation>? activeReservations,
+    int? selectedTabIndex,
+  }) {
+    return PreOrderData(
+      activeHarvests: activeHarvests ?? this.activeHarvests,
+      yourReservations: yourReservations ?? this.yourReservations,
+      avgSavings: avgSavings ?? this.avgSavings,
+      availableHarvests: availableHarvests ?? this.availableHarvests,
+      activeReservations: activeReservations ?? this.activeReservations,
+      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+    );
+  }
 }
 
 @freezed

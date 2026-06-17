@@ -1,7 +1,33 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/domain/entities/preorder.dart';
+import 'package:harvest_app/data/datasources/remote/preorder_remote_datasource.dart';
+import 'package:harvest_app/data/repositories/preorder_repository_impl.dart';
+import 'package:harvest_app/domain/repositories/preorder_repository.dart';
+import 'package:harvest_app/domain/usecases/preorder/get_preorder_data_usecase.dart';
+import 'package:harvest_app/domain/usecases/preorder/reserve_preorder_usecase.dart';
 import 'preorder_state.dart';
 
 part 'preorder_controller.g.dart';
+
+// Dependency Injection Providers
+final preOrderRemoteDataSourceProvider = Provider<PreOrderRemoteDataSource>((ref) {
+  // Using a local Dio instance. If the app has a global one, inject it here.
+  return PreOrderRemoteDataSourceImpl(Dio());
+});
+
+final preOrderRepositoryProvider = Provider<PreOrderRepository>((ref) {
+  return PreOrderRepositoryImpl(ref.watch(preOrderRemoteDataSourceProvider));
+});
+
+final getPreOrderDataUseCaseProvider = Provider<GetPreOrderDataUseCase>((ref) {
+  return GetPreOrderDataUseCase(ref.watch(preOrderRepositoryProvider));
+});
+
+final reservePreOrderUseCaseProvider = Provider<ReservePreOrderUseCase>((ref) {
+  return ReservePreOrderUseCase(ref.watch(preOrderRepositoryProvider));
+});
 
 @riverpod
 class PreOrderController extends _$PreOrderController {
@@ -13,65 +39,91 @@ class PreOrderController extends _$PreOrderController {
 
   Future<void> _fetchData() async {
     state = const PreOrderState.loading();
-    await Future.delayed(const Duration(milliseconds: 800));
 
-    // Dummy Data based on the design
-    final availableHarvests = [
-      PreOrderHarvest(
-        id: 'h1',
-        title: 'Strawberry Ganitri — Batch #4',
-        farmerName: 'Sunrise Organic',
-        distance: '0.7 km',
-        imageUrl: '🍓',
-        price: 28000,
-        unit: 'kg',
-        bookedQuantity: 87,
-        totalQuantity: 100,
-        daysLeft: 8,
-        status: 'Almost full',
-      ),
-      PreOrderHarvest(
-        id: 'h2',
-        title: 'Ikan Salmon Trout Whole F...',
-        farmerName: 'Fish Factory',
-        distance: '2.6 km',
-        imageUrl: '🐠',
-        price: 1140000,
-        unit: 'kg',
-        bookedQuantity: 0,
-        totalQuantity: 40,
-        daysLeft: 156,
-        status: 'Open',
-      ),
-    ];
+    final usecase = ref.read(getPreOrderDataUseCaseProvider);
+    final result = await usecase.call();
 
-    final activeReservations = [
-      PreOrderReservation(
-        id: 'r1',
-        title: 'Tomat Cherry Merah',
-        quantityStr: '5 kg',
-        farmerName: 'Green Valley Farm',
-        daysToHarvest: 12,
-        imageUrl: '🍅',
-        status: 'Confirmed',
-      ),
-      PreOrderReservation(
-        id: 'r2',
-        title: 'Beras Pandan Wangi',
-        quantityStr: '10 kg',
-        farmerName: 'Fresh Fields Co.',
-        daysToHarvest: 45,
-        imageUrl: '🌾',
-        status: 'Pending',
-      ),
-    ];
+    result.fold(
+      (failure) {
+        state = PreOrderState.error(failure.message);
+      },
+      (entity) {
+        state = PreOrderState.data(PreOrderData.fromResponseEntity(
+          entity,
+          selectedTabIndex: 0,
+        ));
+      },
+    );
+  }
 
-    state = PreOrderState.data(PreOrderData(
-      activeHarvests: 12,
-      yourReservations: 3,
-      avgSavings: '30%',
-      availableHarvests: availableHarvests,
-      activeReservations: activeReservations,
-    ));
+  void setTabIndex(int index) {
+    state.maybeWhen(
+      data: (data) {
+        state = PreOrderState.data(data.copyWith(selectedTabIndex: index));
+      },
+      orElse: () {},
+    );
+  }
+
+  Future<void> reserveHarvest(PreOrderHarvest harvest) async {
+    state.maybeWhen(
+      data: (data) async {
+        // Optimistic UI update
+        final newBookedQuantity = harvest.bookedQuantity + 1;
+        final updatedHarvests = data.availableHarvests.map((h) {
+          if (h.id == harvest.id) {
+            return PreOrderHarvest(
+              id: h.id,
+              title: h.title,
+              farmerName: h.farmerName,
+              distance: h.distance,
+              imageUrl: h.imageUrl,
+              price: h.price,
+              unit: h.unit,
+              bookedQuantity: newBookedQuantity,
+              totalQuantity: h.totalQuantity,
+              daysLeft: h.daysLeft,
+              status: h.status,
+            );
+          }
+          return h;
+        }).toList();
+
+        final updatedYourReservations = data.yourReservations + 1;
+
+        // Optionally, add a dummy reservation to activeReservations list right away
+        final newReservation = PreOrderReservation(
+          id: 'r_optimistic',
+          title: harvest.title,
+          farmerName: harvest.farmerName,
+          quantityStr: '1 ${harvest.unit}',
+          imageUrl: harvest.imageUrl,
+          status: 'Pending',
+          daysToHarvest: harvest.daysLeft,
+        );
+        final updatedActiveReservations = [newReservation, ...data.activeReservations];
+
+        state = PreOrderState.data(data.copyWith(
+          availableHarvests: updatedHarvests,
+          yourReservations: updatedYourReservations,
+          activeReservations: updatedActiveReservations,
+        ));
+
+        // Call backend API
+        final usecase = ref.read(reservePreOrderUseCaseProvider);
+        final result = await usecase.call(harvestId: harvest.id, quantity: 1);
+
+        result.fold(
+          (failure) {
+            // Revert changes or show error message
+            // E.g., re-assign old state
+          },
+          (responseData) {
+            // Success! The background API updated successfully.
+          },
+        );
+      },
+      orElse: () {},
+    );
   }
 }
