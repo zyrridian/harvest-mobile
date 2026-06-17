@@ -1,7 +1,35 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/data/datasources/remote/marketplace_remote_datasource.dart';
+import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
+import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
+import 'package:harvest_app/domain/usecases/cart/add_to_cart_usecase.dart';
+import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
 import 'marketplace_state.dart';
 
 part 'marketplace_controller.g.dart';
+
+// Dependency Injection Providers
+// Ensure Dio is properly configured in your app (e.g., using a global dioProvider).
+// For now, it instantiates a default Dio if no external one is provided.
+final marketplaceRemoteDataSourceProvider = Provider<MarketplaceRemoteDataSource>((ref) {
+  // final dio = ref.watch(dioProvider); // Uncomment if you have a core dioProvider
+  return MarketplaceRemoteDataSourceImpl(Dio());
+});
+
+final marketplaceRepositoryProvider = Provider<MarketplaceRepository>((ref) {
+  return MarketplaceRepositoryImpl(ref.watch(marketplaceRemoteDataSourceProvider));
+});
+
+final getMarketplaceDataUseCaseProvider = Provider<GetMarketplaceDataUseCase>((ref) {
+  return GetMarketplaceDataUseCase(ref.watch(marketplaceRepositoryProvider));
+});
+
+final addToCartUseCaseProvider = Provider<AddToCartUseCase>((ref) {
+  return AddToCartUseCase(ref.watch(marketplaceRepositoryProvider));
+});
 
 @riverpod
 class MarketplaceController extends _$MarketplaceController {
@@ -11,87 +39,76 @@ class MarketplaceController extends _$MarketplaceController {
     return const MarketplaceState.loading();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchData({String? filter, String? search}) async {
     state = const MarketplaceState.loading();
-    // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 800));
 
-    // TODO: Prepare API request
-    // Here we would use a usecase to fetch the actual data
-    // final result = await ref.read(getMarketplaceUseCaseProvider).call(
-    //   latitude: userLatitude,
-    //   longitude: userLongitude,
-    //   filters: ['all', 'nearest'],
-    // );
-    
-    // Dummy Data based on the design
-    final flashHarvest = FlashHarvest(
-      id: 'fh1',
-      title: 'Bandung Strawberries',
-      subtitle: 'Picked this morning',
-      distance: '0.7 km away',
-      imageUrl: '🍓',
+    final usecase = ref.read(getMarketplaceDataUseCaseProvider);
+    final result = await usecase.call(filter: filter, search: search);
+
+    result.fold(
+      (failure) {
+        state = MarketplaceState.error(failure.message);
+      },
+      (entity) {
+        state = MarketplaceState.data(MarketplaceData.fromResponseEntity(
+          entity,
+          selectedFilter: filter ?? 'All',
+          cartItemCount: 3, // Defaulting to 3 based on initial UI design. Change to 0 when backend cart syncs
+          cartTotal: 91000,
+        ));
+      },
     );
+  }
 
-    final categories = [
-      MarketplaceCategory(id: 'c1', name: 'Vegetables', iconPath: '🥦', gradientColors: [0xFFD4E2D4, 0xFFB8C6B8]),
-      MarketplaceCategory(id: 'c2', name: 'Fruits', iconPath: '🍉', gradientColors: [0xFFFFE5D9, 0xFFFFD1BC]),
-      MarketplaceCategory(id: 'c3', name: 'Fish', iconPath: '🐟', gradientColors: [0xFFDBEAFE, 0xFF93C5FD]),
-      MarketplaceCategory(id: 'c4', name: 'Meat', iconPath: '🥩', gradientColors: [0xFFF2E6E6, 0xFFE6D0D0]),
-      MarketplaceCategory(id: 'c5', name: 'Dairy', iconPath: '🧀', gradientColors: [0xFFFFF9E6, 0xFFFFF0C2]),
-      MarketplaceCategory(id: 'c6', name: 'Grains', iconPath: '🌾', gradientColors: [0xFFF0EAD6, 0xFFE6DEBF]),
-    ];
+  void selectFilter(String filter) {
+    state.maybeWhen(
+      data: (data) {
+        // Update UI state immediately
+        state = MarketplaceState.data(data.copyWith(selectedFilter: filter));
+        // Optionally fetch new data based on filter:
+        _fetchData(filter: filter);
+      },
+      orElse: () {},
+    );
+  }
 
-    final products = [
-      MarketplaceProduct(
-        id: 'p1',
-        name: 'Bayam Organik',
-        farmerName: 'Sunrise Organic',
-        price: 8000,
-        unit: 'bunch',
-        imageUrl: '🥬',
-        rating: 4.9,
-        soldCount: 120,
-        isFresh: true,
-      ),
-      MarketplaceProduct(
-        id: 'p2',
-        name: 'Strawberry Lokal',
-        farmerName: 'Green Valley Farm',
-        price: 35000,
-        unit: 'kg',
-        imageUrl: '🍓',
-        rating: 4.8,
-        soldCount: 89,
-        isFresh: true,
-      ),
-      MarketplaceProduct(
-        id: 'p3',
-        name: 'Ikan Mas Segar',
-        farmerName: 'Fish Factory',
-        price: 45000,
-        unit: 'kg',
-        imageUrl: '🐟',
-        rating: 4.7,
-        soldCount: 55,
-      ),
-      MarketplaceProduct(
-        id: 'p4',
-        name: 'Wortel Bandung',
-        farmerName: 'Fresh Fields Co.',
-        price: 12000,
-        unit: 'kg',
-        imageUrl: '🥕',
-        rating: 4.9,
-        soldCount: 200,
-        isFresh: true,
-      ),
-    ];
+  void searchProducts(String query) {
+    state.maybeWhen(
+      data: (data) {
+        _fetchData(filter: data.selectedFilter, search: query);
+      },
+      orElse: () {
+        _fetchData(search: query);
+      },
+    );
+  }
 
-    state = MarketplaceState.data(MarketplaceData(
-      flashHarvest: flashHarvest,
-      categories: categories,
-      products: products,
-    ));
+  Future<void> addToCart(MarketplaceProduct product) async {
+    state.maybeWhen(
+      data: (data) async {
+        // Optimistic UI update
+        state = MarketplaceState.data(data.copyWith(
+          cartItemCount: data.cartItemCount + 1,
+          cartTotal: data.cartTotal + product.price,
+        ));
+
+        final usecase = ref.read(addToCartUseCaseProvider);
+        final result = await usecase.call(productId: product.id, quantity: 1);
+
+        result.fold(
+          (failure) {
+            // Error handling: optionally revert the state or show an error message
+          },
+          (cartData) {
+            // Update state with actual data from backend if needed
+            // state = MarketplaceState.data(data.copyWith(
+            //   cartItemCount: cartData['cart_item_count'],
+            //   cartTotal: (cartData['cart_total'] as num).toDouble(),
+            // ));
+          },
+        );
+      },
+      orElse: () {},
+    );
   }
 }
