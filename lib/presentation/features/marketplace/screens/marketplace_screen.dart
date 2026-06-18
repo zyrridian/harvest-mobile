@@ -6,6 +6,35 @@ import 'package:harvest_app/domain/entities/marketplace.dart';
 import 'package:harvest_app/presentation/features/marketplace/providers/marketplace_controller.dart';
 import 'package:harvest_app/presentation/features/marketplace/providers/marketplace_state.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
+
+Widget _buildImage(String imageUrl, {double? width, double? height, BoxFit fit = BoxFit.cover}) {
+  if (imageUrl.startsWith('data:image')) {
+    try {
+      final base64String = imageUrl.split(',').last;
+      return Image.memory(
+        base64Decode(base64String),
+        width: width,
+        height: height,
+        fit: fit,
+      );
+    } catch (e) {
+      return Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48);
+    }
+  } else if (imageUrl.startsWith('http')) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      placeholder: (context, url) => const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
+      errorWidget: (context, url, error) => Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48),
+    );
+  } else {
+    return Icon(Icons.image, color: Colors.grey, size: width ?? 48);
+  }
+}
 
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -257,10 +286,14 @@ class MarketplaceScreen extends ConsumerWidget {
                                 Positioned(
                                   right: 0,
                                   top: 10,
-                                  child: Text(
-                                    data.flashHarvest!
-                                        .imageUrl, // Using emoji directly
-                                    style: const TextStyle(fontSize: 48),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: _buildImage(
+                                      data.flashHarvest!.imageUrl,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -562,10 +595,13 @@ class MarketplaceScreen extends ConsumerWidget {
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(16)),
                     ),
-                    child: Center(
-                      child: Text(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: _buildImage(
                         product.imageUrl,
-                        style: const TextStyle(fontSize: 54),
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),

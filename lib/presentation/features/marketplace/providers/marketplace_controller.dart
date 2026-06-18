@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:harvest_app/core/providers/db_provider.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/data/datasources/local/marketplace_local_datasource.dart';
 import 'package:harvest_app/data/datasources/remote/marketplace_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
@@ -11,17 +15,28 @@ import 'marketplace_state.dart';
 part 'marketplace_controller.g.dart';
 
 // Dependency Injection Providers
-// Ensure Dio is properly configured in your app (e.g., using a global dioProvider).
-// For now, it instantiates a default Dio if no external one is provided.
 final marketplaceRemoteDataSourceProvider =
     Provider<MarketplaceRemoteDataSource>((ref) {
-  // final dio = ref.watch(dioProvider); // Uncomment if you have a core dioProvider
-  return MarketplaceRemoteDataSourceImpl(Dio());
+  final dio = ref.watch(dioProvider);
+  return MarketplaceRemoteDataSourceImpl(dio);
+});
+
+final marketplaceLocalDataSourceProvider =
+    Provider<MarketplaceLocalDataSource>((ref) {
+  final sharedPreferences = ref.watch(sharedPreferencesProvider);
+  const secureStorage = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: false));
+  return MarketplaceLocalDataSourceImpl(
+    secureStorage: secureStorage,
+    sharedPreferences: sharedPreferences,
+  );
 });
 
 final marketplaceRepositoryProvider = Provider<MarketplaceRepository>((ref) {
   return MarketplaceRepositoryImpl(
-      ref.watch(marketplaceRemoteDataSourceProvider));
+    remoteDataSource: ref.watch(marketplaceRemoteDataSourceProvider),
+    localDataSource: ref.watch(marketplaceLocalDataSourceProvider),
+  );
 });
 
 final getMarketplaceDataUseCaseProvider =

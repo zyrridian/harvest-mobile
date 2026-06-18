@@ -392,13 +392,18 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen>
     final formatter =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
+    return GestureDetector(
+      onTap: () {
+        final slug = harvest.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+        context.push('/product/$slug');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image / Top Area
@@ -607,6 +612,7 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen>
           ),
         ],
       ),
+    ),
     );
   }
 

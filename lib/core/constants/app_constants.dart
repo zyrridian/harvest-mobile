@@ -35,6 +35,7 @@ class AppConstants {
   static const String userDataKey = 'user_data';
   static const String isLoggedInKey = 'is_logged_in';
   static const String homeDataKey = 'home_data';
+  static const String marketplaceDataKey = 'marketplace_data';
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);

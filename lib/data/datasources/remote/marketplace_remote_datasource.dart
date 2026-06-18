@@ -43,7 +43,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       if (limit != null) queryParameters['limit'] = limit;
 
       final response = await dio.get(
-        '/api/v1/marketplace', // Should be added to AppConstants
+        '/marketplace', // Should be added to AppConstants
         queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
 
