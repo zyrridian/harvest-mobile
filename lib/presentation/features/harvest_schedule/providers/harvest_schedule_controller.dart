@@ -37,38 +37,141 @@ final arrangePickupUseCaseProvider = Provider<ArrangePickupUseCase>((ref) {
 class HarvestScheduleController extends _$HarvestScheduleController {
   @override
   HarvestScheduleState build() {
-    _fetchData();
+    final now = DateTime.now();
+    Future.microtask(() => _fetchData(now));
     return const HarvestScheduleState.loading();
   }
 
-  Future<void> _fetchData() async {
-    state = const HarvestScheduleState.loading();
+  Future<void> _fetchData(DateTime date, {DateTime? selectedDate, bool? isMonthView}) async {
+    final oldData = state.maybeWhen(data: (d) => d, orElse: () => null);
+
+    if (oldData == null) {
+      state = const HarvestScheduleState.loading();
+    }
 
     final usecase = ref.read(getHarvestScheduleUseCaseProvider);
-    final result = await usecase.call(month: '2026-06');
+    final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+    final result = await usecase.call(month: monthStr);
 
     result.fold(
       (failure) {
         state = HarvestScheduleState.error(failure.message);
       },
       (entity) {
-        state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(entity));
+        state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(
+          entity,
+          baseDate: date,
+          selectedDate: selectedDate ?? date,
+          isMonthView: isMonthView ?? oldData?.isMonthView ?? false,
+        ));
       },
     );
   }
 
-  void toggleDateFilter(String day) {
+  void toggleViewMode() {
     state.maybeWhen(
       data: (data) {
-        if (data.selectedDateFilter == day) {
+        state = HarvestScheduleState.data(data.copyWith(isMonthView: !data.isMonthView));
+      },
+      orElse: () {},
+    );
+  }
+
+  void toggleDateFilter(DateTime date) {
+    state.maybeWhen(
+      data: (data) {
+        if (data.selectedDate?.year == date.year &&
+            data.selectedDate?.month == date.month &&
+            data.selectedDate?.day == date.day) {
           // Deselect
-          state = HarvestScheduleState.data(data.copyWith(clearFilter: true));
+          state = HarvestScheduleState.data(data.copyWith(clearSelectedDate: true));
         } else {
           // Select
-          state = HarvestScheduleState.data(data.copyWith(selectedDateFilter: day));
+          state = HarvestScheduleState.data(data.copyWith(
+            selectedDate: date,
+            clearQuickFilter: true,
+          ));
         }
       },
       orElse: () {},
+    );
+  }
+
+  void toggleQuickFilter(QuickFilter filter) {
+    state.maybeWhen(
+      data: (data) {
+        if (data.activeQuickFilter == filter) {
+          // Deselect
+          state = HarvestScheduleState.data(data.copyWith(clearQuickFilter: true));
+        } else {
+          // Select
+          state = HarvestScheduleState.data(data.copyWith(
+            activeQuickFilter: filter,
+            clearSelectedDate: true,
+          ));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void next() {
+    state.maybeWhen(
+      data: (data) {
+        DateTime newBaseDate;
+        if (data.isMonthView) {
+          newBaseDate = DateTime(data.baseDate.year, data.baseDate.month + 1, data.baseDate.day);
+        } else {
+          newBaseDate = data.baseDate.add(const Duration(days: 7));
+        }
+        
+        if (newBaseDate.month != data.baseDate.month || newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate, selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+        } else {
+          state = HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void previous() {
+    state.maybeWhen(
+      data: (data) {
+        DateTime newBaseDate;
+        if (data.isMonthView) {
+          newBaseDate = DateTime(data.baseDate.year, data.baseDate.month - 1, data.baseDate.day);
+        } else {
+          newBaseDate = data.baseDate.subtract(const Duration(days: 7));
+        }
+        
+        if (newBaseDate.month != data.baseDate.month || newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate, selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+        } else {
+          state = HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void goToToday() {
+    final now = DateTime.now();
+    state.maybeWhen(
+      data: (data) {
+        if (now.month != data.baseDate.month || now.year != data.baseDate.year) {
+          _fetchData(now, selectedDate: now, isMonthView: data.isMonthView);
+        } else {
+          state = HarvestScheduleState.data(data.copyWith(
+            baseDate: now,
+            selectedDate: now,
+            clearSelectedDate: false,
+          ));
+        }
+      },
+      orElse: () {
+        Future.microtask(() => _fetchData(now));
+      },
     );
   }
 

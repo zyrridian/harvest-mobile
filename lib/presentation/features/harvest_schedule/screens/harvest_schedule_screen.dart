@@ -49,32 +49,30 @@ class HarvestScheduleScreen extends ConsumerWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: const Icon(Icons.calendar_month_outlined,
-                      color: kTextGreen),
-                ),
-                Positioned(
-                  top: 8,
-                  right: -2,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
+            child: GestureDetector(
+              onTap: () {
+                ref.read(harvestScheduleControllerProvider.notifier).toggleViewMode();
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Icon(
+                      state.maybeWhen(
+                        data: (d) => d.isMonthView ? Icons.calendar_view_week : Icons.calendar_month_outlined,
+                        orElse: () => Icons.calendar_month_outlined,
+                      ),
+                      color: kTextGreen,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -105,7 +103,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'June 2026',
+                              DateFormat('MMMM yyyy').format(data.baseDate),
                               style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -113,26 +111,47 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
+                                GestureDetector(
+                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).goToToday(),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Today',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.chevron_left,
-                                      size: 20, color: Colors.grey),
                                 ),
                                 const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
+                                GestureDetector(
+                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).previous(),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.chevron_left, size: 20, color: Colors.black87),
                                   ),
-                                  child: const Icon(Icons.chevron_right,
-                                      size: 20, color: Colors.grey),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).next(),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.chevron_right, size: 20, color: Colors.black87),
+                                  ),
                                 ),
                               ],
                             ),
@@ -140,26 +159,41 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Days Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildDayColumn(context, ref, data, 'SUN', '8',
-                              hasDot: false),
-                          _buildDayColumn(context, ref, data, 'MON', '9',
-                              hasDot: true),
-                          _buildDayColumn(context, ref, data, 'TUE', '10',
-                              hasDot: false),
-                          _buildDayColumn(context, ref, data, 'WED', '11',
-                              hasDot: true),
-                          _buildDayColumn(context, ref, data, 'THU', '12',
-                              hasDot: false),
-                          _buildDayColumn(context, ref, data, 'FRI', '13',
-                              hasDot: false),
-                          _buildDayColumn(context, ref, data, 'SAT', '14',
-                              hasDot: true),
-                        ],
-                      ),
+                      // Days Header (SUN, MON, ...) only shown once in month view
+                      if (data.isMonthView)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+                                .map((day) => Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          day,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
+                      // Days Grid / Row
+                      if (data.isMonthView)
+                        ..._buildMonthGrid(context, ref, data)
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: _getWeekDays(data.baseDate).map((date) {
+                            return Expanded(
+                              child: _buildDayColumn(context, ref, data, date,
+                                  hasDot: _hasHarvestOnDate(data, date), showDayStr: true),
+                            );
+                          }).toList(),
+                        ),
                       const SizedBox(height: 16),
                       const Divider(height: 1, color: Color(0xFFEEEEEE)),
                     ],
@@ -174,17 +208,16 @@ class HarvestScheduleScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Expanded(
-                          child: _buildStatCard(
-                              '${data.thisWeekCount}', 'This week')),
+                          child: _buildStatCard(context, ref, data,
+                              '${data.thisWeekCount}', 'This week', QuickFilter.thisWeek)),
                       const SizedBox(width: 12),
                       Expanded(
-                          child: _buildStatCard(
-                              '${data.readyTodayCount}', 'Ready today',
-                              isHighlight: true)),
+                          child: _buildStatCard(context, ref, data,
+                              '${data.readyTodayCount}', 'Ready today', QuickFilter.readyToday)),
                       const SizedBox(width: 12),
                       Expanded(
-                          child: _buildStatCard(
-                              '${data.thisMonthCount}', 'This month')),
+                          child: _buildStatCard(context, ref, data,
+                              '${data.thisMonthCount}', 'This month', QuickFilter.thisMonth)),
                     ],
                   ),
                 ),
@@ -205,26 +238,29 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Filter',
-                              style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: kTextGreen),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.tune, size: 14, color: kTextGreen),
-                          ],
+                      GestureDetector(
+                        onTap: () => _showFilterBottomSheet(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Filter',
+                                style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: kTextGreen),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.tune, size: 14, color: kTextGreen),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -343,40 +379,51 @@ class HarvestScheduleScreen extends ConsumerWidget {
   }
 
   Widget _buildDayColumn(BuildContext context, WidgetRef ref,
-      HarvestScheduleData data, String day, String date,
-      {bool hasDot = false}) {
-    bool isSelected = data.selectedDateFilter == date;
+      HarvestScheduleData data, DateTime date,
+      {bool hasDot = false, bool showDayStr = false}) {
+    bool isSelected = data.selectedDate?.year == date.year &&
+        data.selectedDate?.month == date.month &&
+        data.selectedDate?.day == date.day;
+    
+    final now = DateTime.now();
+    bool isToday = now.year == date.year && now.month == date.month && now.day == date.day;
+    
+    bool isCurrentMonth = date.month == data.baseDate.month;
+    Color dayTextColor = isSelected ? kHighlightGreen : (isCurrentMonth ? Colors.grey[600]! : Colors.grey[400]!);
+    Color dateTextColor = isSelected ? Colors.white : (isToday ? kHighlightGreen : (isCurrentMonth ? Colors.black87 : Colors.grey[400]!));
+
     return GestureDetector(
       onTap: () {
-        ref
-            .read(harvestScheduleControllerProvider.notifier)
-            .toggleDateFilter(date);
+        ref.read(harvestScheduleControllerProvider.notifier).toggleDateFilter(date);
       },
       child: Column(
         children: [
-          Text(
-            day,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? kHighlightGreen : Colors.grey[600],
+          if (showDayStr) ...[
+            Text(
+              DateFormat('E').format(date).toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                color: dayTextColor,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
           Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isSelected ? kHighlightGreen : Colors.transparent,
+              color: isSelected ? kHighlightGreen : (isToday ? const Color(0xFFE8F3E8) : Colors.transparent),
+              border: isToday && !isSelected ? Border.all(color: kHighlightGreen.withOpacity(0.5)) : null,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
-                date,
+                date.day.toString(),
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? Colors.white : Colors.black87,
+                  fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                  color: dateTextColor,
                 ),
               ),
             ),
@@ -395,34 +442,360 @@ class HarvestScheduleScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(String value, String label,
-      {bool isHighlight = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              color: isHighlight ? const Color(0xFFD4833D) : kHighlightGreen,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+  bool _hasHarvestOnDate(HarvestScheduleData data, DateTime date) {
+    return data.items.any((item) => item.dateDayFilter == date.day.toString());
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            String selectedSort = 'Date';
+            List<String> selectedStatus = ['Ready today'];
+            double maxDistance = 15.0;
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filter & Sort',
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: kTextGreen,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: kTextGreen),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      children: [
+                        Text(
+                          'Sort By',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: kTextGreen,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          children: ['Date', 'Price', 'Distance'].map((sortOption) {
+                            final isSelected = selectedSort == sortOption;
+                            return ChoiceChip(
+                              label: Text(
+                                sortOption,
+                                style: GoogleFonts.inter(
+                                  color: isSelected ? Colors.white : Colors.black87,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                              selected: isSelected,
+                              selectedColor: kHighlightGreen,
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: isSelected ? kHighlightGreen : Colors.grey[300]!,
+                                ),
+                              ),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  setState(() => selectedSort = sortOption);
+                                }
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Status',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: kTextGreen,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            'Ready today',
+                            'Pre-ordered',
+                            'Pending confirmation',
+                            'Just reserved'
+                          ].map((status) {
+                            final isSelected = selectedStatus.contains(status);
+                            return FilterChip(
+                              label: Text(
+                                status,
+                                style: GoogleFonts.inter(
+                                  color: isSelected ? kHighlightGreen : Colors.black87,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                              selected: isSelected,
+                              checkmarkColor: kHighlightGreen,
+                              selectedColor: const Color(0xFFE8F3E8),
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: isSelected ? kHighlightGreen : Colors.grey[300]!,
+                                ),
+                              ),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedStatus.add(status);
+                                  } else {
+                                    selectedStatus.remove(status);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Distance',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: kTextGreen,
+                              ),
+                            ),
+                            Text(
+                              'Up to ${maxDistance.toInt()} km',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: kHighlightGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        SliderTheme(
+                          data: SliderThemeData(
+                            activeTrackColor: kHighlightGreen,
+                            inactiveTrackColor: Colors.grey[200],
+                            thumbColor: kHighlightGreen,
+                            overlayColor: kHighlightGreen.withOpacity(0.2),
+                          ),
+                          child: Slider(
+                            value: maxDistance,
+                            min: 1,
+                            max: 50,
+                            divisions: 49,
+                            onChanged: (value) {
+                              setState(() => maxDistance = value);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedSort = 'Date';
+                                selectedStatus.clear();
+                                maxDistance = 50.0;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: BorderSide(color: Colors.grey[300]!),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Reset',
+                              style: GoogleFonts.inter(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kHighlightGreen,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Show Results',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  List<DateTime> _getWeekDays(DateTime baseDate) {
+    int weekday = baseDate.weekday;
+    int offset = weekday == 7 ? 0 : weekday;
+    DateTime startOfWeek = baseDate.subtract(Duration(days: offset));
+    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
+  }
+
+  List<DateTime> _getMonthDays(DateTime baseDate) {
+    DateTime firstDayOfMonth = DateTime(baseDate.year, baseDate.month, 1);
+    int firstWeekday = firstDayOfMonth.weekday;
+    int offset = firstWeekday == 7 ? 0 : firstWeekday;
+    DateTime startOfCalendar = firstDayOfMonth.subtract(Duration(days: offset));
+    
+    List<DateTime> days = [];
+    DateTime current = startOfCalendar;
+    while (true) {
+      days.add(current);
+      current = current.add(const Duration(days: 1));
+      if (days.length >= 28 && current.month != baseDate.month && current.weekday == 7) {
+        break;
+      }
+      if (days.length >= 42) break; // Fallback
+    }
+    return days;
+  }
+
+  List<Widget> _buildMonthGrid(BuildContext context, WidgetRef ref, HarvestScheduleData data) {
+    final days = _getMonthDays(data.baseDate);
+    List<Widget> rows = [];
+    for (int i = 0; i < days.length; i += 7) {
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(7, (index) {
+              final date = days[i + index];
+              return Expanded(
+                child: _buildDayColumn(context, ref, data, date,
+                    hasDot: _hasHarvestOnDate(data, date), showDayStr: false),
+              );
+            }),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              color: Colors.grey[600],
-              fontSize: 10,
+        ),
+      );
+    }
+    return rows;
+  }
+
+  Widget _buildStatCard(BuildContext context, WidgetRef ref, HarvestScheduleData data, String value, String label, QuickFilter filterType) {
+    bool isActive = data.activeQuickFilter == filterType;
+    bool isReadyToday = filterType == QuickFilter.readyToday;
+
+    Color bgColor = isActive 
+        ? (isReadyToday ? const Color(0xFFD4833D) : kTextGreen) 
+        : Colors.white;
+    Color textColor = isActive ? Colors.white : kTextGreen;
+    Color labelColor = isActive ? Colors.white70 : Colors.grey[600]!;
+    Color borderColor = isActive ? Colors.transparent : Colors.grey[200]!;
+
+    return GestureDetector(
+      onTap: () {
+        ref.read(harvestScheduleControllerProvider.notifier).toggleQuickFilter(filterType);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: GoogleFonts.inter(
+                color: textColor,
+                fontSize: 32,
+                height: 1,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -1,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              label.toUpperCase(),
+              style: GoogleFonts.inter(
+                color: labelColor,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
 import 'package:harvest_app/data/datasources/remote/marketplace_remote_datasource.dart';
@@ -14,16 +13,19 @@ part 'marketplace_controller.g.dart';
 // Dependency Injection Providers
 // Ensure Dio is properly configured in your app (e.g., using a global dioProvider).
 // For now, it instantiates a default Dio if no external one is provided.
-final marketplaceRemoteDataSourceProvider = Provider<MarketplaceRemoteDataSource>((ref) {
+final marketplaceRemoteDataSourceProvider =
+    Provider<MarketplaceRemoteDataSource>((ref) {
   // final dio = ref.watch(dioProvider); // Uncomment if you have a core dioProvider
   return MarketplaceRemoteDataSourceImpl(Dio());
 });
 
 final marketplaceRepositoryProvider = Provider<MarketplaceRepository>((ref) {
-  return MarketplaceRepositoryImpl(ref.watch(marketplaceRemoteDataSourceProvider));
+  return MarketplaceRepositoryImpl(
+      ref.watch(marketplaceRemoteDataSourceProvider));
 });
 
-final getMarketplaceDataUseCaseProvider = Provider<GetMarketplaceDataUseCase>((ref) {
+final getMarketplaceDataUseCaseProvider =
+    Provider<GetMarketplaceDataUseCase>((ref) {
   return GetMarketplaceDataUseCase(ref.watch(marketplaceRepositoryProvider));
 });
 
@@ -53,7 +55,8 @@ class MarketplaceController extends _$MarketplaceController {
         state = MarketplaceState.data(MarketplaceData.fromResponseEntity(
           entity,
           selectedFilter: filter ?? 'All',
-          cartItemCount: 3, // Defaulting to 3 based on initial UI design. Change to 0 when backend cart syncs
+          cartItemCount:
+              3, // Defaulting to 3 based on initial UI design. Change to 0 when backend cart syncs
           cartTotal: 91000,
         ));
       },
