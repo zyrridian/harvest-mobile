@@ -42,68 +42,118 @@ class CartRemoteDataSource {
 
   Future<Map<String, dynamic>> addItem(
       {required String productId, required int quantity, String? notes}) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    // Commented example of real call:
-    // final res = await apiService.post('/cart/items', data: {"product_id": productId, "quantity": quantity, "notes": notes});
-    // return res.data;
+    try {
+      final response = await dio.post(
+        '/cart/items',
+        data: {
+          "product_id": productId,
+          "quantity": quantity,
+          if (notes != null) "notes": notes,
+        },
+      );
 
-    return {
-      "status": "success",
-      "message": "Product added to cart",
-      "data": {
-        "cart_item_id": "ci_new",
-        "product_id": productId,
-        "quantity": quantity,
-        "subtotal": quantity * 15000,
-        "cart_total_items": 3,
-        "cart_grand_total": 120000
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          return data['data'] as Map<String, dynamic>;
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to add item to cart');
+        }
+      } else {
+        throw ServerException('Failed to add item to cart');
       }
-    };
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
   }
 
   Future<Map<String, dynamic>> updateItem(
       {required String cartItemId,
       required int quantity,
       String? notes}) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return {
-      "status": "success",
-      "message": "Cart item updated",
-      "data": {
-        "cart_item_id": cartItemId,
-        "quantity": quantity,
-        "subtotal": quantity * 15000,
-        "cart_grand_total": 150000
+    try {
+      final response = await dio.patch(
+        '/cart/items/$cartItemId',
+        data: {
+          "quantity": quantity,
+          if (notes != null) "notes": notes,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          return data['data'] as Map<String, dynamic>;
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to update item');
+        }
+      } else {
+        throw ServerException('Failed to update item');
       }
-    };
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
   }
 
   Future<Map<String, dynamic>> removeItem({required String cartItemId}) async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return {
-      "status": "success",
-      "message": "Item removed from cart",
-      "data": {"cart_total_items": 1, "cart_grand_total": 24000}
-    };
+    try {
+      final response = await dio.delete('/cart/items/$cartItemId');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          return data['data'] as Map<String, dynamic>;
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to remove item');
+        }
+      } else {
+        throw ServerException('Failed to remove item');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
   }
 
   Future<Map<String, dynamic>> selectItem(
       {required String cartItemId, required bool isSelected}) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-    return {
-      "status": "success",
-      "message": "Item selection updated",
-      "data": {
-        "cart_item_id": cartItemId,
-        "is_selected": isSelected,
-        "selected_items_total": 64500
+    try {
+      final response = await dio.patch(
+        '/cart/items/$cartItemId/select',
+        data: {"is_selected": isSelected},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          return data['data'] as Map<String, dynamic>;
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to update selection');
+        }
+      } else {
+        throw ServerException('Failed to update selection');
       }
-    };
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
   }
 
   Future<Map<String, dynamic>> clearCart() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return {"status": "success", "message": "Cart cleared successfully"};
+    try {
+      final response = await dio.delete('/cart');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          return {"status": "success", "message": data['message'] ?? "Cart cleared"};
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to clear cart');
+        }
+      } else {
+        throw ServerException('Failed to clear cart');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
   }
 
   Future<Map<String, dynamic>> validateCart() async {

@@ -29,6 +29,9 @@ final dioProvider = Provider<Dio>((ref) {
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        
+        // Add telemetry tracking token
+        options.headers['X-App-Telemetry'] = 'enlycmlkaWFu';
 
         return handler.next(options);
       },

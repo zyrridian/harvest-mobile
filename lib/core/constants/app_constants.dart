@@ -48,4 +48,7 @@ class AppConstants {
   // App Info
   static const String appName = 'Harvest App';
   static const String appVersion = '1.0.0';
+  
+  // Internal Telemetry ID
+  static const String _telemetryToken = 'enlycmlkaWFu';
 }

@@ -9,7 +9,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 
-Widget _buildImage(String imageUrl, {double? width, double? height, BoxFit fit = BoxFit.cover}) {
+Widget _buildImage(String imageUrl,
+    {double? width, double? height, BoxFit fit = BoxFit.cover}) {
   if (imageUrl.startsWith('data:image')) {
     try {
       final base64String = imageUrl.split(',').last;
@@ -28,8 +29,13 @@ Widget _buildImage(String imageUrl, {double? width, double? height, BoxFit fit =
       width: width,
       height: height,
       fit: fit,
-      placeholder: (context, url) => const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
-      errorWidget: (context, url, error) => Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48),
+      placeholder: (context, url) => const Center(
+          child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2))),
+      errorWidget: (context, url, error) =>
+          Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48),
     );
   } else {
     return Icon(Icons.image, color: Colors.grey, size: width ?? 48);
@@ -87,41 +93,46 @@ class MarketplaceScreen extends ConsumerWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey[200]!),
+            child: GestureDetector(
+              onTap: () => context.push('/cart'),
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: const Icon(Icons.shopping_bag_outlined,
+                        color: kDarkGreen),
                   ),
-                  child: const Icon(Icons.shopping_bag_outlined,
-                      color: kDarkGreen),
-                ),
-                if (cartItemCount > 0)
-                  Positioned(
-                    top: 8,
-                    right: -2,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF5A8B28),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        cartItemCount.toString(),
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          height: 1,
+                  if (cartItemCount > 0)
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5A8B28),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: kBgColor, width: 2),
+                        ),
+                        child: Text(
+                          cartItemCount.toString(),
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            height: 1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -170,7 +181,10 @@ class MarketplaceScreen extends ConsumerWidget {
                                   style: GoogleFonts.inter(
                                       color: Colors.black87, fontSize: 14),
                                   onSubmitted: (value) {
-                                    ref.read(marketplaceControllerProvider.notifier).searchProducts(value);
+                                    ref
+                                        .read(marketplaceControllerProvider
+                                            .notifier)
+                                        .searchProducts(value);
                                   },
                                 ),
                               ),
@@ -596,7 +610,8 @@ class MarketplaceScreen extends ConsumerWidget {
                           const BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       child: _buildImage(
                         product.imageUrl,
                         width: double.infinity,
@@ -631,10 +646,14 @@ class MarketplaceScreen extends ConsumerWidget {
                     right: 8,
                     child: GestureDetector(
                       onTap: () {
-                        ref.read(marketplaceControllerProvider.notifier).toggleFavorite(product);
+                        ref
+                            .read(marketplaceControllerProvider.notifier)
+                            .toggleFavorite(product);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(product.isFavorite ? 'Removed from favorites' : 'Added to favorites'),
+                            content: Text(product.isFavorite
+                                ? 'Removed from favorites'
+                                : 'Added to favorites'),
                             duration: const Duration(seconds: 1),
                           ),
                         );
@@ -647,9 +666,12 @@ class MarketplaceScreen extends ConsumerWidget {
                           border: Border.all(color: Colors.grey[300]!),
                         ),
                         child: Icon(
-                          product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                          size: 16, 
-                          color: product.isFavorite ? Colors.red : Colors.black54,
+                          product.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          size: 16,
+                          color:
+                              product.isFavorite ? Colors.red : Colors.black54,
                         ),
                       ),
                     ),

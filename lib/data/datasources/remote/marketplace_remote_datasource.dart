@@ -77,7 +77,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '/api/v1/cart/items', // Should be added to AppConstants
+        '/cart/items',
         data: {
           'product_id': productId,
           'quantity': quantity,

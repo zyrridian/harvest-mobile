@@ -1,4 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:dartz/dartz.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/domain/entities/cart.dart';
+import 'package:harvest_app/presentation/features/cart/providers/cart_controller.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
@@ -71,7 +75,26 @@ class MarketplaceController extends _$MarketplaceController {
     state = const MarketplaceState.loading();
 
     final usecase = ref.read(getMarketplaceDataUseCaseProvider);
-    final result = await usecase.call(filter: filter, search: search);
+    
+    // Fetch both marketplace data and cart data concurrently
+    final results = await Future.wait([
+      usecase.call(filter: filter, search: search),
+      ref.read(getCartUsecaseProvider).call(),
+    ]);
+
+    final result = results[0] as Either<Failure, MarketplaceResponseEntity>;
+    final cartResult = results[1] as Either<Failure, Cart>;
+
+    int cartItemCount = 0;
+    double cartTotal = 0.0;
+
+    cartResult.fold(
+      (_) {}, // Ignore failure and default to 0
+      (cart) {
+        cartItemCount = cart.summary.totalItems;
+        cartTotal = cart.summary.subtotal.toDouble();
+      },
+    );
 
     result.fold(
       (failure) {
@@ -81,9 +104,8 @@ class MarketplaceController extends _$MarketplaceController {
         state = MarketplaceState.data(MarketplaceData.fromResponseEntity(
           entity,
           selectedFilter: filter ?? 'All',
-          cartItemCount:
-              3, // Defaulting to 3 based on initial UI design. Change to 0 when backend cart syncs
-          cartTotal: 91000,
+          cartItemCount: cartItemCount,
+          cartTotal: cartTotal,
         ));
       },
     );
@@ -130,10 +152,13 @@ class MarketplaceController extends _$MarketplaceController {
           },
           (cartData) {
             // Update state with actual data from backend if needed
-            // state = MarketplaceState.data(data.copyWith(
-            //   cartItemCount: cartData['cart_item_count'],
-            //   cartTotal: (cartData['cart_total'] as num).toDouble(),
-            // ));
+            state = state.maybeMap(
+              data: (curr) => MarketplaceState.data(curr.data.copyWith(
+                cartItemCount: cartData['cart_item_count'] as int,
+                cartTotal: (cartData['cart_total'] as num).toDouble(),
+              )),
+              orElse: () => state,
+            );
           },
         );
       },

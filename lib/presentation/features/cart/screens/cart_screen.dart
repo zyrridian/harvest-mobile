@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -28,25 +29,48 @@ class CartScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: kBgColor,
         elevation: 0,
-        centerTitle: false,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: const Icon(Icons.chevron_left, color: kDarkGreen),
+          ),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+        ),
         title: Text(
           'My Cart',
           style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
             color: kDarkGreen,
-            letterSpacing: -0.5,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
+        centerTitle: true,
         actions: [
-          // Clear Cart Button moved to AppBar for cleaner UI
-          IconButton(
-            onPressed: () => _clearCart(context, ref),
-            icon: const Icon(Icons.delete_outline, color: kDarkGreen),
-            tooltip: 'Clear Cart',
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () => _clearCart(context, ref),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: const Icon(Icons.delete_outline, color: kDarkGreen),
+              ),
+            ),
           ),
-          const SizedBox(width: 16),
         ],
       ),
       body: cartState.when(
@@ -160,35 +184,18 @@ class CartScreen extends ConsumerWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: kPillGrey),
-          boxShadow: [
-            BoxShadow(
-              color: kDarkGreen.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 1. Product Image
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 80,
+                height: 80,
                 color: kPillGrey,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              // Use a real image if available: Image.network(item.imageUrl)
-              child: Center(
-                child: Text(
-                  item.name.isNotEmpty ? item.name[0] : '?',
-                  style: GoogleFonts.inter(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen.withOpacity(0.4),
-                  ),
-                ),
+                child: _buildProductImage(item.imageUrl, item.name),
               ),
             ),
             const SizedBox(width: 16),
@@ -382,39 +389,18 @@ class CartScreen extends ConsumerWidget {
     final newQty = (item.quantity + change).clamp(1, 999);
     if (newQty == item.quantity) return;
 
-    final uc = ref.read(updateCartItemUsecaseProvider);
-    final res = await uc.call(
-        cartItemId: item.cartItemId, quantity: newQty.toInt()); // Ensure int
-
-    res.fold(
-      (l) => _showSnack(context, l.message),
-      (r) => ref.read(cartControllerProvider.notifier).refresh(), // Refresh logic
-    );
+    ref.read(cartControllerProvider.notifier).updateQuantity(item.cartItemId, newQty.toInt());
   }
 
   Future<void> _removeItem(
       BuildContext context, WidgetRef ref, dynamic id) async {
-    final uc = ref.read(removeCartItemUsecaseProvider);
-    final res = await uc.call(cartItemId: id);
-    res.fold(
-      (l) => _showSnack(context, l.message),
-      (r) {
-        _showSnack(context, 'Item removed');
-        ref.read(cartControllerProvider.notifier).refresh();
-      },
-    );
+    ref.read(cartControllerProvider.notifier).removeItem(id);
+    _showSnack(context, 'Item removed');
   }
 
   Future<void> _clearCart(BuildContext context, WidgetRef ref) async {
-    final uc = ref.read(clearCartUsecaseProvider);
-    final res = await uc.call();
-    res.fold(
-      (l) => _showSnack(context, l.message),
-      (r) {
-        _showSnack(context, 'Cart cleared');
-        ref.read(cartControllerProvider.notifier).refresh();
-      },
-    );
+    ref.read(cartControllerProvider.notifier).clearCart();
+    _showSnack(context, 'Cart cleared');
   }
 
   Future<void> _checkout(BuildContext context, WidgetRef ref) async {
@@ -423,6 +409,42 @@ class CartScreen extends ConsumerWidget {
     res.fold(
       (l) => _showSnack(context, l.message),
       (r) => context.push(AppRouter.checkout),
+    );
+  }
+
+  Widget _buildProductImage(String? imageUrl, String name) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return _buildFallbackImage(name);
+    }
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',').last;
+        return Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildFallbackImage(name),
+        );
+      } catch (e) {
+        return _buildFallbackImage(name);
+      }
+    }
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _buildFallbackImage(name),
+    );
+  }
+
+  Widget _buildFallbackImage(String name) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0] : '?',
+        style: GoogleFonts.inter(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: kDarkGreen.withOpacity(0.4),
+        ),
+      ),
     );
   }
 

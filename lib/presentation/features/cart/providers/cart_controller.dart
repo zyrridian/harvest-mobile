@@ -70,6 +70,84 @@ class CartController extends _$CartController {
   }
 
   Future<void> refresh() async {
-    await fetchCart();
+    final result = await ref.read(getCartUsecaseProvider).call();
+    result.fold(
+      (failure) {}, // Fail silently on refresh to keep existing data visible
+      (cart) => state = CartState.data(cart),
+    );
+  }
+
+  Future<void> updateQuantity(String cartItemId, int newQty) async {
+    state.maybeWhen(
+      data: (cart) {
+        // Optimistic update
+        final updatedItems = cart.items.map((e) {
+          if (e.cartItemId == cartItemId) {
+            return e.copyWith(
+              quantity: newQty,
+              subtotal: newQty * e.unitPrice,
+            );
+          }
+          return e;
+        }).toList();
+
+        final optimisticCart = cart.copyWith(items: updatedItems);
+        state = CartState.data(optimisticCart);
+
+        // API Call
+        ref
+            .read(updateCartItemUsecaseProvider)
+            .call(cartItemId: cartItemId, quantity: newQty)
+            .then((res) {
+          res.fold(
+            (failure) => state = CartState.data(cart), // Revert on failure
+            (_) => refresh(), // Sync silently with backend totals
+          );
+        });
+      },
+      orElse: () {},
+    );
+  }
+
+  Future<void> removeItem(String cartItemId) async {
+    state.maybeWhen(
+      data: (cart) {
+        // Optimistic update
+        final updatedItems =
+            cart.items.where((e) => e.cartItemId != cartItemId).toList();
+        final optimisticCart = cart.copyWith(items: updatedItems);
+        state = CartState.data(optimisticCart);
+
+        // API Call
+        ref
+            .read(removeCartItemUsecaseProvider)
+            .call(cartItemId: cartItemId)
+            .then((res) {
+          res.fold(
+            (failure) => state = CartState.data(cart), // Revert
+            (_) => refresh(),
+          );
+        });
+      },
+      orElse: () {},
+    );
+  }
+
+  Future<void> clearCart() async {
+    state.maybeWhen(
+      data: (cart) {
+        // Optimistic update
+        final optimisticCart = cart.copyWith(items: []);
+        state = CartState.data(optimisticCart);
+
+        ref.read(clearCartUsecaseProvider).call().then((res) {
+          res.fold(
+            (failure) => state = CartState.data(cart), // Revert
+            (_) => refresh(),
+          );
+        });
+      },
+      orElse: () {},
+    );
   }
 }
