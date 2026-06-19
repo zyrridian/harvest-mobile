@@ -1,27 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'harvest_schedule_controller.dart';
+part of 'profile_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$harvestScheduleControllerHash() =>
-    r'3ab163c19fb75b803f9c0e61bc1fb7e9f26319bb';
+String _$profileControllerHash() => r'8f58c9c68bc74fdfc42b347bb84c006c28c543e2';
 
-/// See also [HarvestScheduleController].
-@ProviderFor(HarvestScheduleController)
-final harvestScheduleControllerProvider = AutoDisposeNotifierProvider<
-    HarvestScheduleController, HarvestScheduleState>.internal(
-  HarvestScheduleController.new,
-  name: r'harvestScheduleControllerProvider',
+/// See also [ProfileController].
+@ProviderFor(ProfileController)
+final profileControllerProvider =
+    AutoDisposeNotifierProvider<ProfileController, ProfileState>.internal(
+  ProfileController.new,
+  name: r'profileControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$harvestScheduleControllerHash,
+      : _$profileControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$HarvestScheduleController = AutoDisposeNotifier<HarvestScheduleState>;
+typedef _$ProfileController = AutoDisposeNotifier<ProfileState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

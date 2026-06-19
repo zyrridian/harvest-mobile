@@ -4,12 +4,16 @@ import 'package:harvest_app/data/models/product_detail_model.dart';
 import 'package:harvest_app/data/models/favorite_status_model.dart';
 import 'package:harvest_app/data/models/review_response_model.dart';
 
+import 'package:harvest_app/data/models/favorite_product_model.dart';
+
 abstract class ProductRemoteDataSource {
   Future<ProductDetailModel> getProductDetail(String slug);
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug);
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
   Future<FavoriteStatusModel> addToFavorites(String productId);
   Future<FavoriteStatusModel> removeFromFavorites(String productId);
+  Future<FavoriteProductListModel> getUserFavorites();
+  Future<void> removeFavoriteById(String favoriteId);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -85,6 +89,46 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         return FavoriteStatusModel.fromJson(response.data['data']);
       } else {
         throw ServerException('Failed to remove from favorites');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
+  Future<FavoriteProductListModel> getUserFavorites() async {
+    try {
+      final response = await dio.get('/users/favorites');
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        final data = response.data['data'];
+        if (data is List) {
+          final favorites = data
+              .map((e) =>
+                  FavoriteProductModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          return FavoriteProductListModel(
+              favorites: favorites, total: favorites.length);
+        } else if (data is Map<String, dynamic>) {
+          return FavoriteProductListModel.fromJson(data);
+        } else {
+          return FavoriteProductListModel(favorites: [], total: 0);
+        }
+      } else {
+        throw ServerException('Failed to get favorites');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
+  Future<void> removeFavoriteById(String favoriteId) async {
+    try {
+      final response = await dio.delete('/users/favorites/$favoriteId');
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return;
+      } else {
+        throw ServerException('Failed to remove favorite');
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Unknown error');

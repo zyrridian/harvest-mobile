@@ -6,7 +6,8 @@ import 'package:harvest_app/presentation/features/auth/providers/auth_controller
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/utils/localization_extension.dart';
 import '../../../../core/providers/language_provider.dart';
-import '../../../providers/profile_providers.dart';
+import '../providers/profile_controller.dart';
+import 'favorite_products_screen.dart';
 import 'help_center_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'about_us_screen.dart';
@@ -28,7 +29,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(userProfileProvider);
+    final profileState = ref.watch(profileControllerProvider);
     final currentLanguage = ref.watch(currentLanguageNameProvider);
 
     return Scaffold(
@@ -48,7 +49,24 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: profileAsync.when(
+      body: profileState.when(
+        initial: () => const SizedBox(),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: kDarkGreen),
+        ),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: kTextGrey),
+              const SizedBox(height: 16),
+              Text(
+                error,
+                style: GoogleFonts.inter(color: kTextGrey),
+              ),
+            ],
+          ),
+        ),
         data: (profile) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
@@ -79,9 +97,9 @@ class ProfileScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           color: kPillGrey,
                           border: Border.all(color: Colors.white, width: 4),
-                          image: const DecorationImage(
+                          image: DecorationImage(
                             image: NetworkImage(
-                                'https://i.pravatar.cc/300'), // Replace with actual user image
+                                profile.profileImageUrl ?? 'https://i.pravatar.cc/300'),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -247,6 +265,17 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
+                    icon: Icons.favorite_border_rounded,
+                    title: 'Favorite Products', // Or localized
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FavoriteProductsScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
                     icon: Icons.notifications_outlined,
                     title: context.l10n.notifications,
                     onTap: () => context.push(AppRouter.notifications),
@@ -360,22 +389,6 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 40),
           ],
-        ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: kDarkGreen),
-        ),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: kTextGrey),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.error,
-                style: GoogleFonts.inter(color: kTextGrey),
-              ),
-            ],
-          ),
         ),
       ),
     );

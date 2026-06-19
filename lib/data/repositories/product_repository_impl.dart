@@ -3,6 +3,7 @@ import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/data/datasources/remote/product_remote_datasource.dart';
 import 'package:harvest_app/data/datasources/local/product_local_datasource.dart';
+import 'package:harvest_app/domain/entities/favorite_product.dart';
 import 'package:harvest_app/domain/entities/product_detail.dart';
 import 'package:harvest_app/domain/entities/favorite_status.dart';
 import 'package:harvest_app/domain/entities/review_response.dart';
@@ -63,6 +64,26 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final result = await remoteDataSource.removeFromFavorites(productId);
       return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FavoriteProductList>> getUserFavorites() async {
+    try {
+      final result = await remoteDataSource.getUserFavorites();
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFavoriteById(String favoriteId) async {
+    try {
+      await remoteDataSource.removeFavoriteById(favoriteId);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

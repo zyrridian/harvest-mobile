@@ -86,7 +86,7 @@ FlashHarvestModel _$FlashHarvestModelFromJson(Map<String, dynamic> json) =>
       subtitle: json['subtitle'] as String,
       distance: json['distance'] as String,
       imageUrl: json['image_url'] as String,
-      isFavorite: json['is_favorite'] as bool? ?? false,
+      isFavorite: json['is_favorite'] as bool,
     );
 
 Map<String, dynamic> _$FlashHarvestModelToJson(FlashHarvestModel instance) =>
