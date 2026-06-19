@@ -35,6 +35,11 @@ jobs:
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Create env file
+        run: |
+          mkdir -p env
+          echo '{"BASE_URL": "https://marketplace.zyrridian.dev"}' > env/prod.json
+
       - name: Build Android APK
         run: flutter build apk --release --dart-define-from-file=env/prod.json
 
