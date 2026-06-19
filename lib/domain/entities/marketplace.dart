@@ -27,6 +27,7 @@ class MarketplaceProduct extends Equatable {
   final double rating;
   final int soldCount;
   final bool isFresh;
+  final bool isFavorite;
 
   const MarketplaceProduct({
     required this.id,
@@ -38,6 +39,7 @@ class MarketplaceProduct extends Equatable {
     required this.rating,
     required this.soldCount,
     this.isFresh = false,
+    this.isFavorite = false,
   });
 
   @override
@@ -51,6 +53,7 @@ class MarketplaceProduct extends Equatable {
         rating,
         soldCount,
         isFresh,
+        isFavorite,
       ];
 }
 
@@ -60,6 +63,7 @@ class FlashHarvest extends Equatable {
   final String subtitle;
   final String distance;
   final String imageUrl;
+  final bool isFavorite;
 
   const FlashHarvest({
     required this.id,
@@ -67,10 +71,11 @@ class FlashHarvest extends Equatable {
     required this.subtitle,
     required this.distance,
     required this.imageUrl,
+    this.isFavorite = false,
   });
 
   @override
-  List<Object?> get props => [id, title, subtitle, distance, imageUrl];
+  List<Object?> get props => [id, title, subtitle, distance, imageUrl, isFavorite];
 }
 
 class MarketplaceResponseEntity extends Equatable {

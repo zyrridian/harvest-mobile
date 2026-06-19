@@ -8,6 +8,8 @@ abstract class ProductRemoteDataSource {
   Future<ProductDetailModel> getProductDetail(String slug);
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug);
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
+  Future<FavoriteStatusModel> addToFavorites(String productId);
+  Future<FavoriteStatusModel> removeFromFavorites(String productId);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -44,7 +46,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5}) async {
+  Future<ReviewResponseModel> getProductReviews(String slug,
+      {int limit = 5}) async {
     try {
       final response = await dio.get(
         '/reviews/$slug',
@@ -54,6 +57,34 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         return ReviewResponseModel.fromJson(response.data['data']);
       } else {
         throw ServerException('Failed to get reviews');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
+  Future<FavoriteStatusModel> addToFavorites(String productId) async {
+    try {
+      final response = await dio.post('/products/$productId/favorite');
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return FavoriteStatusModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to add to favorites');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
+  Future<FavoriteStatusModel> removeFromFavorites(String productId) async {
+    try {
+      final response = await dio.delete('/products/$productId/favorite');
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return FavoriteStatusModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to remove from favorites');
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Unknown error');

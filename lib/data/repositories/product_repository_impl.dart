@@ -47,4 +47,24 @@ class ProductRepositoryImpl implements ProductRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, FavoriteStatus>> addToFavorites(String productId) async {
+    try {
+      final result = await remoteDataSource.addToFavorites(productId);
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FavoriteStatus>> removeFromFavorites(String productId) async {
+    try {
+      final result = await remoteDataSource.removeFromFavorites(productId);
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

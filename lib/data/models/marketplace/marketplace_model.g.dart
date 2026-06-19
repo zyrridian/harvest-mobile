@@ -61,6 +61,7 @@ MarketplaceProductModel _$MarketplaceProductModelFromJson(
       rating: (json['rating'] as num).toDouble(),
       soldCount: (json['sold_count'] as num).toInt(),
       isFresh: json['is_fresh'] as bool? ?? false,
+      isFavorite: json['is_favorite'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$MarketplaceProductModelToJson(
@@ -75,6 +76,7 @@ Map<String, dynamic> _$MarketplaceProductModelToJson(
       'rating': instance.rating,
       'sold_count': instance.soldCount,
       'is_fresh': instance.isFresh,
+      'is_favorite': instance.isFavorite,
     };
 
 FlashHarvestModel _$FlashHarvestModelFromJson(Map<String, dynamic> json) =>
@@ -84,6 +86,7 @@ FlashHarvestModel _$FlashHarvestModelFromJson(Map<String, dynamic> json) =>
       subtitle: json['subtitle'] as String,
       distance: json['distance'] as String,
       imageUrl: json['image_url'] as String,
+      isFavorite: json['is_favorite'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FlashHarvestModelToJson(FlashHarvestModel instance) =>
@@ -93,4 +96,5 @@ Map<String, dynamic> _$FlashHarvestModelToJson(FlashHarvestModel instance) =>
       'subtitle': instance.subtitle,
       'distance': instance.distance,
       'image_url': instance.imageUrl,
+      'is_favorite': instance.isFavorite,
     };

@@ -629,15 +629,29 @@ class MarketplaceScreen extends ConsumerWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.5),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey[300]!),
+                    child: GestureDetector(
+                      onTap: () {
+                        ref.read(marketplaceControllerProvider.notifier).toggleFavorite(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(product.isFavorite ? 'Removed from favorites' : 'Added to favorites'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Icon(
+                          product.isFavorite ? Icons.favorite : Icons.favorite_border,
+                          size: 16, 
+                          color: product.isFavorite ? Colors.red : Colors.black54,
+                        ),
                       ),
-                      child: const Icon(Icons.favorite_border,
-                          size: 16, color: Colors.black54),
                     ),
                   ),
                 ],

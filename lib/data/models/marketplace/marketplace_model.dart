@@ -99,6 +99,8 @@ class MarketplaceProductModel {
   final int soldCount;
   @JsonKey(name: 'is_fresh')
   final bool isFresh;
+  @JsonKey(name: 'is_favorite')
+  final bool isFavorite;
 
   MarketplaceProductModel({
     required this.id,
@@ -110,6 +112,7 @@ class MarketplaceProductModel {
     required this.rating,
     required this.soldCount,
     this.isFresh = false,
+    this.isFavorite = false,
   });
 
   factory MarketplaceProductModel.fromJson(Map<String, dynamic> json) =>
@@ -128,6 +131,7 @@ class MarketplaceProductModel {
       rating: rating,
       soldCount: soldCount,
       isFresh: isFresh,
+      isFavorite: isFavorite,
     );
   }
 
@@ -142,6 +146,7 @@ class MarketplaceProductModel {
       rating: product.rating,
       soldCount: product.soldCount,
       isFresh: product.isFresh,
+      isFavorite: product.isFavorite,
     );
   }
 }
@@ -154,6 +159,8 @@ class FlashHarvestModel {
   final String distance;
   @JsonKey(name: 'image_url')
   final String imageUrl;
+  @JsonKey(name: 'is_favorite')
+  final bool isFavorite;
 
   FlashHarvestModel({
     required this.id,
@@ -161,6 +168,7 @@ class FlashHarvestModel {
     required this.subtitle,
     required this.distance,
     required this.imageUrl,
+    required this.isFavorite,
   });
 
   factory FlashHarvestModel.fromJson(Map<String, dynamic> json) =>
@@ -175,6 +183,7 @@ class FlashHarvestModel {
       subtitle: subtitle,
       distance: distance,
       imageUrl: imageUrl,
+      isFavorite: isFavorite,
     );
   }
 
@@ -185,6 +194,7 @@ class FlashHarvestModel {
       subtitle: flashHarvest.subtitle,
       distance: flashHarvest.distance,
       imageUrl: flashHarvest.imageUrl,
+      isFavorite: flashHarvest.isFavorite,
     );
   }
 }

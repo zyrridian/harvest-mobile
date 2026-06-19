@@ -7,5 +7,8 @@ import 'package:harvest_app/domain/entities/review_response.dart';
 abstract class ProductRepository {
   Future<Either<Failure, ProductDetail>> getProductDetail(String slug);
   Future<Either<Failure, FavoriteStatus>> checkFavoriteStatus(String slug);
-  Future<Either<Failure, ReviewResponse>> getProductReviews(String slug, {int limit = 5});
+  Future<Either<Failure, ReviewResponse>> getProductReviews(String slug,
+      {int limit = 5});
+  Future<Either<Failure, FavoriteStatus>> addToFavorites(String productId);
+  Future<Either<Failure, FavoriteStatus>> removeFromFavorites(String productId);
 }

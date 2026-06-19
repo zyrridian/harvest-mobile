@@ -10,6 +10,9 @@ import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
 import 'package:harvest_app/domain/usecases/cart/add_to_cart_usecase.dart';
 import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
+import 'package:harvest_app/domain/usecases/product/add_favorite_usecase.dart';
+import 'package:harvest_app/domain/usecases/product/remove_favorite_usecase.dart';
+import 'package:harvest_app/presentation/features/product/providers/product_detail_controller.dart';
 import 'marketplace_state.dart';
 
 part 'marketplace_controller.g.dart';
@@ -46,6 +49,14 @@ final getMarketplaceDataUseCaseProvider =
 
 final addToCartUseCaseProvider = Provider<AddToCartUseCase>((ref) {
   return AddToCartUseCase(ref.watch(marketplaceRepositoryProvider));
+});
+
+final addFavoriteUseCaseProvider = Provider<AddFavoriteUseCase>((ref) {
+  return AddFavoriteUseCase(ref.watch(productRepositoryProvider));
+});
+
+final removeFavoriteUseCaseProvider = Provider<RemoveFavoriteUseCase>((ref) {
+  return RemoveFavoriteUseCase(ref.watch(productRepositoryProvider));
 });
 
 @riverpod
@@ -125,6 +136,81 @@ class MarketplaceController extends _$MarketplaceController {
             // ));
           },
         );
+      },
+      orElse: () {},
+    );
+  }
+
+  Future<void> toggleFavorite(MarketplaceProduct product) async {
+    state.maybeWhen(
+      data: (data) async {
+        // Optimistic UI update
+        final newIsFavorite = !product.isFavorite;
+
+        final updatedProducts = data.products.map((p) {
+          if (p.id == product.id) {
+            return MarketplaceProduct(
+              id: p.id,
+              name: p.name,
+              farmerName: p.farmerName,
+              price: p.price,
+              unit: p.unit,
+              imageUrl: p.imageUrl,
+              rating: p.rating,
+              soldCount: p.soldCount,
+              isFresh: p.isFresh,
+              isFavorite: newIsFavorite,
+            );
+          }
+          return p;
+        }).toList();
+
+        state = MarketplaceState.data(data.copyWith(products: updatedProducts));
+
+        if (newIsFavorite) {
+          final usecase = ref.read(addFavoriteUseCaseProvider);
+          final result = await usecase.call(product.id);
+          result.fold((failure) {
+            // Revert on failure
+            _revertFavoriteStatus(product.id, data);
+          }, (_) {});
+        } else {
+          final usecase = ref.read(removeFavoriteUseCaseProvider);
+          final result = await usecase.call(product.id);
+          result.fold((failure) {
+            // Revert on failure
+            _revertFavoriteStatus(product.id, data);
+          }, (_) {});
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void _revertFavoriteStatus(String productId, MarketplaceData originalData) {
+    state.maybeWhen(
+      data: (currentData) {
+        final revertedProducts = currentData.products.map((p) {
+          if (p.id == productId) {
+            final originalProduct = originalData.products
+                .firstWhere((element) => element.id == productId);
+            return MarketplaceProduct(
+              id: p.id,
+              name: p.name,
+              farmerName: p.farmerName,
+              price: p.price,
+              unit: p.unit,
+              imageUrl: p.imageUrl,
+              rating: p.rating,
+              soldCount: p.soldCount,
+              isFresh: p.isFresh,
+              isFavorite: originalProduct.isFavorite,
+            );
+          }
+          return p;
+        }).toList();
+        state = MarketplaceState.data(
+            currentData.copyWith(products: revertedProducts));
       },
       orElse: () {},
     );
