@@ -40,6 +40,10 @@ jobs:
           mkdir -p env
           echo '{"BASE_URL": "https://marketplace.zyrridian.dev"}' > env/prod.json
 
+      - name: Create local.properties
+        run: |
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > android/local.properties
+
       - name: Build Android APK
         run: flutter build apk --release --dart-define-from-file=env/prod.json
 
