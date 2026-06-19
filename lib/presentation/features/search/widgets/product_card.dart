@@ -103,7 +103,7 @@ class ProductCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          product.farmerName,
+                          product.farmerName ?? 'Unknown',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: AppColors.textSecondary,
@@ -162,8 +162,8 @@ class ProductCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: product.stock > 50
-                              ? AppColors.success.withOpacity(0.1)
-                              : AppColors.warning.withOpacity(0.1),
+                              ? AppColors.success.withValues(alpha: 0.1)
+                              : AppColors.warning.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../main.dart';
+import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
+import '../../../presentation/features/splash/screens/splash_screen.dart';
+import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
@@ -15,15 +19,30 @@ import '../../../presentation/features/cart/screens/cart_screen.dart';
 import '../../../presentation/features/cart/screens/checkout_screen.dart';
 import '../../../presentation/features/order/screens/orders_list_screen.dart';
 import '../../../presentation/features/order/screens/order_detail_screen.dart';
+import '../../../presentation/features/order/screens/order_success_screen.dart';
 import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
+import '../../../presentation/features/marketplace/screens/marketplace_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_screen.dart';
+import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
+import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
+  // Auth routes
+  static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+
+  // Main routes
   static const String main = '/main';
   static const String farmersMap = '/farmers-map';
+  static const String farmers = '/farmers'; // farmers list
+  static const String products = '/products'; // products list
+  static const String preorder = '/preorder'; // preorder list
+  static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
@@ -35,12 +54,26 @@ class AppRouter {
   static const String checkout = '/checkout';
   static const String orders = '/orders';
   static const String orderDetail = '/order-detail';
+  static const String orderSuccess = '/order-success';
   static const String conversations = '/conversations';
   static const String chat = '/chat';
 
   static final GoRouter router = GoRouter(
-    initialLocation: main, //login,
+    navigatorKey: navigatorKey,
+    initialLocation: splash,
     routes: [
+      // Splash screen
+      GoRoute(
+        path: splash,
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      // Welcome/Onboarding screen
+      GoRoute(
+        path: welcome,
+        name: 'welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
       GoRoute(
         path: login,
         name: 'login',
@@ -52,6 +85,11 @@ class AppRouter {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
+        path: forgotPassword,
+        name: 'forgotPassword',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
         path: main,
         name: 'main',
         builder: (context, state) => const MainScreen(),
@@ -59,7 +97,7 @@ class AppRouter {
       GoRoute(
         path: farmersMap,
         name: 'farmersMap',
-        builder: (context, state) => const FarmersMapScreen(),
+        builder: (context, state) => const NearbyFarmerScreen(),
       ),
       GoRoute(
         path: farmerDetail,
@@ -98,10 +136,35 @@ class AppRouter {
         path: productDetail,
         name: 'productDetail',
         builder: (context, state) {
-          final productId =
-              state.uri.queryParameters['productId'] ?? 'prd_1234567890abcdef';
-          return ProductDetailScreen(productId: productId);
+          final slug =
+              state.uri.queryParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          return ProductDetailScreen(slug: slug);
         },
+      ),
+      // Product detail with path parameter
+      GoRoute(
+        path: '$products/:slug',
+        name: 'productDetailById',
+        builder: (context, state) {
+          final slug =
+              state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          return ProductDetailScreen(slug: slug);
+        },
+      ),
+      GoRoute(
+        path: products,
+        name: 'products',
+        builder: (context, state) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: preorder,
+        name: 'preorder',
+        builder: (context, state) => const PreOrderScreen(),
+      ),
+      GoRoute(
+        path: harvestSchedule,
+        name: 'harvestSchedule',
+        builder: (context, state) => const HarvestScheduleScreen(),
       ),
       GoRoute(
         path: cart,
@@ -128,6 +191,20 @@ class AppRouter {
         },
       ),
       GoRoute(
+        path: orderSuccess,
+        name: 'orderSuccess',
+        builder: (context, state) {
+          final orderId =
+              state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
+          final orderNumber =
+              state.uri.queryParameters['orderNumber'] ?? 'ORD-000000';
+          return OrderSuccessScreen(
+            orderId: orderId,
+            orderNumber: orderNumber,
+          );
+        },
+      ),
+      GoRoute(
         path: conversations,
         name: 'conversations',
         builder: (context, state) => const ConversationsListScreen(),
@@ -136,9 +213,16 @@ class AppRouter {
         path: chat,
         name: 'chat',
         builder: (context, state) {
-          final conversationId = state.uri.queryParameters['conversationId'] ??
+          final extra = state.extra as Map<String, dynamic>?;
+          final conversationId =
+              extra?['conversationId'] as String? ??
+              state.uri.queryParameters['conversationId'] ??
               'conv_1234567890abcdef';
-          return ChatScreen(conversationId: conversationId);
+          return ChatScreen(
+            conversationId: conversationId,
+            farmerName: extra?['farmerName'] as String?,
+            farmerAvatar: extra?['farmerAvatar'] as String?,
+          );
         },
       ),
     ],

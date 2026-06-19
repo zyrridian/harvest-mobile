@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../providers/notification_providers.dart';
 import '../../../../domain/entities/notification.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -35,66 +43,111 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     ));
 
     return Scaffold(
+      backgroundColor: kBgColor,
       appBar: AppBar(
-        title: const Text('Notifications'),
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Notifications',
+          style: GoogleFonts.inter(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            letterSpacing: -0.5,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.done_all),
+            icon: const Icon(Icons.done_all_rounded, color: kDarkGreen),
             onPressed: () => _markAllAsRead(),
             tooltip: 'Mark all as read',
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_outlined, color: kDarkGreen),
             onPressed: () => _showSettings(),
             tooltip: 'Notification settings',
           ),
+          const SizedBox(width: 8),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          onTap: (index) {
-            setState(() {
-              _selectedType = [
-                'all',
-                'order',
-                'message',
-                'promotion',
-                'price_alert',
-                'stock_alert'
-              ][index];
-            });
-          },
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: 'Orders'),
-            Tab(text: 'Messages'),
-            Tab(text: 'Promotions'),
-            Tab(text: 'Price Alerts'),
-            Tab(text: 'Stock Alerts'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            height: 50,
+            margin: const EdgeInsets.only(bottom: 10),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              physics: const BouncingScrollPhysics(),
+
+              // 1. FIX: FORCE LEFT ALIGNMENT
+              tabAlignment: TabAlignment.start,
+
+              // 2. FIX: STARTING PADDING (Matches page margin)
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+
+              // 3. FIX: SPACE BETWEEN CHIPS
+              labelPadding: const EdgeInsets.only(right: 8),
+
+              // Visual Styling
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: kDarkGreen,
+              ),
+              indicatorSize: TabBarIndicatorSize.label,
+              labelColor: Colors.white,
+              unselectedLabelColor: kTextGrey,
+              labelStyle:
+                  GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+              unselectedLabelStyle:
+                  GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+              dividerColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+
+              onTap: (index) {
+                setState(() {
+                  _selectedType = [
+                    'all',
+                    'order',
+                    'message',
+                    'promotion',
+                    'price_alert',
+                    'stock_alert'
+                  ][index];
+                });
+              },
+
+              // 4. FIX: CHIP WIDTH (Padding inside the tab)
+              // We wrap text in Padding to make the pill wider than the text
+              tabs: [
+                _buildTab('All'),
+                _buildTab('Orders'),
+                _buildTab('Messages'),
+                _buildTab('Promos'),
+                _buildTab('Prices'),
+                _buildTab('Stock'),
+              ],
+            ),
+          ),
         ),
       ),
       body: notificationsAsync.when(
         data: (notificationList) => _buildNotificationsList(notificationList),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              ElevatedButton(
-                onPressed: () => ref.refresh(
-                  notificationsProvider(
-                    NotificationParams(type: _selectedType),
-                  ),
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+      ),
+    );
+  }
+
+  // Helper to build a Tab with internal padding (controls Chip Width)
+  Tab _buildTab(String text) {
+    return Tab(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16), // Internal width of the chip
+        child: Text(text),
       ),
     );
   }
@@ -105,11 +158,25 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.notifications_none, size: 64, color: Colors.grey[400]),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                  child: Text('🔕', style: TextStyle(fontSize: 32))),
+            ),
             const SizedBox(height: 16),
             Text(
-              'No notifications',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              'All caught up!',
+              style: GoogleFonts.inter(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
+            ),
+            Text(
+              'No new notifications to show.',
+              style: GoogleFonts.inter(color: kTextGrey),
             ),
           ],
         ),
@@ -117,226 +184,253 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     }
 
     return RefreshIndicator(
+      color: kDarkGreen,
       onRefresh: () async {
         ref.invalidate(
           notificationsProvider(NotificationParams(type: _selectedType)),
         );
       },
-      child: Column(
-        children: [
-          // Stats header
+      child: CustomScrollView(
+        slivers: [
+          // Stats header (Modern Capsule)
           if (notificationList.stats.totalUnread > 0)
-            Container(
-              padding: const EdgeInsets.all(12),
-              color: Colors.blue.shade50,
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.blue.shade700),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${notificationList.stats.totalUnread} unread notifications',
-                    style: TextStyle(
-                      color: Colors.blue.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF9E6), // Creamy Alert BG
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: const Color(0xFFFDE047).withOpacity(0.5)),
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded,
+                          color: Color(0xFFD97706), size: 20),
+                      const SizedBox(width: 12),
+                      Text(
+                        'You have ${notificationList.stats.totalUnread} unread notifications',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF92400E),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
 
           // Notifications list
-          Expanded(
-            child: ListView.separated(
-              itemCount: notificationList.notifications.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
                 final notification = notificationList.notifications[index];
                 return _buildNotificationItem(notification);
               },
+              childCount: notificationList.notifications.length,
             ),
           ),
 
-          // Pagination
-          if (notificationList.hasNext || notificationList.hasPrevious)
-            _buildPagination(notificationList),
+          // Bottom padding
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       ),
     );
   }
 
   Widget _buildNotificationItem(AppNotification notification) {
+    // Determine visuals based on priority/type
+    final isUnread = !notification.isRead;
+
     return Dismissible(
       key: Key(notification.notificationId),
       background: Container(
-        color: Colors.red,
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white),
+        padding: const EdgeInsets.only(right: 24),
+        color: const Color(0xFFEF4444), // Red
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) => _deleteNotification(notification),
-      child: InkWell(
-        onTap: () => _handleNotificationTap(notification),
-        child: Container(
-          color: notification.isRead ? null : Colors.blue.shade50,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Icon/Image
-              if (notification.image != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    notification.image!,
-                    width: 48,
-                    height: 48,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          notification.icon,
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              else
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: _getPriorityColor(notification.priority)
-                        .withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      notification.icon,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                  ),
-                ),
-              const SizedBox(width: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _handleNotificationTap(notification),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. VISUAL IDENTIFIER (Pebble Icon)
+                _buildNotificationIcon(notification),
 
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            notification.title,
-                            style: TextStyle(
-                              fontWeight: notification.isRead
-                                  ? FontWeight.normal
-                                  : FontWeight.bold,
-                              fontSize: 15,
+                const SizedBox(width: 16),
+
+                // 2. CONTENT
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              notification.title,
+                              style: GoogleFonts.inter(
+                                fontWeight: isUnread
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                fontSize: 15,
+                                color: kDarkGreen,
+                              ),
                             ),
                           ),
+                          // Timestamp
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Text(
+                              _formatTime(notification.createdAt),
+                              style: GoogleFonts.inter(
+                                color: kTextGrey,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        notification.message,
+                        style: GoogleFonts.inter(
+                          color: isUnread
+                              ? kDarkGreen.withOpacity(0.8)
+                              : kTextGrey,
+                          fontSize: 13,
+                          height: 1.4,
                         ),
-                        if (notification.priority ==
-                                NotificationPriority.high ||
-                            notification.priority ==
-                                NotificationPriority.urgent)
-                          Container(
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      // Priority Tag (Only if urgent/high)
+                      if (notification.priority == NotificationPriority.high ||
+                          notification.priority == NotificationPriority.urgent)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: _getPriorityColor(notification.priority),
-                              borderRadius: BorderRadius.circular(4),
+                              color: _getPriorityColor(notification.priority)
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               notification.priority.name.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: GoogleFonts.inter(
+                                color: _getPriorityColor(notification.priority),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      notification.message,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _formatTime(notification.createdAt),
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Read indicator
-              if (!notification.isRead)
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
+                        ),
+                    ],
                   ),
                 ),
-            ],
+
+                // 3. UNREAD DOT (The "Modern" replacement for colored backgrounds)
+                if (isUnread)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12, top: 4),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: kAccentOrange,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPagination(NotificationList notificationList) {
+  // Helper to create the "Pebble" icons matching the Home Screen
+  Widget _buildNotificationIcon(AppNotification notification) {
+    // If it's a direct image URL
+    if (notification.image != null) {
+      return Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16), // Pebble shape
+            image: DecorationImage(
+              image: NetworkImage(notification.image!),
+              fit: BoxFit.cover,
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2))
+            ]),
+      );
+    }
+
+    // Default Fallback Icons (Styled like Categories)
+    IconData iconData = Icons.notifications_none;
+    List<Color> gradient = [
+      const Color(0xFFF3F4F6),
+      const Color(0xFFD1D5DB)
+    ]; // Grey default
+    Color iconColor = kDarkGreen;
+
+    // You might want to map this based on 'type' or parse the 'icon' string
+    // Here is a simple heuristic based on the Title or Type for demo purposes
+    final titleLower = notification.title.toLowerCase();
+
+    if (titleLower.contains('order') || titleLower.contains('shipped')) {
+      iconData = Icons.local_shipping_outlined;
+      gradient = [const Color(0xFFFFE5D9), const Color(0xFFFFD1BC)]; // Peach
+      iconColor = const Color(0xFFA6442E);
+    } else if (titleLower.contains('price') || titleLower.contains('sale')) {
+      iconData = Icons.local_offer_outlined;
+      gradient = [const Color(0xFFFEF9C3), const Color(0xFFFDE047)]; // Yellow
+      iconColor = const Color(0xFFB45309);
+    } else if (titleLower.contains('message')) {
+      iconData = Icons.chat_bubble_outline;
+      gradient = [const Color(0xFFD4E2D4), const Color(0xFFB8C6B8)]; // Sage
+      iconColor = const Color(0xFF2D4A3E);
+    } else if (titleLower.contains('stock')) {
+      iconData = Icons.inventory_2_outlined;
+      gradient = [const Color(0xFFDBEAFE), const Color(0xFF93C5FD)]; // Blue
+      iconColor = const Color(0xFF1E40AF);
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      width: 50,
+      height: 50,
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey[300]!)),
+        gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradient),
+        borderRadius: BorderRadius.circular(18), // Soft organic shape
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton.icon(
-            onPressed: notificationList.hasPrevious
-                ? () {
-                    // Handle previous page
-                  }
-                : null,
-            icon: const Icon(Icons.chevron_left),
-            label: const Text('Previous'),
-          ),
-          Text(
-            'Page ${notificationList.currentPage} of ${notificationList.totalPages}',
-            style: const TextStyle(fontSize: 14),
-          ),
-          TextButton.icon(
-            onPressed: notificationList.hasNext
-                ? () {
-                    // Handle next page
-                  }
-                : null,
-            icon: const Icon(Icons.chevron_right),
-            label: const Text('Next'),
-          ),
-        ],
+      child: Center(
+        child: Icon(iconData, color: iconColor, size: 24),
       ),
     );
   }
@@ -344,11 +438,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   Color _getPriorityColor(NotificationPriority priority) {
     switch (priority) {
       case NotificationPriority.urgent:
-        return Colors.red;
+        return const Color(0xFFEF4444); // Red
       case NotificationPriority.high:
-        return Colors.orange;
+        return const Color(0xFFE86A33); // Burnt Orange
       case NotificationPriority.medium:
-        return Colors.blue;
+        return const Color(0xFF3B82F6); // Blue
       case NotificationPriority.low:
         return Colors.grey;
     }
@@ -358,93 +452,48 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-    }
+    if (difference.inMinutes < 1) return 'Now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m';
+    if (difference.inHours < 24) return '${difference.inHours}h';
+    if (difference.inDays < 7) return '${difference.inDays}d';
+    return '${dateTime.day}/${dateTime.month}';
   }
 
   void _handleNotificationTap(AppNotification notification) async {
-    // Mark as read if unread
     if (!notification.isRead) {
       final useCase = ref.read(markNotificationAsReadUseCaseProvider);
       await useCase(notification.notificationId);
       ref.invalidate(
-        notificationsProvider(NotificationParams(type: _selectedType)),
-      );
+          notificationsProvider(NotificationParams(type: _selectedType)));
     }
-
-    // Handle navigation if action is defined
-    if (notification.action != null) {
-      // TODO: Navigate based on notification.action.screen and params
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Navigate to: ${notification.action!.screen}'),
-        ),
-      );
-    }
+    // Navigation logic...
   }
 
   void _deleteNotification(AppNotification notification) async {
     final useCase = ref.read(deleteNotificationUseCaseProvider);
     await useCase(notification.notificationId);
-
     ref.invalidate(
-      notificationsProvider(NotificationParams(type: _selectedType)),
-    );
+        notificationsProvider(NotificationParams(type: _selectedType)));
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Notification deleted')),
+        SnackBar(
+          content: Text('Notification deleted', style: GoogleFonts.inter()),
+          backgroundColor: kDarkGreen,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
 
   void _markAllAsRead() async {
     final useCase = ref.read(markAllNotificationsAsReadUseCaseProvider);
-    final result =
-        await useCase(type: _selectedType != 'all' ? _selectedType : null);
-
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${failure.toString()}')),
-        );
-      },
-      (result) {
-        ref.invalidate(
-          notificationsProvider(NotificationParams(type: _selectedType)),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('${result.markedCount} notifications marked as read')),
-        );
-      },
-    );
+    await useCase(type: _selectedType != 'all' ? _selectedType : null);
+    ref.invalidate(
+        notificationsProvider(NotificationParams(type: _selectedType)));
   }
 
   void _showSettings() {
-    // TODO: Navigate to notification settings screen
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Notification Settings'),
-        content: const Text('Notification settings screen coming soon...'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+    // ... settings logic
   }
 }

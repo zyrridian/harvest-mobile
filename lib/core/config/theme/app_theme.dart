@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 
@@ -7,7 +8,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
         primary: AppColors.primary,
         onPrimary: AppColors.textOnPrimary,
         secondary: AppColors.secondary,
@@ -17,11 +19,21 @@ class AppTheme {
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: AppColors.primary,
+        selectionColor: Color(0x4D166534), // 30% opacity of primary green
+        selectionHandleColor: AppColors.primary,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.primary,
+      ),
       scaffoldBackgroundColor: AppColors.background,
 
       // AppBar Theme
       appBarTheme: const AppBarTheme(
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.textPrimary,
@@ -29,7 +41,7 @@ class AppTheme {
       ),
 
       // Text Theme
-      textTheme: const TextTheme(
+      textTheme: GoogleFonts.interTextTheme(const TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         displayMedium: AppTextStyles.displayMedium,
         displaySmall: AppTextStyles.displaySmall,
@@ -45,7 +57,7 @@ class AppTheme {
         labelLarge: AppTextStyles.labelLarge,
         labelMedium: AppTextStyles.labelMedium,
         labelSmall: AppTextStyles.labelSmall,
-      ),
+      )),
 
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(

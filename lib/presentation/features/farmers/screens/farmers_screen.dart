@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/config/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../domain/entities/farmer.dart';
 import '../providers/farmers_controller.dart';
 import '../providers/farmers_state.dart';
 import '../widgets/farmer_card.dart';
 import '../widgets/farmer_filter_bottom_sheet.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class FarmersScreen extends ConsumerStatefulWidget {
   const FarmersScreen({super.key});
@@ -41,6 +48,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
   }
 
   void _showFilterBottomSheet() {
+    // (Logic remains same, styling handled in the widget)
     final specialties = ref.read(selectedSpecialtiesProvider);
     final hasMapFeature = ref.read(hasMapFeatureFilterProvider);
     final maxDistance = ref.read(maxDistanceFilterProvider);
@@ -51,7 +59,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       builder: (context) => FarmerFilterBottomSheet(
         selectedSpecialties: specialties,
@@ -76,78 +84,82 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
     final hasActiveFilters = _hasActiveFilters();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kBgColor,
       body: CustomScrollView(
         slivers: [
-          // App Bar
+          // 1. APP BAR
           SliverAppBar(
             pinned: true,
             floating: true,
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
+            backgroundColor: kBgColor,
+            surfaceTintColor: kBgColor,
             elevation: 0,
-            scrolledUnderElevation: 1,
+            scrolledUnderElevation: 0,
+            toolbarHeight: 70,
             title: Text(
               'Farmers Directory',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: kDarkGreen,
+              ),
             ),
             actions: [
-              // Map View Button
-              IconButton(
-                icon: const Icon(
-                  Icons.map_outlined,
-                  color: AppColors.textPrimary,
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: kPillGrey),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.map_outlined, color: kDarkGreen),
+                    onPressed: () => context.push(AppRouter.farmersMap),
+                    tooltip: 'Map View',
+                  ),
                 ),
-                onPressed: () {
-                  context.push(AppRouter.farmersMap);
-                },
-                tooltip: 'Map View',
               ),
-              const SizedBox(width: 8),
             ],
           ),
 
-          // Search Bar
+          // 2. SEARCH & FILTER BAR
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 50,
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        color: kPillGrey,
+                        borderRadius: BorderRadius.circular(100),
                       ),
                       child: Row(
                         children: [
-                          const SizedBox(width: 16),
-                          const Icon(Icons.search,
-                              color: AppColors.textSecondary),
+                          const SizedBox(width: 20),
+                          Icon(Icons.search, color: Colors.grey[500], size: 22),
                           const SizedBox(width: 12),
                           Expanded(
                             child: TextField(
                               controller: _searchController,
-                              decoration: const InputDecoration(
-                                hintText: 'Search farmers...',
+                              style: GoogleFonts.inter(color: kDarkGreen),
+                              decoration: InputDecoration(
+                                hintText: 'Search local farmers...',
+                                hintStyle:
+                                    GoogleFonts.inter(color: Colors.grey[500]),
                                 border: InputBorder.none,
                                 isDense: true,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 12),
+                                contentPadding: EdgeInsets.zero,
                               ),
                               onSubmitted: (_) => _performSearch(),
                             ),
                           ),
                           if (_searchController.text.isNotEmpty)
                             IconButton(
-                              icon: const Icon(Icons.clear,
-                                  color: AppColors.textSecondary),
+                              icon: Icon(Icons.close_rounded,
+                                  color: Colors.grey[500], size: 20),
                               onPressed: () {
                                 _searchController.clear();
                                 _performSearch();
@@ -157,46 +169,42 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   // Filter Button
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color:
-                          hasActiveFilters ? AppColors.primary : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: hasActiveFilters
-                            ? AppColors.primary
-                            : AppColors.border,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.tune,
-                            color: hasActiveFilters
-                                ? Colors.white
-                                : AppColors.textSecondary,
-                          ),
-                          onPressed: _showFilterBottomSheet,
+                  GestureDetector(
+                    onTap: _showFilterBottomSheet,
+                    child: Container(
+                      height: 52,
+                      width: 52,
+                      decoration: BoxDecoration(
+                        color: hasActiveFilters ? kDarkGreen : Colors.white,
+                        borderRadius: BorderRadius.circular(16), // Pebble shape
+                        border: Border.all(
+                          color: hasActiveFilters ? kDarkGreen : kPillGrey,
                         ),
-                        if (hasActiveFilters)
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            Icons.tune_rounded,
+                            color: hasActiveFilters ? Colors.white : kDarkGreen,
+                          ),
+                          if (hasActiveFilters)
+                            Positioned(
+                              top: 12,
+                              right: 12,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: kAccentOrange,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -204,13 +212,13 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
             ),
           ),
 
-          // Active Filters Chips
+          // 3. ACTIVE FILTERS
           if (hasActiveFilters)
             SliverToBoxAdapter(
               child: _buildActiveFiltersChips(),
             ),
 
-          // List View
+          // 4. LIST VIEW
           _buildListView(farmersState),
         ],
       ),
@@ -222,7 +230,6 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
     final hasMapFeature = ref.watch(hasMapFeatureFilterProvider);
     final maxDistance = ref.watch(maxDistanceFilterProvider);
     final minRating = ref.watch(minRatingFilterProvider);
-
     return specialties.isNotEmpty ||
         hasMapFeature != null ||
         maxDistance != null ||
@@ -235,71 +242,75 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
     final maxDistance = ref.watch(maxDistanceFilterProvider);
     final minRating = ref.watch(minRatingFilterProvider);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
         children: [
-          ...specialties.map((specialty) => Chip(
-                label: Text(specialty),
-                deleteIcon: const Icon(Icons.close, size: 16),
-                onDeleted: () {
-                  final updated = List<String>.from(specialties)
-                    ..remove(specialty);
-                  ref.read(farmersControllerProvider.notifier).applyFilters(
-                        specialties: updated,
-                      );
-                },
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                side: const BorderSide(color: AppColors.primary),
-              )),
+          // Clear All Text Button
+          TextButton(
+            onPressed: () =>
+                ref.read(farmersControllerProvider.notifier).clearFilters(),
+            child: Text(
+              'Clear all',
+              style: GoogleFonts.inter(
+                  color: kTextGrey, fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          ...specialties.map((s) => _buildFilterChip(s, () {
+                final updated = List<String>.from(specialties)..remove(s);
+                ref
+                    .read(farmersControllerProvider.notifier)
+                    .applyFilters(specialties: updated);
+              })),
+
           if (hasMapFeature != null)
-            Chip(
-              label: const Text('Map Feature'),
-              deleteIcon: const Icon(Icons.close, size: 16),
-              onDeleted: () {
-                ref.read(farmersControllerProvider.notifier).applyFilters(
-                      hasMapFeature: null,
-                    );
-              },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              side: const BorderSide(color: AppColors.primary),
-            ),
+            _buildFilterChip('Map Feature', () {
+              ref
+                  .read(farmersControllerProvider.notifier)
+                  .applyFilters(hasMapFeature: null);
+            }),
+
           if (maxDistance != null)
-            Chip(
-              label: Text('Within ${maxDistance.toStringAsFixed(0)} km'),
-              deleteIcon: const Icon(Icons.close, size: 16),
-              onDeleted: () {
-                ref.read(farmersControllerProvider.notifier).applyFilters(
-                      maxDistance: null,
-                    );
-              },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              side: const BorderSide(color: AppColors.primary),
-            ),
+            _buildFilterChip('< ${maxDistance.toStringAsFixed(0)} km', () {
+              ref
+                  .read(farmersControllerProvider.notifier)
+                  .applyFilters(maxDistance: null);
+            }),
+
           if (minRating != null)
-            Chip(
-              label: Text('${minRating.toStringAsFixed(1)}+ ⭐'),
-              deleteIcon: const Icon(Icons.close, size: 16),
-              onDeleted: () {
-                ref.read(farmersControllerProvider.notifier).applyFilters(
-                      minRating: null,
-                    );
-              },
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              side: const BorderSide(color: AppColors.primary),
-            ),
-          TextButton.icon(
-            onPressed: () {
-              ref.read(farmersControllerProvider.notifier).clearFilters();
-            },
-            icon: const Icon(Icons.clear_all, size: 16),
-            label: const Text('Clear all'),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              minimumSize: const Size(0, 32),
-            ),
+            _buildFilterChip('${minRating.toStringAsFixed(1)}+ ⭐', () {
+              ref
+                  .read(farmersControllerProvider.notifier)
+                  .applyFilters(minRating: null);
+            }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, VoidCallback onDeleted) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
+      ),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+                color: kDarkGreen, fontWeight: FontWeight.w500, fontSize: 13),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onDeleted,
+            child: const Icon(Icons.close_rounded, size: 14, color: kTextGrey),
           ),
         ],
       ),
@@ -308,116 +319,54 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
 
   Widget _buildListView(FarmersState state) {
     return state.when(
-      initial: () => const SliverToBoxAdapter(
-        child: SizedBox.shrink(),
-      ),
+      initial: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
       loading: () => const SliverFillRemaining(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
+          child: Center(child: CircularProgressIndicator(color: kDarkGreen))),
       loaded: (farmers) {
-        if (farmers.isEmpty) {
-          return SliverFillRemaining(
-            child: _buildEmptyState(),
-          );
-        }
-
+        if (farmers.isEmpty)
+          return SliverFillRemaining(child: _buildEmptyState());
         return SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: FarmerCard(
-                    farmer: farmers[index],
-                    onTap: () {
-                      _showFarmerDetails(farmers[index]);
-                    },
-                  ),
-                );
-              },
+              (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: FarmerCard(
+                  farmer: farmers[index],
+                  onTap: () => context.push(AppRouter.farmerDetail,
+                      extra: farmers[index]),
+                ),
+              ),
               childCount: farmers.length,
             ),
           ),
         );
       },
-      error: (message) => SliverFillRemaining(
-        child: _buildErrorState(message),
-      ),
+      error: (message) =>
+          SliverFillRemaining(child: Center(child: Text(message))),
     );
-  }
-
-  void _showFarmerDetails(Farmer farmer) {
-    context.push(AppRouter.farmerDetail, extra: farmer);
   }
 
   Widget _buildEmptyState() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.agriculture_outlined,
-              size: 80,
-              color: AppColors.textSecondary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No farmers found',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Try adjusting your search or filters',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: AppColors.error.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(farmersControllerProvider.notifier).loadFarmers();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+                color: Color(0xFFFFF9E6), shape: BoxShape.circle),
+            child: const Text('🌾', style: TextStyle(fontSize: 48)),
+          ),
+          const SizedBox(height: 16),
+          Text('No farmers found',
+              style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: kDarkGreen)),
+          Text('Try adjusting your filters.',
+              style: GoogleFonts.inter(color: kTextGrey)),
+        ],
       ),
     );
   }

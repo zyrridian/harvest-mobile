@@ -46,20 +46,25 @@ ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
           ?.map((e) =>
               ProductCertificationModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      rating:
-          ProductRatingModel.fromJson(json['rating'] as Map<String, dynamic>),
+      rating: (json['rating'] as num).toDouble(),
+      reviewCount: (json['review_count'] as num?)?.toInt(),
       reviews: json['reviews'] == null
           ? null
           : ProductReviewSummaryModel.fromJson(
               json['reviews'] as Map<String, dynamic>),
       tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
-      labels:
-          ProductLabelsModel.fromJson(json['labels'] as Map<String, dynamic>),
+      labels: json['labels'] == null
+          ? null
+          : ProductLabelsModel.fromJson(json['labels'] as Map<String, dynamic>),
       harvestDate: json['harvest_date'] as String?,
-      availability: ProductAvailabilityModel.fromJson(
-          json['availability'] as Map<String, dynamic>),
-      deliveryOptions: ProductDeliveryOptionsModel.fromJson(
-          json['delivery_options'] as Map<String, dynamic>),
+      availability: json['availability'] == null
+          ? null
+          : ProductAvailabilityModel.fromJson(
+              json['availability'] as Map<String, dynamic>),
+      deliveryOptions: json['delivery_options'] == null
+          ? null
+          : ProductDeliveryOptionsModel.fromJson(
+              json['delivery_options'] as Map<String, dynamic>),
       bulkPricing: (json['bulk_pricing'] as List<dynamic>?)
           ?.map((e) => BulkPricingModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -70,7 +75,9 @@ ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
               as List<dynamic>?)
           ?.map((e) => RelatedProductModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      stats: ProductStatsModel.fromJson(json['stats'] as Map<String, dynamic>),
+      stats: json['stats'] == null
+          ? null
+          : ProductStatsModel.fromJson(json['stats'] as Map<String, dynamic>),
       policies: json['policies'] == null
           ? null
           : ProductPoliciesModel.fromJson(
@@ -78,9 +85,9 @@ ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
       publishedAt: json['published_at'] as String?,
-      isFavorite: json['is_favorite'] as bool,
-      isInCart: json['is_in_cart'] as bool,
-      isInWishlist: json['is_in_wishlist'] as bool,
+      isFavorite: json['is_favorite'] as bool? ?? false,
+      isInCart: json['is_in_cart'] as bool? ?? false,
+      isInWishlist: json['is_in_wishlist'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProductDetailModelToJson(ProductDetailModel instance) =>
@@ -107,19 +114,20 @@ Map<String, dynamic> _$ProductDetailModelToJson(ProductDetailModel instance) =>
           instance.specifications?.map((e) => e.toJson()).toList(),
       'certifications':
           instance.certifications?.map((e) => e.toJson()).toList(),
-      'rating': instance.rating.toJson(),
+      'rating': instance.rating,
+      'review_count': instance.reviewCount,
       'reviews': instance.reviews?.toJson(),
       'tags': instance.tags,
-      'labels': instance.labels.toJson(),
+      'labels': instance.labels?.toJson(),
       'harvest_date': instance.harvestDate,
-      'availability': instance.availability.toJson(),
-      'delivery_options': instance.deliveryOptions.toJson(),
+      'availability': instance.availability?.toJson(),
+      'delivery_options': instance.deliveryOptions?.toJson(),
       'bulk_pricing': instance.bulkPricing?.map((e) => e.toJson()).toList(),
       'related_products':
           instance.relatedProducts?.map((e) => e.toJson()).toList(),
       'frequently_bought_together':
           instance.frequentlyBoughtTogether?.map((e) => e.toJson()).toList(),
-      'stats': instance.stats.toJson(),
+      'stats': instance.stats?.toJson(),
       'policies': instance.policies?.toJson(),
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
@@ -241,7 +249,7 @@ ProductSellerModel _$ProductSellerModelFromJson(Map<String, dynamic> json) =>
       responseRate: (json['response_rate'] as num?)?.toInt(),
       responseTime: json['response_time'] as String?,
       totalProducts: (json['total_products'] as num?)?.toInt(),
-      joinedSince: json['joined_since'] as String?,
+      joinedSince: json['joined_date'] as String?,
       followersCount: (json['followers_count'] as num?)?.toInt(),
     );
 
@@ -258,14 +266,14 @@ Map<String, dynamic> _$ProductSellerModelToJson(ProductSellerModel instance) =>
       'response_rate': instance.responseRate,
       'response_time': instance.responseTime,
       'total_products': instance.totalProducts,
-      'joined_since': instance.joinedSince,
+      'joined_date': instance.joinedSince,
       'followers_count': instance.followersCount,
     };
 
 SellerLocationModel _$SellerLocationModelFromJson(Map<String, dynamic> json) =>
     SellerLocationModel(
-      city: json['city'] as String,
-      province: json['province'] as String,
+      city: json['city'] as String?,
+      province: json['province'] as String?,
       detailedAddress: json['detailed_address'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),

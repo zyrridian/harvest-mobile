@@ -15,6 +15,7 @@ abstract class AuthRemoteDataSource {
     required String password,
     required String name,
     String? phoneNumber,
+    required String userType,
   });
 
   Future<void> logout();
@@ -44,7 +45,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AuthResponseModel.fromJson(response.data);
+        final apiResponse = AuthApiResponse.fromJson(response.data);
+        if (apiResponse.isSuccess && apiResponse.data != null) {
+          return apiResponse.data!;
+        } else {
+          throw ServerException(
+            apiResponse.message ?? 'Login failed',
+            statusCode: response.statusCode,
+          );
+        }
       } else {
         throw ServerException(
           'Login failed',
@@ -64,6 +73,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
     required String name,
     String? phoneNumber,
+    required String userType,
   }) async {
     try {
       final response = await dio.post(
@@ -77,7 +87,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AuthResponseModel.fromJson(response.data);
+        final apiResponse = AuthApiResponse.fromJson(response.data);
+        if (apiResponse.isSuccess && apiResponse.data != null) {
+          return apiResponse.data!;
+        } else {
+          throw ServerException(
+            apiResponse.message ?? 'Registration failed',
+            statusCode: response.statusCode,
+          );
+        }
       } else {
         throw ServerException(
           'Registration failed',
@@ -108,7 +126,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await dio.get(AppConstants.getCurrentUserEndpoint);
 
       if (response.statusCode == 200) {
-        return UserModel.fromJson(response.data);
+        final apiResponse = UserInfoResponse.fromJson(response.data);
+        if (apiResponse.isSuccess && apiResponse.data != null) {
+          return apiResponse.data!;
+        } else {
+          throw ServerException(
+            apiResponse.message ?? 'Failed to get current user',
+            statusCode: response.statusCode,
+          );
+        }
       } else {
         throw ServerException(
           'Failed to get current user',

@@ -1,311 +1,509 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../shared_widgets/app_scaffold.dart';
-import '../../../../core/config/theme/app_colors.dart';
+import '../../../../core/utils/localization_extension.dart';
+import '../../../../core/providers/language_provider.dart';
+import '../providers/profile_controller.dart';
+import 'favorite_products_screen.dart';
+import 'help_center_screen.dart';
+import 'privacy_policy_screen.dart';
+import 'about_us_screen.dart';
+import 'personal_information_screen.dart';
+import 'security_screen.dart';
+import 'language_selection_screen.dart';
+// import '../../../shared_widgets/app_scaffold.dart'; // Can use Scaffold directly
+// import '../../../../core/config/theme/app_colors.dart'; // Local constants used for demo
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppScaffold(
-      title: 'Profile',
-      showBackButton: false,
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Profile Header
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+    final profileState = ref.watch(profileControllerProvider);
+    final currentLanguage = ref.watch(currentLanguageNameProvider);
+
+    return Scaffold(
+      backgroundColor: kBgColor,
+      appBar: AppBar(
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          context.l10n.profile,
+          style: GoogleFonts.inter(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            letterSpacing: -0.5,
+          ),
+        ),
+      ),
+      body: profileState.when(
+        initial: () => const SizedBox(),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: kDarkGreen),
+        ),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: kTextGrey),
+              const SizedBox(height: 16),
+              Text(
+                error,
+                style: GoogleFonts.inter(color: kTextGrey),
+              ),
+            ],
+          ),
+        ),
+        data: (profile) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          children: [
+            // 1. PROFILE HEADER CARD
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPillGrey),
+                boxShadow: [
+                  BoxShadow(
+                    color: kDarkGreen.withOpacity(0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
               child: Column(
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.white,
-                    ),
+                  Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: kPillGrey,
+                          border: Border.all(color: Colors.white, width: 4),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                profile.profileImageUrl ?? 'https://i.pravatar.cc/300'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: kDarkGreen,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.edit,
+                            size: 14, color: Colors.white),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'John Doe',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    profile.name,
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'john.doe@example.com',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    profile.email,
+                    style: GoogleFonts.inter(
+                      color: kTextGrey,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton.icon(
+                  OutlinedButton(
                     onPressed: () {
-                      // TODO: Edit profile
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PersonalInformationScreen(),
+                        ),
+                      );
                     },
-                    icon: const Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: Colors.white,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: kDarkGreen,
+                      side: const BorderSide(color: kPillGrey),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 10),
                     ),
-                    label: const Text('Edit Profile'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(150, 40),
+                    child: Text(
+                      context.l10n.editProfile,
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 24),
 
-          // Subscriptions Premium Card
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.orange.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+            const SizedBox(height: 24),
+
+            // 2. PREMIUM SUBSCRIPTION CARD
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF2D4A3E),
+                    Color(0xFF1A2F25)
+                  ], // Dark Green Gradient
                 ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => context.push(AppRouter.subscriptionIntro),
                 borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: kDarkGreen.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => context.push(AppRouter.subscriptionIntro),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.workspace_premium_rounded,
+                              color: Color(0xFFFFD700), size: 28),
                         ),
-                        child: const Icon(
-                          Icons.auto_awesome,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'My Subscriptions',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.l10n.harvestPremium,
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              '2 active • Save 15% on deliveries',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
+                              const SizedBox(height: 4),
+                              Text(
+                                context.l10n.premiumDescription,
+                                style: GoogleFonts.inter(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ],
+                        const Icon(Icons.arrow_forward_ios_rounded,
+                            color: Colors.white54, size: 16),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
 
-          // Settings Section
-          Text(
-            'Settings',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 32),
 
-          _buildMenuItem(
-            context,
-            icon: Icons.settings_outlined,
-            title: 'Settings',
-            onTap: () {
-              context.push(AppRouter.settings);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.person_outline,
-            title: 'Account Information',
-            onTap: () {
-              // TODO: Navigate to account info
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.location_on_outlined,
-            title: 'My Addresses',
-            onTap: () {
-              context.push(AppRouter.addresses);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            onTap: () {
-              context.push(AppRouter.notifications);
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.security_outlined,
-            title: 'Security',
-            onTap: () {
-              // TODO: Navigate to security settings
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.language_outlined,
-            title: 'Language',
-            subtitle: 'English',
-            onTap: () {
-              // TODO: Navigate to language settings
-            },
-          ),
-          const SizedBox(height: 24),
-
-          // Other Section
-          Text(
-            'Other',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          const SizedBox(height: 12),
-
-          _buildMenuItem(
-            context,
-            icon: Icons.help_outline,
-            title: 'Help & Support',
-            onTap: () {
-              // TODO: Navigate to help
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.info_outline,
-            title: 'About',
-            onTap: () {
-              // TODO: Navigate to about
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            onTap: () {
-              // TODO: Navigate to privacy policy
-            },
-          ),
-          const SizedBox(height: 24),
-
-          // Logout Button
-          Card(
-            color: AppColors.error.withOpacity(0.1),
-            child: ListTile(
-              leading: const Icon(Icons.logout, color: AppColors.error),
-              title: const Text(
-                'Logout',
-                style: TextStyle(color: AppColors.error),
+            // 3. SETTINGS SECTION
+            _buildSectionHeader(context.l10n.accountSettings),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kPillGrey),
               ),
-              onTap: () {
-                _showLogoutDialog(context, ref);
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Version Info
-          Center(
-            child: Text(
-              'Version 1.0.0',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textDisabled,
+              child: Column(
+                children: [
+                  _buildModernMenuItem(
+                    icon: Icons.person_outline_rounded,
+                    title: context.l10n.personalInformation,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PersonalInformationScreen(),
+                      ),
+                    ),
                   ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.location_on_outlined,
+                    title: context.l10n.myAddresses,
+                    onTap: () => context.push(AppRouter.addresses),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.favorite_border_rounded,
+                    title: 'Favorite Products', // Or localized
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FavoriteProductsScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.notifications_outlined,
+                    title: context.l10n.notifications,
+                    onTap: () => context.push(AppRouter.notifications),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.security_outlined,
+                    title: context.l10n.security,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SecurityScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.language,
+                    title: context.l10n.language,
+                    trailingText: currentLanguage,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LanguageSelectionScreen(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 32),
+
+            // 4. SUPPORT SECTION
+            _buildSectionHeader(context.l10n.support),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kPillGrey),
+              ),
+              child: Column(
+                children: [
+                  _buildModernMenuItem(
+                    icon: Icons.help_outline_rounded,
+                    title: context.l10n.helpCenter,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HelpCenterScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.privacy_tip_outlined,
+                    title: context.l10n.privacyPolicy,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PrivacyPolicyScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildModernMenuItem(
+                    icon: Icons.info_outline_rounded,
+                    title: context.l10n.aboutUs,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutUsScreen(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // 5. LOGOUT BUTTON
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => _showLogoutDialog(context, ref),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0xFFFEE2E2), // Light Red
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+                child: Text(
+                  context.l10n.logout,
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFFDC2626), // Dark Red
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                context.l10n.version,
+                style: GoogleFonts.inter(color: kTextGrey, fontSize: 12),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.primary),
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-        trailing:
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-        onTap: onTap,
+  // --- WIDGET HELPERS ---
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Text(
+        title,
+        style: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: kTextGrey,
+        ),
       ),
     );
+  }
+
+  Widget _buildModernMenuItem({
+    required IconData icon,
+    required String title,
+    String? trailingText,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Icon(icon, color: kDarkGreen, size: 22),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: kDarkGreen,
+                  ),
+                ),
+              ),
+              if (trailingText != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    trailingText,
+                    style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+                  ),
+                ),
+              Icon(Icons.chevron_right_rounded, color: kPillGrey, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+        height: 1, thickness: 1, color: kPillGrey, indent: 58, endIndent: 20);
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(context.l10n.logout,
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text(
+          context.l10n.logoutConfirm,
+          style: GoogleFonts.inter(color: kTextGrey),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(context.l10n.cancel,
+                style: GoogleFonts.inter(color: kTextGrey)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // Navigate back to login
-              context.go(AppRouter.login);
+            onPressed: () async {
+              Navigator.of(dialogContext).pop(); // Close dialog
+
+              // Show loading indicator
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (loadingContext) => const Center(
+                    child: CircularProgressIndicator(color: kDarkGreen),
+                  ),
+                );
+              }
+
+              // Actually logout the user
+              await ref.read(authControllerProvider.notifier).logout();
+
+              // Close loading dialog and navigate to login
+              if (context.mounted) {
+                Navigator.of(context).pop(); // Close loading
+                // Use go to navigate to login and clear stack
+                context.go(AppRouter.login);
+              }
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: AppColors.error),
+            child: Text(
+              context.l10n.logout,
+              style: GoogleFonts.inter(
+                  color: const Color(0xFFDC2626), fontWeight: FontWeight.bold),
             ),
           ),
         ],

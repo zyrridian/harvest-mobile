@@ -17,20 +17,20 @@ ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
       images: (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
-          const [],
+          [],
       isOrganic: json['is_organic'] as bool? ?? false,
       isAvailable: json['is_available'] as bool? ?? true,
       stock: (json['stock'] as num).toInt(),
       discount: (json['discount'] as num?)?.toDouble(),
       rating: (json['rating'] as num).toDouble(),
       reviewCount: (json['review_count'] as num).toInt(),
-      farmerId: json['farmer_id'] as String,
-      farmerName: json['farmer_name'] as String,
+      farmerId: json['farmer_id'] as String?,
+      farmerName: json['farmer_name'] as String?,
       harvestDate: json['harvest_date'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              const [],
-      createdAt: json['created_at'] as String,
+              [],
+      createdAt: json['created_at'] as String?,
     );
 
 Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>

@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import '../../core/error/exceptions.dart';
-import '../../core/error/failure.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../datasources/local/auth_local_datasource.dart';
-import '../datasources/remote/auth_remote_datasource.dart';
+import 'package:harvest_app/core/error/exceptions.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/data/datasources/local/auth_local_datasource.dart';
+import 'package:harvest_app/data/datasources/remote/auth_remote_datasource.dart';
+import 'package:harvest_app/domain/entities/user.dart';
+import 'package:harvest_app/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -60,6 +60,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         name: name,
         phoneNumber: phoneNumber,
+        userType: 'CONSUMER', // Assuming default user type is 'CONSUMER'
       );
 
       // Save tokens and user data locally

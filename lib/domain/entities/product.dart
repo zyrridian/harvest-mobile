@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+enum ProductType { regular, perishable }
+
+enum FreshnessLevel { justHarvested, fresh, good, fair }
+
 class Product extends Equatable {
   final String id;
   final String name;
@@ -15,11 +19,32 @@ class Product extends Equatable {
   final double? discount;
   final double rating;
   final int reviewCount;
-  final String farmerId;
-  final String farmerName;
+  final String? farmerId;
+  final String? farmerName;
+  final String? farmerProfileImage;
+  final double? farmerDistance; // Distance from user in km
   final DateTime? harvestDate;
   final List<String> tags;
-  final DateTime createdAt;
+  final DateTime? createdAt;
+
+  // --- Perishable Product Fields ---
+  final ProductType productType;
+  final bool isPerishable;
+  final int? shelfLifeDays; // How long product stays fresh
+  final DateTime? bestBeforeDate;
+  final FreshnessLevel? freshnessLevel;
+
+  // --- Pre-Order Fields ---
+  final bool acceptsPreOrder;
+  final DateTime? nextHarvestDate;
+  final int? preOrderAvailableQty;
+  final double? preOrderPrice; // Special price for pre-orders
+  final String? harvestScheduleId; // Link to harvest schedule
+
+  // --- Location/Radius Fields ---
+  final double? farmerLatitude;
+  final double? farmerLongitude;
+  final bool isWithinRadius; // Whether farmer is within user's preferred radius
 
   const Product({
     required this.id,
@@ -36,11 +61,29 @@ class Product extends Equatable {
     this.discount,
     required this.rating,
     required this.reviewCount,
-    required this.farmerId,
-    required this.farmerName,
+    this.farmerId,
+    this.farmerName,
+    this.farmerProfileImage,
+    this.farmerDistance,
     this.harvestDate,
     this.tags = const [],
-    required this.createdAt,
+    this.createdAt,
+    // Perishable fields
+    this.productType = ProductType.regular,
+    this.isPerishable = false,
+    this.shelfLifeDays,
+    this.bestBeforeDate,
+    this.freshnessLevel,
+    // Pre-order fields
+    this.acceptsPreOrder = false,
+    this.nextHarvestDate,
+    this.preOrderAvailableQty,
+    this.preOrderPrice,
+    this.harvestScheduleId,
+    // Location fields
+    this.farmerLatitude,
+    this.farmerLongitude,
+    this.isWithinRadius = false,
   });
 
   double get finalPrice {
@@ -51,6 +94,46 @@ class Product extends Equatable {
   }
 
   bool get hasDiscount => discount != null && discount! > 0;
+
+  /// Days until product expires (for perishables)
+  int? get daysUntilExpiry {
+    if (bestBeforeDate == null) return null;
+    return bestBeforeDate!.difference(DateTime.now()).inDays;
+  }
+
+  /// Days until next harvest (for pre-orders)
+  int? get daysUntilHarvest {
+    if (nextHarvestDate == null) return null;
+    return nextHarvestDate!.difference(DateTime.now()).inDays;
+  }
+
+  /// Whether pre-order is available
+  bool get canPreOrder {
+    return acceptsPreOrder &&
+        nextHarvestDate != null &&
+        (preOrderAvailableQty == null || preOrderAvailableQty! > 0);
+  }
+
+  /// Whether product is freshly harvested (within 24 hours)
+  bool get isJustHarvested {
+    if (harvestDate == null) return false;
+    return DateTime.now().difference(harvestDate!).inHours < 24;
+  }
+
+  /// Get freshness label for display
+  String get freshnessLabel {
+    if (freshnessLevel == null) return '';
+    switch (freshnessLevel!) {
+      case FreshnessLevel.justHarvested:
+        return 'Just Harvested';
+      case FreshnessLevel.fresh:
+        return 'Fresh';
+      case FreshnessLevel.good:
+        return 'Good';
+      case FreshnessLevel.fair:
+        return 'Fair';
+    }
+  }
 
   @override
   List<Object?> get props => [
@@ -70,8 +153,23 @@ class Product extends Equatable {
         reviewCount,
         farmerId,
         farmerName,
+        farmerProfileImage,
+        farmerDistance,
         harvestDate,
         tags,
         createdAt,
+        productType,
+        isPerishable,
+        shelfLifeDays,
+        bestBeforeDate,
+        freshnessLevel,
+        acceptsPreOrder,
+        nextHarvestDate,
+        preOrderAvailableQty,
+        preOrderPrice,
+        harvestScheduleId,
+        farmerLatitude,
+        farmerLongitude,
+        isWithinRadius,
       ];
 }

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
+// import 'package:harvest_app/core/config/router/app_router.dart';
+
+// Constants
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
 
 class SubscriptionIntroScreen extends ConsumerWidget {
   const SubscriptionIntroScreen({super.key});
@@ -9,11 +17,14 @@ class SubscriptionIntroScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: kBgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.grey[800]),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -21,59 +32,45 @@ class SubscriptionIntroScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Section
-              Text(
-                'Subscribe & Save',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
-                  height: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Get fresh produce delivered regularly and save up to 15%',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Hero Image/Illustration Placeholder
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              // 1. HERO SECTION
+              Center(
+                child: Container(
+                  height: 180,
+                  width: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: kPillGrey, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                          color: kDarkGreen.withOpacity(0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10)),
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Icon(
-                        Icons.replay_circle_filled,
-                        size: 80,
-                        color: Colors.green[600],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Never Run Out',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Automatic delivery on your schedule',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[500],
+                      Icon(Icons.autorenew_rounded,
+                          size: 80, color: kDarkGreen.withOpacity(0.1)),
+                      const Icon(Icons.local_shipping_outlined,
+                          size: 60, color: kDarkGreen),
+                      Positioned(
+                        right: 20,
+                        bottom: 40,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: kAccentOrange,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '-15%',
+                            style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ],
@@ -82,157 +79,105 @@ class SubscriptionIntroScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 40),
 
-              // Benefits List
               Text(
-                'Why Subscribe?',
-                style: TextStyle(
-                  fontSize: 20,
+                'Subscribe & Save',
+                style: GoogleFonts.inter(
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
+                  color: kDarkGreen,
                 ),
               ),
-              const SizedBox(height: 20),
-
-              _buildBenefitCard(
-                icon: Icons.local_offer_outlined,
-                title: 'Save up to 15%',
-                description: 'Get exclusive discounts on every delivery',
-                color: Colors.orange[600]!,
-              ),
-              const SizedBox(height: 16),
-
-              _buildBenefitCard(
-                icon: Icons.calendar_month_outlined,
-                title: 'Flexible Schedule',
-                description: 'Weekly, bi-weekly, or monthly - you choose',
-                color: Colors.blue[600]!,
-              ),
-              const SizedBox(height: 16),
-
-              _buildBenefitCard(
-                icon: Icons.pause_circle_outline,
-                title: 'Pause Anytime',
-                description: 'Going on vacation? Pause or skip deliveries',
-                color: Colors.purple[600]!,
-              ),
-              const SizedBox(height: 16),
-
-              _buildBenefitCard(
-                icon: Icons.eco_outlined,
-                title: 'Support Local Farmers',
-                description: 'Direct partnership with trusted growers',
-                color: Colors.green[700]!,
-              ),
-              const SizedBox(height: 16),
-
-              _buildBenefitCard(
-                icon: Icons.notifications_none_outlined,
-                title: 'Smart Reminders',
-                description: 'Get notified before each delivery',
-                color: Colors.teal[600]!,
-              ),
-              const SizedBox(height: 16),
-
-              _buildBenefitCard(
-                icon: Icons.edit_outlined,
-                title: 'Easy to Modify',
-                description: 'Change items, quantity, or delivery date anytime',
-                color: Colors.indigo[600]!,
+              const SizedBox(height: 12),
+              Text(
+                'Get fresh produce delivered regularly. Save money and never run out of your essentials.',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: const Color(0xFF6E7A75),
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 40),
 
-              // How It Works Section
-              Text(
-                'How It Works',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
-                ),
-              ),
+              // 2. BENEFITS GRID
+              Text('Why Subscribe?',
+                  style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen)),
               const SizedBox(height: 20),
-
-              _buildStepCard(
-                number: '1',
-                title: 'Choose Your Products',
-                description: 'Select fresh produce from your favorite farmers',
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.4,
+                children: [
+                  _buildBenefitCard(Icons.savings_outlined, 'Save 15%',
+                      'On every order', Colors.orange),
+                  _buildBenefitCard(Icons.calendar_today_outlined, 'Flexible',
+                      'Skip or pause', Colors.blue),
+                  _buildBenefitCard(Icons.eco_outlined, 'Support Local',
+                      'Direct from farms', Colors.green),
+                  _buildBenefitCard(Icons.edit_outlined, 'Modify',
+                      'Easy changes', Colors.purple),
+                ],
               ),
-              const SizedBox(height: 12),
 
-              _buildStepCard(
-                number: '2',
-                title: 'Set Your Schedule',
-                description: 'Pick delivery frequency that works for you',
-              ),
-              const SizedBox(height: 12),
-
-              _buildStepCard(
-                number: '3',
-                title: 'Relax & Enjoy',
-                description:
-                    'Fresh produce delivered automatically to your door',
-              ),
               const SizedBox(height: 40),
 
-              // CTA Buttons
+              // 3. STEPS
+              Text('How It Works',
+                  style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen)),
+              const SizedBox(height: 20),
+              _buildStepRow(
+                  '1', 'Choose Products', 'Select your favorite fresh items'),
+              _buildStepLine(),
+              _buildStepRow(
+                  '2', 'Set Schedule', 'Weekly, bi-weekly, or monthly'),
+              _buildStepLine(),
+              _buildStepRow('3', 'Relax', 'Automatic delivery to your door'),
+
+              const SizedBox(height: 40),
+
+              // CTA
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to create subscription flow
-                    // TODO: Implement create subscription screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content:
-                            Text('Create subscription feature coming soon!'),
-                      ),
-                    );
+                    // Navigate
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[600],
+                    backgroundColor: kDarkGreen,
                     foregroundColor: Colors.white,
-                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Create Subscription',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: GoogleFonts.inter(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton(
                   onPressed: () {
                     context.push(AppRouter.subscriptions);
                   },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.green[600],
-                    side: BorderSide(color: Colors.green[600]!),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
+                  child: Text(
                     'View My Subscriptions',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: GoogleFonts.inter(
+                        color: kDarkGreen, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -240,116 +185,68 @@ class SubscriptionIntroScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBenefitCard({
-    required IconData icon,
-    required String title,
-    required String description,
-    required Color color,
-  }) {
+  Widget _buildBenefitCard(
+      IconData icon, String title, String sub, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[900],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 12),
+          Text(title,
+              style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold, color: kDarkGreen)),
+          Text(sub,
+              style: GoogleFonts.inter(
+                  fontSize: 12, color: const Color(0xFF6E7A75))),
         ],
       ),
     );
   }
 
-  Widget _buildStepCard({
-    required String number,
-    required String title,
-    required String description,
-  }) {
+  Widget _buildStepRow(String num, String title, String desc) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: Colors.green[600],
-            shape: BoxShape.circle,
-          ),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(color: kDarkGreen, shape: BoxShape.circle),
           child: Center(
-            child: Text(
-              number,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
+              child: Text(num,
+                  style: GoogleFonts.inter(
+                      color: Colors.white, fontWeight: FontWeight.bold))),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[900],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  height: 1.4,
-                ),
-              ),
+              Text(title,
+                  style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold, color: kDarkGreen)),
+              Text(desc,
+                  style: GoogleFonts.inter(
+                      fontSize: 13, color: const Color(0xFF6E7A75))),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStepLine() {
+    return Container(
+      margin: const EdgeInsets.only(left: 15, top: 4, bottom: 4),
+      height: 20,
+      width: 2,
+      color: kPillGrey,
     );
   }
 }

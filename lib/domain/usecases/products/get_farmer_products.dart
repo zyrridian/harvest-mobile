@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/error/failures.dart';
 import '../../entities/product.dart';
+import '../../entities/paginated_response.dart';
 import '../../repositories/farmer_products_repository.dart';
 
 class GetFarmerProducts {
@@ -8,7 +9,15 @@ class GetFarmerProducts {
 
   GetFarmerProducts(this.repository);
 
-  Future<Either<Failure, List<Product>>> call(String farmerId) async {
-    return await repository.getFarmerProducts(farmerId);
+  Future<Either<Failure, PaginatedResponse<Product>>> call(
+    String farmerId, {
+    int? limit,
+    int? page,
+  }) async {
+    return await repository.getFarmerProducts(
+      farmerId,
+      limit: limit,
+      page: page,
+    );
   }
 }

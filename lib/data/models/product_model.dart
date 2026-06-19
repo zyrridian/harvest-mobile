@@ -13,6 +13,7 @@ class ProductModel {
   final String unit;
   @JsonKey(name: 'image_url')
   final String imageUrl;
+  @JsonKey(defaultValue: [])
   final List<String> images;
   @JsonKey(name: 'is_organic')
   final bool isOrganic;
@@ -24,14 +25,15 @@ class ProductModel {
   @JsonKey(name: 'review_count')
   final int reviewCount;
   @JsonKey(name: 'farmer_id')
-  final String farmerId;
+  final String? farmerId;
   @JsonKey(name: 'farmer_name')
-  final String farmerName;
+  final String? farmerName;
   @JsonKey(name: 'harvest_date')
   final String? harvestDate;
+  @JsonKey(defaultValue: [])
   final List<String> tags;
   @JsonKey(name: 'created_at')
-  final String createdAt;
+  final String? createdAt;
 
   const ProductModel({
     required this.id,
@@ -48,11 +50,11 @@ class ProductModel {
     this.discount,
     required this.rating,
     required this.reviewCount,
-    required this.farmerId,
-    required this.farmerName,
+    this.farmerId,
+    this.farmerName,
     this.harvestDate,
     this.tags = const [],
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
@@ -80,7 +82,7 @@ class ProductModel {
       farmerName: farmerName,
       harvestDate: harvestDate != null ? DateTime.parse(harvestDate!) : null,
       tags: tags,
-      createdAt: DateTime.parse(createdAt),
+      createdAt: createdAt != null ? DateTime.parse(createdAt!) : null,
     );
   }
 
@@ -104,7 +106,7 @@ class ProductModel {
       farmerName: product.farmerName,
       harvestDate: product.harvestDate?.toIso8601String(),
       tags: product.tags,
-      createdAt: product.createdAt.toIso8601String(),
+      createdAt: product.createdAt?.toIso8601String(),
     );
   }
 }

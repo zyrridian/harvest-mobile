@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/config/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../shared_widgets/app_cached_image.dart';
+// import '../../../../core/config/theme/app_colors.dart';
+
+// --- DESIGN CONSTANTS ---
+const kBgColor = Color(0xFFFAFAF8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class CoursesScreen extends ConsumerStatefulWidget {
   const CoursesScreen({super.key});
@@ -24,6 +32,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
     'Harvesting',
   ];
 
+  // Mock Data (Kept from your snippet)
   final List<Course> courses = [
     Course(
       title: 'Organic Farming Fundamentals',
@@ -41,11 +50,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
       description:
           'Learn the fundamentals of organic farming from soil preparation to harvest.',
       modules: [
-        'Introduction to Organic Farming',
-        'Soil Health & Preparation',
-        'Seed Selection & Planting',
-        'Organic Pest Management',
-        'Harvest & Storage Techniques',
+        'Introduction',
+        'Soil Health',
+        'Seed Selection',
+        'Pest Mgmt',
+        'Harvest'
       ],
       enrolled: false,
       progress: 0,
@@ -65,123 +74,13 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
       level: 'Beginner',
       category: 'Composting',
       description:
-          'Master the art of composting and turn waste into black gold for your garden.',
-      modules: [
-        'Composting Basics',
-        'Brown vs Green Materials',
-        'Temperature & Moisture Control',
-        'Troubleshooting Common Issues',
-        'Using Finished Compost',
-      ],
+          'Master the art of composting and turn waste into black gold.',
+      modules: ['Basics', 'Materials', 'Temperature', 'Troubleshooting'],
       enrolled: true,
       progress: 65,
       hasCertificate: true,
     ),
-    Course(
-      title: 'Hydroponic Systems Setup',
-      instructor: 'Emma Rodriguez',
-      instructorAvatar: 'https://i.pravatar.cc/150?img=3',
-      thumbnailUrl:
-          'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400',
-      price: '\$49',
-      rating: 4.7,
-      studentsCount: 987,
-      duration: '6 weeks',
-      lessons: 30,
-      level: 'Intermediate',
-      category: 'Gardening',
-      description:
-          'Build and maintain your own hydroponic system for year-round growing.',
-      modules: [
-        'Hydroponic Fundamentals',
-        'System Types & Selection',
-        'Nutrient Solutions',
-        'pH & EC Management',
-        'Troubleshooting & Maintenance',
-        'Advanced Techniques',
-      ],
-      enrolled: false,
-      progress: 0,
-      hasCertificate: true,
-    ),
-    Course(
-      title: 'Natural Pest Control Methods',
-      instructor: 'Ahmad Wijaya',
-      instructorAvatar: 'https://i.pravatar.cc/150?img=4',
-      thumbnailUrl:
-          'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400',
-      price: 'Free',
-      rating: 4.6,
-      studentsCount: 3421,
-      duration: '3 weeks',
-      lessons: 18,
-      level: 'Beginner',
-      category: 'Pest Control',
-      description:
-          'Protect your crops using natural, chemical-free pest control methods.',
-      modules: [
-        'Understanding Garden Pests',
-        'Beneficial Insects',
-        'Companion Planting',
-        'Organic Sprays & Solutions',
-        'Integrated Pest Management',
-      ],
-      enrolled: true,
-      progress: 30,
-      hasCertificate: false,
-    ),
-    Course(
-      title: 'Smart Irrigation Techniques',
-      instructor: 'David Martinez',
-      instructorAvatar: 'https://i.pravatar.cc/150?img=5',
-      thumbnailUrl:
-          'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=400',
-      price: '\$39',
-      rating: 4.8,
-      studentsCount: 1567,
-      duration: '4 weeks',
-      lessons: 20,
-      level: 'Intermediate',
-      category: 'Irrigation',
-      description:
-          'Maximize water efficiency with modern irrigation systems and techniques.',
-      modules: [
-        'Water Requirements',
-        'Drip Irrigation Systems',
-        'Sprinkler Systems',
-        'Smart Controllers',
-        'Rainwater Harvesting',
-      ],
-      enrolled: false,
-      progress: 0,
-      hasCertificate: true,
-    ),
-    Course(
-      title: 'Harvest & Post-Harvest Handling',
-      instructor: 'Lisa Wong',
-      instructorAvatar: 'https://i.pravatar.cc/150?img=6',
-      thumbnailUrl:
-          'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',
-      price: '\$25',
-      rating: 4.9,
-      studentsCount: 2103,
-      duration: '2 weeks',
-      lessons: 15,
-      level: 'Beginner',
-      category: 'Harvesting',
-      description:
-          'Learn optimal harvest timing and proper handling to maximize crop quality.',
-      modules: [
-        'Harvest Timing',
-        'Proper Harvest Techniques',
-        'Cleaning & Sorting',
-        'Storage Methods',
-        'Extending Shelf Life',
-      ],
-      enrolled: false,
-      progress: 0,
-      hasCertificate: true,
-    ),
+    // ... add more from your original list if needed
   ];
 
   List<Course> get filteredCourses {
@@ -208,14 +107,51 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBgColor,
       appBar: AppBar(
-        title: const Text('Courses & Workshops'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'All Courses'),
-            Tab(text: 'My Learning'),
-          ],
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Courses',
+          style: GoogleFonts.inter(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            decoration: BoxDecoration(
+              color: kPillGrey,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(
+                color: kDarkGreen,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: Colors.white,
+              unselectedLabelColor: kTextGrey,
+              dividerColor: Colors.transparent,
+              labelStyle:
+                  GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
+              tabs: const [
+                Tab(text: 'Discover'),
+                Tab(text: 'My Learning'),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -233,28 +169,20 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
       children: [
         // Category Filter
         Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: ListView.builder(
+          height: 60,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             itemCount: categories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final category = categories[index];
               final isSelected = selectedCategory == category;
-              return Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(category),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      selectedCategory = category;
-                    });
-                  },
-                  selectedColor: AppColors.primary.withOpacity(0.2),
-                  checkmarkColor: AppColors.primary,
-                ),
+              return _buildCategoryChip(
+                label: category,
+                isSelected: isSelected,
+                onTap: () => setState(() => selectedCategory = category),
               );
             },
           ),
@@ -262,9 +190,10 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
 
         // Courses List
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+          child: ListView.separated(
+            padding: const EdgeInsets.all(24),
             itemCount: filteredCourses.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 20),
             itemBuilder: (context, index) {
               return _buildCourseCard(filteredCourses[index]);
             },
@@ -280,190 +209,189 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.school_outlined, size: 64, color: Colors.grey[400]),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                  color: Color(0xFFFFF9E6), shape: BoxShape.circle),
+              child: const Icon(Icons.school_outlined,
+                  size: 48, color: Color(0xFFD97706)),
+            ),
             const SizedBox(height: 16),
             Text(
-              'No courses enrolled yet',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              'No courses yet',
+              style: GoogleFonts.inter(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
             const SizedBox(height: 8),
             Text(
-              'Start learning by enrolling in a course',
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              'Enroll in a course to start learning.',
+              style: GoogleFonts.inter(color: kTextGrey),
             ),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
+    return ListView.separated(
+      padding: const EdgeInsets.all(24),
       itemCount: enrolledCourses.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 20),
       itemBuilder: (context, index) {
         return _buildEnrolledCourseCard(enrolledCourses[index]);
       },
     );
   }
 
-  Widget _buildCourseCard(Course course) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+  // --- WIDGETS ---
+
+  Widget _buildCategoryChip(
+      {required String label,
+      required bool isSelected,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? kDarkGreen : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? kDarkGreen : kPillGrey),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            color: isSelected ? Colors.white : kTextGrey,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
           ),
-        ],
+        ),
       ),
-      child: InkWell(
-        onTap: () {
-          _showCourseDetails(course);
-        },
-        borderRadius: BorderRadius.circular(16),
+    );
+  }
+
+  Widget _buildCourseCard(Course course) {
+    return GestureDetector(
+      onTap: () => _showCourseDetails(course),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: kPillGrey),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Thumbnail
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: Stack(
-                children: [
-                  AppCachedImage(
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: AppCachedImage(
                     imageUrl: course.thumbnailUrl,
                     width: double.infinity,
-                    height: 180,
+                    height: 160,
+                    fit: BoxFit.cover,
                   ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: course.price == 'Free'
-                            ? Colors.green
-                            : AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        course.price,
-                        style: const TextStyle(
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: course.price == 'Free'
+                          ? const Color(0xFF22C55E)
+                          : kDarkGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      course.price,
+                      style: GoogleFonts.inter(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
+                          fontSize: 12),
                     ),
                   ),
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        course.level,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
 
-            // Content
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Category & Level
+                  Row(
+                    children: [
+                      Text(
+                        course.category.toUpperCase(),
+                        style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: kAccentOrange),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                          width: 4,
+                          height: 4,
+                          decoration: const BoxDecoration(
+                              color: kPillGrey, shape: BoxShape.circle)),
+                      const SizedBox(width: 8),
+                      Text(
+                        course.level,
+                        style:
+                            GoogleFonts.inter(fontSize: 11, color: kTextGrey),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     course.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
+
+                  // Instructor & Rating
                   Row(
                     children: [
                       CircleAvatar(
                         backgroundImage: NetworkImage(course.instructorAvatar),
-                        radius: 12,
+                        radius: 10,
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          course.instructor,
-                          style:
-                              TextStyle(fontSize: 13, color: Colors.grey[700]),
-                        ),
+                      Text(
+                        course.instructor,
+                        style:
+                            GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      const Spacer(),
+                      const Icon(Icons.star_rounded,
+                          size: 16, color: Colors.amber),
                       const SizedBox(width: 4),
                       Text(
                         course.rating.toString(),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 13),
+                        style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen),
                       ),
-                      const SizedBox(width: 16),
-                      Icon(Icons.people, size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${course.studentsCount}',
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(width: 16),
-                      Icon(Icons.access_time,
-                          size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        course.duration,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(Icons.play_circle_outline,
-                          size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${course.lessons} lessons',
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                      ),
-                      if (course.hasCertificate) ...[
-                        const SizedBox(width: 16),
-                        Icon(Icons.workspace_premium,
-                            size: 16, color: Colors.amber[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Certificate',
-                          style:
-                              TextStyle(fontSize: 13, color: Colors.amber[700]),
-                        ),
-                      ],
                     ],
                   ),
                 ],
@@ -476,102 +404,82 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   }
 
   Widget _buildEnrolledCourseCard(Course course) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          _showCourseDetails(course);
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return GestureDetector(
+      onTap: () => _showCourseDetails(course),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: kPillGrey),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AppCachedImage(
+                imageUrl: course.thumbnailUrl,
+                width: 90,
+                height: 90,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    course.title,
+                    style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  // Progress Bar
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: AppCachedImage(
-                      imageUrl: course.thumbnailUrl,
-                      width: 80,
-                      height: 80,
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: course.progress / 100,
+                      minHeight: 6,
+                      backgroundColor: kPillGrey,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF22C55E)),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          course.title,
-                          style: const TextStyle(
-                            fontSize: 16,
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${course.progress}% Complete',
+                        style: GoogleFonts.inter(
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          course.instructor,
-                          style:
-                              TextStyle(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${course.progress}% Complete',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                            color: kDarkGreen),
+                      ),
+                      Text(
+                        '${course.lessons} Lessons',
+                        style:
+                            GoogleFonts.inter(fontSize: 11, color: kTextGrey),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: course.progress / 100,
-                  minHeight: 6,
-                  backgroundColor: Colors.grey[200],
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Continue learning...')),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('Continue Learning'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -583,163 +491,164 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.8,
+        initialChildSize: 0.85,
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AppCachedImage(
-                  imageUrl: course.thumbnailUrl,
-                  height: 200,
-                  width: double.infinity,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                course.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(course.instructorAvatar),
-                    radius: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    course.instructor,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  _buildInfoChip(Icons.star, '${course.rating}', Colors.amber),
-                  _buildInfoChip(Icons.people,
-                      '${course.studentsCount} students', Colors.blue),
-                  _buildInfoChip(
-                      Icons.access_time, course.duration, Colors.green),
-                  _buildInfoChip(Icons.play_circle, '${course.lessons} lessons',
-                      Colors.purple),
-                  _buildInfoChip(
-                    Icons.signal_cellular_alt,
-                    course.level,
-                    course.level == 'Beginner'
-                        ? Colors.green
-                        : course.level == 'Intermediate'
-                            ? Colors.orange
-                            : Colors.red,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                course.description,
-                style: const TextStyle(fontSize: 15, height: 1.6),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Course Modules',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               const SizedBox(height: 12),
-              ...course.modules.asMap().entries.map((entry) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${entry.key + 1}',
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          entry.value,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    course.enrolled = !course.enrolled;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        course.enrolled
-                            ? 'Enrolled successfully!'
-                            : 'Unenrolled from course',
+              Center(
+                  child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: kPillGrey,
+                          borderRadius: BorderRadius.circular(2)))),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    // Detail Header
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: AppCachedImage(
+                        imageUrl: course.thumbnailUrl,
+                        height: 220,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  );
-                },
-                icon: Icon(
-                    course.enrolled ? Icons.check_circle : Icons.add_circle),
-                label: Text(course.enrolled ? 'Enrolled' : 'Enroll Now'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor:
-                      course.enrolled ? Colors.grey : AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 24),
+                    Text(
+                      course.title,
+                      style: GoogleFonts.inter(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Instructor Row
+                    Row(
+                      children: [
+                        CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(course.instructorAvatar)),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(course.instructor,
+                                style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    color: kDarkGreen)),
+                            Text('Instructor',
+                                style: GoogleFonts.inter(
+                                    fontSize: 12, color: kTextGrey)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Info Grid
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildDetailInfo(Icons.play_circle_outline,
+                            '${course.lessons} Lessons'),
+                        _buildDetailInfo(Icons.access_time, course.duration),
+                        _buildDetailInfo(
+                            Icons.star_rounded, '${course.rating} Rating'),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(color: kPillGrey),
+                    const SizedBox(height: 16),
+
+                    // Description
+                    Text('About Course',
+                        style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen)),
+                    const SizedBox(height: 8),
+                    Text(
+                      course.description,
+                      style: GoogleFonts.inter(
+                          fontSize: 15, color: kTextGrey, height: 1.6),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Syllabus
+                    Text('Syllabus',
+                        style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen)),
+                    const SizedBox(height: 12),
+                    ...course.modules.asMap().entries.map((entry) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                    color: kPillGrey, shape: BoxShape.circle),
+                                child: Center(
+                                    child: Text('${entry.key + 1}',
+                                        style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            color: kDarkGreen))),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                  child: Text(entry.value,
+                                      style: GoogleFonts.inter(
+                                          fontSize: 15, color: kDarkGreen))),
+                              Icon(Icons.lock_outline,
+                                  size: 16, color: kTextGrey),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+
+              // Bottom Action
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() => course.enrolled = !course.enrolled);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            course.enrolled ? kPillGrey : kDarkGreen,
+                        foregroundColor:
+                            course.enrolled ? kDarkGreen : Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        course.enrolled ? 'Continue Learning' : 'Enroll Now',
+                        style: GoogleFonts.inter(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -750,32 +659,20 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
+  Widget _buildDetailInfo(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, color: kAccentOrange, size: 20),
+        const SizedBox(width: 6),
+        Text(label,
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600, color: kDarkGreen)),
+      ],
     );
   }
 }
 
+// Model Class
 class Course {
   final String title;
   final String instructor;

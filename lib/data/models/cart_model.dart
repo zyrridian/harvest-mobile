@@ -13,7 +13,7 @@ class CartItemModel {
   @JsonKey(name: 'unit_price')
   final int unitPrice;
   @JsonKey(name: 'discount_price')
-  final int discountPrice;
+  final int? discountPrice;
   final int subtotal;
   final String? notes;
   @JsonKey(name: 'is_selected')
@@ -43,8 +43,9 @@ class CartItemModel {
       cartItemId: cartItemId,
       productId: prod['product_id'] ?? prod['productId'] ?? '',
       name: prod['name'] ?? '',
+      imageUrl: prod['image'],
       unitPrice: unitPrice,
-      discountPrice: discountPrice,
+      discountPrice: discountPrice ?? 0,
       quantity: quantity,
       subtotal: subtotal,
       notes: notes,

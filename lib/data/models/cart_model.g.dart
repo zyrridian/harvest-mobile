@@ -12,7 +12,7 @@ CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
       product: json['product'] as Map<String, dynamic>,
       quantity: (json['quantity'] as num).toInt(),
       unitPrice: (json['unit_price'] as num).toInt(),
-      discountPrice: (json['discount_price'] as num).toInt(),
+      discountPrice: (json['discount_price'] as num?)?.toInt(),
       subtotal: (json['subtotal'] as num).toInt(),
       notes: json['notes'] as String?,
       isSelected: json['is_selected'] as bool,

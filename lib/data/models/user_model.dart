@@ -12,6 +12,10 @@ class UserModel {
   final String? phoneNumber;
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
+  @JsonKey(name: 'user_type')
+  final String? userType;
+  @JsonKey(name: 'is_verified')
+  final bool? isVerified;
   @JsonKey(name: 'created_at')
   final String createdAt;
   @JsonKey(name: 'updated_at')
@@ -23,6 +27,8 @@ class UserModel {
     required this.name,
     this.phoneNumber,
     this.avatarUrl,
+    this.userType,
+    this.isVerified,
     required this.createdAt,
     this.updatedAt,
   });
@@ -39,6 +45,9 @@ class UserModel {
       name: name,
       phoneNumber: phoneNumber,
       avatarUrl: avatarUrl,
+      userType:
+          userType != null ? UserType.fromString(userType!) : UserType.consumer,
+      isVerified: isVerified ?? false,
       createdAt: DateTime.parse(createdAt),
       updatedAt: updatedAt != null ? DateTime.parse(updatedAt!) : null,
     );
@@ -51,6 +60,8 @@ class UserModel {
       name: user.name,
       phoneNumber: user.phoneNumber,
       avatarUrl: user.avatarUrl,
+      userType: user.userType.toApiString(),
+      isVerified: user.isVerified,
       createdAt: user.createdAt.toIso8601String(),
       updatedAt: user.updatedAt?.toIso8601String(),
     );

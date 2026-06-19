@@ -31,22 +31,24 @@ class ProductDetailModel {
   final ProductSellerModel seller;
   final List<ProductSpecificationModel>? specifications;
   final List<ProductCertificationModel>? certifications;
-  final ProductRatingModel rating;
+  final double rating;
+  @JsonKey(name: 'review_count')
+  final int? reviewCount;
   final ProductReviewSummaryModel? reviews;
   final List<String> tags;
-  final ProductLabelsModel labels;
+  final ProductLabelsModel? labels;
   @JsonKey(name: 'harvest_date')
   final String? harvestDate;
-  final ProductAvailabilityModel availability;
+  final ProductAvailabilityModel? availability;
   @JsonKey(name: 'delivery_options')
-  final ProductDeliveryOptionsModel deliveryOptions;
+  final ProductDeliveryOptionsModel? deliveryOptions;
   @JsonKey(name: 'bulk_pricing')
   final List<BulkPricingModel>? bulkPricing;
   @JsonKey(name: 'related_products')
   final List<RelatedProductModel>? relatedProducts;
   @JsonKey(name: 'frequently_bought_together')
   final List<RelatedProductModel>? frequentlyBoughtTogether;
-  final ProductStatsModel stats;
+  final ProductStatsModel? stats;
   final ProductPoliciesModel? policies;
   @JsonKey(name: 'created_at')
   final String createdAt;
@@ -54,12 +56,12 @@ class ProductDetailModel {
   final String updatedAt;
   @JsonKey(name: 'published_at')
   final String? publishedAt;
-  @JsonKey(name: 'is_favorite')
-  final bool isFavorite;
-  @JsonKey(name: 'is_in_cart')
-  final bool isInCart;
-  @JsonKey(name: 'is_in_wishlist')
-  final bool isInWishlist;
+  @JsonKey(name: 'is_favorite', defaultValue: false)
+  final bool? isFavorite;
+  @JsonKey(name: 'is_in_cart', defaultValue: false)
+  final bool? isInCart;
+  @JsonKey(name: 'is_in_wishlist', defaultValue: false)
+  final bool? isInWishlist;
 
   ProductDetailModel({
     required this.productId,
@@ -83,23 +85,24 @@ class ProductDetailModel {
     this.specifications,
     this.certifications,
     required this.rating,
+    this.reviewCount,
     this.reviews,
     required this.tags,
-    required this.labels,
+    this.labels,
     this.harvestDate,
-    required this.availability,
-    required this.deliveryOptions,
+    this.availability,
+    this.deliveryOptions,
     this.bulkPricing,
     this.relatedProducts,
     this.frequentlyBoughtTogether,
-    required this.stats,
+    this.stats,
     this.policies,
     required this.createdAt,
     required this.updatedAt,
     this.publishedAt,
-    required this.isFavorite,
-    required this.isInCart,
-    required this.isInWishlist,
+    this.isFavorite,
+    this.isInCart,
+    this.isInWishlist,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -128,25 +131,41 @@ class ProductDetailModel {
       seller: seller.toEntity(),
       specifications: specifications?.map((e) => e.toEntity()).toList(),
       certifications: certifications?.map((e) => e.toEntity()).toList(),
-      rating: rating.toEntity(),
+      rating: ProductRating(
+        average: rating,
+        count: reviewCount ?? 0,
+        distribution: const RatingDistribution(
+          fiveStar: 0,
+          fourStar: 0,
+          threeStar: 0,
+          twoStar: 0,
+          oneStar: 0,
+        ),
+      ),
       reviews: reviews?.toEntity(),
       tags: tags,
-      labels: labels.toEntity(),
+      labels: labels?.toEntity() ?? const ProductLabels(
+        isOrganic: false,
+        isCertified: false,
+        isNew: false,
+        isFeatured: false,
+        isBestSeller: false,
+      ),
       harvestDate: harvestDate != null ? DateTime.parse(harvestDate!) : null,
-      availability: availability.toEntity(),
-      deliveryOptions: deliveryOptions.toEntity(),
+      availability: availability?.toEntity() ?? const ProductAvailability(status: 'in_stock'),
+      deliveryOptions: deliveryOptions?.toEntity() ?? const ProductDeliveryOptions(),
       bulkPricing: bulkPricing?.map((e) => e.toEntity()).toList(),
       relatedProducts: relatedProducts?.map((e) => e.toEntity()).toList(),
       frequentlyBoughtTogether:
           frequentlyBoughtTogether?.map((e) => e.toEntity()).toList(),
-      stats: stats.toEntity(),
+      stats: stats?.toEntity() ?? const ProductStats(views: 0, favorites: 0, orders: 0),
       policies: policies?.toEntity(),
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),
       publishedAt: publishedAt != null ? DateTime.parse(publishedAt!) : null,
-      isFavorite: isFavorite,
-      isInCart: isInCart,
-      isInWishlist: isInWishlist,
+      isFavorite: isFavorite ?? false,
+      isInCart: isInCart ?? false,
+      isInWishlist: isInWishlist ?? false,
     );
   }
 }
@@ -320,7 +339,7 @@ class ProductSellerModel {
   final String? responseTime;
   @JsonKey(name: 'total_products')
   final int? totalProducts;
-  @JsonKey(name: 'joined_since')
+  @JsonKey(name: 'joined_date')
   final String? joinedSince;
   @JsonKey(name: 'followers_count')
   final int? followersCount;
@@ -364,8 +383,8 @@ class ProductSellerModel {
 
 @JsonSerializable()
 class SellerLocationModel {
-  final String city;
-  final String province;
+  final String? city;
+  final String? province;
   @JsonKey(name: 'detailed_address')
   final String? detailedAddress;
   final double? latitude;
@@ -373,8 +392,8 @@ class SellerLocationModel {
   final double? distance;
 
   SellerLocationModel({
-    required this.city,
-    required this.province,
+    this.city,
+    this.province,
     this.detailedAddress,
     this.latitude,
     this.longitude,
@@ -386,8 +405,8 @@ class SellerLocationModel {
   Map<String, dynamic> toJson() => _$SellerLocationModelToJson(this);
 
   SellerLocation toEntity() => SellerLocation(
-        city: city,
-        province: province,
+        city: city ?? '',
+        province: province ?? '',
         detailedAddress: detailedAddress,
         latitude: latitude,
         longitude: longitude,

@@ -8,33 +8,39 @@ part of 'farmer_model.dart';
 
 FarmerModel _$FarmerModelFromJson(Map<String, dynamic> json) => FarmerModel(
       id: json['id'] as String,
+      userId: json['user_id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      profileImage: json['profile_image'] as String,
-      coverImage: json['cover_image'] as String,
+      profileImage: json['profile_image'] as String?,
+      coverImage: json['cover_image'] as String?,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       address: json['address'] as String,
-      city: json['city'] as String,
-      state: json['state'] as String,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
       rating: (json['rating'] as num).toDouble(),
       totalReviews: (json['total_reviews'] as num).toInt(),
       totalProducts: (json['total_products'] as num).toInt(),
-      specialties: (json['specialties'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+      specialties: (json['specialties'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       isVerified: json['is_verified'] as bool,
       hasMapFeature: json['has_map_feature'] as bool,
-      phoneNumber: json['phone_number'] as String,
-      email: json['email'] as String,
+      phoneNumber: json['phone_number'] as String?,
+      email: json['email'] as String?,
       joinedDate: json['joined_date'] as String,
       isOnline: json['is_online'] as bool,
       distance: (json['distance'] as num?)?.toDouble(),
+      verificationBadge: json['verification_badge'] as String?,
+      responseRate: (json['response_rate'] as num?)?.toDouble(),
+      followersCount: (json['followers_count'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$FarmerModelToJson(FarmerModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'user_id': instance.userId,
       'name': instance.name,
       'description': instance.description,
       'profile_image': instance.profileImage,
@@ -55,4 +61,7 @@ Map<String, dynamic> _$FarmerModelToJson(FarmerModel instance) =>
       'joined_date': instance.joinedDate,
       'is_online': instance.isOnline,
       'distance': instance.distance,
+      'verification_badge': instance.verificationBadge,
+      'response_rate': instance.responseRate,
+      'followers_count': instance.followersCount,
     };
