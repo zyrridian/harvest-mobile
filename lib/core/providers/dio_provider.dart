@@ -153,7 +153,7 @@ Future<void> _logoutAndRedirect(FlutterSecureStorage storage) async {
   await storage.delete(key: AppConstants.isLoggedInKey);
   
   try {
-    AppRouter.router.go(AppRouter.login);
+    AppRouter.router.go(AppRouter.roleSelection);
   } catch (_) {
     // Failsafe if router isn't attached yet
   }

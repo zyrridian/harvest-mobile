@@ -504,7 +504,7 @@ class SettingsScreen extends ConsumerWidget {
               Navigator.pop(context);
               await ref.read(authControllerProvider.notifier).logout();
               if (context.mounted) {
-                context.go(AppRouter.login);
+                context.go(AppRouter.roleSelection);
               }
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),

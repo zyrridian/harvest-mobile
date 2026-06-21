@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../main.dart';
 import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
+import '../../../presentation/features/auth/screens/role_selection_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
 import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
@@ -32,6 +33,7 @@ class AppRouter {
   // Auth routes
   static const String splash = '/';
   static const String welcome = '/welcome';
+  static const String roleSelection = '/role-selection';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
@@ -73,6 +75,11 @@ class AppRouter {
         path: welcome,
         name: 'welcome',
         builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: roleSelection,
+        name: 'roleSelection',
+        builder: (context, state) => const RoleSelectionScreen(),
       ),
       GoRoute(
         path: login,
@@ -146,8 +153,7 @@ class AppRouter {
         path: '$products/:slug',
         name: 'productDetailById',
         builder: (context, state) {
-          final slug =
-              state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          final slug = state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
           return ProductDetailScreen(slug: slug);
         },
       ),
@@ -214,8 +220,7 @@ class AppRouter {
         name: 'chat',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final conversationId =
-              extra?['conversationId'] as String? ??
+          final conversationId = extra?['conversationId'] as String? ??
               state.uri.queryParameters['conversationId'] ??
               'conv_1234567890abcdef';
           return ChatScreen(

@@ -109,6 +109,7 @@ class AuthController extends _$AuthController {
     required String email,
     required String password,
     required String name,
+    required String userType,
     String? phoneNumber,
   }) async {
     state = const AuthState.loading();
@@ -117,6 +118,7 @@ class AuthController extends _$AuthController {
           email: email,
           password: password,
           name: name,
+          userType: userType,
           phoneNumber: phoneNumber,
         );
 

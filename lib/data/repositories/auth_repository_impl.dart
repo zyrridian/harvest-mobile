@@ -52,6 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String name,
+    required String userType,
     String? phoneNumber,
   }) async {
     try {
@@ -60,7 +61,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         name: name,
         phoneNumber: phoneNumber,
-        userType: 'CONSUMER', // Assuming default user type is 'CONSUMER'
+        userType: userType,
       );
 
       // Save tokens and user data locally

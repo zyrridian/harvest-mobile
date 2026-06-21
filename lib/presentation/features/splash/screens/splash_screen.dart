@@ -71,7 +71,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     authState.maybeWhen(
       authenticated: (_) => context.go(AppRouter.main),
-      orElse: () => context.go(AppRouter.login),
+      orElse: () => context.go(AppRouter.roleSelection),
     );
   }
 
@@ -85,7 +85,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Widget build(BuildContext context) {
     // Watch the provider to keep it alive during async operations
     ref.watch(authControllerProvider);
-    
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(

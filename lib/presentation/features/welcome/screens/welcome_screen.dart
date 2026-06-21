@@ -60,7 +60,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   void _completeOnboarding() {
     ref.read(preferencesServiceProvider).setFirstLaunchComplete();
-    context.go(AppRouter.login);
+    context.go(AppRouter.roleSelection);
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_state.dart';
+import 'package:harvest_app/presentation/features/auth/providers/auth_role_provider.dart';
 
 // Design constants matching current style
 const kBgColor = Color(0xFFFAFAF8);
@@ -59,10 +60,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
+    final userType = ref.read(authRoleProvider);
+
     await ref.read(authControllerProvider.notifier).register(
           email: _emailController.text.trim(),
           password: _passwordController.text,
           name: _nameController.text.trim(),
+          userType: userType,
           phoneNumber: _phoneController.text.trim().isNotEmpty
               ? _phoneController.text.trim()
               : null,

@@ -98,8 +98,8 @@ class ProfileScreen extends ConsumerWidget {
                           color: kPillGrey,
                           border: Border.all(color: Colors.white, width: 4),
                           image: DecorationImage(
-                            image: NetworkImage(
-                                profile.profileImageUrl ?? 'https://i.pravatar.cc/300'),
+                            image: NetworkImage(profile.profileImageUrl ??
+                                'https://i.pravatar.cc/300'),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -497,7 +497,7 @@ class ProfileScreen extends ConsumerWidget {
               if (context.mounted) {
                 Navigator.of(context).pop(); // Close loading
                 // Use go to navigate to login and clear stack
-                context.go(AppRouter.login);
+                context.go(AppRouter.roleSelection);
               }
             },
             child: Text(
