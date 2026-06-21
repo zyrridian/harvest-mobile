@@ -9,6 +9,7 @@ enum UserType {
   static UserType fromString(String value) {
     switch (value.toUpperCase()) {
       case 'FARMER':
+      case 'PRODUCER':
         return UserType.farmer;
       case 'ADMIN':
         return UserType.admin;
@@ -18,7 +19,9 @@ enum UserType {
   }
 
   String toApiString() {
-    return name.toUpperCase();
+    if (this == UserType.farmer) return 'PRODUCER';
+    if (this == UserType.admin) return 'ADMIN';
+    return 'CONSUMER';
   }
 }
 

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/presentation/features/community/screens/community_screen.dart';
+import 'package:harvest_app/presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../main.dart';
 import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
+import '../../../presentation/features/auth/screens/role_selection_screen.dart';
 import '../../../presentation/features/auth/screens/register_screen.dart';
 import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
+import '../../../presentation/features/producer/main/screens/farmer_main_screen.dart';
+import '../../../presentation/features/producer/dashboard/screens/farmer_dashboard_screen.dart';
+import '../../../presentation/features/producer/products/screens/add_product_screen.dart';
+import '../../../presentation/features/producer/orders/screens/harvest_schedule_detail_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
 import '../../../presentation/features/settings/screens/settings_screen.dart';
@@ -20,7 +27,6 @@ import '../../../presentation/features/cart/screens/checkout_screen.dart';
 import '../../../presentation/features/order/screens/orders_list_screen.dart';
 import '../../../presentation/features/order/screens/order_detail_screen.dart';
 import '../../../presentation/features/order/screens/order_success_screen.dart';
-import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
 import '../../../presentation/features/marketplace/screens/marketplace_screen.dart';
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
@@ -32,12 +38,17 @@ class AppRouter {
   // Auth routes
   static const String splash = '/';
   static const String welcome = '/welcome';
+  static const String roleSelection = '/role-selection';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
 
   // Main routes
   static const String main = '/main';
+  static const String community = '/community';
+  static const String farmerDashboard = '/farmer-dashboard';
+  static const String addProduct = '/add-product';
+  static const String harvestScheduleDetail = '/harvest-schedule-detail';
   static const String farmersMap = '/farmers-map';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
@@ -75,6 +86,11 @@ class AppRouter {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
+        path: roleSelection,
+        name: 'roleSelection',
+        builder: (context, state) => const RoleSelectionScreen(),
+      ),
+      GoRoute(
         path: login,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
@@ -93,6 +109,21 @@ class AppRouter {
         path: main,
         name: 'main',
         builder: (context, state) => const MainScreen(),
+      ),
+      GoRoute(
+        path: farmerDashboard,
+        name: 'farmerDashboard',
+        builder: (context, state) => const FarmerMainScreen(),
+      ),
+      GoRoute(
+        path: addProduct,
+        name: 'addProduct',
+        builder: (context, state) => const AddProductScreen(),
+      ),
+      GoRoute(
+        path: harvestScheduleDetail,
+        name: 'harvestScheduleDetail',
+        builder: (context, state) => const HarvestScheduleDetailScreen(),
       ),
       GoRoute(
         path: farmersMap,
@@ -146,8 +177,7 @@ class AppRouter {
         path: '$products/:slug',
         name: 'productDetailById',
         builder: (context, state) {
-          final slug =
-              state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
+          final slug = state.pathParameters['slug'] ?? 'fresh-lobster-mob94ohd';
           return ProductDetailScreen(slug: slug);
         },
       ),
@@ -210,12 +240,16 @@ class AppRouter {
         builder: (context, state) => const ConversationsListScreen(),
       ),
       GoRoute(
+        path: community,
+        name: 'community',
+        builder: (context, state) => const CommunityScreen(),
+      ),
+      GoRoute(
         path: chat,
         name: 'chat',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final conversationId =
-              extra?['conversationId'] as String? ??
+          final conversationId = extra?['conversationId'] as String? ??
               state.uri.queryParameters['conversationId'] ??
               'conv_1234567890abcdef';
           return ChatScreen(
