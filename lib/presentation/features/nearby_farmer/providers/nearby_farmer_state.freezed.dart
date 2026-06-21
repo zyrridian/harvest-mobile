@@ -20,7 +20,9 @@ mixin _$NearbyFarmerState {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(List<NearbyFarmerData> farmers) data,
+    required TResult Function(List<NearbyFarmerData> farmers,
+            String searchQuery, bool isOrganicFilter, bool isOpenNowFilter)
+        data,
     required TResult Function(String message) error,
   }) =>
       throw _privateConstructorUsedError;
@@ -28,7 +30,9 @@ mixin _$NearbyFarmerState {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(List<NearbyFarmerData> farmers)? data,
+    TResult? Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult? Function(String message)? error,
   }) =>
       throw _privateConstructorUsedError;
@@ -36,7 +40,9 @@ mixin _$NearbyFarmerState {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(List<NearbyFarmerData> farmers)? data,
+    TResult Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) =>
@@ -132,7 +138,9 @@ class _$InitialImpl implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(List<NearbyFarmerData> farmers) data,
+    required TResult Function(List<NearbyFarmerData> farmers,
+            String searchQuery, bool isOrganicFilter, bool isOpenNowFilter)
+        data,
     required TResult Function(String message) error,
   }) {
     return initial();
@@ -143,7 +151,9 @@ class _$InitialImpl implements _Initial {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(List<NearbyFarmerData> farmers)? data,
+    TResult? Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult? Function(String message)? error,
   }) {
     return initial?.call();
@@ -154,7 +164,9 @@ class _$InitialImpl implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(List<NearbyFarmerData> farmers)? data,
+    TResult Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -249,7 +261,9 @@ class _$LoadingImpl implements _Loading {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(List<NearbyFarmerData> farmers) data,
+    required TResult Function(List<NearbyFarmerData> farmers,
+            String searchQuery, bool isOrganicFilter, bool isOpenNowFilter)
+        data,
     required TResult Function(String message) error,
   }) {
     return loading();
@@ -260,7 +274,9 @@ class _$LoadingImpl implements _Loading {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(List<NearbyFarmerData> farmers)? data,
+    TResult? Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult? Function(String message)? error,
   }) {
     return loading?.call();
@@ -271,7 +287,9 @@ class _$LoadingImpl implements _Loading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(List<NearbyFarmerData> farmers)? data,
+    TResult Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -329,7 +347,11 @@ abstract class _$$DataImplCopyWith<$Res> {
           _$DataImpl value, $Res Function(_$DataImpl) then) =
       __$$DataImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({List<NearbyFarmerData> farmers});
+  $Res call(
+      {List<NearbyFarmerData> farmers,
+      String searchQuery,
+      bool isOrganicFilter,
+      bool isOpenNowFilter});
 }
 
 /// @nodoc
@@ -345,12 +367,27 @@ class __$$DataImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? farmers = null,
+    Object? searchQuery = null,
+    Object? isOrganicFilter = null,
+    Object? isOpenNowFilter = null,
   }) {
     return _then(_$DataImpl(
-      null == farmers
+      farmers: null == farmers
           ? _value._farmers
           : farmers // ignore: cast_nullable_to_non_nullable
               as List<NearbyFarmerData>,
+      searchQuery: null == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String,
+      isOrganicFilter: null == isOrganicFilter
+          ? _value.isOrganicFilter
+          : isOrganicFilter // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isOpenNowFilter: null == isOpenNowFilter
+          ? _value.isOpenNowFilter
+          : isOpenNowFilter // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -358,7 +395,12 @@ class __$$DataImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$DataImpl implements _Data {
-  const _$DataImpl(final List<NearbyFarmerData> farmers) : _farmers = farmers;
+  const _$DataImpl(
+      {required final List<NearbyFarmerData> farmers,
+      this.searchQuery = '',
+      this.isOrganicFilter = false,
+      this.isOpenNowFilter = false})
+      : _farmers = farmers;
 
   final List<NearbyFarmerData> _farmers;
   @override
@@ -369,8 +411,18 @@ class _$DataImpl implements _Data {
   }
 
   @override
+  @JsonKey()
+  final String searchQuery;
+  @override
+  @JsonKey()
+  final bool isOrganicFilter;
+  @override
+  @JsonKey()
+  final bool isOpenNowFilter;
+
+  @override
   String toString() {
-    return 'NearbyFarmerState.data(farmers: $farmers)';
+    return 'NearbyFarmerState.data(farmers: $farmers, searchQuery: $searchQuery, isOrganicFilter: $isOrganicFilter, isOpenNowFilter: $isOpenNowFilter)';
   }
 
   @override
@@ -378,12 +430,22 @@ class _$DataImpl implements _Data {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DataImpl &&
-            const DeepCollectionEquality().equals(other._farmers, _farmers));
+            const DeepCollectionEquality().equals(other._farmers, _farmers) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery) &&
+            (identical(other.isOrganicFilter, isOrganicFilter) ||
+                other.isOrganicFilter == isOrganicFilter) &&
+            (identical(other.isOpenNowFilter, isOpenNowFilter) ||
+                other.isOpenNowFilter == isOpenNowFilter));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_farmers));
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_farmers),
+      searchQuery,
+      isOrganicFilter,
+      isOpenNowFilter);
 
   /// Create a copy of NearbyFarmerState
   /// with the given fields replaced by the non-null parameter values.
@@ -398,10 +460,12 @@ class _$DataImpl implements _Data {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(List<NearbyFarmerData> farmers) data,
+    required TResult Function(List<NearbyFarmerData> farmers,
+            String searchQuery, bool isOrganicFilter, bool isOpenNowFilter)
+        data,
     required TResult Function(String message) error,
   }) {
-    return data(farmers);
+    return data(farmers, searchQuery, isOrganicFilter, isOpenNowFilter);
   }
 
   @override
@@ -409,10 +473,12 @@ class _$DataImpl implements _Data {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(List<NearbyFarmerData> farmers)? data,
+    TResult? Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult? Function(String message)? error,
   }) {
-    return data?.call(farmers);
+    return data?.call(farmers, searchQuery, isOrganicFilter, isOpenNowFilter);
   }
 
   @override
@@ -420,12 +486,14 @@ class _$DataImpl implements _Data {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(List<NearbyFarmerData> farmers)? data,
+    TResult Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
     if (data != null) {
-      return data(farmers);
+      return data(farmers, searchQuery, isOrganicFilter, isOpenNowFilter);
     }
     return orElse();
   }
@@ -469,9 +537,16 @@ class _$DataImpl implements _Data {
 }
 
 abstract class _Data implements NearbyFarmerState {
-  const factory _Data(final List<NearbyFarmerData> farmers) = _$DataImpl;
+  const factory _Data(
+      {required final List<NearbyFarmerData> farmers,
+      final String searchQuery,
+      final bool isOrganicFilter,
+      final bool isOpenNowFilter}) = _$DataImpl;
 
   List<NearbyFarmerData> get farmers;
+  String get searchQuery;
+  bool get isOrganicFilter;
+  bool get isOpenNowFilter;
 
   /// Create a copy of NearbyFarmerState
   /// with the given fields replaced by the non-null parameter values.
@@ -550,7 +625,9 @@ class _$ErrorImpl implements _Error {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(List<NearbyFarmerData> farmers) data,
+    required TResult Function(List<NearbyFarmerData> farmers,
+            String searchQuery, bool isOrganicFilter, bool isOpenNowFilter)
+        data,
     required TResult Function(String message) error,
   }) {
     return error(message);
@@ -561,7 +638,9 @@ class _$ErrorImpl implements _Error {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(List<NearbyFarmerData> farmers)? data,
+    TResult? Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult? Function(String message)? error,
   }) {
     return error?.call(message);
@@ -572,7 +651,9 @@ class _$ErrorImpl implements _Error {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(List<NearbyFarmerData> farmers)? data,
+    TResult Function(List<NearbyFarmerData> farmers, String searchQuery,
+            bool isOrganicFilter, bool isOpenNowFilter)?
+        data,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
