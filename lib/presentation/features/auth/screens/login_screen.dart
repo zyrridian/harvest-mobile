@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
+import '../../../../domain/entities/user.dart';
 import '../providers/auth_controller.dart';
 import '../providers/auth_state.dart';
 import '../widgets/login_form.dart';
@@ -36,8 +37,12 @@ class LoginScreen extends ConsumerWidget {
             ),
           );
         },
-        authenticated: (_) {
-          context.go(AppRouter.main);
+        authenticated: (user) {
+          if (user.userType == UserType.farmer) {
+            context.go(AppRouter.farmerDashboard);
+          } else {
+            context.go(AppRouter.main);
+          }
         },
         orElse: () {},
       );

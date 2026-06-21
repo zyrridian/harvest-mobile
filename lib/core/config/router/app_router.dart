@@ -8,6 +8,7 @@ import '../../../presentation/features/auth/screens/register_screen.dart';
 import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
+import '../../../presentation/features/producer/dashboard/screens/farmer_dashboard_screen.dart';
 import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
 import '../../../presentation/features/settings/screens/settings_screen.dart';
@@ -40,6 +41,7 @@ class AppRouter {
 
   // Main routes
   static const String main = '/main';
+  static const String farmerDashboard = '/farmer-dashboard';
   static const String farmersMap = '/farmers-map';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
@@ -100,6 +102,11 @@ class AppRouter {
         path: main,
         name: 'main',
         builder: (context, state) => const MainScreen(),
+      ),
+      GoRoute(
+        path: farmerDashboard,
+        name: 'farmerDashboard',
+        builder: (context, state) => const FarmerDashboardScreen(),
       ),
       GoRoute(
         path: farmersMap,

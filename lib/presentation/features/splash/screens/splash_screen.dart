@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
+import 'package:harvest_app/domain/entities/user.dart';
 import 'package:harvest_app/core/services/storage_service.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/config/theme/app_colors.dart';
@@ -70,7 +71,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final authState = ref.read(authControllerProvider);
 
     authState.maybeWhen(
-      authenticated: (_) => context.go(AppRouter.main),
+      authenticated: (user) {
+        if (user.userType == UserType.farmer) {
+          context.go(AppRouter.farmerDashboard);
+        } else {
+          context.go(AppRouter.main);
+        }
+      },
       orElse: () => context.go(AppRouter.roleSelection),
     );
   }

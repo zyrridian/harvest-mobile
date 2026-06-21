@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/domain/entities/user.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_state.dart';
 import 'package:harvest_app/presentation/features/auth/providers/auth_role_provider.dart';
@@ -92,8 +93,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
           );
         },
-        authenticated: (_) {
-          context.go(AppRouter.main);
+        authenticated: (user) {
+          if (user.userType == UserType.farmer) {
+            context.go(AppRouter.farmerDashboard);
+          } else {
+            context.go(AppRouter.main);
+          }
         },
         orElse: () {},
       );
