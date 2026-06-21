@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../../../../domain/entities/farmer_stats.dart';
+import '../../../../../domain/entities/farmer_order.dart';
+import '../providers/farmer_dashboard_controller.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -16,26 +19,50 @@ class FarmerDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardState = ref.watch(farmerDashboardControllerProvider);
+
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildRevenueCard(),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Urgent Orders', 'View all'),
-            const SizedBox(height: 16),
-            _buildUrgentOrders(),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Today\'s Harvest Pickups', 'Schedule'),
-            const SizedBox(height: 16),
-            _buildHarvestTimeline(),
-            const SizedBox(height: 80), // Padding for bottom nav
-          ],
+      body: dashboardState.maybeWhen(
+        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(farmerDashboardControllerProvider.notifier).refresh(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
+        data: (stats) => RefreshIndicator(
+          onRefresh: () => ref.read(farmerDashboardControllerProvider.notifier).refresh(),
+          color: kDarkGreen,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildRevenueCard(stats),
+                const SizedBox(height: 32),
+                _buildSectionHeader('Urgent Orders', 'View all'),
+                const SizedBox(height: 16),
+                _buildUrgentOrders(stats.recentOrders),
+                const SizedBox(height: 32),
+                _buildSectionHeader('Today\'s Harvest Pickups', 'Schedule'),
+                const SizedBox(height: 16),
+                _buildHarvestTimeline(),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        ),
+        orElse: () => const SizedBox.shrink(),
       ),
     );
   }
@@ -96,7 +123,13 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRevenueCard() {
+  Widget _buildRevenueCard(FarmerStats stats) {
+    // Basic calculation for trend (mock logic for demo)
+    final trendValue = stats.lastMonthRevenue > 0 
+        ? ((stats.thisMonthRevenue - stats.lastMonthRevenue) / stats.lastMonthRevenue * 100) 
+        : 100.0;
+    final isPositive = trendValue >= 0;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -121,7 +154,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Today\'s Revenue',
+                'This Month Revenue',
                 style: GoogleFonts.inter(
                   color: Colors.white70,
                   fontSize: 16,
@@ -135,10 +168,14 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(PhosphorIconsFill.trendUp, color: Colors.white, size: 14),
+                    Icon(
+                      isPositive ? PhosphorIconsFill.trendUp : PhosphorIconsFill.trendDown, 
+                      color: Colors.white, 
+                      size: 14
+                    ),
                     const SizedBox(width: 4),
                     Text(
-                      '+12.5%',
+                      '${isPositive ? '+' : ''}${trendValue.toStringAsFixed(1)}%',
                       style: GoogleFonts.inter(
                         color: Colors.white,
                         fontSize: 12,
@@ -152,7 +189,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '\$1,250.00',
+            '\$${stats.thisMonthRevenue.toStringAsFixed(2)}',
             style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 36,
@@ -162,21 +199,21 @@ class FarmerDashboardScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              _buildStatItem('Orders', '18'),
+              _buildStatItem('Orders', stats.totalOrders.toString()),
               Container(
                 height: 30,
                 width: 1,
                 color: Colors.white24,
                 margin: const EdgeInsets.symmetric(horizontal: 24),
               ),
-              _buildStatItem('Pending', '3'),
+              _buildStatItem('Pending', stats.pendingOrders.toString()),
               Container(
                 height: 30,
                 width: 1,
                 color: Colors.white24,
                 margin: const EdgeInsets.symmetric(horizontal: 24),
               ),
-              _buildStatItem('Pickups', '5'),
+              _buildStatItem('Products', stats.activeProducts.toString()),
             ],
           ),
         ],
@@ -231,31 +268,50 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUrgentOrders() {
+  Widget _buildUrgentOrders(List<FarmerOrder> recentOrders) {
+    if (recentOrders.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: kCardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: kBorderColor),
+        ),
+        child: Column(
+          children: [
+            const Icon(PhosphorIconsRegular.checkCircle, size: 48, color: kDarkGreen),
+            const SizedBox(height: 12),
+            Text(
+              'All caught up!',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: kDarkGreen,
+              ),
+            ),
+            Text(
+              'No pending orders at the moment.',
+              style: GoogleFonts.inter(color: kTextGrey),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        _buildOrderItem(
-          customer: 'Sarah Jenkins',
-          items: '2x Organic Tomatoes, 1x Kale',
-          time: 'in 2 hours',
-          status: 'Awaiting Pack',
-        ),
-        const SizedBox(height: 12),
-        _buildOrderItem(
-          customer: 'Michael Scott',
-          items: '5kg Fresh Potatoes',
-          time: 'in 3 hours',
-          status: 'Awaiting Pack',
-        ),
-        const SizedBox(height: 12),
-        _buildOrderItem(
-          customer: 'Fresh Foods Market',
-          items: '10x Wholesale Carrots',
-          time: 'Today, 4:00 PM',
-          status: 'Ready',
-          isReady: true,
-        ),
-      ],
+      children: recentOrders.map((order) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildOrderItem(
+            customer: order.buyerName,
+            items: order.items.map((i) => '${i.quantity}x ${i.productName}').join(', '),
+            time: order.deliveryMethod, // Or formatted date
+            status: order.status,
+            isReady: order.status.toLowerCase() == 'ready',
+          ),
+        );
+      }).toList(),
     );
   }
 

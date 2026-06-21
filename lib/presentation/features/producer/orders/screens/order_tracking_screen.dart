@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../core/config/router/app_router.dart';
+import '../../../../../domain/entities/farmer_order.dart';
+import '../providers/farmer_orders_controller.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -37,6 +39,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
 
   @override
   Widget build(BuildContext context) {
+    final ordersState = ref.watch(farmerOrdersControllerProvider(status: 'all'));
+
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
@@ -64,109 +68,60 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildDirectOrdersTab(),
-          _buildPreOrdersTab(),
-          _buildHarvestSchedulesTab(),
-        ],
+      body: ordersState.maybeWhen(
+        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (orders) => TabBarView(
+          controller: _tabController,
+          children: [
+            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'pickup' || o.deliveryMethod == 'direct').toList(), isHarvest: false),
+            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'pre-order').toList(), isHarvest: false),
+            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'harvest_schedule').toList(), isHarvest: true),
+          ],
+        ),
+        orElse: () => const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildDirectOrdersTab() {
-    final List<Map<String, dynamic>> orders = [
-      {
-        'id': 'ORD-832',
-        'buyer': 'Alice Johnson',
-        'items': '2x Organic Tomatoes, 1x Kale',
-        'status': 'Ready for Pickup',
-        'isReady': true,
-        'date': 'Today, 01:30 PM',
-      },
-      {
-        'id': 'ORD-833',
-        'buyer': 'Bob Smith',
-        'items': '5kg Potatoes',
-        'status': 'Awaiting Pack',
-        'isReady': false,
-        'date': 'Today, 04:00 PM',
-      },
-    ];
+  Widget _buildOrdersTab(List<FarmerOrder> orders, {required bool isHarvest}) {
+    if (orders.isEmpty) {
+      return Center(
+        child: Text(
+          'No orders found',
+          style: GoogleFonts.inter(color: kTextGrey),
+        ),
+      );
+    }
 
-    return ListView.separated(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
-      itemCount: orders.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return _buildOrderCard(orders[index], isHarvestSchedule: false);
-      },
+    return RefreshIndicator(
+      onRefresh: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
+      color: kDarkGreen,
+      child: ListView.separated(
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
+        itemCount: orders.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return _buildOrderCard(orders[index], isHarvestSchedule: isHarvest);
+        },
+      ),
     );
   }
 
-  Widget _buildPreOrdersTab() {
-    final List<Map<String, dynamic>> orders = [
-      {
-        'id': 'PRE-102',
-        'buyer': 'Local Resto',
-        'items': '20kg Tomatoes',
-        'status': 'Awaiting Deposit',
-        'isReady': false,
-        'date': 'June 25, 2026',
-      },
-      {
-        'id': 'PRE-103',
-        'buyer': 'Emma Watson',
-        'items': '5x Fresh Basil Bunches',
-        'status': 'Deposit Paid',
-        'isReady': true,
-        'date': 'June 26, 2026',
-      },
-    ];
-
-    return ListView.separated(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
-      itemCount: orders.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return _buildOrderCard(orders[index], isHarvestSchedule: false);
-      },
-    );
-  }
-
-  Widget _buildHarvestSchedulesTab() {
-    final List<Map<String, dynamic>> schedules = [
-      {
-        'id': 'HAR-550',
-        'buyer': 'Fresh Market Inc.',
-        'items': '100kg Potatoes (Wholesale)',
-        'status': 'Pickup Arranged',
-        'isReady': true,
-        'date': 'June 28, 2026',
-      },
-      {
-        'id': 'HAR-551',
-        'buyer': 'David Clark',
-        'items': '10kg Apples',
-        'status': 'Awaiting Confirmation',
-        'isReady': false,
-        'date': 'July 02, 2026',
-      },
-    ];
-
-    return ListView.separated(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
-      itemCount: schedules.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return _buildOrderCard(schedules[index], isHarvestSchedule: true);
-      },
-    );
-  }
-
-  Widget _buildOrderCard(Map<String, dynamic> data, {required bool isHarvestSchedule}) {
-    final isReady = data['isReady'] as bool;
+  Widget _buildOrderCard(FarmerOrder data, {required bool isHarvestSchedule}) {
+    final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed';
 
     return InkWell(
       onTap: () {
@@ -196,7 +151,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  data['id'],
+                  data.orderNumber,
                   style: GoogleFonts.inter(
                     color: kTextGrey,
                     fontSize: 12,
@@ -210,7 +165,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    data['status'],
+                    data.status,
                     style: GoogleFonts.inter(
                       color: isReady ? Colors.green : kAccentOrange,
                       fontSize: 10,
@@ -234,7 +189,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        data['buyer'],
+                        data.buyerName,
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -243,7 +198,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        data['items'],
+                        data.items.map((i) => '${i.quantity}x ${i.productName}').join(', '),
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: kTextGrey,
@@ -267,7 +222,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     const Icon(PhosphorIconsRegular.calendar, size: 16, color: kTextGrey),
                     const SizedBox(width: 4),
                     Text(
-                      data['date'],
+                      'Date TBD', // data.date
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: kTextGrey,

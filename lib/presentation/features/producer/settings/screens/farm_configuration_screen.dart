@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/providers/auth_controller.dart';
+import '../providers/farmer_settings_controller.dart';
+import '../../../../../domain/entities/farmer_profile.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -19,6 +21,8 @@ class FarmConfigurationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settingsState = ref.watch(farmerSettingsControllerProvider);
+
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
@@ -33,31 +37,53 @@ class FarmConfigurationScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMapLocationSection(),
-            const SizedBox(height: 24),
-            Text(
-              'Farm Configuration',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: kDarkGreen,
+      body: settingsState.maybeWhen(
+        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(farmerSettingsControllerProvider.notifier).refresh(),
+                child: const Text('Retry'),
               ),
-            ),
-            const SizedBox(height: 12),
-            _buildSettingsList(context, ref),
-            const SizedBox(height: 80), // Padding for bottom nav
-          ],
+            ],
+          ),
         ),
+        data: (profile, deliverySettings) => RefreshIndicator(
+          onRefresh: () => ref.read(farmerSettingsControllerProvider.notifier).refresh(),
+          color: kDarkGreen,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildMapLocationSection(profile),
+                const SizedBox(height: 24),
+                Text(
+                  'Farm Configuration',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildSettingsList(context, ref, profile),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        ),
+        orElse: () => const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildMapLocationSection() {
+  Widget _buildMapLocationSection(FarmerProfile profile) {
     return Container(
       decoration: BoxDecoration(
         color: kCardBg,
@@ -128,7 +154,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '123 Green Valley Road, Springfield',
+                    profile.address,
                     style: GoogleFonts.inter(
                       color: kTextGrey,
                       fontSize: 14,
@@ -145,7 +171,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsList(BuildContext context, WidgetRef ref) {
+  Widget _buildSettingsList(BuildContext context, WidgetRef ref, FarmerProfile profile) {
     return Container(
       decoration: BoxDecoration(
         color: kCardBg,
@@ -157,7 +183,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
           _buildSettingsTile(
             icon: PhosphorIconsRegular.storefront,
             title: 'Edit Farm Profile',
-            subtitle: 'Name, description, and cover photo',
+            subtitle: profile.name,
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(

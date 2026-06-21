@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../core/config/router/app_router.dart';
+import '../../../../../domain/entities/farmer_product.dart';
+import '../providers/farmer_products_controller.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -21,48 +23,9 @@ class ProductManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductManagementScreenState extends ConsumerState<ProductManagementScreen> {
-  // Mock data for products
-  final List<Map<String, dynamic>> _products = [
-    {
-      'id': '1',
-      'name': 'Organic Tomatoes',
-      'category': 'Vegetables',
-      'price': 4.50,
-      'unit': 'kg',
-      'inStock': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&q=80',
-    },
-    {
-      'id': '2',
-      'name': 'Fresh Basil',
-      'category': 'Herbs',
-      'price': 2.00,
-      'unit': 'bunch',
-      'inStock': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1618164436241-ecaf17c38555?w=200&q=80',
-    },
-    {
-      'id': '3',
-      'name': 'Free-range Eggs',
-      'category': 'Dairy & Eggs',
-      'price': 6.50,
-      'unit': 'dozen',
-      'inStock': false,
-      'imageUrl': 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=200&q=80',
-    },
-    {
-      'id': '4',
-      'name': 'Russet Potatoes',
-      'category': 'Vegetables',
-      'price': 3.00,
-      'unit': 'kg',
-      'inStock': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200&q=80',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final productsState = ref.watch(farmerProductsControllerProvider);
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
@@ -88,14 +51,35 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
           const SizedBox(width: 8),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
-        itemCount: _products.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return _buildProductCard(product, index);
-        },
+      body: productsState.maybeWhen(
+        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        error: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(farmerProductsControllerProvider.notifier).refresh(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (products) => RefreshIndicator(
+          onRefresh: () => ref.read(farmerProductsControllerProvider.notifier).refresh(),
+          color: kDarkGreen,
+          child: ListView.separated(
+            padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
+            itemCount: products.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return _buildProductCard(product);
+            },
+          ),
+        ),
+        orElse: () => const SizedBox.shrink(),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -114,8 +98,8 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, int index) {
-    final inStock = product['inStock'] as bool;
+  Widget _buildProductCard(FarmerProduct product) {
+    final inStock = product.stock > 0 && product.isAvailable;
     
     return Container(
       decoration: BoxDecoration(
@@ -134,7 +118,7 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
-                  image: NetworkImage(product['imageUrl']),
+                  image: NetworkImage(product.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -153,7 +137,7 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product['name'],
+                    product.name,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -164,7 +148,7 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    product['category'],
+                    'Category', // Will be fetched or grouped in the future
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: kTextGrey,
@@ -172,7 +156,7 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${product['price'].toStringAsFixed(2)} / ${product['unit']}',
+                    '\$${product.price.toStringAsFixed(2)} / ${product.unit}',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -191,9 +175,7 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                   value: inStock,
                   activeColor: kDarkGreen,
                   onChanged: (value) {
-                    setState(() {
-                      _products[index]['inStock'] = value;
-                    });
+                    // Update stock logic will be handled by controller later.
                   },
                 ),
                 Text(
