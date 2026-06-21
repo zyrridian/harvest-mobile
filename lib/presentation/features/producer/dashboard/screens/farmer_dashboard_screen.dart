@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../domain/entities/farmer_stats.dart';
 import '../../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_dashboard_controller.dart';
@@ -23,7 +25,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kBgColor,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: dashboardState.maybeWhen(
         loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (error) => Center(
@@ -67,7 +69,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: kBgColor,
       elevation: 0,
@@ -93,6 +95,18 @@ class FarmerDashboardScreen extends ConsumerWidget {
         ],
       ),
       actions: [
+        IconButton(
+          onPressed: () {
+            context.push(AppRouter.community);
+          },
+          icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
+        ),
+        IconButton(
+          onPressed: () {
+            context.push(AppRouter.conversations);
+          },
+          icon: const Icon(PhosphorIconsRegular.chatCircleText, color: kDarkGreen),
+        ),
         IconButton(
           onPressed: () {},
           icon: Stack(

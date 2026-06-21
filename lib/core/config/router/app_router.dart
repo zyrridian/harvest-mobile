@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/presentation/features/community/screens/community_screen.dart';
+import 'package:harvest_app/presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../main.dart';
 import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
 import '../../../presentation/features/auth/screens/login_screen.dart';
@@ -25,7 +27,6 @@ import '../../../presentation/features/cart/screens/checkout_screen.dart';
 import '../../../presentation/features/order/screens/orders_list_screen.dart';
 import '../../../presentation/features/order/screens/order_detail_screen.dart';
 import '../../../presentation/features/order/screens/order_success_screen.dart';
-import '../../../presentation/features/messaging/screens/conversations_list_screen.dart';
 import '../../../presentation/features/messaging/screens/chat_screen.dart';
 import '../../../presentation/features/marketplace/screens/marketplace_screen.dart';
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
@@ -44,6 +45,7 @@ class AppRouter {
 
   // Main routes
   static const String main = '/main';
+  static const String community = '/community';
   static const String farmerDashboard = '/farmer-dashboard';
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
@@ -236,6 +238,11 @@ class AppRouter {
         path: conversations,
         name: 'conversations',
         builder: (context, state) => const ConversationsListScreen(),
+      ),
+      GoRoute(
+        path: community,
+        name: 'community',
+        builder: (context, state) => const CommunityScreen(),
       ),
       GoRoute(
         path: chat,
