@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../data/models/conversation_model.dart';
 import '../../../providers/messaging_providers.dart';
+import '../providers/chat_socket_providers.dart';
+import '../../../../core/utils/time_utils.dart';
 
 class ConversationsListScreen extends ConsumerStatefulWidget {
   const ConversationsListScreen({super.key});
@@ -19,8 +21,20 @@ class _ConversationsListScreenState
 
   @override
   Widget build(BuildContext context) {
-    final conversationsAsync =
-        ref.watch(conversationsProvider({'filter': _selectedFilter}));
+    // Auto-refresh the list when socket events happen
+    ref.listen(newMessageStreamProvider, (_, __) {
+      ref.invalidate(conversationsProvider);
+    });
+    ref.listen(readAckStreamProvider, (_, __) {
+      ref.invalidate(conversationsProvider);
+    });
+
+    final conversationsAsync = ref.watch(conversationsProvider((
+      filter: _selectedFilter,
+      search: null,
+      page: 1,
+      limit: 20,
+    )));
 
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +62,7 @@ class _ConversationsListScreenState
           final conversations = (conversationsData['conversations'] as List)
               .map((json) => ConversationModel.fromJson(json))
               .toList();
-          final stats = conversationsData['stats'] as Map<String, dynamic>;
+          final stats = conversationsData['stats'] as Map<String, dynamic>?;
 
           if (conversations.isEmpty) {
             return Center(
@@ -75,7 +89,7 @@ class _ConversationsListScreenState
           return Column(
             children: [
               // Stats Card
-              if (stats['unread_conversations'] > 0)
+              if (stats != null && stats['unread_conversations'] > 0)
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -134,15 +148,23 @@ class _ConversationsListScreenState
   }
 }
 
-class _ConversationTile extends StatelessWidget {
+class _ConversationTile extends ConsumerWidget {
   final ConversationModel conversation;
 
   const _ConversationTile({required this.conversation});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final participant = conversation.participant;
     final lastMessage = conversation.lastMessage;
+
+    final typingState = ref.watch(typingIndicatorNotifierProvider);
+    final typingUsers = typingState[conversation.conversationId] ?? {};
+    final isTyping = typingUsers.contains(participant.userId);
+
+    final presenceState = ref.watch(userPresenceNotifierProvider);
+    final userPresence = presenceState[participant.userId];
+    final isOnline = userPresence?.isOnline ?? participant.isOnline;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -157,7 +179,7 @@ class _ConversationTile extends StatelessWidget {
                 ? Text(participant.name[0].toUpperCase())
                 : null,
           ),
-          if (participant.isOnline)
+          if (isOnline)
             Positioned(
               right: 0,
               bottom: 0,
@@ -237,7 +259,17 @@ class _ConversationTile extends StatelessWidget {
               ],
             ),
           ],
-          if (lastMessage != null) ...[
+          if (isTyping) ...[
+            const SizedBox(height: 4),
+            const Text(
+              'Typing...',
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ] else if (lastMessage != null) ...[
             const SizedBox(height: 4),
             Text(
               lastMessage.preview,
@@ -292,23 +324,15 @@ class _ConversationTile extends StatelessWidget {
       ),
       onTap: () {
         context.push(
-            '${AppRouter.chat}?conversationId=${conversation.conversationId}');
+            '${AppRouter.chat}?conversationId=${conversation.conversationId}').then((_) {
+          // Refresh the list when returning from the chat
+          ref.invalidate(conversationsProvider);
+        });
       },
     );
   }
 
   String _formatTime(DateTime timestamp) {
-    final now = DateTime.now();
-    final diff = now.difference(timestamp);
-
-    if (diff.inDays == 0) {
-      return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    } else if (diff.inDays == 1) {
-      return 'Yesterday';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-    }
+    return TimeUtils.formatMessageTime(timestamp);
   }
 }

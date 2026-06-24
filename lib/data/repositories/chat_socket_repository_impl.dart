@@ -33,9 +33,7 @@ class ChatSocketRepositoryImpl implements ChatSocketRepository {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  @override
-  void joinConversation(String conversationId) =>
-      _socketService.emitJoinConversation(conversationId);
+
 
   @override
   void sendMessage({

@@ -17,9 +17,7 @@ abstract class ChatSocketRepository {
 
   // ── Actions (Frontend → Backend) ──────────────────────────────────────────
 
-  /// Joins the socket room for [conversationId].  
-  /// Should be called when the user opens a chat screen.
-  void joinConversation(String conversationId);
+
 
   /// Emits a new text message to the backend.
   ///

@@ -8,6 +8,7 @@ import '../../../../domain/entities/message.dart';
 import '../../../../domain/entities/conversation.dart';
 import '../../../providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
+import '../../../../core/utils/time_utils.dart';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const _kBg = Color(0xFFF7F8FC);
@@ -44,12 +45,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   // Messages managed locally for real-time optimistic UI
   final List<Message> _messages = [];
-  bool _isTyping = false; // other user is typing
   bool _isSendingTyping = false; // we are typing
   Timer? _typingTimer;
   StreamSubscription<Message>? _newMessageSub;
-  StreamSubscription<Map<String, dynamic>>? _typingStartSub;
-  StreamSubscription<Map<String, dynamic>>? _typingStopSub;
   StreamSubscription<Map<String, dynamic>>? _readAckSub;
 
   late AnimationController _sendBtnController;
@@ -77,7 +75,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final connect = ref.read(connectChatSocketProvider);
     await connect.connect();
 
-    ref.read(joinConversationProvider).call(widget.conversationId);
     ref.read(markConversationReadProvider).call(widget.conversationId);
 
     final repo = ref.read(chatSocketRepositoryProvider);
@@ -102,17 +99,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       }
     });
 
-    _typingStartSub = repo.onTypingStart.listen((data) {
-      if (data['conversation_id'] == widget.conversationId) {
-        setState(() => _isTyping = true);
-      }
-    });
-
-    _typingStopSub = repo.onTypingStop.listen((data) {
-      if (data['conversation_id'] == widget.conversationId) {
-        setState(() => _isTyping = false);
-      }
-    });
+    // });
 
     _readAckSub = repo.onMessageReadAck.listen((data) {
       if (data['conversation_id'] == widget.conversationId) {
@@ -196,8 +183,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   @override
   void dispose() {
     _newMessageSub?.cancel();
-    _typingStartSub?.cancel();
-    _typingStopSub?.cancel();
     _readAckSub?.cancel();
     _typingTimer?.cancel();
     _inputController.removeListener(_onInputChanged);
@@ -213,6 +198,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   Widget build(BuildContext context) {
     final conversationAsync =
         ref.watch(conversationDetailProvider(widget.conversationId));
+
+    final otherUserId = conversationAsync.valueOrNull?.participant.userId;
+    
+    final typingState = ref.watch(typingIndicatorNotifierProvider);
+    final isTyping = otherUserId != null && (typingState[widget.conversationId] ?? {}).contains(otherUserId);
+    
+    final presenceState = ref.watch(userPresenceNotifierProvider);
+    final userPresence = otherUserId != null ? presenceState[otherUserId] : null;
+    final isOnline = userPresence?.isOnline ?? conversationAsync.valueOrNull?.participant.isOnline ?? false;
+    final lastSeen = userPresence?.lastSeen ?? conversationAsync.valueOrNull?.participant.lastSeen;
 
     // Seed messages from REST snapshot on first load
     conversationAsync.whenData((detail) {
@@ -230,9 +225,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       backgroundColor: _kBg,
       body: Column(
         children: [
-          _buildAppBar(conversationAsync),
+          _buildAppBar(conversationAsync, isOnline, isTyping, lastSeen),
           Expanded(child: _buildMessageList(conversationAsync)),
-          if (_isTyping) _buildTypingIndicator(),
+          if (isTyping) _buildTypingIndicator(),
           _buildInputBar(),
         ],
       ),
@@ -241,7 +236,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   // ── App Bar ────────────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(AsyncValue<ConversationDetail> conversationAsync) {
+  Widget _buildAppBar(AsyncValue<ConversationDetail> conversationAsync, bool isOnline, bool isTyping, DateTime? lastSeen) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -270,21 +265,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                 data: (detail) => _buildHeaderInfo(
                   name: detail.participant.name,
                   avatar: detail.participant.profilePicture,
-                  isOnline: detail.participant.isOnline,
-                  isTyping: _isTyping,
-                  lastSeen: detail.participant.lastSeen,
+                  isOnline: isOnline,
+                  isTyping: isTyping,
+                  lastSeen: lastSeen,
                 ),
                 loading: () => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
-                  isOnline: false,
-                  isTyping: _isTyping,
+                  isOnline: isOnline,
+                  isTyping: isTyping,
+                  lastSeen: lastSeen,
                 ),
                 error: (_, __) => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
-                  isOnline: false,
-                  isTyping: _isTyping,
+                  isOnline: isOnline,
+                  isTyping: isTyping,
+                  lastSeen: lastSeen,
                 ),
               ),
               const SizedBox(width: 8),
@@ -370,7 +367,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       : isOnline
                           ? 'Online'
                           : lastSeen != null
-                              ? '${lastSeen.toLocal().month}/${lastSeen.toLocal().day}/${lastSeen.toLocal().year}'
+                              ? 'Last seen ${TimeUtils.formatLastSeen(lastSeen).toLowerCase()}'
                               : 'Tap to view profile',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

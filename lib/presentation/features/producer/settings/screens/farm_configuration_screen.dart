@@ -27,7 +27,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
       backgroundColor: kBgColor,
       appBar: AppBar(
         title: Text(
-          'Settings & Configuration',
+          'Profile',
           style: GoogleFonts.inter(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
@@ -187,6 +187,18 @@ class FarmConfigurationScreen extends ConsumerWidget {
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
+            icon: PhosphorIconsRegular.star,
+            title: 'My Farm Reviews',
+            subtitle: 'See what buyers are saying',
+          ),
+          const Divider(height: 1, color: kBorderColor),
+          _buildSettingsTile(
+            icon: PhosphorIconsRegular.wallet,
+            title: 'Wallet & Earnings',
+            subtitle: 'Manage your payouts and transactions',
+          ),
+          const Divider(height: 1, color: kBorderColor),
+          _buildSettingsTile(
             icon: PhosphorIconsRegular.mapTrifold,
             title: 'Manage Drop Points',
             subtitle: 'Set pickup locations for consumers',
@@ -199,9 +211,9 @@ class FarmConfigurationScreen extends ConsumerWidget {
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
-            icon: PhosphorIconsRegular.wallet,
-            title: 'Payout Methods',
-            subtitle: 'Bank accounts and deposit settings',
+            icon: PhosphorIconsRegular.gear,
+            title: 'Account Settings',
+            subtitle: 'Password, notifications, and language',
           ),
           const Divider(height: 1, color: kBorderColor),
           ListTile(

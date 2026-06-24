@@ -50,7 +50,15 @@ class FarmerDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRevenueCard(stats),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Route to Wallet/Earnings screen
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Navigate to Wallet')),
+                    );
+                  },
+                  child: _buildRevenueCard(stats),
+                ),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Urgent Orders', 'View all'),
                 const SizedBox(height: 16),
@@ -100,12 +108,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
             context.push(AppRouter.community);
           },
           icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
-        ),
-        IconButton(
-          onPressed: () {
-            context.push(AppRouter.conversations);
-          },
-          icon: const Icon(PhosphorIconsRegular.chatCircleText, color: kDarkGreen),
         ),
         IconButton(
           onPressed: () {},

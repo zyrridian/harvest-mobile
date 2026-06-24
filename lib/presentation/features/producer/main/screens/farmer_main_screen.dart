@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harvest_app/presentation/providers/messaging_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,21 +8,38 @@ import '../../dashboard/screens/farmer_dashboard_screen.dart';
 import '../../products/screens/product_management_screen.dart';
 import '../../orders/screens/order_tracking_screen.dart';
 import '../../settings/screens/farm_configuration_screen.dart';
+import '../../../messaging/screens/conversations_list_screen.dart';
+import '../../../messaging/providers/chat_socket_providers.dart';
 
 // Provider to manage which tab is active for the farmer
 final farmerBottomNavIndexProvider = StateProvider<int>((ref) => 0);
 
-class FarmerMainScreen extends ConsumerWidget {
+class FarmerMainScreen extends ConsumerStatefulWidget {
   const FarmerMainScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FarmerMainScreen> createState() => _FarmerMainScreenState();
+}
+
+class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Connect to chat socket globally so we receive typing/online events everywhere
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(connectChatSocketProvider).connect();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentIndex = ref.watch(farmerBottomNavIndexProvider);
 
     final screens = [
       const FarmerDashboardScreen(),
       const ProductManagementScreen(),
       const OrderTrackingScreen(),
+      const ConversationsListScreen(),
       const FarmConfigurationScreen(),
     ];
 
@@ -40,7 +58,7 @@ class FarmerMainScreen extends ConsumerWidget {
 
 // ─── Custom Bottom Navigation Bar ────────────────────────────────────────────
 
-class _FarmerBottomNav extends StatelessWidget {
+class _FarmerBottomNav extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -50,7 +68,15 @@ class _FarmerBottomNav extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final providerParams = (filter: 'all', search: null, page: 1, limit: 20);
+
+    final conversationsAsync = ref.watch(conversationsProvider(providerParams));
+    
+    final data = conversationsAsync.valueOrNull;
+    final stats = data?['data']?['stats'] as Map<String, dynamic>?;
+    final int unreadCount = stats?['unread_conversations'] as int? ?? 0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -95,9 +121,18 @@ class _FarmerBottomNav extends StatelessWidget {
               _NavItem(
                 index: 3,
                 currentIndex: currentIndex,
-                label: 'Settings',
-                activeIcon: PhosphorIconsFill.gear,
-                inactiveIcon: PhosphorIconsRegular.gear,
+                label: 'Chat',
+                activeIcon: PhosphorIconsFill.chatCircleText,
+                inactiveIcon: PhosphorIconsRegular.chatCircleText,
+                onTap: onTap,
+                showBadge: unreadCount > 0,
+              ),
+              _NavItem(
+                index: 4,
+                currentIndex: currentIndex,
+                label: 'Profile',
+                activeIcon: PhosphorIconsFill.user,
+                inactiveIcon: PhosphorIconsRegular.user,
                 onTap: onTap,
               ),
             ],
@@ -115,6 +150,7 @@ class _NavItem extends StatelessWidget {
   final IconData activeIcon;
   final IconData inactiveIcon;
   final ValueChanged<int> onTap;
+  final bool showBadge;
 
   const _NavItem({
     required this.index,
@@ -123,6 +159,7 @@ class _NavItem extends StatelessWidget {
     required this.activeIcon,
     required this.inactiveIcon,
     required this.onTap,
+    this.showBadge = false,
   });
 
   @override
@@ -156,10 +193,15 @@ class _NavItem extends StatelessWidget {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  isActive ? activeIcon : inactiveIcon,
-                  color: isActive ? activeColor : inactiveColor,
-                  size: 22,
+                child: Badge(
+                  isLabelVisible: showBadge,
+                  backgroundColor: Colors.red,
+                  smallSize: 8,
+                  child: Icon(
+                    isActive ? activeIcon : inactiveIcon,
+                    color: isActive ? activeColor : inactiveColor,
+                    size: 22,
+                  ),
                 ),
               ),
               const SizedBox(height: 3),

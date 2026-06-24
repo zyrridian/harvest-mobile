@@ -93,6 +93,17 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         ),
         orElse: () => const SizedBox.shrink(),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // TODO: Generate Route Plan
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Generate Route Plan / Manifest')),
+          );
+        },
+        backgroundColor: kAccentOrange,
+        icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
+        label: Text('Route Plan', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
     );
   }
 

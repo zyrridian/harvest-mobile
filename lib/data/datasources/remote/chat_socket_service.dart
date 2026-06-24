@@ -124,10 +124,7 @@ class ChatSocketService {
 
   // ── Emitters ───────────────────────────────────────────────────────────────
 
-  /// Joins the given conversation room.
-  void emitJoinConversation(String conversationId) {
-    _socket?.emit('conversation:join', {'conversation_id': conversationId});
-  }
+
 
   /// Sends a new message via the socket.
   void emitSendMessage({

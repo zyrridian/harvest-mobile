@@ -59,16 +59,23 @@ final blockUserUsecaseProvider = Provider<BlockUser>((ref) {
   return BlockUser(ref.read(messagingRepositoryProvider));
 });
 
+typedef ConversationsFilter = ({
+  String filter,
+  String? search,
+  int page,
+  int limit,
+});
+
 // Conversations list provider
 final conversationsProvider =
-    FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>(
+    FutureProvider.family<Map<String, dynamic>, ConversationsFilter>(
         (ref, params) async {
   final usecase = ref.read(getConversationsUsecaseProvider);
   final result = await usecase(
-    filter: params['filter'] as String? ?? 'all',
-    search: params['search'] as String?,
-    page: params['page'] as int? ?? 1,
-    limit: params['limit'] as int? ?? 20,
+    filter: params.filter,
+    search: params.search,
+    page: params.page,
+    limit: params.limit,
   );
 
   return result.fold(
