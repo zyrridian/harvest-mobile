@@ -6,6 +6,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../core/config/router/app_router.dart';
 import '../../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_orders_controller.dart';
+import 'package:intl/intl.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -24,17 +25,52 @@ class OrderTrackingScreen extends ConsumerStatefulWidget {
 
 class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  final List<String> _tabs = [
+    'All',
+    'Pending Payment',
+    'Confirmed',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Completed',
+    'Cancelled'
+  ];
+
+  final Map<String, String> _statusMap = {
+    'All': 'all',
+    'Pending Payment': 'pending_payment',
+    'Confirmed': 'confirmed',
+    'Processing': 'processing',
+    'Shipped': 'shipped',
+    'Delivered': 'delivered',
+    'Completed': 'completed',
+    'Cancelled': 'cancelled'
+  };
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return 'Date TBD';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr.substring(0, 10);
+    }
   }
 
   @override
@@ -56,16 +92,13 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         centerTitle: false,
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
           labelColor: kDarkGreen,
           unselectedLabelColor: kTextGrey,
           indicatorColor: kAccentOrange,
           indicatorWeight: 3,
           labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: 'Direct'),
-            Tab(text: 'Pre-orders'),
-            Tab(text: 'Harvests'),
-          ],
+          tabs: _tabs.map((t) => Tab(text: t)).toList(),
         ),
       ),
       body: ordersState.maybeWhen(
@@ -83,12 +116,54 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
             ],
           ),
         ),
-        data: (orders) => TabBarView(
-          controller: _tabController,
+        data: (orders) => Column(
           children: [
-            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'pickup' || o.deliveryMethod == 'direct').toList(), isHarvest: false),
-            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'pre-order').toList(), isHarvest: false),
-            _buildOrdersTab(orders.where((o) => o.deliveryMethod == 'harvest_schedule').toList(), isHarvest: true),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search order number or buyer...',
+                  prefixIcon: const Icon(PhosphorIconsRegular.magnifyingGlass, color: kTextGrey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: kBorderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: kBorderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: kAccentOrange),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: _tabs.map((tab) {
+                  final statusFilter = _statusMap[tab]!;
+                  final filteredOrders = orders.where((o) {
+                    final matchesStatus = statusFilter == 'all' || o.status.toLowerCase() == statusFilter;
+                    final matchesSearch = _searchQuery.isEmpty ||
+                        o.orderNumber.toLowerCase().contains(_searchQuery) ||
+                        o.buyerName.toLowerCase().contains(_searchQuery);
+                    return matchesStatus && matchesSearch;
+                  }).toList();
+                  return _buildOrdersTab(filteredOrders);
+                }).toList(),
+              ),
+            ),
           ],
         ),
         orElse: () => const SizedBox.shrink(),
@@ -108,7 +183,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
     );
   }
 
-  Widget _buildOrdersTab(List<FarmerOrder> orders, {required bool isHarvest}) {
+  Widget _buildOrdersTab(List<FarmerOrder> orders) {
     if (orders.isEmpty) {
       return Center(
         child: Text(
@@ -122,23 +197,29 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
       onRefresh: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
       color: kDarkGreen,
       child: ListView.separated(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 100),
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
         itemCount: orders.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
-          return _buildOrderCard(orders[index], isHarvestSchedule: isHarvest);
+          return _buildOrderCard(orders[index]);
         },
       ),
     );
   }
 
-  Widget _buildOrderCard(FarmerOrder data, {required bool isHarvestSchedule}) {
-    final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed';
+  Widget _buildOrderCard(FarmerOrder data) {
+    final isHarvestSchedule = data.deliveryMethod == 'harvest_schedule';
+    final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed' || data.status.toLowerCase() == 'paid';
+
+    String statusDisplay = data.status.replaceAll('_', ' ');
+    statusDisplay = statusDisplay.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
 
     return InkWell(
       onTap: () {
         if (isHarvestSchedule) {
           context.push(AppRouter.harvestScheduleDetail);
+        } else {
+          // Normal order detail navigation could go here
         }
       },
       borderRadius: BorderRadius.circular(16),
@@ -177,7 +258,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    data.status,
+                    statusDisplay,
                     style: GoogleFonts.inter(
                       color: isReady ? Colors.green : kAccentOrange,
                       fontSize: 10,
@@ -221,6 +302,14 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     ],
                   ),
                 ),
+                Text(
+                  NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(data.totalAmount),
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: kDarkGreen,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -234,7 +323,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     const Icon(PhosphorIconsRegular.calendar, size: 16, color: kTextGrey),
                     const SizedBox(width: 4),
                     Text(
-                      'Date TBD', // data.date
+                      _formatDate(data.deliveryDate),
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: kTextGrey,

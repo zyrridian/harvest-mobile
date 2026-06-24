@@ -9,29 +9,24 @@ class FarmerOrderModel {
   @JsonKey(name: 'order_number')
   final String orderNumber;
   final String status;
-  @JsonKey(name: 'buyer_name')
-  final String? buyerName;
-  @JsonKey(name: 'buyer_avatar')
-  final String? buyerAvatar;
-  @JsonKey(name: 'first_item')
-  final FarmerOrderFirstItemModel? firstItem;
-  @JsonKey(name: 'items_count')
-  final int? itemsCount;
+  final FarmerOrderBuyerModel buyer;
+  final List<FarmerOrderItemModel> items;
   @JsonKey(name: 'total_amount')
   final num totalAmount;
   @JsonKey(name: 'delivery_method')
   final String? deliveryMethod;
+  @JsonKey(name: 'delivery_date')
+  final String? deliveryDate;
 
   FarmerOrderModel({
     required this.id,
     required this.orderNumber,
     required this.status,
-    this.buyerName,
-    this.buyerAvatar,
-    this.firstItem,
-    this.itemsCount,
+    required this.buyer,
+    required this.items,
     required this.totalAmount,
     this.deliveryMethod,
+    this.deliveryDate,
   });
 
   factory FarmerOrderModel.fromJson(Map<String, dynamic> json) =>
@@ -44,29 +39,64 @@ class FarmerOrderModel {
       id: id,
       orderNumber: orderNumber,
       status: status,
-      buyerName: buyerName ?? 'Unknown',
-      buyerPhone: '',
-      items: firstItem != null 
-          ? [FarmerOrderItem(productName: firstItem!.name, quantity: itemsCount ?? 1, subtotal: totalAmount.toDouble())] 
-          : [],
+      buyerName: buyer.name,
+      buyerPhone: buyer.phone ?? '',
+      items: items.map((i) => i.toEntity()).toList(),
       totalAmount: totalAmount.toDouble(),
       deliveryMethod: deliveryMethod ?? 'direct',
+      deliveryDate: deliveryDate,
     );
   }
 }
 
 @JsonSerializable()
-class FarmerOrderFirstItemModel {
+class FarmerOrderBuyerModel {
   final String name;
-  final String? image;
+  final String? email;
+  final String? phone;
+  final String? avatar;
 
-  FarmerOrderFirstItemModel({
+  FarmerOrderBuyerModel({
     required this.name,
-    this.image,
+    this.email,
+    this.phone,
+    this.avatar,
   });
 
-  factory FarmerOrderFirstItemModel.fromJson(Map<String, dynamic> json) =>
-      _$FarmerOrderFirstItemModelFromJson(json);
+  factory FarmerOrderBuyerModel.fromJson(Map<String, dynamic> json) =>
+      _$FarmerOrderBuyerModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$FarmerOrderFirstItemModelToJson(this);
+  Map<String, dynamic> toJson() => _$FarmerOrderBuyerModelToJson(this);
+}
+
+@JsonSerializable()
+class FarmerOrderItemModel {
+  @JsonKey(name: 'product_name')
+  final String productName;
+  @JsonKey(name: 'product_image')
+  final String? productImage;
+  final int quantity;
+  @JsonKey(name: 'subtotal')
+  final num subtotal;
+
+  FarmerOrderItemModel({
+    required this.productName,
+    this.productImage,
+    required this.quantity,
+    required this.subtotal,
+  });
+
+  factory FarmerOrderItemModel.fromJson(Map<String, dynamic> json) =>
+      _$FarmerOrderItemModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FarmerOrderItemModelToJson(this);
+
+  FarmerOrderItem toEntity() {
+    return FarmerOrderItem(
+      productName: productName,
+      quantity: quantity,
+      subtotal: subtotal.toDouble(),
+      productImage: productImage,
+    );
+  }
 }

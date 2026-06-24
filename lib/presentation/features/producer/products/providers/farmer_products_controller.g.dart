@@ -127,7 +127,7 @@ final toggleFarmerProductAvailabilityUseCaseProvider =
 typedef ToggleFarmerProductAvailabilityUseCaseRef
     = AutoDisposeProviderRef<ToggleFarmerProductAvailabilityUseCase>;
 String _$farmerProductsControllerHash() =>
-    r'5702b7c4ea7db21ac86838201c20d3451ef8419a';
+    r'03e55290ec190f6d2d3679fd17317a928b7ad1fc';
 
 /// See also [FarmerProductsController].
 @ProviderFor(FarmerProductsController)
