@@ -94,6 +94,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         orElse: () => const SizedBox.shrink(),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'routePlanFab',
         onPressed: () {
           // TODO: Generate Route Plan
           ScaffoldMessenger.of(context).showSnackBar(

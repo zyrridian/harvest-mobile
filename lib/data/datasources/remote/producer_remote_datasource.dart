@@ -7,11 +7,18 @@ import 'package:harvest_app/data/models/producer/delivery_settings_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_product_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_order_model.dart';
 
+import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
+
 abstract class ProducerRemoteDataSource {
   Future<FarmerStatsDataModel> getStats();
   Future<FarmerProfileModel> getProfile();
   Future<DeliverySettingsModel> getDeliverySettings();
-  Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20});
+  Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20, String? status});
+  Future<FarmerProductDetailModel> getProductDetail(String id);
+  Future<FarmerProductDetailModel> createProduct(ProductRequestModel product);
+  Future<FarmerProductDetailModel> updateProduct(String id, ProductRequestModel product);
+  Future<void> deleteProduct(String id);
+  Future<void> toggleProductAvailability(String id, bool isAvailable);
   Future<List<FarmerOrderModel>> getOrders({int page = 1, int limit = 20, String status = 'all'});
 }
 
@@ -90,11 +97,15 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
   }
 
   @override
-  Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20}) async {
+  Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20, String? status}) async {
     try {
+      final Map<String, dynamic> params = {'page': page, 'limit': limit};
+      if (status != null && status != 'all') {
+        params['status'] = status;
+      }
       final response = await dio.get(
         AppConstants.producerProductsEndpoint,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: params,
       );
 
       if (response.statusCode == 200) {
@@ -106,6 +117,85 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
         }
       } else {
         throw ServerException('Failed to get products', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerProductDetailModel> getProductDetail(String id) async {
+    try {
+      final response = await dio.get('${AppConstants.producerProductsEndpoint}/$id');
+      if (response.statusCode == 200) {
+        final data = response.data['data'] ?? response.data;
+        return FarmerProductDetailModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to get product detail', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerProductDetailModel> createProduct(ProductRequestModel product) async {
+    try {
+      final response = await dio.post(AppConstants.producerProductsEndpoint, data: product.toJson());
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data['data'] ?? response.data;
+        return FarmerProductDetailModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to create product', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerProductDetailModel> updateProduct(String id, ProductRequestModel product) async {
+    try {
+      final response = await dio.put('${AppConstants.producerProductsEndpoint}/$id', data: product.toJson());
+      if (response.statusCode == 200) {
+        final data = response.data['data'] ?? response.data;
+        return FarmerProductDetailModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to update product', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteProduct(String id) async {
+    try {
+      final response = await dio.delete('${AppConstants.producerProductsEndpoint}/$id');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ServerException('Failed to delete product', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> toggleProductAvailability(String id, bool isAvailable) async {
+    try {
+      final response = await dio.put('${AppConstants.producerProductsEndpoint}/$id', data: {'is_available': isAvailable});
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to toggle availability', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

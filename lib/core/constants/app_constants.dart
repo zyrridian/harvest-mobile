@@ -20,6 +20,7 @@ class AppConstants {
 
   // API Endpoints - Home
   static const String getHomeDataEndpoint = '/home';
+  static const String categoriesEndpoint = '/categories';
 
   // API Endpoints - Producer/Farmer
   static const String producerProfileEndpoint = '/farmer';

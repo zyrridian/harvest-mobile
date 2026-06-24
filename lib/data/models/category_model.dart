@@ -18,10 +18,14 @@ class CategoryModel extends Category {
       description: json['description'] as String,
       emoji: json['emoji'] as String,
       iconName: json['iconName'] as String?,
-      gradientColors: (json['gradientColors'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      productCount: json['productCount'] as int,
+      gradientColors: (json['gradient_colors'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          (json['gradientColors'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          ['#D4E2D4', '#B8C6B8'],
+      productCount: json['product_count'] as int? ?? json['productCount'] as int? ?? 0,
     );
   }
 

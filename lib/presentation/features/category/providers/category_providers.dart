@@ -7,10 +7,12 @@ import 'package:harvest_app/domain/repositories/category_repository.dart';
 import 'package:harvest_app/domain/usecases/get_all_categories.dart';
 import 'package:harvest_app/domain/usecases/get_category_products.dart';
 
+import 'package:harvest_app/core/providers/dio_provider.dart';
+
 // Data Source Provider
 final categoryRemoteDataSourceProvider =
     Provider<CategoryRemoteDataSource>((ref) {
-  return CategoryRemoteDataSourceImpl();
+  return CategoryRemoteDataSourceImpl(ref.read(dioProvider));
 });
 
 // Repository Provider

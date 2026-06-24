@@ -26,8 +26,108 @@ final getFarmerProductsUseCaseProvider =
 // ignore: unused_element
 typedef GetFarmerProductsUseCaseRef
     = AutoDisposeProviderRef<GetFarmerProductsUseCase>;
+String _$getFarmerProductDetailUseCaseHash() =>
+    r'884abd328828464b6a85df2da99ef7ef8ccd2c3a';
+
+/// See also [getFarmerProductDetailUseCase].
+@ProviderFor(getFarmerProductDetailUseCase)
+final getFarmerProductDetailUseCaseProvider =
+    AutoDisposeProvider<GetFarmerProductDetailUseCase>.internal(
+  getFarmerProductDetailUseCase,
+  name: r'getFarmerProductDetailUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getFarmerProductDetailUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetFarmerProductDetailUseCaseRef
+    = AutoDisposeProviderRef<GetFarmerProductDetailUseCase>;
+String _$createFarmerProductUseCaseHash() =>
+    r'6acb570c4d9500a37ce09a391fce1f831d5d9db8';
+
+/// See also [createFarmerProductUseCase].
+@ProviderFor(createFarmerProductUseCase)
+final createFarmerProductUseCaseProvider =
+    AutoDisposeProvider<CreateFarmerProductUseCase>.internal(
+  createFarmerProductUseCase,
+  name: r'createFarmerProductUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$createFarmerProductUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CreateFarmerProductUseCaseRef
+    = AutoDisposeProviderRef<CreateFarmerProductUseCase>;
+String _$updateFarmerProductUseCaseHash() =>
+    r'e4a8b95e6d31929d20c87275bbbc7a2d98f554fb';
+
+/// See also [updateFarmerProductUseCase].
+@ProviderFor(updateFarmerProductUseCase)
+final updateFarmerProductUseCaseProvider =
+    AutoDisposeProvider<UpdateFarmerProductUseCase>.internal(
+  updateFarmerProductUseCase,
+  name: r'updateFarmerProductUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$updateFarmerProductUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateFarmerProductUseCaseRef
+    = AutoDisposeProviderRef<UpdateFarmerProductUseCase>;
+String _$deleteFarmerProductUseCaseHash() =>
+    r'775d41886c135631f60bd74d623d1e510ae1a652';
+
+/// See also [deleteFarmerProductUseCase].
+@ProviderFor(deleteFarmerProductUseCase)
+final deleteFarmerProductUseCaseProvider =
+    AutoDisposeProvider<DeleteFarmerProductUseCase>.internal(
+  deleteFarmerProductUseCase,
+  name: r'deleteFarmerProductUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$deleteFarmerProductUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DeleteFarmerProductUseCaseRef
+    = AutoDisposeProviderRef<DeleteFarmerProductUseCase>;
+String _$toggleFarmerProductAvailabilityUseCaseHash() =>
+    r'67e9f8de0cd146eb124bd549eb8938d1ab21be57';
+
+/// See also [toggleFarmerProductAvailabilityUseCase].
+@ProviderFor(toggleFarmerProductAvailabilityUseCase)
+final toggleFarmerProductAvailabilityUseCaseProvider =
+    AutoDisposeProvider<ToggleFarmerProductAvailabilityUseCase>.internal(
+  toggleFarmerProductAvailabilityUseCase,
+  name: r'toggleFarmerProductAvailabilityUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$toggleFarmerProductAvailabilityUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ToggleFarmerProductAvailabilityUseCaseRef
+    = AutoDisposeProviderRef<ToggleFarmerProductAvailabilityUseCase>;
 String _$farmerProductsControllerHash() =>
-    r'e515bd1c48874d0c16342a224dc93cf95195c8ed';
+    r'5702b7c4ea7db21ac86838201c20d3451ef8419a';
 
 /// See also [FarmerProductsController].
 @ProviderFor(FarmerProductsController)

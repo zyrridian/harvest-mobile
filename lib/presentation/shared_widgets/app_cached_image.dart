@@ -1,7 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:shimmer/shimmer.dart';
+
+/// Helper to get an appropriate ImageProvider based on the URL type.
+/// Supports both standard network URLs and base64 encoded data URIs.
+ImageProvider getAppImageProvider(String url) {
+  if (url.startsWith('data:image')) {
+    final base64String = url.split(',').last;
+    return MemoryImage(base64Decode(base64String));
+  }
+  return CachedNetworkImageProvider(url);
+}
 
 /// A customizable and reusable widget for displaying cached network images
 /// with built-in loading placeholders and error handling.
@@ -223,14 +234,31 @@ class AppCachedImage extends StatelessWidget {
     // Runtime validation for imageUrl
     assert(imageUrl.isNotEmpty, 'imageUrl cannot be empty');
 
-    Widget image = CachedNetworkImage(
-      imageUrl: imageUrl,
-      height: height,
-      width: width,
-      fit: fit,
-      placeholder: customPlaceholder ?? _buildPlaceholder,
-      errorWidget: customErrorWidget ?? _buildErrorWidget,
-    );
+    Widget image;
+    
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',').last;
+        image = Image.memory(
+          base64Decode(base64String),
+          height: height,
+          width: width,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => customErrorWidget?.call(context, imageUrl, error) ?? _buildErrorWidget(context, imageUrl, error),
+        );
+      } catch (e) {
+        image = customErrorWidget?.call(context, imageUrl, e) ?? _buildErrorWidget(context, imageUrl, e);
+      }
+    } else {
+      image = CachedNetworkImage(
+        imageUrl: imageUrl,
+        height: height,
+        width: width,
+        fit: fit,
+        placeholder: customPlaceholder ?? _buildPlaceholder,
+        errorWidget: customErrorWidget ?? _buildErrorWidget,
+      );
+    }
 
     // Apply border radius if specified
     if (borderRadius != null) {

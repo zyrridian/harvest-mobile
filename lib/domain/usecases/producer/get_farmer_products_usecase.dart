@@ -8,7 +8,7 @@ class GetFarmerProductsUseCase {
 
   GetFarmerProductsUseCase(this.repository);
 
-  Future<Either<Failure, List<FarmerProduct>>> call({int page = 1, int limit = 20}) async {
-    return await repository.getProducts(page: page, limit: limit);
+  Future<Either<Failure, List<FarmerProduct>>> call({int page = 1, int limit = 20, String? status}) async {
+    return await repository.getProducts(page: page, limit: limit, status: status);
   }
 }

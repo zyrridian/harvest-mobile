@@ -1,5 +1,6 @@
 import 'package:harvest_app/data/models/category_model.dart';
 import 'package:harvest_app/data/models/category_product_model.dart';
+import 'package:dio/dio.dart';
 
 abstract class CategoryRemoteDataSource {
   Future<List<CategoryModel>> getAllCategories();
@@ -8,104 +9,34 @@ abstract class CategoryRemoteDataSource {
 }
 
 class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
-  // Simulated API delay
+  final Dio _dio;
+
+  CategoryRemoteDataSourceImpl(this._dio);
+
+  // Simulated API delay for mock endpoints
   Future<void> _simulateNetworkDelay() async {
     await Future.delayed(const Duration(milliseconds: 800));
   }
 
   @override
   Future<List<CategoryModel>> getAllCategories() async {
-    await _simulateNetworkDelay();
-
-    return [
-      CategoryModel(
-        id: 'vegetables',
-        name: 'Vegetables',
-        description: 'Fresh organic vegetables from local farmers',
-        emoji: '🥦',
-        gradientColors: ['#D4E2D4', '#B8C6B8'],
-        productCount: 45,
-      ),
-      CategoryModel(
-        id: 'fruits',
-        name: 'Fruits',
-        description: 'Seasonal fruits picked at peak ripeness',
-        emoji: '🍓',
-        gradientColors: ['#FFE5D9', '#FFD1BC'],
-        productCount: 38,
-      ),
-      CategoryModel(
-        id: 'meat',
-        name: 'Meat',
-        description: 'Premium quality meat from trusted sources',
-        emoji: '🥩',
-        gradientColors: ['#F2E6E6', '#E6D0D0'],
-        productCount: 22,
-      ),
-      CategoryModel(
-        id: 'fish',
-        name: 'Fish',
-        description: 'Fresh catch delivered daily',
-        emoji: '🐟',
-        gradientColors: ['#DBEAFE', '#93C5FD'],
-        productCount: 18,
-      ),
-      CategoryModel(
-        id: 'dairy',
-        name: 'Dairy',
-        description: 'Farm-fresh dairy products',
-        emoji: '🧀',
-        gradientColors: ['#FFF9E6', '#FFF0C2'],
-        productCount: 28,
-      ),
-      CategoryModel(
-        id: 'eggs',
-        name: 'Eggs',
-        description: 'Free-range eggs from happy hens',
-        emoji: '🥚',
-        gradientColors: ['#FEF9C3', '#FDE047'],
-        productCount: 12,
-      ),
-      CategoryModel(
-        id: 'grains',
-        name: 'Grains',
-        description: 'Wholesome grains and cereals',
-        emoji: '🌾',
-        gradientColors: ['#F0EAD6', '#E6DEBF'],
-        productCount: 31,
-      ),
-      CategoryModel(
-        id: 'herbs',
-        name: 'Herbs',
-        description: 'Fresh herbs and spices',
-        emoji: '🌿',
-        gradientColors: ['#E8F5E9', '#C8E6C9'],
-        productCount: 24,
-      ),
-      CategoryModel(
-        id: 'nuts',
-        name: 'Nuts & Seeds',
-        description: 'Nutritious nuts and seeds',
-        emoji: '🥜',
-        gradientColors: ['#FFEEE0', '#FFE0C7'],
-        productCount: 16,
-      ),
-      CategoryModel(
-        id: 'honey',
-        name: 'Honey',
-        description: 'Pure raw honey from local beekeepers',
-        emoji: '🍯',
-        gradientColors: ['#FFF4E6', '#FFE8CC'],
-        productCount: 8,
-      ),
-    ];
+    try {
+      final response = await _dio.get('/categories');
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as List;
+        return data.map((json) => CategoryModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to fetch categories');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch categories: $e');
+    }
   }
 
   @override
   Future<CategoryModel> getCategoryById(String categoryId) async {
-    await _simulateNetworkDelay();
     final categories = await getAllCategories();
-    return categories.firstWhere((c) => c.id == categoryId);
+    return categories.firstWhere((c) => c.id == categoryId, orElse: () => throw Exception('Category not found'));
   }
 
   @override

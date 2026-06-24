@@ -118,7 +118,10 @@ class AppRouter {
       GoRoute(
         path: addProduct,
         name: 'addProduct',
-        builder: (context, state) => const AddProductScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          return AddProductScreen(productId: extra is String ? extra : null);
+        },
       ),
       GoRoute(
         path: harvestScheduleDetail,

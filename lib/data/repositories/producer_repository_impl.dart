@@ -2,18 +2,24 @@ import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/data/datasources/remote/producer_remote_datasource.dart';
+import 'package:harvest_app/data/datasources/local/producer_local_datasource.dart';
+import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
 import 'package:harvest_app/domain/entities/farmer_stats.dart';
 import 'package:harvest_app/domain/entities/farmer_profile.dart';
 import 'package:harvest_app/domain/entities/delivery_settings.dart';
 import 'package:harvest_app/domain/entities/farmer_product.dart';
 import 'package:harvest_app/domain/entities/farmer_order.dart';
+import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
+import 'package:harvest_app/domain/entities/product_request.dart';
 import 'package:harvest_app/domain/repositories/producer_repository.dart';
 
 class ProducerRepositoryImpl implements ProducerRepository {
   final ProducerRemoteDataSource remoteDataSource;
+  final ProducerLocalDataSource? localDataSource;
 
   ProducerRepositoryImpl({
     required this.remoteDataSource,
+    this.localDataSource,
   });
 
   @override
@@ -59,10 +65,93 @@ class ProducerRepositoryImpl implements ProducerRepository {
   }
 
   @override
-  Future<Either<Failure, List<FarmerProduct>>> getProducts({int page = 1, int limit = 20}) async {
+  Future<Either<Failure, List<FarmerProduct>>> getProducts({int page = 1, int limit = 20, String? status}) async {
     try {
-      final models = await remoteDataSource.getProducts(page: page, limit: limit);
+      final models = await remoteDataSource.getProducts(page: page, limit: limit, status: status);
+      if (localDataSource != null && page == 1 && (status == null || status == 'all')) {
+        localDataSource!.saveFarmerProducts(models);
+      }
       return Right(models.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      if (localDataSource != null && page == 1) {
+        try {
+          final cached = await localDataSource!.getFarmerProducts();
+          if (cached != null) {
+            return Right(cached.map((e) => e.toEntity()).toList());
+          }
+        } catch (_) {}
+      }
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerProductDetail>> getProductDetail(String id) async {
+    try {
+      final model = await remoteDataSource.getProductDetail(id);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerProductDetail>> createProduct(ProductRequest product) async {
+    try {
+      final requestModel = ProductRequestModel.fromEntity(product);
+      final model = await remoteDataSource.createProduct(requestModel);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerProductDetail>> updateProduct(String id, ProductRequest product) async {
+    try {
+      final requestModel = ProductRequestModel.fromEntity(product);
+      final model = await remoteDataSource.updateProduct(id, requestModel);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteProduct(String id) async {
+    try {
+      await remoteDataSource.deleteProduct(id);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> toggleProductAvailability(String id, bool isAvailable) async {
+    try {
+      await remoteDataSource.toggleProductAvailability(id, isAvailable);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
