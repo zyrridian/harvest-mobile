@@ -84,8 +84,86 @@ final createRoutePlanUseCaseProvider =
 // ignore: unused_element
 typedef CreateRoutePlanUseCaseRef
     = AutoDisposeProviderRef<CreateRoutePlanUseCase>;
+String _$updateRouteStatusUseCaseHash() =>
+    r'8e5a73c94be32ba31060cd3ce9ed35880b9d745e';
+
+/// See also [updateRouteStatusUseCase].
+@ProviderFor(updateRouteStatusUseCase)
+final updateRouteStatusUseCaseProvider =
+    AutoDisposeProvider<UpdateRouteStatusUseCase>.internal(
+  updateRouteStatusUseCase,
+  name: r'updateRouteStatusUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$updateRouteStatusUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateRouteStatusUseCaseRef
+    = AutoDisposeProviderRef<UpdateRouteStatusUseCase>;
+String _$updateStopStatusUseCaseHash() =>
+    r'a76f9e230955c763f854faee00764997e5497998';
+
+/// See also [updateStopStatusUseCase].
+@ProviderFor(updateStopStatusUseCase)
+final updateStopStatusUseCaseProvider =
+    AutoDisposeProvider<UpdateStopStatusUseCase>.internal(
+  updateStopStatusUseCase,
+  name: r'updateStopStatusUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$updateStopStatusUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateStopStatusUseCaseRef
+    = AutoDisposeProviderRef<UpdateStopStatusUseCase>;
+String _$reorderStopsUseCaseHash() =>
+    r'1e69d2d1dd14c9b976a6ddcb9628102c0ca7bceb';
+
+/// See also [reorderStopsUseCase].
+@ProviderFor(reorderStopsUseCase)
+final reorderStopsUseCaseProvider =
+    AutoDisposeProvider<ReorderStopsUseCase>.internal(
+  reorderStopsUseCase,
+  name: r'reorderStopsUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$reorderStopsUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ReorderStopsUseCaseRef = AutoDisposeProviderRef<ReorderStopsUseCase>;
+String _$pushLocationUseCaseHash() =>
+    r'620b772599de87c132fb091fe3b1334f9a925046';
+
+/// See also [pushLocationUseCase].
+@ProviderFor(pushLocationUseCase)
+final pushLocationUseCaseProvider =
+    AutoDisposeProvider<PushLocationUseCase>.internal(
+  pushLocationUseCase,
+  name: r'pushLocationUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$pushLocationUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PushLocationUseCaseRef = AutoDisposeProviderRef<PushLocationUseCase>;
 String _$routePlanControllerHash() =>
-    r'0a37a65adb197fdbc901e3f61fbb4c9961260850';
+    r'85ae44abf16505f1bd08194c46509dcf7a026e53';
 
 /// See also [RoutePlanController].
 @ProviderFor(RoutePlanController)

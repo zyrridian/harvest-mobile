@@ -15,6 +15,8 @@ RoutePlanModel _$RoutePlanModelFromJson(Map<String, dynamic> json) =>
       stopCount: (json['stop_count'] as num?)?.toInt() ?? 0,
       totalDistanceKm: (json['total_distance_km'] as num?)?.toDouble() ?? 0.0,
       estimatedMinutes: (json['estimated_minutes'] as num?)?.toInt() ?? 0,
+      startedAt: json['started_at'] as String?,
+      completedAt: json['completed_at'] as String?,
       stops: (json['stops'] as List<dynamic>?)
               ?.map((e) => RouteStopModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -30,6 +32,8 @@ Map<String, dynamic> _$RoutePlanModelToJson(RoutePlanModel instance) =>
       'stop_count': instance.stopCount,
       'total_distance_km': instance.totalDistanceKm,
       'estimated_minutes': instance.estimatedMinutes,
+      'started_at': instance.startedAt,
+      'completed_at': instance.completedAt,
       'stops': instance.stops.map((e) => e.toJson()).toList(),
     };
 
@@ -48,6 +52,7 @@ RouteStopModel _$RouteStopModelFromJson(Map<String, dynamic> json) =>
       buyerName: json['buyer_name'] as String?,
       addressLat: (json['address_lat'] as num?)?.toDouble(),
       addressLng: (json['address_lng'] as num?)?.toDouble(),
+      requiresManualNavigation: json['requires_manual_navigation'] as bool?,
       actualArrival: json['actual_arrival'] as String?,
       items: (json['items'] as List<dynamic>?)
           ?.map((e) => RouteStopItemModel.fromJson(e as Map<String, dynamic>))
@@ -70,6 +75,7 @@ Map<String, dynamic> _$RouteStopModelToJson(RouteStopModel instance) =>
       'buyer_name': instance.buyerName,
       'address_lat': instance.addressLat,
       'address_lng': instance.addressLng,
+      'requires_manual_navigation': instance.requiresManualNavigation,
       'actual_arrival': instance.actualArrival,
       'items': instance.items?.map((e) => e.toJson()).toList(),
       'notes': instance.notes,

@@ -58,7 +58,71 @@ class RoutePlanRepositoryImpl implements RoutePlanRepository {
       // Let's clear the cached list for this date so it fetches fresh next time, or just let it update when refreshed
       return Right(remoteRoutePlan.toEntity());
     } catch (e) {
-      return _handleException(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, RoutePlan>> updateRouteStatus(String routeId, String status) async {
+    try {
+      final model = await remoteDataSource.updateRouteStatus(routeId, status);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, RouteStop>> updateStopStatus(String routeId, String stopId, String status, String? notes) async {
+    try {
+      final model = await remoteDataSource.updateStopStatus(routeId, stopId, status, notes);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, RoutePlan>> reorderStops(String routeId, List<String> stopIds) async {
+    try {
+      final model = await remoteDataSource.reorderStops(routeId, stopIds);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> pushLocation(String routeId, double lat, double lng, double? accuracy) async {
+    try {
+      await remoteDataSource.pushLocation(routeId, lat, lng, accuracy);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
     }
   }
 

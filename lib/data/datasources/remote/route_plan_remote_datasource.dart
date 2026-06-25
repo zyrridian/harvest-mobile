@@ -8,6 +8,10 @@ abstract class RoutePlanRemoteDataSource {
   Future<RoutePlanModel> getRoutePlanDetail(String routeId);
   Future<RoutePlanModel> createRoutePlan(
       String date, List<String> orderIds, bool trackingEnabled);
+  Future<RoutePlanModel> updateRouteStatus(String routeId, String status);
+  Future<RouteStopModel> updateStopStatus(String routeId, String stopId, String status, String? notes);
+  Future<RoutePlanModel> reorderStops(String routeId, List<String> stopIds);
+  Future<void> pushLocation(String routeId, double lat, double lng, double? accuracy);
 }
 
 class RoutePlanRemoteDataSourceImpl implements RoutePlanRemoteDataSource {
@@ -92,6 +96,120 @@ class RoutePlanRemoteDataSourceImpl implements RoutePlanRemoteDataSource {
       } else {
         throw ServerException('Failed to create route plan',
             statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<RoutePlanModel> updateRouteStatus(String routeId, String status) async {
+    try {
+      final response = await dio.patch(
+        '${AppConstants.producerRoutesEndpoint}/$routeId/status',
+        data: {'status': status},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true && data['data'] != null) {
+          return await getRoutePlanDetail(routeId);
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to update route status', statusCode: response.statusCode);
+        }
+      } else {
+        throw ServerException('Failed to update route status', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<RouteStopModel> updateStopStatus(String routeId, String stopId, String status, String? notes) async {
+    try {
+      final response = await dio.patch(
+        '${AppConstants.producerRoutesEndpoint}/$routeId/stops/$stopId',
+        data: {
+          'status': status,
+          if (notes != null) 'notes': notes,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true && data['data'] != null) {
+          final stopData = data['data'];
+          return RouteStopModel(
+            stopId: stopData['stop_id'],
+            stopOrder: 0,
+            recipientName: '',
+            addressLabel: '',
+            status: stopData['status'],
+            actualArrival: stopData['actual_arrival'],
+            notes: stopData['notes'],
+          );
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to update stop status', statusCode: response.statusCode);
+        }
+      } else {
+        throw ServerException('Failed to update stop status', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<RoutePlanModel> reorderStops(String routeId, List<String> stopIds) async {
+    try {
+      final response = await dio.put(
+        '${AppConstants.producerRoutesEndpoint}/$routeId/reorder',
+        data: {'stop_ids': stopIds},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true) {
+          return await getRoutePlanDetail(routeId);
+        } else {
+          throw ServerException(data['message'] ?? 'Failed to reorder stops', statusCode: response.statusCode);
+        }
+      } else {
+        throw ServerException('Failed to reorder stops', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> pushLocation(String routeId, double lat, double lng, double? accuracy) async {
+    try {
+      final response = await dio.post(
+        '${AppConstants.producerRoutesEndpoint}/$routeId/location',
+        data: {
+          'latitude': lat,
+          'longitude': lng,
+          if (accuracy != null) 'accuracy': accuracy,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] != true) {
+          throw ServerException(data['message'] ?? 'Failed to push location', statusCode: response.statusCode);
+        }
+      } else {
+        throw ServerException('Failed to push location', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

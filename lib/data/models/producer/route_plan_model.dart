@@ -18,6 +18,10 @@ class RoutePlanModel {
   final double totalDistanceKm;
   @JsonKey(name: 'estimated_minutes', defaultValue: 0)
   final int estimatedMinutes;
+  @JsonKey(name: 'started_at')
+  final String? startedAt;
+  @JsonKey(name: 'completed_at')
+  final String? completedAt;
   @JsonKey(defaultValue: [])
   final List<RouteStopModel> stops;
 
@@ -29,6 +33,8 @@ class RoutePlanModel {
     required this.stopCount,
     required this.totalDistanceKm,
     required this.estimatedMinutes,
+    this.startedAt,
+    this.completedAt,
     required this.stops,
   });
 
@@ -46,6 +52,8 @@ class RoutePlanModel {
       stopCount: stopCount,
       totalDistanceKm: totalDistanceKm,
       estimatedMinutes: estimatedMinutes,
+      startedAt: startedAt,
+      completedAt: completedAt,
       stops: stops.map((s) => s.toEntity()).toList(),
     );
   }
@@ -78,6 +86,8 @@ class RouteStopModel {
   final double? addressLat;
   @JsonKey(name: 'address_lng')
   final double? addressLng;
+  @JsonKey(name: 'requires_manual_navigation')
+  final bool? requiresManualNavigation;
   @JsonKey(name: 'actual_arrival')
   final String? actualArrival;
   final List<RouteStopItemModel>? items;
@@ -97,6 +107,7 @@ class RouteStopModel {
     this.buyerName,
     this.addressLat,
     this.addressLng,
+    this.requiresManualNavigation,
     this.actualArrival,
     this.items,
     this.notes,
@@ -122,6 +133,7 @@ class RouteStopModel {
       buyerName: buyerName,
       addressLat: addressLat,
       addressLng: addressLng,
+      requiresManualNavigation: requiresManualNavigation,
       actualArrival: actualArrival,
       items: items?.map((i) => i.toEntity()).toList(),
       notes: notes,

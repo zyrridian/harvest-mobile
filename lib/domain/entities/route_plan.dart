@@ -8,6 +8,8 @@ class RoutePlan extends Equatable {
   final int stopCount;
   final double totalDistanceKm;
   final int estimatedMinutes;
+  final String? startedAt;
+  final String? completedAt;
   final List<RouteStop> stops;
 
   const RoutePlan({
@@ -18,6 +20,8 @@ class RoutePlan extends Equatable {
     required this.stopCount,
     required this.totalDistanceKm,
     required this.estimatedMinutes,
+    this.startedAt,
+    this.completedAt,
     required this.stops,
   });
 
@@ -30,6 +34,8 @@ class RoutePlan extends Equatable {
         stopCount,
         totalDistanceKm,
         estimatedMinutes,
+        startedAt,
+        completedAt,
         stops,
       ];
 }
@@ -48,6 +54,7 @@ class RouteStop extends Equatable {
   final String? buyerName;
   final double? addressLat;
   final double? addressLng;
+  final bool? requiresManualNavigation;
   final String? actualArrival;
   final List<RouteStopItem>? items;
   final String? notes;
@@ -66,6 +73,7 @@ class RouteStop extends Equatable {
     this.buyerName,
     this.addressLat,
     this.addressLng,
+    this.requiresManualNavigation,
     this.actualArrival,
     this.items,
     this.notes,
@@ -86,6 +94,7 @@ class RouteStop extends Equatable {
         buyerName,
         addressLat,
         addressLng,
+        requiresManualNavigation,
         actualArrival,
         items,
         notes,
