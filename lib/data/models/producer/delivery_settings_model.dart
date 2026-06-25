@@ -17,6 +17,7 @@ class DeliverySettingsModel {
   final num? minOrderForFree;
   @JsonKey(name: 'cash_on_delivery_enabled')
   final bool cashOnDeliveryEnabled;
+  final String? notes;
 
   DeliverySettingsModel({
     required this.farmerDeliveryEnabled,
@@ -25,6 +26,7 @@ class DeliverySettingsModel {
     required this.maxRadiusKm,
     this.minOrderForFree,
     required this.cashOnDeliveryEnabled,
+    this.notes,
   });
 
   factory DeliverySettingsModel.fromJson(Map<String, dynamic> json) =>
@@ -40,6 +42,7 @@ class DeliverySettingsModel {
       maxRadiusKm: maxRadiusKm.toDouble(),
       minOrderForFree: minOrderForFree?.toDouble() ?? 0.0,
       cashOnDeliveryEnabled: cashOnDeliveryEnabled,
+      notes: notes,
     );
   }
 }

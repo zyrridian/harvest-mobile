@@ -15,6 +15,7 @@ DeliverySettingsModel _$DeliverySettingsModelFromJson(
       maxRadiusKm: json['max_radius_km'] as num,
       minOrderForFree: json['min_order_for_free'] as num?,
       cashOnDeliveryEnabled: json['cash_on_delivery_enabled'] as bool,
+      notes: json['notes'] as String?,
     );
 
 Map<String, dynamic> _$DeliverySettingsModelToJson(
@@ -26,4 +27,5 @@ Map<String, dynamic> _$DeliverySettingsModelToJson(
       'max_radius_km': instance.maxRadiusKm,
       'min_order_for_free': instance.minOrderForFree,
       'cash_on_delivery_enabled': instance.cashOnDeliveryEnabled,
+      'notes': instance.notes,
     };

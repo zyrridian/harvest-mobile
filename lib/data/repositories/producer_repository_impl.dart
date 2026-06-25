@@ -3,6 +3,7 @@ import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/data/datasources/remote/producer_remote_datasource.dart';
 import 'package:harvest_app/data/datasources/local/producer_local_datasource.dart';
+import 'package:harvest_app/data/models/producer/delivery_settings_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
 import 'package:harvest_app/domain/entities/farmer_stats.dart';
 import 'package:harvest_app/domain/entities/farmer_profile.dart';
@@ -15,6 +16,8 @@ import 'package:harvest_app/domain/repositories/producer_repository.dart';
 import 'package:harvest_app/domain/entities/farm_profile_request.dart';
 import 'package:harvest_app/domain/entities/farm_review.dart';
 import 'package:harvest_app/data/models/producer/farm_profile_request_model.dart';
+import 'package:harvest_app/data/models/producer/drop_point_model.dart';
+import 'package:harvest_app/domain/entities/drop_point.dart';
 
 class ProducerRepositoryImpl implements ProducerRepository {
   final ProducerRemoteDataSource remoteDataSource;
@@ -83,10 +86,91 @@ class ProducerRepositoryImpl implements ProducerRepository {
   }
 
   @override
+  Future<Either<Failure, DeliverySettings>> updateDeliverySettings(DeliverySettings settings) async {
+    try {
+      final requestModel = DeliverySettingsModel(
+        farmerDeliveryEnabled: settings.farmerDeliveryEnabled,
+        baseFee: settings.baseFee,
+        perKmRate: settings.perKmRate,
+        maxRadiusKm: settings.maxRadiusKm,
+        minOrderForFree: settings.minOrderForFree,
+        cashOnDeliveryEnabled: settings.cashOnDeliveryEnabled,
+        notes: settings.notes,
+      );
+      final model = await remoteDataSource.updateDeliverySettings(requestModel);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, FarmReviewResponse>> getReviews({int page = 1, int limit = 20}) async {
     try {
       final model = await remoteDataSource.getReviews(page: page, limit: limit);
       return Right(model);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DropPoint>>> getDropPoints() async {
+    try {
+      final models = await remoteDataSource.getDropPoints();
+      return Right(models.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DropPoint>> createDropPoint(DropPoint dropPoint) async {
+    try {
+      final requestModel = DropPointModel.fromEntity(dropPoint);
+      final model = await remoteDataSource.createDropPoint(requestModel);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DropPoint>> updateDropPoint(String id, DropPoint dropPoint) async {
+    try {
+      final requestModel = DropPointModel.fromEntity(dropPoint);
+      final model = await remoteDataSource.updateDropPoint(id, requestModel);
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteDropPoint(String id) async {
+    try {
+      await remoteDataSource.deleteDropPoint(id);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

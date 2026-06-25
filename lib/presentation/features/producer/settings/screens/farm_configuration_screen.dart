@@ -204,12 +204,14 @@ class FarmConfigurationScreen extends ConsumerWidget {
             icon: PhosphorIconsRegular.mapTrifold,
             title: 'Manage Drop Points',
             subtitle: 'Set pickup locations for consumers',
+            onTap: () => context.push(AppRouter.dropPoints),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
             icon: PhosphorIconsRegular.truck,
             title: 'Delivery Settings',
             subtitle: 'Configure wholesale delivery radius',
+            onTap: () => context.push(AppRouter.deliverySettings),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(

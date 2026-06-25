@@ -7,6 +7,7 @@ class DeliverySettings extends Equatable {
   final double maxRadiusKm;
   final double minOrderForFree;
   final bool cashOnDeliveryEnabled;
+  final String? notes;
 
   const DeliverySettings({
     required this.farmerDeliveryEnabled,
@@ -15,6 +16,7 @@ class DeliverySettings extends Equatable {
     required this.maxRadiusKm,
     required this.minOrderForFree,
     required this.cashOnDeliveryEnabled,
+    this.notes,
   });
 
   @override
@@ -25,5 +27,6 @@ class DeliverySettings extends Equatable {
         maxRadiusKm,
         minOrderForFree,
         cashOnDeliveryEnabled,
+        notes,
       ];
 }

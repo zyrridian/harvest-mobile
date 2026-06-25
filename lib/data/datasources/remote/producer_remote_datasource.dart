@@ -10,13 +10,19 @@ import 'package:harvest_app/data/models/producer/farmer_order_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
 import 'package:harvest_app/data/models/producer/farm_profile_request_model.dart';
 import 'package:harvest_app/data/models/producer/farm_review_model.dart';
+import 'package:harvest_app/data/models/producer/drop_point_model.dart';
 
 abstract class ProducerRemoteDataSource {
   Future<FarmerStatsDataModel> getStats();
   Future<FarmerProfileModel> getProfile();
   Future<FarmerProfileModel> updateProfile(FarmProfileRequestModel request);
   Future<DeliverySettingsModel> getDeliverySettings();
+  Future<DeliverySettingsModel> updateDeliverySettings(DeliverySettingsModel settings);
   Future<FarmReviewResponseModel> getReviews({int page = 1, int limit = 20});
+  Future<List<DropPointModel>> getDropPoints();
+  Future<DropPointModel> createDropPoint(DropPointModel dropPoint);
+  Future<DropPointModel> updateDropPoint(String id, DropPointModel dropPoint);
+  Future<void> deleteDropPoint(String id);
   Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20, String? status});
   Future<FarmerProductDetailModel> getProductDetail(String id);
   Future<FarmerProductDetailModel> createProduct(ProductRequestModel product);
@@ -119,6 +125,24 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
   }
 
   @override
+  Future<DeliverySettingsModel> updateDeliverySettings(DeliverySettingsModel settings) async {
+    try {
+      final response = await dio.put(AppConstants.producerDeliverySettingsEndpoint, data: settings.toJson());
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] ?? response.data;
+        return DeliverySettingsModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to update delivery settings', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
   Future<FarmReviewResponseModel> getReviews({int page = 1, int limit = 20}) async {
     try {
       final Map<String, dynamic> params = {'page': page, 'limit': limit};
@@ -132,6 +156,72 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
         return FarmReviewResponseModel.fromJson(data);
       } else {
         throw ServerException('Failed to get reviews', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<List<DropPointModel>> getDropPoints() async {
+    try {
+      final response = await dio.get(AppConstants.producerDropPointsEndpoint);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'] ?? [];
+        return data.map((e) => DropPointModel.fromJson(e)).toList();
+      } else {
+        throw ServerException('Failed to get drop points', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<DropPointModel> createDropPoint(DropPointModel dropPoint) async {
+    try {
+      final response = await dio.post(AppConstants.producerDropPointsEndpoint, data: dropPoint.toJson());
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data['data'] ?? response.data;
+        return DropPointModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to create drop point', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<DropPointModel> updateDropPoint(String id, DropPointModel dropPoint) async {
+    try {
+      final response = await dio.patch('${AppConstants.producerDropPointsEndpoint}?id=$id', data: dropPoint.toJson());
+      if (response.statusCode == 200) {
+        final data = response.data['data'] ?? response.data;
+        return DropPointModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to update drop point', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteDropPoint(String id) async {
+    try {
+      final response = await dio.delete('${AppConstants.producerDropPointsEndpoint}?id=$id');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ServerException('Failed to delete drop point', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

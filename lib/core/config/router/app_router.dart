@@ -21,6 +21,9 @@ import '../../../presentation/features/subscriptions/screens/subscriptions_scree
 import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
 import '../../../presentation/features/producer/settings/screens/edit_farm_profile_screen.dart';
 import '../../../presentation/features/producer/settings/screens/farm_reviews_screen.dart';
+import '../../../presentation/features/producer/settings/screens/delivery_settings_screen.dart';
+import '../../../presentation/features/producer/settings/screens/drop_points_screen.dart';
+import '../../../presentation/features/producer/settings/screens/edit_drop_point_screen.dart';
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
 import '../../../presentation/features/addresses/screens/addresses_screen.dart';
 import '../../../presentation/features/product/screens/product_detail_screen.dart';
@@ -36,6 +39,7 @@ import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_scree
 import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
 import '../../../presentation/features/producer/route_plan/screens/route_plan_screen.dart';
 import '../../../domain/entities/farmer.dart';
+import '../../../domain/entities/drop_point.dart';
 
 class AppRouter {
   // Auth routes
@@ -52,6 +56,9 @@ class AppRouter {
   static const String farmerDashboard = '/farmer-dashboard';
   static const String editFarmProfile = '/edit-farm-profile';
   static const String farmReviews = '/farm-reviews';
+  static const String deliverySettings = '/delivery-settings';
+  static const String dropPoints = '/drop-points';
+  static const String editDropPoint = '/edit-drop-point';
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
   static const String routePlan = '/route-plan';
@@ -130,6 +137,24 @@ class AppRouter {
         path: farmReviews,
         name: 'farmReviews',
         builder: (context, state) => const FarmReviewsScreen(),
+      ),
+      GoRoute(
+        path: deliverySettings,
+        name: 'deliverySettings',
+        builder: (context, state) => const DeliverySettingsScreen(),
+      ),
+      GoRoute(
+        path: dropPoints,
+        name: 'dropPoints',
+        builder: (context, state) => const DropPointsScreen(),
+      ),
+      GoRoute(
+        path: editDropPoint,
+        name: 'editDropPoint',
+        builder: (context, state) {
+          final dropPoint = state.extra as DropPoint?;
+          return EditDropPointScreen(dropPoint: dropPoint);
+        },
       ),
       GoRoute(
         path: addProduct,
