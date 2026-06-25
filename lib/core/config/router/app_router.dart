@@ -32,6 +32,7 @@ import '../../../presentation/features/marketplace/screens/marketplace_screen.da
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
 import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
 import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
+import '../../../presentation/features/producer/route_plan/screens/route_plan_screen.dart';
 import '../../../domain/entities/farmer.dart';
 
 class AppRouter {
@@ -49,6 +50,7 @@ class AppRouter {
   static const String farmerDashboard = '/farmer-dashboard';
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
+  static const String routePlan = '/route-plan';
   static const String farmersMap = '/farmers-map';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
@@ -127,6 +129,11 @@ class AppRouter {
         path: harvestScheduleDetail,
         name: 'harvestScheduleDetail',
         builder: (context, state) => const HarvestScheduleDetailScreen(),
+      ),
+      GoRoute(
+        path: routePlan,
+        name: 'routePlan',
+        builder: (context, state) => const RoutePlanScreen(),
       ),
       GoRoute(
         path: farmersMap,

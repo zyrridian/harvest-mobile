@@ -171,10 +171,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'routePlanFab',
         onPressed: () {
-          // TODO: Generate Route Plan
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Generate Route Plan / Manifest')),
-          );
+          context.push(AppRouter.routePlan);
         },
         backgroundColor: kAccentOrange,
         icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
