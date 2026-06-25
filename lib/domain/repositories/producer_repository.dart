@@ -7,11 +7,15 @@ import 'package:harvest_app/domain/entities/farmer_product.dart';
 import 'package:harvest_app/domain/entities/farmer_order.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
 import 'package:harvest_app/domain/entities/product_request.dart';
+import 'package:harvest_app/domain/entities/farm_profile_request.dart';
+import 'package:harvest_app/domain/entities/farm_review.dart';
 
 abstract class ProducerRepository {
   Future<Either<Failure, FarmerStats>> getStats();
   Future<Either<Failure, FarmerProfile>> getProfile();
+  Future<Either<Failure, FarmerProfile>> updateProfile(FarmProfileRequest profile);
   Future<Either<Failure, DeliverySettings>> getDeliverySettings();
+  Future<Either<Failure, FarmReviewResponse>> getReviews({int page = 1, int limit = 20});
   Future<Either<Failure, List<FarmerProduct>>> getProducts({int page = 1, int limit = 20, String? status});
   Future<Either<Failure, FarmerProductDetail>> getProductDetail(String id);
   Future<Either<Failure, FarmerProductDetail>> createProduct(ProductRequest product);

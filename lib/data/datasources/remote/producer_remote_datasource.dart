@@ -8,11 +8,15 @@ import 'package:harvest_app/data/models/producer/farmer_product_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_order_model.dart';
 
 import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
+import 'package:harvest_app/data/models/producer/farm_profile_request_model.dart';
+import 'package:harvest_app/data/models/producer/farm_review_model.dart';
 
 abstract class ProducerRemoteDataSource {
   Future<FarmerStatsDataModel> getStats();
   Future<FarmerProfileModel> getProfile();
+  Future<FarmerProfileModel> updateProfile(FarmProfileRequestModel request);
   Future<DeliverySettingsModel> getDeliverySettings();
+  Future<FarmReviewResponseModel> getReviews({int page = 1, int limit = 20});
   Future<List<FarmerProductModel>> getProducts({int page = 1, int limit = 20, String? status});
   Future<FarmerProductDetailModel> getProductDetail(String id);
   Future<FarmerProductDetailModel> createProduct(ProductRequestModel product);
@@ -78,6 +82,24 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
   }
 
   @override
+  Future<FarmerProfileModel> updateProfile(FarmProfileRequestModel request) async {
+    try {
+      final response = await dio.post(AppConstants.producerProfileEndpoint, data: request.toJson());
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data['data'] ?? response.data;
+        return FarmerProfileModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to update profile', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
   Future<DeliverySettingsModel> getDeliverySettings() async {
     try {
       final response = await dio.get(AppConstants.producerDeliverySettingsEndpoint);
@@ -88,6 +110,28 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
         return DeliverySettingsModel.fromJson(settings);
       } else {
         throw ServerException('Failed to get delivery settings', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmReviewResponseModel> getReviews({int page = 1, int limit = 20}) async {
+    try {
+      final Map<String, dynamic> params = {'page': page, 'limit': limit};
+      final response = await dio.get(
+        AppConstants.producerReviewsEndpoint,
+        queryParameters: params,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] ?? response.data;
+        return FarmReviewResponseModel.fromJson(data);
+      } else {
+        throw ServerException('Failed to get reviews', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

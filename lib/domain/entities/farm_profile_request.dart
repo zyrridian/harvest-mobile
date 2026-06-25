@@ -1,39 +1,34 @@
 import 'package:equatable/equatable.dart';
 
-class FarmerProfile extends Equatable {
-  final String id;
+class FarmProfileRequest extends Equatable {
   final String name;
-  final String description;
+  final String? description;
   final String? profileImage;
   final String? coverImage;
-  final String address;
+  final String? address;
   final String? city;
   final String? state;
-  final double latitude;
-  final double longitude;
+  final double? latitude;
+  final double? longitude;
   final String? phoneNumber;
-  final List<String> specialties;
-  final bool isVerified;
+  final List<String>? specialties;
 
-  const FarmerProfile({
-    required this.id,
+  const FarmProfileRequest({
     required this.name,
-    required this.description,
+    this.description,
     this.profileImage,
     this.coverImage,
-    required this.address,
+    this.address,
     this.city,
     this.state,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
     this.phoneNumber,
-    required this.specialties,
-    required this.isVerified,
+    this.specialties,
   });
 
   @override
   List<Object?> get props => [
-        id,
         name,
         description,
         profileImage,
@@ -45,6 +40,5 @@ class FarmerProfile extends Equatable {
         longitude,
         phoneNumber,
         specialties,
-        isVerified,
       ];
 }

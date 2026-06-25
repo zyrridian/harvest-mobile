@@ -184,12 +184,14 @@ class FarmConfigurationScreen extends ConsumerWidget {
             icon: PhosphorIconsRegular.storefront,
             title: 'Edit Farm Profile',
             subtitle: profile.name,
+            onTap: () => context.push(AppRouter.editFarmProfile),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
             icon: PhosphorIconsRegular.star,
             title: 'My Farm Reviews',
             subtitle: 'See what buyers are saying',
+            onTap: () => context.push(AppRouter.farmReviews),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
@@ -249,6 +251,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -275,7 +278,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
         ),
       ),
       trailing: const Icon(PhosphorIconsRegular.caretRight, color: kTextGrey, size: 16),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

@@ -19,6 +19,8 @@ import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart
 import '../../../presentation/features/settings/screens/settings_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
+import '../../../presentation/features/producer/settings/screens/edit_farm_profile_screen.dart';
+import '../../../presentation/features/producer/settings/screens/farm_reviews_screen.dart';
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
 import '../../../presentation/features/addresses/screens/addresses_screen.dart';
 import '../../../presentation/features/product/screens/product_detail_screen.dart';
@@ -48,6 +50,8 @@ class AppRouter {
   static const String main = '/main';
   static const String community = '/community';
   static const String farmerDashboard = '/farmer-dashboard';
+  static const String editFarmProfile = '/edit-farm-profile';
+  static const String farmReviews = '/farm-reviews';
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
   static const String routePlan = '/route-plan';
@@ -116,6 +120,16 @@ class AppRouter {
         path: farmerDashboard,
         name: 'farmerDashboard',
         builder: (context, state) => const FarmerMainScreen(),
+      ),
+      GoRoute(
+        path: editFarmProfile,
+        name: 'editFarmProfile',
+        builder: (context, state) => const EditFarmProfileScreen(),
+      ),
+      GoRoute(
+        path: farmReviews,
+        name: 'farmReviews',
+        builder: (context, state) => const FarmReviewsScreen(),
       ),
       GoRoute(
         path: addProduct,
