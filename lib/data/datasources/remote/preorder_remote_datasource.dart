@@ -2,10 +2,19 @@ import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/data/models/preorder/preorder_model.dart';
 import 'package:harvest_app/data/models/preorder/preorder_response_model.dart';
+import 'package:harvest_app/data/models/preorder/campaign_model.dart';
 
 abstract class PreOrderRemoteDataSource {
   Future<PreOrderModel> getPreOrderData({String? status});
-  Future<Map<String, dynamic>> reservePreOrder({required String harvestId, required int quantity});
+  
+  // New endpoints
+  Future<PreorderCampaignModel> createCampaign(PreorderCampaignModel campaign);
+  Future<List<PreorderCampaignModel>> getActiveCampaigns();
+  Future<List<PreorderCampaignModel>> getMyCampaigns();
+  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);
+  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod);
+  Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
+  Future<Map<String, dynamic>> cancelReservation(String id);
 }
 
 class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
@@ -18,10 +27,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // For now, return dummy JSON data that simulates the real response
     final dummyJson = {
       "status": "success",
-      "message": "Pre-order data fetched successfully",
       "data": {
         "active_harvests_count": 12,
         "your_reservations_count": 3,
@@ -39,41 +46,9 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
             "total_quantity": 100,
             "days_left": 8,
             "status": "Almost full"
-          },
-          {
-            "id": "h2",
-            "title": "Ikan Salmon Trout Whole F...",
-            "farmer_name": "Fish Factory",
-            "distance": "2.6 km",
-            "image_url": "🐠",
-            "price": 1140000,
-            "unit": "kg",
-            "booked_quantity": 0,
-            "total_quantity": 40,
-            "days_left": 156,
-            "status": "Open"
           }
         ],
-        "active_reservations": [
-          {
-            "id": "r1",
-            "title": "Tomat Cherry Merah",
-            "quantity_str": "5 kg",
-            "farmer_name": "Green Valley Farm",
-            "days_to_harvest": 12,
-            "image_url": "🍅",
-            "status": "Confirmed"
-          },
-          {
-            "id": "r2",
-            "title": "Beras Pandan Wangi",
-            "quantity_str": "10 kg",
-            "farmer_name": "Fresh Fields Co.",
-            "days_to_harvest": 45,
-            "image_url": "🌾",
-            "status": "Pending"
-          }
-        ]
+        "active_reservations": []
       }
     };
 
@@ -90,28 +65,114 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> reservePreOrder({required String harvestId, required int quantity}) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Simulated dummy JSON response
-    final dummyJson = {
-      "status": "success",
-      "message": "Reservation successful",
-      "data": {
-        "reservation_id": "r_new_${DateTime.now().millisecondsSinceEpoch}",
-        "status": "Pending"
-      }
-    };
-
+  Future<PreorderCampaignModel> createCampaign(PreorderCampaignModel campaign) async {
     try {
-      if (dummyJson['status'] == 'success') {
-        return dummyJson['data'] as Map<String, dynamic>;
-      } else {
-        throw ServerException('Failed to reserve harvest');
+      final response = await dio.post(
+        '/api/v1/preorders/campaigns',
+        data: campaign.toJson(),
+      );
+      if (response.data['status'] == 'success') {
+        return PreorderCampaignModel.fromJson(response.data['data']);
       }
+      throw ServerException('Failed to create campaign');
     } catch (e) {
-      throw ServerException('An unexpected error occurred: $e');
+      throw ServerException('Failed to create campaign: $e');
+    }
+  }
+
+  @override
+  Future<List<PreorderCampaignModel>> getActiveCampaigns() async {
+    try {
+      final response = await dio.get('/api/v1/preorders/campaigns');
+      if (response.data['status'] == 'success') {
+        return (response.data['data'] as List)
+            .map((e) => PreorderCampaignModel.fromJson(e))
+            .toList();
+      }
+      throw ServerException('Failed to load campaigns');
+    } catch (e) {
+      throw ServerException('Failed to load campaigns: $e');
+    }
+  }
+
+  @override
+  Future<List<PreorderCampaignModel>> getMyCampaigns() async {
+    try {
+      final response = await dio.get('/api/v1/preorders/campaigns/me');
+      if (response.data['status'] == 'success') {
+        return (response.data['data'] as List)
+            .map((e) => PreorderCampaignModel.fromJson(e))
+            .toList();
+      }
+      throw ServerException('Failed to load campaigns');
+    } catch (e) {
+      throw ServerException('Failed to load campaigns: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId) async {
+    try {
+      final response = await dio.post(
+        '/api/v1/preorders/campaigns/$id/reserve',
+        data: {
+          'quantity': quantity,
+          'delivery_method': deliveryMethod,
+          if (addressId != null) 'address_id': addressId,
+        },
+      );
+      if (response.data['status'] == 'success') {
+        return response.data['data'];
+      }
+      throw ServerException('Failed to reserve spot');
+    } catch (e) {
+      throw ServerException('Failed to reserve spot: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod) async {
+    try {
+      final response = await dio.post(
+        '/api/v1/preorders/reservations/$id/pay',
+        data: {'paymentMethod': paymentMethod},
+      );
+      if (response.data['status'] == 'success') {
+        return response.data['data'];
+      }
+      throw ServerException('Failed to pay deposit');
+    } catch (e) {
+      throw ServerException('Failed to pay deposit: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime) async {
+    try {
+      final response = await dio.post(
+        '/api/v1/preorders/reservations/$id/pickup',
+        data: {'pickup_time': pickupTime.toIso8601String()},
+      );
+      if (response.data['status'] == 'success') {
+        return response.data['data'];
+      }
+      throw ServerException('Failed to arrange pickup');
+    } catch (e) {
+      throw ServerException('Failed to arrange pickup: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> cancelReservation(String id) async {
+    try {
+      final response = await dio.post('/api/v1/preorders/reservations/$id/cancel');
+      if (response.data['status'] == 'success') {
+        return response.data['data'];
+      }
+      throw ServerException('Failed to cancel reservation');
+    } catch (e) {
+      throw ServerException('Failed to cancel reservation: $e');
     }
   }
 }
+

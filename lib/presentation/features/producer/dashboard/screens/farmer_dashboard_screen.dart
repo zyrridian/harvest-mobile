@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../domain/entities/farmer_stats.dart';
 import '../../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_dashboard_controller.dart';
+import 'package:harvest_app/presentation/features/producer/preorder/screens/create_preorder_campaign_screen.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -26,6 +27,18 @@ class FarmerDashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: _buildAppBar(context),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: kPrimaryGreen,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_business),
+        label: const Text('New Preorder'),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreatePreorderCampaignScreen()),
+          );
+        },
+      ),
       body: dashboardState.maybeWhen(
         loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (error) => Center(

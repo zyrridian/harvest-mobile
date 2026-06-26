@@ -30,6 +30,7 @@ abstract class ProducerRemoteDataSource {
   Future<void> deleteProduct(String id);
   Future<void> toggleProductAvailability(String id, bool isAvailable);
   Future<List<FarmerOrderModel>> getOrders({int page = 1, int limit = 20, String status = 'all'});
+  Future<Map<String, dynamic>> getPreorderDashboard({String? status});
 }
 
 class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
@@ -363,6 +364,30 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
         return data.map((e) => FarmerOrderModel.fromJson(e)).toList();
       } else {
         throw ServerException('Failed to get orders', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getPreorderDashboard({String? status}) async {
+    try {
+      final Map<String, dynamic> params = {};
+      if (status != null) {
+        params['status'] = status;
+      }
+      final response = await dio.get(
+        '/api/v1/preorders/dashboard',
+        queryParameters: params,
+      );
+
+      if (response.data['status'] == 'success') {
+        return response.data['data'] as Map<String, dynamic>;
+      } else {
+        throw ServerException('Failed to get preorder dashboard', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

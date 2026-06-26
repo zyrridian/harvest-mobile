@@ -7,6 +7,7 @@ import 'package:harvest_app/data/repositories/preorder_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/preorder_repository.dart';
 import 'package:harvest_app/domain/usecases/preorder/get_preorder_data_usecase.dart';
 import 'package:harvest_app/domain/usecases/preorder/reserve_preorder_usecase.dart';
+import 'package:harvest_app/domain/usecases/preorder/get_active_campaigns_usecase.dart';
 import 'preorder_state.dart';
 
 part 'preorder_controller.g.dart';
@@ -29,6 +30,10 @@ final reservePreOrderUseCaseProvider = Provider<ReservePreOrderUseCase>((ref) {
   return ReservePreOrderUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
+final getActiveCampaignsUseCaseProvider = Provider<GetActiveCampaignsUseCase>((ref) {
+  return GetActiveCampaignsUseCase(ref.watch(preOrderRepositoryProvider));
+});
+
 @riverpod
 class PreOrderController extends _$PreOrderController {
   @override
@@ -40,20 +45,64 @@ class PreOrderController extends _$PreOrderController {
   Future<void> _fetchData() async {
     state = const PreOrderState.loading();
 
-    final usecase = ref.read(getPreOrderDataUseCaseProvider);
-    final result = await usecase.call();
+    try {
+      final usecase = ref.read(getPreOrderDataUseCaseProvider);
+      final campaignUsecase = ref.read(getActiveCampaignsUseCaseProvider);
 
-    result.fold(
-      (failure) {
-        state = PreOrderState.error(failure.message);
-      },
-      (entity) {
-        state = PreOrderState.data(PreOrderData.fromResponseEntity(
-          entity,
-          selectedTabIndex: 0,
-        ));
-      },
-    );
+      final result = await usecase.call();
+      final campaignResult = await campaignUsecase.call();
+
+      result.fold(
+        (failure) {
+          state = PreOrderState.error(failure.message);
+        },
+        (entity) {
+          campaignResult.fold(
+            (fail) {
+              state = PreOrderState.data(PreOrderData.fromResponseEntity(
+                entity,
+                selectedTabIndex: 0,
+              ));
+            },
+            (campaigns) {
+              // Map campaigns to PreOrderHarvest
+              final mappedCampaigns = campaigns.map((c) {
+                final daysLeft = c.deadline.difference(DateTime.now()).inDays;
+                return PreOrderHarvest(
+                  id: c.id,
+                  title: 'Campaign Product ${c.productId}',
+                  farmerName: 'Local Farmer',
+                  distance: '2.5 km',
+                  imageUrl: '📦',
+                  price: c.depositAmount > 0 ? c.depositAmount * 5 : 50000,
+                  unit: 'kg',
+                  bookedQuantity: c.currentReservations.toDouble(),
+                  totalQuantity: c.targetQuantity.toDouble(),
+                  daysLeft: daysLeft > 0 ? daysLeft : 0,
+                  status: c.status ?? 'Active',
+                );
+              }).toList();
+
+              // Merge them or replace
+              final updatedEntity = PreOrderResponseEntity(
+                activeHarvests: entity.activeHarvests + campaigns.length,
+                yourReservations: entity.yourReservations,
+                avgSavings: entity.avgSavings,
+                availableHarvests: [...mappedCampaigns, ...entity.availableHarvests],
+                activeReservations: entity.activeReservations,
+              );
+
+              state = PreOrderState.data(PreOrderData.fromResponseEntity(
+                updatedEntity,
+                selectedTabIndex: 0,
+              ));
+            },
+          );
+        },
+      );
+    } catch (e) {
+      state = PreOrderState.error(e.toString());
+    }
   }
 
   void setTabIndex(int index) {

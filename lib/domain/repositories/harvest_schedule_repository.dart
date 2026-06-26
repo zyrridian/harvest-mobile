@@ -15,4 +15,10 @@ abstract class HarvestScheduleRepository {
     required String harvestId,
     required String pickupTime,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getScheduleDashboard({
+    String? month,
+    double? latitude,
+    double? longitude,
+  });
 }

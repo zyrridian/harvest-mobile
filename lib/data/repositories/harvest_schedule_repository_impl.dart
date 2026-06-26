@@ -67,4 +67,26 @@ class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getScheduleDashboard({
+    String? month,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final result = await remoteDataSource.getScheduleDashboard(
+        month: month,
+        latitude: latitude,
+        longitude: longitude,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

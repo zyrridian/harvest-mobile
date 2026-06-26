@@ -290,4 +290,18 @@ class ProducerRepositoryImpl implements ProducerRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPreorderDashboard({String? status}) async {
+    try {
+      final result = await remoteDataSource.getPreorderDashboard(status: status);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
