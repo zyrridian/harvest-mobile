@@ -112,7 +112,18 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data['data'] ?? {};
-        final Map<String, dynamic> settings = data['delivery_settings'] ?? {};
+        final Map<String, dynamic>? settings = data['delivery_settings'];
+        
+        if (settings == null) {
+          return DeliverySettingsModel(
+            farmerDeliveryEnabled: false,
+            baseFee: 0,
+            perKmRate: 0,
+            maxRadiusKm: 0,
+            cashOnDeliveryEnabled: false,
+          );
+        }
+        
         return DeliverySettingsModel.fromJson(settings);
       } else {
         throw ServerException('Failed to get delivery settings', statusCode: response.statusCode);

@@ -477,7 +477,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        s,
+                        s ?? '',
                         style: GoogleFonts.inter(
                             color: kDarkGreen, fontWeight: FontWeight.w500),
                       ),

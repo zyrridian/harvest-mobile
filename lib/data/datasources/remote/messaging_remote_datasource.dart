@@ -3,7 +3,7 @@ import '../../models/conversation_model.dart';
 import '../../models/message_model.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
-
+import '../../../core/constants/app_constants.dart';
 abstract class MessagingRemoteDataSource {
   Future<Map<String, dynamic>> getConversations({
     String filter = 'all',
@@ -167,7 +167,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     int limit = 20,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/conversations',
+      AppConstants.conversationsEndpoint,
       queryParameters: {
         if (filter != 'all') 'filter': filter,
         if (search != null && search.isNotEmpty) 'search': search,
@@ -186,7 +186,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String? beforeMessageId,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/conversations/$conversationId',
+      '${AppConstants.conversationsEndpoint}/$conversationId',
       queryParameters: {
         'page': page,
         'limit': limit,
@@ -244,7 +244,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String? initialMessage,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations',
+      AppConstants.conversationsEndpoint,
       data: {
         'recipient_id': recipientId,
         'type': type,
@@ -294,7 +294,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     }
 
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations/$conversationId/messages',
+      '${AppConstants.conversationsEndpoint}/$conversationId/messages',
       data: formData,
       options: Options(contentType: 'multipart/form-data'),
     );
@@ -326,7 +326,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String content,
   }) async {
     final response = await _dio.put<Map<String, dynamic>>(
-      '/messages/$messageId',
+      '${AppConstants.messagesEndpoint}/$messageId',
       data: {'content': content},
     );
     return response.data ?? {};
@@ -338,7 +338,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String deleteFor = 'me',
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/messages/$messageId',
+      '${AppConstants.messagesEndpoint}/$messageId',
       queryParameters: {'delete_for': deleteFor},
     );
     return response.data ?? {};
@@ -349,7 +349,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String messageId,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/messages/$messageId/read',
+      '${AppConstants.messagesEndpoint}/$messageId/read',
     );
     return response.data ?? {};
   }
@@ -359,7 +359,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String conversationId,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations/$conversationId/read-all',
+      '${AppConstants.conversationsEndpoint}/$conversationId/read-all',
     );
     return response.data ?? {};
   }
@@ -372,7 +372,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String emoji,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/messages/$messageId/reaction',
+      '${AppConstants.messagesEndpoint}/$messageId/reaction',
       data: {'emoji': emoji},
     );
     return response.data ?? {};
@@ -383,7 +383,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String messageId,
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/messages/$messageId/reaction',
+      '${AppConstants.messagesEndpoint}/$messageId/reaction',
     );
     return response.data ?? {};
   }
@@ -408,7 +408,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     int? duration,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations/$conversationId/mute',
+      '${AppConstants.conversationsEndpoint}/$conversationId/mute',
       data: duration != null ? {'duration': duration} : null,
     );
     return response.data ?? {};
@@ -419,7 +419,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String conversationId,
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/conversations/$conversationId/mute',
+      '${AppConstants.conversationsEndpoint}/$conversationId/mute',
     );
     return response.data ?? {};
   }
@@ -429,7 +429,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String conversationId,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations/$conversationId/pin',
+      '${AppConstants.conversationsEndpoint}/$conversationId/pin',
     );
     return response.data ?? {};
   }
@@ -439,7 +439,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String conversationId,
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/conversations/$conversationId/pin',
+      '${AppConstants.conversationsEndpoint}/$conversationId/pin',
     );
     return response.data ?? {};
   }
@@ -451,7 +451,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String conversationId,
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/conversations/$conversationId',
+      '${AppConstants.conversationsEndpoint}/$conversationId',
     );
     return response.data ?? {};
   }
@@ -463,7 +463,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String userId,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/users/$userId/block',
+      '${AppConstants.usersEndpoint}/$userId/block',
     );
     return response.data ?? {};
   }
@@ -473,14 +473,14 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     required String userId,
   }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
-      '/users/$userId/block',
+      '${AppConstants.usersEndpoint}/$userId/block',
     );
     return response.data ?? {};
   }
 
   @override
   Future<List<BlockedUserModel>> getBlockedUsers() async {
-    final response = await _dio.get<Map<String, dynamic>>('/users/blocked');
+    final response = await _dio.get<Map<String, dynamic>>('${AppConstants.usersEndpoint}/blocked');
     final data = response.data?['data'] as List<dynamic>? ?? [];
     return data
         .map((e) => BlockedUserModel.fromJson(e as Map<String, dynamic>))

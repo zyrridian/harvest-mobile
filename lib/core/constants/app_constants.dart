@@ -1,7 +1,6 @@
 class AppConstants {
   // Image Placeholders
-  static const String placeholderImage =
-      'https://picsum.photos/400/400';
+  static const String placeholderImage = 'https://picsum.photos/400/400';
 
   // API Configuration
   // TODO: Update this to your actual API URL
@@ -19,18 +18,20 @@ class AppConstants {
   static const String getCurrentUserEndpoint = '/auth/me';
 
   // API Endpoints - Home
-  static const String getHomeDataEndpoint = '/home';
+  static const String getHomeDataEndpoint = '/storefront/home';
+  static const String marketplaceDataEndpoint = '/storefront/marketplace';
   static const String categoriesEndpoint = '/categories';
 
   // API Endpoints - Producer/Farmer
-  static const String producerProfileEndpoint = '/farmer';
-  static const String producerStatsEndpoint = '/farmer/stats';
-  static const String producerProductsEndpoint = '/farmer/products';
-  static const String producerOrdersEndpoint = '/farmer/orders';
-  static const String producerDropPointsEndpoint = '/farmer/drop-points';
-  static const String producerDeliverySettingsEndpoint = '/farmer/delivery-settings';
-  static const String producerRoutesEndpoint = '/farmer/routes';
-  static const String producerReviewsEndpoint = '/farmer/reviews';
+  static const String producerProfileEndpoint = '/farmers/me';
+  static const String producerStatsEndpoint = '/farmers/me/stats';
+  static const String producerProductsEndpoint = '/farmers/me/products';
+  static const String producerOrdersEndpoint = '/farmers/me/orders';
+  static const String producerDropPointsEndpoint = '/farmers/me/drop-points';
+  static const String producerDeliverySettingsEndpoint =
+      '/farmers/me/delivery-settings';
+  static const String producerRoutesEndpoint = '/farmers/me/routes';
+  static const String producerReviewsEndpoint = '/farmers/me/reviews';
 
   // Farmers
   static const String farmersEndpoint = '/farmers';
@@ -39,6 +40,11 @@ class AppConstants {
   static const String farmerReviewsEndpoint = '/farmers/:id/reviews';
   static const String nearbyFarmersEndpoint = '/farmers';
   static const String farmerCommunityPostsEndpoint = '/community/posts';
+
+  // Messaging & Community
+  static const String conversationsEndpoint = '/community/conversations';
+  static const String messagesEndpoint = '/community/messages';
+  static const String usersEndpoint = '/users';
 
   // Storage Keys
   static const String authTokenKey = 'auth_token';
@@ -59,7 +65,7 @@ class AppConstants {
   // App Info
   static const String appName = 'Harvest App';
   static const String appVersion = '1.0.0';
-  
+
   // Internal Telemetry ID
   static const String _telemetryToken = 'enlycmlkaWFu';
 }

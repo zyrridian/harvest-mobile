@@ -161,7 +161,13 @@ class FarmerStatsRecentOrderModel {
       buyerName: buyerName ?? 'Unknown',
       buyerPhone: '',
       items: firstItem != null
-          ? [FarmerOrderItem(productName: firstItem!.name, quantity: itemsCount ?? 1, subtotal: totalAmount.toDouble(), productImage: firstItem?.image)]
+          ? [
+              FarmerOrderItem(
+                  productName: firstItem!.name,
+                  quantity: itemsCount ?? 1,
+                  subtotal: totalAmount.toDouble(),
+                  productImage: firstItem?.image)
+            ]
           : [],
       totalAmount: totalAmount.toDouble(),
       deliveryMethod: 'direct',
@@ -191,7 +197,7 @@ class FarmerStatsProfileModel {
   final String id;
   final String name;
   @JsonKey(name: 'profile_image')
-  final String profileImage;
+  final String? profileImage;
   @JsonKey(name: 'is_verified')
   final bool isVerified;
   final num rating;
@@ -201,7 +207,7 @@ class FarmerStatsProfileModel {
   FarmerStatsProfileModel({
     required this.id,
     required this.name,
-    required this.profileImage,
+    this.profileImage,
     required this.isVerified,
     required this.rating,
     required this.totalReviews,

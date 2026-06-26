@@ -143,7 +143,7 @@ FarmerStatsProfileModel _$FarmerStatsProfileModelFromJson(
     FarmerStatsProfileModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      profileImage: json['profile_image'] as String,
+      profileImage: json['profile_image'] as String?,
       isVerified: json['is_verified'] as bool,
       rating: json['rating'] as num,
       totalReviews: (json['total_reviews'] as num).toInt(),

@@ -4,7 +4,7 @@ import 'farmer_order.dart';
 class FarmerStatsProfile extends Equatable {
   final String id;
   final String name;
-  final String profileImage;
+  final String? profileImage;
   final bool isVerified;
   final num rating;
   final int totalReviews;
@@ -12,14 +12,15 @@ class FarmerStatsProfile extends Equatable {
   const FarmerStatsProfile({
     required this.id,
     required this.name,
-    required this.profileImage,
+    this.profileImage,
     required this.isVerified,
     required this.rating,
     required this.totalReviews,
   });
 
   @override
-  List<Object?> get props => [id, name, profileImage, isVerified, rating, totalReviews];
+  List<Object?> get props =>
+      [id, name, profileImage, isVerified, rating, totalReviews];
 }
 
 class FarmerStatsEngagement extends Equatable {
@@ -37,20 +38,20 @@ class FarmerStatsEngagement extends Equatable {
 
 class FarmerStats extends Equatable {
   final FarmerStatsProfile? profile;
-  
+
   final int totalProducts;
   final int activeProducts;
   final int outOfStockProducts;
-  
+
   final int totalOrders;
   final int pendingOrders;
   final int todayOrders;
-  
+
   final double thisMonthRevenue;
   final double lastMonthRevenue;
 
   final FarmerStatsEngagement? engagement;
-  
+
   final List<FarmerOrder> recentOrders;
 
   const FarmerStats({

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/data/models/marketplace/marketplace_model.dart';
 import 'package:harvest_app/data/models/marketplace/marketplace_response_model.dart';
@@ -43,7 +44,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       if (limit != null) queryParameters['limit'] = limit;
 
       final response = await dio.get(
-        '/marketplace', // Should be added to AppConstants
+        AppConstants.marketplaceDataEndpoint,
         queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
 
@@ -77,7 +78,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '/cart/items',
+        '/sales/cart/items',
         data: {
           'product_id': productId,
           'quantity': quantity,

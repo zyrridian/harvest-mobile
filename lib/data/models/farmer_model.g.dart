@@ -22,7 +22,7 @@ FarmerModel _$FarmerModelFromJson(Map<String, dynamic> json) => FarmerModel(
       totalReviews: (json['total_reviews'] as num).toInt(),
       totalProducts: (json['total_products'] as num).toInt(),
       specialties: (json['specialties'] as List<dynamic>?)
-              ?.map((e) => e as String)
+              ?.map((e) => e as String?)
               .toList() ??
           [],
       isVerified: json['is_verified'] as bool,

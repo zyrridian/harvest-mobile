@@ -15,7 +15,7 @@ class Farmer extends Equatable {
   final double rating;
   final int totalReviews;
   final int totalProducts;
-  final List<String> specialties;
+  final List<String?> specialties;
   final bool isVerified;
   final bool hasMapFeature;
   final String? phoneNumber;
@@ -29,7 +29,12 @@ class Farmer extends Equatable {
   final int? followersCount;
 
   // Compatibility getters for the UI to reduce some breakage
-  String get whatWeSell => specialties.isNotEmpty ? specialties.first : '';
+  String get whatWeSell {
+    if (specialties.isEmpty) return '';
+    if (specialties.length == 1) return specialties.first ?? '';
+    return '${specialties.first ?? ''} +${specialties.length - 1}';
+  }
+
   bool get isActive => isOnline;
   String? get imageUrl => coverImage;
 

@@ -11,7 +11,7 @@ class CartRemoteDataSource {
 
   Future<CartModel> getCart() async {
     try {
-      final response = await dio.get('/cart');
+      final response = await dio.get('/sales/cart');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
         final data = response.data['data'] as Map<String, dynamic>;
         // Build CartModel from parsed data
@@ -44,7 +44,7 @@ class CartRemoteDataSource {
       {required String productId, required int quantity, String? notes}) async {
     try {
       final response = await dio.post(
-        '/cart/items',
+        '/sales/cart/items',
         data: {
           "product_id": productId,
           "quantity": quantity,
@@ -73,7 +73,7 @@ class CartRemoteDataSource {
       String? notes}) async {
     try {
       final response = await dio.patch(
-        '/cart/items/$cartItemId',
+        '/sales/cart/items/$cartItemId',
         data: {
           "quantity": quantity,
           if (notes != null) "notes": notes,
@@ -97,7 +97,7 @@ class CartRemoteDataSource {
 
   Future<Map<String, dynamic>> removeItem({required String cartItemId}) async {
     try {
-      final response = await dio.delete('/cart/items/$cartItemId');
+      final response = await dio.delete('/sales/cart/items/$cartItemId');
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -118,7 +118,7 @@ class CartRemoteDataSource {
       {required String cartItemId, required bool isSelected}) async {
     try {
       final response = await dio.patch(
-        '/cart/items/$cartItemId/select',
+        '/sales/cart/items/$cartItemId/select',
         data: {"is_selected": isSelected},
       );
 
@@ -139,7 +139,7 @@ class CartRemoteDataSource {
 
   Future<Map<String, dynamic>> clearCart() async {
     try {
-      final response = await dio.delete('/cart');
+      final response = await dio.delete('/sales/cart');
 
       if (response.statusCode == 200) {
         final data = response.data;
