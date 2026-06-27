@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 // import '../../../../core/config/theme/app_colors.dart'; // Using local constants for demo
-import '../providers/search_controller.dart';
-import '../widgets/product_card.dart';
-import '../widgets/product_list_item.dart';
-import '../widgets/filter_bottom_sheet.dart';
+import '../../providers/search/search_controller.dart';
+import 'widgets/product_card.dart';
+import 'widgets/product_list_item.dart';
+import 'widgets/filter_bottom_sheet.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);

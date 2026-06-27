@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/db_provider.dart';
-import '../../../../core/providers/dio_provider.dart';
-import '../../../../features/catalog/data/datasources/remote/search_remote_datasource.dart';
-import '../../../../features/catalog/data/repositories/search_repository_impl.dart';
-import '../../../../features/catalog/domain/repositories/search_repository.dart';
-import '../../../../domain/usecases/search/clear_recent_searches.dart';
-import '../../../../domain/usecases/search/get_recent_searches.dart';
-import '../../../../domain/usecases/search/save_recent_search.dart';
-import '../../../../domain/usecases/search/search_products.dart';
+import '../../../../../core/providers/db_provider.dart';
+import '../../../../../core/providers/dio_provider.dart';
+import '../../../data/datasources/remote/search_remote_datasource.dart';
+import '../../../data/repositories/search_repository_impl.dart';
+import '../../../domain/repositories/search_repository.dart';
+import '../../../domain/usecases/search/clear_recent_searches.dart';
+import '../../../domain/usecases/search/get_recent_searches.dart';
+import '../../../domain/usecases/search/save_recent_search.dart';
+import '../../../domain/usecases/search/search_products.dart';
 import 'search_state.dart';
 
 // Data Source Provider

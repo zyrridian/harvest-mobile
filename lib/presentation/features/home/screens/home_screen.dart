@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/domain/entities/home.dart';
-import 'package:harvest_app/presentation/features/search/screens/search_screen.dart';
+import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
 import 'package:harvest_app/presentation/features/home/providers/home_controller.dart';
 import 'package:harvest_app/presentation/features/home/widgets/greeting_location_bar.dart';

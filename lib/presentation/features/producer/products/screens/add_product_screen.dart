@@ -7,7 +7,7 @@ import 'package:harvest_app/features/catalog/domain/entities/product_request.dar
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/presentation/features/producer/products/providers/farmer_products_controller.dart';
-import 'package:harvest_app/features/catalog/presentation/providers/category_providers.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
 import 'package:harvest_app/presentation/features/producer/products/providers/unit_providers.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import 'package:intl/intl.dart';

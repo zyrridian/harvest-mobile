@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:harvest_app/features/catalog/presentation/providers/category_providers.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_products_screen.dart';
 
 // Design colors

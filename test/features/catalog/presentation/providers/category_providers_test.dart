@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/category/get_all_categories.dart';
-import 'package:harvest_app/features/catalog/presentation/providers/category_providers.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetAllCategories extends Mock implements GetAllCategories {}
