@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/data/datasources/category_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/category_repository_impl.dart';
-import 'package:harvest_app/domain/entities/category.dart';
-import 'package:harvest_app/domain/entities/category_product.dart';
-import 'package:harvest_app/domain/repositories/category_repository.dart';
-import 'package:harvest_app/domain/usecases/get_all_categories.dart';
-import 'package:harvest_app/domain/usecases/get_category_products.dart';
+import 'package:harvest_app/features/catalog/data/datasources/remote/category_remote_datasource.dart';
+import 'package:harvest_app/features/catalog/data/repositories/category_repository_impl.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category_product.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/get_all_categories.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/get_category_products.dart';
 
 import 'package:harvest_app/core/providers/dio_provider.dart';
 

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/domain/entities/category_product.dart';
-import 'package:harvest_app/presentation/features/category/providers/category_providers.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category_product.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/category_providers.dart';
 
 // Design colors
 const kBgColor = Color(0xFFFAFAF8);

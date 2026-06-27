@@ -1,7 +1,7 @@
-import 'package:harvest_app/data/datasources/category_remote_datasource.dart';
-import 'package:harvest_app/domain/entities/category.dart';
-import 'package:harvest_app/domain/entities/category_product.dart';
-import 'package:harvest_app/domain/repositories/category_repository.dart';
+import 'package:harvest_app/features/catalog/data/datasources/remote/category_remote_datasource.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category_product.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryRemoteDataSource remoteDataSource;

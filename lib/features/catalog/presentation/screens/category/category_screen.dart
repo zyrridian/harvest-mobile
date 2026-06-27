@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/presentation/features/category/screens/all_categories_screen.dart';
-import 'package:harvest_app/presentation/features/category/screens/category_products_screen.dart';
+import 'package:harvest_app/features/catalog/presentation/screens/category/all_categories_screen.dart';
+import 'package:harvest_app/features/catalog/presentation/screens/category/category_products_screen.dart';
 
 class CategoryScreen extends ConsumerStatefulWidget {
   final String categoryName;

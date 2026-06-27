@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/category.dart';
-import 'package:harvest_app/domain/repositories/category_repository.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
 
 class GetAllCategoriesUseCase {
   final CategoryRepository repository;

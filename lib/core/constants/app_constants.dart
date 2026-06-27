@@ -17,6 +17,11 @@ class AppConstants {
   static const String refreshTokenEndpoint = '/auth/refresh';
   static const String getCurrentUserEndpoint = '/auth/me';
 
+  // API Endpoints - Catalog
+  static const String catalogCategoriesEndpoint = '/catalog/categories';
+  static const String catalogCategoryByIdEndpoint = '/catalog/categories/:id';
+  static const String catalogCategoryProductsEndpoint = '/catalog/categories/:id/products';
+
   // API Endpoints - Home
   static const String getHomeDataEndpoint = '/storefront/home';
   static const String marketplaceDataEndpoint = '/storefront/marketplace';

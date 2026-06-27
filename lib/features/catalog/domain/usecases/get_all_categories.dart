@@ -1,5 +1,5 @@
-import 'package:harvest_app/domain/entities/category.dart';
-import 'package:harvest_app/domain/repositories/category_repository.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
 
 class GetAllCategories {
   final CategoryRepository repository;
