@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../core/error/failure.dart';
-import '../../entities/review_response.dart';
+import '../../../../../core/error/failure.dart';
+import '../../../../../domain/entities/review_response.dart';
 import '../../repositories/product_repository.dart';
 
 class GetProductReviews {

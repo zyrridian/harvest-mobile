@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/farmer.dart';
-import '../../../../domain/entities/product.dart';
+import '../../../../features/catalog/domain/entities/product.dart';
 import '../../../../domain/entities/review.dart';
 import '../../../../domain/entities/community_post.dart';
 import '../../../../core/config/router/app_router.dart';

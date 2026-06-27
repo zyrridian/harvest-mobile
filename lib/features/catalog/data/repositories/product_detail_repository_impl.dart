@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import '../../../core/error/failure.dart';
-import '../../../domain/entities/product_detail.dart';
-import '../../../domain/repositories/product_detail_repository.dart';
-import '../datasources/remote/product_detail_remote_datasource.dart';
+import '../../../../../core/error/failure.dart';
+import '../../domain/entities/product_detail.dart';
+import '../../domain/repositories/product_detail_repository.dart';
+import '../../../../data/datasources/remote/product_detail_remote_datasource.dart';
 
 class ProductDetailRepositoryImpl implements ProductDetailRepository {
   final ProductDetailRemoteDataSource remoteDataSource;

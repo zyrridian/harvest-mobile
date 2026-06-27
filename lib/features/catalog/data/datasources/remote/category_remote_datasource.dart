@@ -1,7 +1,7 @@
 import 'package:harvest_app/core/constants/app_constants.dart';
-import 'package:harvest_app/features/catalog/data/models/category_model.dart';
-import 'package:harvest_app/features/catalog/data/models/category_product_model.dart';
-import 'package:harvest_app/features/catalog/data/models/category_response_model.dart';
+import 'package:harvest_app/features/catalog/data/models/category/category_model.dart';
+import 'package:harvest_app/features/catalog/data/models/category/category_product_model.dart';
+import 'package:harvest_app/features/catalog/data/models/category/category_response_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class CategoryRemoteDataSource {

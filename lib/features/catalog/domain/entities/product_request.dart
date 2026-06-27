@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'farmer_product_detail.dart';
+import '../../../../domain/entities/farmer_product_detail.dart';
 
 class ProductRequest extends Equatable {
   final String name;

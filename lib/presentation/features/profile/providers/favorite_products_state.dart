@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/favorite_product.dart';
+import 'package:harvest_app/features/catalog/domain/entities/favorite_product.dart';
 
 part 'favorite_products_state.freezed.dart';
 

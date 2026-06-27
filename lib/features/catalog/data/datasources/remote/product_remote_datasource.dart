@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/product_detail_model.dart';
-import 'package:harvest_app/data/models/favorite_status_model.dart';
-import 'package:harvest_app/data/models/review_response_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/product_detail_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/favorite_status_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/review_response_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/favorite_product_model.dart';
 
-import 'package:harvest_app/data/models/favorite_product_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/product_list_response_model.dart';
 
 abstract class ProductRemoteDataSource {
+  Future<ProductListResponseModel> getProducts();
   Future<ProductDetailModel> getProductDetail(String slug);
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug);
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
@@ -22,9 +24,23 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   ProductRemoteDataSourceImpl(this.dio);
 
   @override
+  Future<ProductListResponseModel> getProducts() async {
+    try {
+      final response = await dio.get('/catalog/products');
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return ProductListResponseModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException('Failed to get products');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
   Future<ProductDetailModel> getProductDetail(String slug) async {
     try {
-      final response = await dio.get('/products/$slug');
+      final response = await dio.get('/catalog/products/$slug');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
         return ProductDetailModel.fromJson(response.data['data']);
       } else {
@@ -38,9 +54,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug) async {
     try {
-      final response = await dio.get('/products/$slug/favorite');
+      final response = await dio.get('/catalog/products/$slug/favorite');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        return FavoriteStatusModel.fromJson(response.data['data']);
+        final data = response.data['data'];
+        return FavoriteStatusModel(
+          productId: slug,
+          isFavorited: data['checked'] ?? data['is_favorited'] ?? false,
+        );
       } else {
         throw ServerException('Failed to get favorite status');
       }
@@ -54,7 +74,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       {int limit = 5}) async {
     try {
       final response = await dio.get(
-        '/reviews/$slug',
+        '/catalog/products/reviews/$slug',
         queryParameters: {'limit': limit},
       );
       if (response.statusCode == 200 && response.data['status'] == 'success') {
@@ -70,9 +90,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<FavoriteStatusModel> addToFavorites(String productId) async {
     try {
-      final response = await dio.post('/products/$productId/favorite');
+      final response = await dio.post('/catalog/products/$productId/favorite');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        return FavoriteStatusModel.fromJson(response.data['data']);
+        final data = response.data['data'];
+        return FavoriteStatusModel(
+          productId: productId,
+          isFavorited: data['checked'] ?? data['is_favorited'] ?? true,
+        );
       } else {
         throw ServerException('Failed to add to favorites');
       }
@@ -84,9 +108,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<FavoriteStatusModel> removeFromFavorites(String productId) async {
     try {
-      final response = await dio.delete('/products/$productId/favorite');
+      final response = await dio.delete('/catalog/products/$productId/favorite');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        return FavoriteStatusModel.fromJson(response.data['data']);
+        final data = response.data['data'];
+        return FavoriteStatusModel(
+          productId: productId,
+          isFavorited: data['checked'] ?? data['is_favorited'] ?? false,
+        );
       } else {
         throw ServerException('Failed to remove from favorites');
       }

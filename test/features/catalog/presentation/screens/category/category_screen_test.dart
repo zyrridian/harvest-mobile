@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/all_categories_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_products_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
-import 'package:harvest_app/features/catalog/domain/usecases/get_all_categories.dart';
-import 'package:harvest_app/features/catalog/domain/usecases/get_category_products.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/category/get_all_categories.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/category/get_category_products.dart';
 import 'package:harvest_app/features/catalog/presentation/providers/category_providers.dart';
 import 'package:mocktail/mocktail.dart';
 

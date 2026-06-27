@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
-import 'package:harvest_app/features/catalog/domain/usecases/get_all_categories.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/category/get_all_categories.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockCategoryRepository extends Mock implements CategoryRepository {}

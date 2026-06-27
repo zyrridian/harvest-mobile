@@ -1,4 +1,4 @@
-import 'package:harvest_app/data/models/product_detail_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product/product_detail_model.dart';
 
 abstract class ProductDetailRemoteDataSource {
   Future<ProductDetailModel> getProductDetail(String productId);

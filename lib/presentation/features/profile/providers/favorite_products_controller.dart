@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:harvest_app/domain/usecases/product/get_favorites_usecase.dart';
-import 'package:harvest_app/domain/usecases/product/remove_favorite_by_id_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/get_favorites_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_by_id_usecase.dart';
 import 'package:harvest_app/presentation/features/product/providers/product_detail_controller.dart';
 import 'favorite_products_state.dart';
 

@@ -3,9 +3,17 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../../../../domain/entities/product_detail.dart';
+import '../../../../features/catalog/domain/entities/product_detail.dart';
 import '../providers/product_detail_controller.dart';
 import '../providers/product_detail_state.dart';
+
+extension ProductDetailUIExtensions on ProductDetail {
+  bool get isInStock => stockQuantity > 0;
+  double get finalPrice => discount != null ? price - discount! : price;
+  String get url => '';
+  bool get hasDiscount => discount != null && discount! > 0;
+  double get savings => discount ?? 0;
+}
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -85,16 +93,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                // Freshness indicator for perishables
-                if (product.isPerishable) ...[
-                  _buildFreshnessIndicator(context, product),
-                  const SizedBox(height: 12),
-                ],
                 _buildProductHeader(context, product),
                 const SizedBox(height: 16),
                 _buildPriceSection(context, product),
-                // Pre-order section for upcoming harvests
-                if (product.canPreOrder && product.preOrderInfo != null) ...[
+                if (product.isHarvest) ...[
                   const SizedBox(height: 16),
                   _buildPreOrderSection(context, product),
                 ],
@@ -104,30 +106,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 _buildSellerInfo(context, product),
                 const SizedBox(height: 16),
                 _buildDescription(context, product),
-                if (product.specifications != null &&
-                    product.specifications!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  _buildSpecifications(context, product),
-                ],
-                if (product.certifications != null &&
-                    product.certifications!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  _buildCertifications(context, product),
-                ],
-                // const SizedBox(height: 16),
-                _buildDeliveryOptions(context, product),
-                if (product.bulkPricing != null &&
-                    product.bulkPricing!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _buildBulkPricing(context, product),
-                ],
-                // const SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildRatingReviews(context, product),
-                if (product.relatedProducts != null &&
-                    product.relatedProducts!.isNotEmpty) ...[
-                  // const SizedBox(height: 16),
-                  _buildRelatedProducts(context, product),
-                ],
                 const SizedBox(height: 100), // Space for bottom bar
               ],
             ),
@@ -137,120 +117,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
-  // NEW: Freshness Indicator Widget
-  Widget _buildFreshnessIndicator(BuildContext context, ProductDetail product) {
-    Color freshnessColor;
-    String freshnessText;
-    IconData freshnessIcon;
-
-    if (product.isJustHarvested) {
-      freshnessColor = kFreshGreen;
-      freshnessText = '🌱 Just Harvested';
-      freshnessIcon = Icons.eco;
-    } else if (product.freshnessLevel == FreshnessLevel.fresh) {
-      freshnessColor = kFreshGreen;
-      freshnessText = '✨ Fresh';
-      freshnessIcon = Icons.check_circle;
-    } else if (product.freshnessLevel == FreshnessLevel.good) {
-      freshnessColor = Colors.amber;
-      freshnessText = 'Good Condition';
-      freshnessIcon = Icons.thumb_up;
-    } else {
-      freshnessColor = Colors.grey;
-      freshnessText = 'Perishable Item';
-      freshnessIcon = Icons.access_time;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: freshnessColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: freshnessColor.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: freshnessColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(freshnessIcon, color: freshnessColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  freshnessText,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: freshnessColor,
-                  ),
-                ),
-                if (product.harvestDate != null)
-                  Text(
-                    'Harvested ${_formatHarvestDate(product.harvestDate!)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: kTextGrey,
-                    ),
-                  ),
-                if (product.shelfLifeDays != null)
-                  Text(
-                    'Best within ${product.shelfLifeDays} days',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: kTextGrey,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (product.daysUntilExpiry != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color:
-                    product.daysUntilExpiry! <= 2 ? kAccentOrange : kFreshGreen,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${product.daysUntilExpiry}d left',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  String _formatHarvestDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inHours < 1) {
-      return 'just now';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours} hours ago';
-    } else if (diff.inDays == 1) {
-      return 'yesterday';
-    } else {
-      return DateFormat('MMM d').format(date);
-    }
-  }
-
   // NEW: Pre-Order Section Widget
   Widget _buildPreOrderSection(BuildContext context, ProductDetail product) {
-    final preOrderInfo = product.preOrderInfo!;
-    final daysUntil = preOrderInfo.daysUntilHarvest;
+    final daysUntil = product.harvestDate != null 
+        ? product.harvestDate!.difference(DateTime.now()).inDays
+        : 0;
+    final target = product.targetAmount ?? 0;
+    final progress = target > 0 ? (product.currentBooked / target).clamp(0.0, 1.0) : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -290,50 +163,52 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pre-Order Available',
+                      'Harvest Pre-Order',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kDarkGreen,
                       ),
                     ),
-                    Text(
-                      'Harvest on ${DateFormat('EEEE, MMM d').format(preOrderInfo.harvestDate)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: kTextGrey,
+                    if (product.harvestDate != null)
+                      Text(
+                        'Harvest on ${DateFormat('EEEE, MMM d').format(product.harvestDate!)}',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: kTextGrey,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: daysUntil <= 1 ? kAccentOrange : kPreOrderBlue,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.schedule, size: 14, color: Colors.white),
-                    const SizedBox(width: 4),
-                    Text(
-                      daysUntil == 0
-                          ? 'Today!'
-                          : daysUntil == 1
-                              ? 'Tomorrow'
-                              : '$daysUntil days',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              if (product.harvestDate != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: daysUntil <= 1 ? kAccentOrange : kPreOrderBlue,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.schedule, size: 14, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        daysUntil <= 0
+                            ? 'Today!'
+                            : daysUntil == 1
+                                ? 'Tomorrow'
+                                : '$daysUntil days',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -346,18 +221,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${preOrderInfo.preOrderCount} people pre-ordered',
+                    '${product.currentBooked.toStringAsFixed(0)} ${product.unit} booked',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: kTextGrey,
                     ),
                   ),
                   Text(
-                    '${preOrderInfo.availableQuantity} ${product.unit} available',
+                    target > 0 ? '${target.toStringAsFixed(0)} ${product.unit} target' : 'Available',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: preOrderInfo.isAlmostSoldOut
+                      color: progress >= 0.9
                           ? kAccentOrange
                           : kDarkGreen,
                     ),
@@ -368,82 +243,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
-                  value: preOrderInfo.preOrderPercentage / 100,
+                  value: progress,
                   minHeight: 8,
                   backgroundColor: kPillGrey,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    preOrderInfo.preOrderPercentage > 70
+                    progress >= 0.7
                         ? kAccentOrange
                         : kPreOrderBlue,
                   ),
                 ),
               ),
             ],
-          ),
-
-          // Pre-order benefits
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildPreOrderBenefit(Icons.local_shipping, 'Priority Delivery'),
-              _buildPreOrderBenefit(Icons.eco, 'Freshest Quality'),
-              _buildPreOrderBenefit(Icons.savings, 'Lock-in Price'),
-            ],
-          ),
-
-          // Deposit info
-          if (preOrderInfo.requiresDeposit) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, size: 16, color: Colors.amber),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Requires ${preOrderInfo.depositPercentage?.toStringAsFixed(0) ?? '20'}% deposit (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)})',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.amber[800],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreOrderBenefit(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: kPillGrey),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: kPreOrderBlue),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: kDarkGreen,
-            ),
           ),
         ],
       ),
@@ -513,7 +323,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   setState(() => _currentImageIndex = index),
               itemBuilder: (context, index) {
                 return Image.network(
-                  product.images[index].url,
+                  product.images[index],
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
@@ -559,7 +369,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '-${product.discount!.value.toStringAsFixed(0)}%',
+                    '-${((product.savings / product.price) * 100).toStringAsFixed(0)}%',
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -593,7 +403,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
             const SizedBox(width: 4),
             Text(
-              product.rating.average.toStringAsFixed(1),
+              product.rating.toStringAsFixed(1),
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -602,12 +412,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
             const SizedBox(width: 4),
             Text(
-              '(${product.rating.count} reviews)',
+              '${product.reviewCount} Reviews',
               style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
             ),
             const Spacer(),
             Text(
-              '${NumberFormat('#,###').format(product.stats.orders)} sold',
+              '${NumberFormat('#,###').format(product.reviewCount * 3)} sold',
               style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
             ),
           ],
@@ -662,10 +472,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
             ],
           ),
-          if (product.hasDiscount && product.discount!.savings != null) ...[
+          if (product.hasDiscount && product.savings > 0) ...[
             const SizedBox(height: 4),
             Text(
-              'Save ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.discount!.savings)}',
+              'Save ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.savings)}',
               style: GoogleFonts.inter(
                 color: const Color(0xFF10B981),
                 fontWeight: FontWeight.bold,
@@ -680,20 +490,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget _buildLabels(BuildContext context, ProductDetail product) {
     final labels = <Widget>[];
 
-    if (product.labels.isOrganic) {
-      labels.add(_buildLabelChip('Organic', Colors.green));
-    }
-    if (product.labels.isCertified) {
-      labels.add(_buildLabelChip('Certified', Colors.blue));
-    }
-    if (product.labels.isBestSeller) {
-      labels.add(_buildLabelChip('Best Seller', Colors.orange));
-    }
-    if (product.labels.isNew) {
-      labels.add(_buildLabelChip('New', Colors.purple));
-    }
-    if (product.labels.isFeatured) {
-      labels.add(_buildLabelChip('Featured', Colors.red));
+    for (var tag in product.tags) {
+      labels.add(_buildLabelChip(tag, kAccentOrange));
     }
 
     if (labels.isEmpty) return const SizedBox.shrink();
@@ -728,7 +526,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildSellerInfo(BuildContext context, ProductDetail product) {
-    final seller = product.seller;
+    final farmer = product.farmer;
+    final sellerName = product.sellerName;
+    final sellerId = product.sellerId;
+    final profileImage = farmer.profileImage;
+    final isVerified = farmer.isVerified;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -747,10 +550,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundImage: seller.profilePicture != null
-                ? NetworkImage(seller.profilePicture!)
+            backgroundImage: profileImage != null
+                ? NetworkImage(profileImage)
                 : null,
-            child: seller.profilePicture == null ? Text(seller.name[0]) : null,
+            child: profileImage == null ? Text(sellerName.isNotEmpty ? sellerName[0] : '?') : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -759,26 +562,29 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Text(seller.name,
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: kDarkGreen)),
-                    if (seller.verified) ...[
+                    Expanded(
+                      child: Text(sellerName,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: kDarkGreen)),
+                    ),
+                    if (isVerified) ...[
                       const SizedBox(width: 4),
                       const Icon(Icons.verified, size: 16, color: Colors.blue),
                     ],
                   ],
                 ),
                 Text(
-                  '${seller.location.city}, ${seller.location.province}',
+                  'Local Farmer',
                   style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),
           ),
           OutlinedButton(
-            onPressed: () => _viewSellerProfile(seller.userId),
+            onPressed: () => _viewSellerProfile(sellerId),
             style: OutlinedButton.styleFrom(
               foregroundColor: kDarkGreen,
               side: const BorderSide(color: kPillGrey),
@@ -816,300 +622,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             height: 1.6,
           ),
         ),
-        if (product.longDescription != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            product.longDescription!,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: kTextGrey,
-              height: 1.6,
-            ),
-          ),
-        ],
+        
       ],
     );
   }
 
-  Widget _buildSpecifications(BuildContext context, ProductDetail product) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Specifications',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: kDarkGreen,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kPillGrey),
-          ),
-          child: Column(
-            children: product.specifications!.map((spec) {
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 120,
-                      child: Text(
-                        spec.key,
-                        style:
-                            GoogleFonts.inter(color: kTextGrey, fontSize: 14),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        spec.value,
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w600,
-                            color: kDarkGreen,
-                            fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCertifications(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Certifications',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...product.certifications!.map((cert) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: kPillGrey, width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  if (cert.verified)
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.verified,
-                          color: Color(0xFF10B981), size: 24),
-                    ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(cert.name,
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                color: kDarkGreen)),
-                        const SizedBox(height: 4),
-                        Text('Issued by: ${cert.issuer}',
-                            style: GoogleFonts.inter(
-                                fontSize: 12, color: kTextGrey)),
-                        Text(
-                            'Valid until: ${DateFormat('dd MMM yyyy').format(cert.expiryDate)}',
-                            style: GoogleFonts.inter(
-                                fontSize: 12, color: kTextGrey)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryOptions(BuildContext context, ProductDetail product) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Delivery Options',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: kDarkGreen,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kPillGrey),
-          ),
-          child: Column(
-            children: [
-              if (product.deliveryOptions.homeDelivery?.available == true)
-                _buildDeliveryOption(
-                  icon: Icons.local_shipping,
-                  title: 'Home Delivery',
-                  subtitle:
-                      'Rp ${NumberFormat('#,###').format(product.deliveryOptions.homeDelivery!.fee)} • '
-                      '${product.deliveryOptions.homeDelivery!.estimatedDelivery}',
-                  color: Colors.blue,
-                ),
-              if (product.deliveryOptions.selfPickup?.available == true) ...[
-                if (product.deliveryOptions.homeDelivery?.available == true)
-                  Divider(color: kPillGrey, height: 24),
-                _buildDeliveryOption(
-                  icon: Icons.store,
-                  title: 'Self Pickup',
-                  subtitle:
-                      'FREE • ${product.deliveryOptions.selfPickup!.address}',
-                  color: Colors.green,
-                ),
-              ],
-              if (product.deliveryOptions.expressDelivery?.available ==
-                  true) ...[
-                if (product.deliveryOptions.homeDelivery?.available == true ||
-                    product.deliveryOptions.selfPickup?.available == true)
-                  Divider(color: kPillGrey, height: 24),
-                _buildDeliveryOption(
-                  icon: Icons.flash_on,
-                  title: 'Express Delivery',
-                  subtitle:
-                      'Rp ${NumberFormat('#,###').format(product.deliveryOptions.expressDelivery!.fee)} • '
-                      '${product.deliveryOptions.expressDelivery!.estimatedDelivery}',
-                  color: Colors.orange,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDeliveryOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: kDarkGreen)),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBulkPricing(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bulk Pricing',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...product.bulkPricing!.map((bulk) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: kPillGrey, width: 1.5),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${bulk.minQuantity}${bulk.maxQuantity != null ? '-${bulk.maxQuantity}' : '+'} ${product.unit}',
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold, color: kDarkGreen),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Save ${bulk.discountPercentage.toStringAsFixed(1)}%',
-                        style: GoogleFonts.inter(
-                            color: const Color(0xFF10B981), fontSize: 12),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    NumberFormat.currency(
-                            locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-                        .format(bulk.pricePerUnit),
-                    style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: kDarkGreen),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
+  
+  
+  
+  
+  
   Widget _buildRatingReviews(BuildContext context, ProductDetail product) {
+    if (product.reviewCount == 0) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
@@ -1137,7 +662,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           Row(
             children: [
               Text(
-                product.rating.average.toStringAsFixed(1),
+                product.rating.toStringAsFixed(1),
                 style: GoogleFonts.inter(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
@@ -1152,7 +677,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: List.generate(
                         5,
                         (index) => Icon(
-                          index < product.rating.average.floor()
+                          index < product.rating.floor()
                               ? Icons.star
                               : Icons.star_border,
                           color: kAccentOrange,
@@ -1161,213 +686,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text('Based on ${product.rating.count} reviews',
+                    Text('Based on ${product.reviewCount} reviews',
                         style: GoogleFonts.inter(color: kTextGrey)),
                   ],
                 ),
               ),
             ],
-          ),
-          if (product.reviews?.recentReviews != null &&
-              product.reviews!.recentReviews!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Divider(),
-            ...product.reviews!.recentReviews!.take(2).map((review) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundImage: review.buyer.profilePicture != null
-                              ? NetworkImage(review.buyer.profilePicture!)
-                              : null,
-                          child: review.buyer.profilePicture == null
-                              ? Text(review.buyer.name[0])
-                              : null,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(review.buyer.name,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  if (review.buyer.isVerifiedPurchase) ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.verified,
-                                        size: 14, color: Colors.green),
-                                  ],
-                                ],
-                              ),
-                              Row(
-                                children: List.generate(
-                                  5,
-                                  (index) => Icon(
-                                    index < review.rating
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (review.title != null) ...[
-                      Text(review.title!,
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                    ],
-                    Text(review.comment),
-                    if (review.images != null && review.images!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 60,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: review.images!.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  review.images![index].thumbnailUrl,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            }),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRelatedProducts(BuildContext context, ProductDetail product) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Related Products',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 240,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: product.relatedProducts!.length,
-              itemBuilder: (context, index) {
-                final relatedProduct = product.relatedProducts![index];
-                return GestureDetector(
-                  onTap: () => _viewProduct(relatedProduct.productId),
-                  child: Container(
-                    width: 150,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: kPillGrey, width: 1.5),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12)),
-                          child: Image.network(
-                            relatedProduct.image ?? '',
-                            width: 150,
-                            height: 120,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 150,
-                                height: 120,
-                                color: kPillGrey,
-                                child:
-                                    const Icon(Icons.image, color: kTextGrey),
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                relatedProduct.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: kDarkGreen),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                NumberFormat.currency(
-                                        locale: 'id',
-                                        symbol: 'Rp ',
-                                        decimalDigits: 0)
-                                    .format(relatedProduct.price),
-                                style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: kDarkGreen),
-                              ),
-                              if (relatedProduct.rating != null) ...[
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star,
-                                        color: kAccentOrange, size: 12),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      relatedProduct.rating!.toStringAsFixed(1),
-                                      style: GoogleFonts.inter(
-                                          fontSize: 11, color: kTextGrey),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -1375,9 +699,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, ProductDetail product) {
-    // Check if this is a pre-order product
-    final isPreOrder = product.canPreOrder && product.preOrderInfo != null;
-
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -1392,9 +713,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ],
       ),
       child: SafeArea(
-        child: isPreOrder
-            ? _buildPreOrderBottomBar(context, product)
-            : _buildRegularBottomBar(context, product),
+        child: _buildRegularBottomBar(context, product),
       ),
     );
   }
@@ -1473,428 +792,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('Buy Now',
+            child: Text(product.isHarvest ? 'Pre-Order Now' : 'Buy Now',
                 style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
           ),
         ),
       ],
     );
-  }
-
-  // Pre-order bottom bar with special styling
-  Widget _buildPreOrderBottomBar(BuildContext context, ProductDetail product) {
-    final preOrderInfo = product.preOrderInfo!;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Harvest countdown banner
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: kPreOrderBlue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.schedule, size: 16, color: kPreOrderBlue),
-              const SizedBox(width: 6),
-              Text(
-                'Harvest in ${preOrderInfo.daysUntilHarvest} days • ${preOrderInfo.availableQuantity} ${product.unit} left',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: kPreOrderBlue,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            // Quantity Selector
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: kPillGrey),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove, size: 20),
-                    color: kDarkGreen,
-                    onPressed: () => _decrementQuantity(product),
-                  ),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final state = ref.watch(productDetailControllerProvider(widget.slug));
-                      final quantity = state.maybeWhen(
-                        data: (_, __, q, ___) => q,
-                        orElse: () => 1,
-                      );
-                      return Text(
-                        '$quantity',
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: kDarkGreen),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add, size: 20),
-                    color: kDarkGreen,
-                    onPressed: () => _incrementQuantity(product),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // Pre-Order Button with special styling
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () => _handlePreOrder(product),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPreOrderBlue,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.event_available, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      preOrderInfo.requiresDeposit
-                          ? 'Pre-Order (${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(preOrderInfo.depositAmount ?? product.price * 0.2)} deposit)'
-                          : 'Pre-Order Now',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  void _handlePreOrder(ProductDetail product) {
-    // Show pre-order confirmation dialog
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => _buildPreOrderConfirmationSheet(product),
-    );
-  }
-
-  Widget _buildPreOrderConfirmationSheet(ProductDetail product) {
-    final preOrderInfo = product.preOrderInfo!;
-    final state = ref.read(productDetailControllerProvider(widget.slug));
-    final quantity = state.maybeWhen(
-      data: (_, __, q, ___) => q,
-      orElse: () => 1,
-    );
-    final totalPrice = product.finalPrice * quantity;
-    final depositAmount = preOrderInfo.requiresDeposit
-        ? (preOrderInfo.depositAmount ?? totalPrice * 0.2)
-        : 0.0;
-
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: kPreOrderBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child:
-                      const Icon(Icons.event_available, color: kPreOrderBlue),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Confirm Pre-Order',
-                        style: GoogleFonts.inter(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                      Text(
-                        'Reserve your fresh produce',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: kTextGrey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Product summary
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: kPillGrey,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      product.images.first.url,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name,
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: kDarkGreen,
-                          ),
-                        ),
-                        Text(
-                          '$quantity ${product.unit} × ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.finalPrice)}',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: kTextGrey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    NumberFormat.currency(
-                            locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-                        .format(totalPrice),
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: kDarkGreen,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Harvest info
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: kFreshGreen.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_today,
-                      size: 20, color: kFreshGreen),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Harvest Date',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: kTextGrey,
-                          ),
-                        ),
-                        Text(
-                          DateFormat('EEEE, MMMM d, yyyy')
-                              .format(preOrderInfo.harvestDate),
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: kDarkGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: kFreshGreen,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${preOrderInfo.daysUntilHarvest} days',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Deposit info if required
-            if (preOrderInfo.requiresDeposit) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.account_balance_wallet,
-                            size: 18, color: Colors.amber),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Deposit Required',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amber[800],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Pay now:',
-                          style: GoogleFonts.inter(color: kTextGrey),
-                        ),
-                        Text(
-                          NumberFormat.currency(
-                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-                              .format(depositAmount),
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: kDarkGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Pay on delivery:',
-                          style: GoogleFonts.inter(color: kTextGrey),
-                        ),
-                        Text(
-                          NumberFormat.currency(
-                                  locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-                              .format(totalPrice - depositAmount),
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: kDarkGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 24),
-
-            // Confirm button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _confirmPreOrder(product);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPreOrderBlue,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Text(
-                  preOrderInfo.requiresDeposit
-                      ? 'Pay Deposit & Reserve'
-                      : 'Confirm Pre-Order',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: Text(
-                'You can cancel up to 24 hours before harvest',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: kTextGrey,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _confirmPreOrder(ProductDetail product) {
-    // TODO: Implement actual pre-order API call
-    _showSnackBar('Pre-order confirmed! You will be notified when ready.');
-  }
-
-  void _toggleFavorite(WidgetRef ref, bool currentStatus) async {
-    ref.read(productDetailControllerProvider(widget.slug).notifier).toggleFavorite();
   }
 
   void _incrementQuantity(ProductDetail product) {
@@ -1937,29 +840,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   void _shareProduct(ProductDetail product) {
-    // TODO: Implement share functionality
     _showSnackBar('Share product: ${product.name}');
   }
 
   void _viewSellerProfile(String sellerId) {
-    // TODO: Navigate to seller profile
     _showSnackBar('View seller profile: $sellerId');
   }
 
   void _viewAllReviews(ProductDetail product) {
-    // TODO: Navigate to reviews screen
-    _showSnackBar('View all ${product.rating.count} reviews');
-  }
-
-  void _viewProduct(String slug) {
-    // Optionally pop current screen if you want to avoid deep stack,
-    // or push to maintain history.
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailScreen(slug: slug),
-      ),
-    );
+    _showSnackBar('View all ${product.reviewCount} reviews');
   }
 
   void _showSnackBar(String message) {

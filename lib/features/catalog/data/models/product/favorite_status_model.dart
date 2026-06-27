@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/favorite_status.dart';
+import '../../../domain/entities/favorite_status.dart';
 
 part 'favorite_status_model.g.dart';
 

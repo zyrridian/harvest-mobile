@@ -1,5 +1,5 @@
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
-import 'package:harvest_app/domain/entities/product_request.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
 
 class ProductImageModel extends ProductImageEntity {
   const ProductImageModel({

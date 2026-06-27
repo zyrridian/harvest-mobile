@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
-import 'package:harvest_app/domain/entities/product_request.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
 import 'package:harvest_app/domain/repositories/producer_repository.dart';
 
 class UpdateFarmerProductUseCase {

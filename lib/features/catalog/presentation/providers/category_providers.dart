@@ -4,8 +4,8 @@ import 'package:harvest_app/features/catalog/data/repositories/category_reposito
 import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category_product.dart';
 import 'package:harvest_app/features/catalog/domain/repositories/category_repository.dart';
-import 'package:harvest_app/features/catalog/domain/usecases/get_all_categories.dart';
-import 'package:harvest_app/features/catalog/domain/usecases/get_category_products.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/category/get_all_categories.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/category/get_category_products.dart';
 
 import 'package:harvest_app/core/providers/dio_provider.dart';
 

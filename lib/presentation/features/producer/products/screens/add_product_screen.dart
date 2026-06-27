@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/domain/entities/product_request.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/presentation/features/producer/products/providers/farmer_products_controller.dart';

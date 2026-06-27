@@ -11,7 +11,7 @@ import 'package:harvest_app/domain/entities/delivery_settings.dart';
 import 'package:harvest_app/domain/entities/farmer_product.dart';
 import 'package:harvest_app/domain/entities/farmer_order.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
-import 'package:harvest_app/domain/entities/product_request.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
 import 'package:harvest_app/domain/repositories/producer_repository.dart';
 import 'package:harvest_app/domain/entities/farm_profile_request.dart';
 import 'package:harvest_app/domain/entities/farm_review.dart';

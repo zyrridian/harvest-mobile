@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/favorite_product.dart';
+import '../../../domain/entities/favorite_product.dart';
 
 part 'favorite_product_model.g.dart';
 

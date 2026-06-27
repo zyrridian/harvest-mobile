@@ -14,8 +14,8 @@ import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
 import 'package:harvest_app/domain/usecases/cart/add_to_cart_usecase.dart';
 import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
-import 'package:harvest_app/domain/usecases/product/add_favorite_usecase.dart';
-import 'package:harvest_app/domain/usecases/product/remove_favorite_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_usecase.dart';
 import 'package:harvest_app/presentation/features/product/providers/product_detail_controller.dart';
 import 'marketplace_state.dart';
 

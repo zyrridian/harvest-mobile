@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:harvest_app/features/catalog/data/models/category_response_model.dart';
+import 'package:harvest_app/features/catalog/data/models/category/category_response_model.dart';
 
 void main() {
   group('CategoryResponseModels', () {
