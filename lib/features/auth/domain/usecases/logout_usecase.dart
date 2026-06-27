@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../core/error/failure.dart';
-import '../../repositories/auth_repository.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/features/auth/domain/repositories/auth_repository.dart';
 
 class LogoutUseCase {
   final AuthRepository repository;

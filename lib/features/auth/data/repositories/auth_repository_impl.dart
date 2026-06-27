@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/local/auth_local_datasource.dart';
-import 'package:harvest_app/data/datasources/remote/auth_remote_datasource.dart';
-import 'package:harvest_app/domain/entities/user.dart';
-import 'package:harvest_app/domain/repositories/auth_repository.dart';
+import 'package:harvest_app/features/auth/data/datasources/local/auth_local_datasource.dart';
+import 'package:harvest_app/features/auth/data/datasources/remote/auth_remote_datasource.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
+import 'package:harvest_app/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/error/exceptions.dart';
+import '../../../../../core/constants/app_constants.dart';
+import '../../../../../core/error/exceptions.dart';
 import '../../models/auth_response_model.dart';
 import '../../models/user_model.dart';
 

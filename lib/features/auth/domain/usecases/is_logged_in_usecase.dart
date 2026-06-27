@@ -1,4 +1,4 @@
-import '../../repositories/auth_repository.dart';
+import 'package:harvest_app/features/auth/domain/repositories/auth_repository.dart';
 
 class IsLoggedInUseCase {
   final AuthRepository repository;

@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/data/datasources/local/auth_local_datasource.dart';
-import 'package:harvest_app/data/datasources/remote/auth_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/auth_repository_impl.dart';
-import 'package:harvest_app/domain/repositories/auth_repository.dart';
-import 'package:harvest_app/domain/usecases/auth/get_current_usecase.dart';
-import 'package:harvest_app/domain/usecases/auth/login_usecase.dart';
-import 'package:harvest_app/domain/usecases/auth/logout_usecase.dart';
-import 'package:harvest_app/domain/usecases/auth/register_usecase.dart';
+import 'package:harvest_app/features/auth/data/datasources/local/auth_local_datasource.dart';
+import 'package:harvest_app/features/auth/data/datasources/remote/auth_remote_datasource.dart';
+import 'package:harvest_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:harvest_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:harvest_app/features/auth/domain/usecases/get_current_usecase.dart';
+import 'package:harvest_app/features/auth/domain/usecases/login_usecase.dart';
+import 'package:harvest_app/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:harvest_app/features/auth/domain/usecases/register_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'auth_state.dart';
 

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/providers/auth_controller.dart';
+import '../../../../../features/auth/presentation/providers/auth_controller.dart';
 import '../providers/farmer_settings_controller.dart';
 import '../../../../../domain/entities/farmer_profile.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';

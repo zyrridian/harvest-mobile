@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/config/router/app_router.dart';
-import '../../../../domain/entities/user.dart';
-import '../providers/auth_controller.dart';
-import '../providers/auth_state.dart';
-import '../widgets/login_form.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_state.dart';
+import 'package:harvest_app/features/auth/presentation/screens/widgets/login_form.dart';
 
 // Design constants matching current style
 const kBgColor = Color(0xFFFAFAF8);

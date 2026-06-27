@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/presentation/features/auth/providers/auth_role_provider.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_role_provider.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
