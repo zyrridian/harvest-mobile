@@ -71,6 +71,7 @@ dev_dependencies:
 
   # Database Code Generation
   drift_dev: ^2.20.3
+  mocktail: ^1.0.5
 
 flutter:
   uses-material-design: true
