@@ -3,7 +3,7 @@ import '../../core/error/failure.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/messaging_repository.dart';
-import '../datasources/remote/messaging_remote_datasource.dart';
+import '../../features/community/data/datasources/remote/messaging_remote_datasource.dart';
 
 class MessagingRepositoryImpl implements MessagingRepository {
   final MessagingRemoteDataSource remoteDataSource;

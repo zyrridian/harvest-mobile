@@ -5,7 +5,7 @@ import '../../domain/entities/uploaded_image.dart';
 import '../../domain/entities/uploaded_video.dart';
 import '../../domain/entities/share_content.dart';
 import '../../domain/repositories/utility_repository.dart';
-import '../datasources/remote/utility_remote_datasource.dart';
+import '../../features/system/data/datasources/remote/utility_remote_datasource.dart';
 
 class UtilityRepositoryImpl implements UtilityRepository {
   final UtilityRemoteDataSource remoteDataSource;

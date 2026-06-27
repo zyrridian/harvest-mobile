@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/local/home_local_datasource.dart';
-import 'package:harvest_app/data/datasources/remote/home_remote_datasource.dart';
+import 'package:harvest_app/features/storefront/data/datasources/local/home_local_datasource.dart';
+import 'package:harvest_app/features/storefront/data/datasources/remote/home_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/home.dart';
 import 'package:harvest_app/domain/repositories/home_repository.dart';
 

@@ -3,7 +3,7 @@ import '../../core/error/exceptions.dart';
 import '../../core/error/failure.dart';
 import '../../domain/entities/nearby_farmer.dart';
 import '../../domain/repositories/nearby_farmer_repository.dart';
-import '../datasources/remote/nearby_farmer_remote_datasource.dart';
+import '../../features/farmers/data/datasources/remote/nearby_farmer_remote_datasource.dart';
 
 class NearbyFarmerRepositoryImpl implements NearbyFarmerRepository {
   final NearbyFarmerRemoteDataSource remoteDataSource;

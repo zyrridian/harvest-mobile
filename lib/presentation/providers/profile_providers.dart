@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/datasources/user_profile_local_datasource.dart';
-import '../../data/datasources/security_settings_local_datasource.dart';
+import '../../features/users/data/datasources/local/user_profile_local_datasource.dart';
+import '../../features/users/data/datasources/local/security_settings_local_datasource.dart';
 import '../../data/repositories/user_profile_repository.dart';
 import '../../data/repositories/security_settings_repository.dart';
 import '../../domain/entities/user_profile.dart';

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import '../../../core/constants/app_constants.dart';
+import '../../../../../core/constants/app_constants.dart';
 
 /// Payload emitted from the backend on `message:new`
 class SocketNewMessage {

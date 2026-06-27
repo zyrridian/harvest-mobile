@@ -1,5 +1,5 @@
 import '../../domain/entities/user_profile.dart';
-import '../datasources/user_profile_local_datasource.dart';
+import '../../features/users/data/datasources/local/user_profile_local_datasource.dart';
 import '../models/user_profile_model.dart';
 
 class UserProfileRepository {

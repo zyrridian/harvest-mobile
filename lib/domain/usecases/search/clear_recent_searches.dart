@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/error/failures.dart';
-import '../../repositories/search_repository.dart';
+import '../../../features/catalog/domain/repositories/search_repository.dart';
 
 class ClearRecentSearches {
   final SearchRepository repository;

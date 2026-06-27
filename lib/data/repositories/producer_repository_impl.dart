@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/remote/producer_remote_datasource.dart';
-import 'package:harvest_app/data/datasources/local/producer_local_datasource.dart';
+import 'package:harvest_app/features/farmers/data/datasources/remote/producer_remote_datasource.dart';
+import 'package:harvest_app/features/farmers/data/datasources/local/producer_local_datasource.dart';
 import 'package:harvest_app/data/models/producer/delivery_settings_model.dart';
 import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
 import 'package:harvest_app/domain/entities/farmer_stats.dart';

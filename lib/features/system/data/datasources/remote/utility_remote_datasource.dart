@@ -1,7 +1,7 @@
 import 'dart:io';
-import '../../models/uploaded_image_model.dart';
-import '../../models/uploaded_video_model.dart';
-import '../../models/share_content_model.dart';
+import '../../../../../data/models/uploaded_image_model.dart';
+import '../../../../../data/models/uploaded_video_model.dart';
+import '../../../../../data/models/share_content_model.dart';
 
 abstract class UtilityRemoteDataSource {
   Future<UploadedImageModel> uploadImage(

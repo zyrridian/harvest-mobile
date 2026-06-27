@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/dio_provider.dart';
-import '../../data/datasources/remote/messaging_remote_datasource.dart';
+import '../../features/community/data/datasources/remote/messaging_remote_datasource.dart';
 import '../../data/repositories/messaging_repository_impl.dart';
 import '../../domain/repositories/messaging_repository.dart';
 import '../../domain/usecases/messaging/block_user.dart';

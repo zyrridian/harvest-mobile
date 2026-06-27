@@ -2,7 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/constants/app_constants.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/chat_socket_repository.dart';
-import '../datasources/remote/chat_socket_service.dart';
+import '../../features/community/data/datasources/remote/chat_socket_service.dart';
 
 /// Concrete implementation of [ChatSocketRepository].
 ///

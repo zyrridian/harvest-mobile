@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../../domain/entities/address.dart';
 import '../../domain/repositories/address_repository.dart';
-import '../datasources/address_local_datasource.dart';
+import '../../features/users/data/datasources/local/address_local_datasource.dart';
 import '../models/address_model.dart';
 
 class AddressRepositoryImpl implements AddressRepository {

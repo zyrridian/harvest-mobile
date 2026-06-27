@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/dio_provider.dart';
-import '../../../../data/datasources/remote/chat_socket_service.dart';
+import '../../../../features/community/data/datasources/remote/chat_socket_service.dart';
 import '../../../../data/repositories/chat_socket_repository_impl.dart';
 import '../../../../domain/repositories/chat_socket_repository.dart';
 import '../../../../domain/usecases/messaging/connect_chat_socket.dart';

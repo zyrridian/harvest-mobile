@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/remote/cart_remote_datasource.dart';
+import 'package:harvest_app/features/sales/data/datasources/remote/cart_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/cart.dart';
 import 'package:harvest_app/domain/repositories/cart_repository.dart';
 

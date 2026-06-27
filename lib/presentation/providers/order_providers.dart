@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/data/datasources/remote/order_remote_datasource.dart';
+import 'package:harvest_app/features/sales/data/datasources/remote/order_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/order_repository_impl.dart';
 import 'package:harvest_app/domain/usecases/order/get_orders.dart';
 import 'package:harvest_app/domain/usecases/order/get_order_detail.dart';

@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/error/exceptions.dart';
-import '../../core/error/failures.dart';
-import '../../features/catalog/domain/entities/product.dart';
+import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/repositories/search_repository.dart';
 import '../datasources/remote/search_remote_datasource.dart';
 

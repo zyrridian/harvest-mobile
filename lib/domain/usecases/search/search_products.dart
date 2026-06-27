@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/error/failures.dart';
 import '../../../features/catalog/domain/entities/product.dart';
-import '../../repositories/search_repository.dart';
+import '../../../features/catalog/domain/repositories/search_repository.dart';
 
 class SearchProducts {
   final SearchRepository repository;

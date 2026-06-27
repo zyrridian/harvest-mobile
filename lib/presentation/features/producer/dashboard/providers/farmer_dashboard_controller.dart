@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/data/datasources/remote/producer_remote_datasource.dart';
+import 'package:harvest_app/features/farmers/data/datasources/remote/producer_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/producer_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/producer_repository.dart';
 import 'package:harvest_app/domain/usecases/producer/get_farmer_stats_usecase.dart';

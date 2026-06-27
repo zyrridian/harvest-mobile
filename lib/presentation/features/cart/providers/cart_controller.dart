@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/data/datasources/remote/cart_remote_datasource.dart';
+import 'package:harvest_app/features/sales/data/datasources/remote/cart_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/cart_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/cart_repository.dart';
 import 'package:harvest_app/domain/usecases/cart/get_cart.dart';

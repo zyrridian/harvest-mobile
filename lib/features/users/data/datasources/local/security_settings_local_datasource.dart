@@ -1,4 +1,4 @@
-import '../models/security_settings_model.dart';
+import '../../../../../data/models/security_settings_model.dart';
 
 class SecuritySettingsLocalDataSource {
   // Simulated in-memory security settings

@@ -6,8 +6,8 @@ import '../../domain/entities/community_post.dart';
 import '../../domain/entities/recipe.dart';
 import '../../domain/entities/paginated_response.dart';
 import '../../domain/repositories/community_repository.dart';
-import '../datasources/local/community_local_datasource.dart';
-import '../datasources/remote/community_remote_datasource.dart';
+import '../../features/community/data/datasources/local/community_local_datasource.dart';
+import '../../features/community/data/datasources/remote/community_remote_datasource.dart';
 
 class CommunityRepositoryImpl implements CommunityRepository {
   final CommunityRemoteDataSource remoteDataSource;

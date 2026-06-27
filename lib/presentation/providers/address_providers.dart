@@ -6,7 +6,7 @@ import '../../domain/usecases/set_primary_address_usecase.dart';
 import '../../domain/usecases/add_address_usecase.dart';
 import '../../domain/usecases/update_address_usecase.dart';
 import '../../data/repositories/address_repository_impl.dart';
-import '../../data/datasources/address_local_datasource.dart';
+import '../../features/users/data/datasources/local/address_local_datasource.dart';
 
 // Data Source Provider
 final addressLocalDataSourceProvider = Provider((ref) {

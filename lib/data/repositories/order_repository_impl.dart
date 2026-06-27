@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart' hide Order;
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/remote/order_remote_datasource.dart';
+import 'package:harvest_app/features/sales/data/datasources/remote/order_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/order.dart';
 import 'package:harvest_app/domain/repositories/order_repository.dart';
 

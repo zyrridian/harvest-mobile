@@ -1,4 +1,4 @@
-import '../../models/address_model.dart';
+import '../../../../../data/models/address_model.dart';
 
 abstract class AddressRemoteDataSource {
   Future<List<AddressModel>> getAddresses();

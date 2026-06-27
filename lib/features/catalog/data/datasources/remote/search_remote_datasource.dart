@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import '../../../core/error/exceptions.dart';
-import '../../models/product_model.dart';
+import '../../../../../core/error/exceptions.dart';
+import '../../../../../data/models/product_model.dart';
 
 abstract class SearchRemoteDataSource {
   /// Search products from API

@@ -1,4 +1,4 @@
-import '../models/user_profile_model.dart';
+import '../../../../../data/models/user_profile_model.dart';
 
 class UserProfileLocalDataSource {
   // Simulated in-memory user profile
