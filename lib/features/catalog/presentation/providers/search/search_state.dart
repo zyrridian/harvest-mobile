@@ -1,22 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../domain/entities/product.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product.dart';
+import 'package:harvest_app/features/catalog/domain/entities/search_history.dart';
 
 part 'search_state.freezed.dart';
 
 @freezed
 class SearchState with _$SearchState {
-  const factory SearchState.initial() = _Initial;
-  const factory SearchState.loading() = _Loading;
-  const factory SearchState.loaded(List<Product> products) = _Loaded;
-  const factory SearchState.error(String message) = _Error;
+  const factory SearchState.initial() = SearchInitial;
+  const factory SearchState.loading() = SearchLoading;
+  const factory SearchState.loaded(List<Product> products) = SearchLoaded;
+  const factory SearchState.error(String message) = SearchError;
 }
 
 @freezed
 class RecentSearchesState with _$RecentSearchesState {
-  const factory RecentSearchesState.initial() = _RecentSearchesInitial;
-  const factory RecentSearchesState.loading() = _RecentSearchesLoading;
-  const factory RecentSearchesState.loaded(List<String> searches) =
-      _RecentSearchesLoaded;
-  const factory RecentSearchesState.error(String message) =
-      _RecentSearchesError;
+  const factory RecentSearchesState.initial() = RecentSearchesInitial;
+  const factory RecentSearchesState.loading() = RecentSearchesLoading;
+  const factory RecentSearchesState.loaded(List<SearchHistory> searches) = RecentSearchesLoaded;
+  const factory RecentSearchesState.error(String message) = RecentSearchesError;
 }

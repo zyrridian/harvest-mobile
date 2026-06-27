@@ -1,21 +1,25 @@
 import 'package:dartz/dartz.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../domain/entities/farmer.dart';
+import '../../../../data/models/farmer_model.dart';
+import '../../../../data/models/product_model.dart';
+import '../models/search_history_model.dart';
+import '../models/search_suggestion_model.dart';
 import '../../domain/entities/product.dart';
+import '../../domain/entities/search_history.dart';
+import '../../domain/entities/search_suggestion.dart';
 import '../../domain/repositories/search_repository.dart';
 import '../datasources/remote/search_remote_datasource.dart';
+import '../datasources/local/search_local_datasource.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
   final SearchRemoteDataSource remoteDataSource;
-  final SharedPreferences sharedPreferences;
-
-  static const String _recentSearchesKey = 'recent_searches';
-  static const int _maxRecentSearches = 20;
+  final SearchLocalDataSource localDataSource;
 
   SearchRepositoryImpl({
     required this.remoteDataSource,
-    required this.sharedPreferences,
+    required this.localDataSource,
   });
 
   @override
@@ -41,7 +45,7 @@ class SearchRepositoryImpl implements SearchRepository {
         limit: limit,
       );
 
-      final products = productModels.map((model) => model.toEntity()).toList();
+      final products = productModels.map<Product>((model) => model.toEntity()).toList();
       return Right(products);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -53,64 +57,120 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
-  Future<Either<Failure, List<String>>> getRecentSearches() async {
+  Future<Either<Failure, List<Farmer>>> searchFarmers({
+    required String query,
+    String? specialties,
+    double? minRating,
+    int? page,
+    int? limit,
+  }) async {
     try {
-      final searches =
-          sharedPreferences.getStringList(_recentSearchesKey) ?? [];
-      return Right(searches);
+      final farmerModels = await remoteDataSource.searchFarmers(
+        query: query,
+        specialties: specialties,
+        minRating: minRating,
+        page: page,
+        limit: limit,
+      );
+
+      final farmers = farmerModels.map<Farmer>((model) => model.toEntity()).toList();
+      return Right(farmers);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(CacheFailure('Failed to get recent searches'));
+      return Left(ServerFailure('An unexpected error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> saveRecentSearch(String query) async {
+  Future<Either<Failure, List<SearchHistory>>> getRecentSearches({int? limit}) async {
     try {
-      if (query.trim().isEmpty) {
-        return const Right(null);
+      final searchModels = await remoteDataSource.getSearchHistory(limit: limit);
+      
+      // Cache the result locally
+      await localDataSource.saveRecentSearches(searchModels);
+      
+      final searches = searchModels.map<SearchHistory>((model) => model.toEntity()).toList();
+      return Right(searches);
+    } on ServerException catch (e) {
+      // Try to fetch from local cache if remote fails
+      try {
+        final localSearches = await localDataSource.getRecentSearches();
+        if (localSearches != null) {
+          return Right(localSearches.map<SearchHistory>((m) => m.toEntity()).toList());
+        }
+      } catch (_) {
+        // Fallback to server failure if local fails
       }
-
-      final searches =
-          sharedPreferences.getStringList(_recentSearchesKey) ?? [];
-
-      // Remove if already exists
-      searches.remove(query);
-
-      // Add to beginning
-      searches.insert(0, query);
-
-      // Keep only the last N searches
-      if (searches.length > _maxRecentSearches) {
-        searches.removeRange(_maxRecentSearches, searches.length);
-      }
-
-      await sharedPreferences.setStringList(_recentSearchesKey, searches);
-      return const Right(null);
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(CacheFailure('Failed to save recent search'));
+      return Left(ServerFailure('An unexpected error occurred'));
     }
   }
 
   @override
   Future<Either<Failure, void>> clearRecentSearches() async {
     try {
-      await sharedPreferences.remove(_recentSearchesKey);
+      await remoteDataSource.clearSearchHistory();
+      await localDataSource.clearRecentSearches();
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(CacheFailure('Failed to clear recent searches'));
+      return Left(ServerFailure('An unexpected error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> removeRecentSearch(String query) async {
+  Future<Either<Failure, void>> removeRecentSearch(String id) async {
     try {
-      final searches =
-          sharedPreferences.getStringList(_recentSearchesKey) ?? [];
-      searches.remove(query);
-      await sharedPreferences.setStringList(_recentSearchesKey, searches);
+      await remoteDataSource.deleteSearchHistory(id);
+      
+      // Re-fetch to update cache
+      try {
+        final searchModels = await remoteDataSource.getSearchHistory();
+        await localDataSource.saveRecentSearches(searchModels);
+      } catch (_) {
+        // Ignore cache update errors
+      }
+      
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(CacheFailure('Failed to remove recent search'));
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SearchSuggestion>>> getSearchSuggestions({
+    required String query,
+    String? type,
+    int? limit,
+  }) async {
+    try {
+      final suggestionModels = await remoteDataSource.getSearchSuggestions(
+        query: query,
+        type: type,
+        limit: limit,
+      );
+
+      final suggestions = suggestionModels.map<SearchSuggestion>((model) => model.toEntity()).toList();
+      return Right(suggestions);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('An unexpected error occurred'));
     }
   }
 }

@@ -64,7 +64,7 @@ final checkFavoriteStatusUseCaseProvider =
 typedef CheckFavoriteStatusUseCaseRef
     = AutoDisposeProviderRef<CheckFavoriteStatus>;
 String _$productDetailControllerHash() =>
-    r'f29a1f0e874379d505f438c2f03a92dd3ed486f7';
+    r'e981a546d38d84b3a9ca728c715e938478d5359d';
 
 /// Copied from Dart SDK
 class _SystemHash {

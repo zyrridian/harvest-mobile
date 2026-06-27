@@ -1,59 +1,62 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../core/providers/db_provider.dart';
 import '../../../../../core/providers/dio_provider.dart';
 import '../../../data/datasources/remote/search_remote_datasource.dart';
+import '../../../data/datasources/local/search_local_datasource.dart';
 import '../../../data/repositories/search_repository_impl.dart';
 import '../../../domain/repositories/search_repository.dart';
 import '../../../domain/usecases/search/clear_recent_searches.dart';
+import '../../../domain/usecases/search/delete_recent_search.dart';
 import '../../../domain/usecases/search/get_recent_searches.dart';
-import '../../../domain/usecases/search/save_recent_search.dart';
 import '../../../domain/usecases/search/search_products.dart';
 import 'search_state.dart';
 
-// Data Source Provider
-final searchRemoteDataSourceProvider = Provider<SearchRemoteDataSource>((ref) {
+part 'search_controller.g.dart';
+
+@riverpod
+SearchRepository searchRepository(Ref ref) {
   final dio = ref.watch(dioProvider);
-  return SearchRemoteDataSourceImpl(dio: dio);
-});
-
-// Repository Provider
-final searchRepositoryProvider = Provider<SearchRepository>((ref) {
-  final remoteDataSource = ref.watch(searchRemoteDataSourceProvider);
   final sharedPreferences = ref.watch(sharedPreferencesProvider);
+  const secureStorage = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: false));
+
   return SearchRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    sharedPreferences: sharedPreferences,
+    remoteDataSource: SearchRemoteDataSourceImpl(dio: dio),
+    localDataSource: SearchLocalDataSourceImpl(
+      secureStorage: secureStorage,
+      sharedPreferences: sharedPreferences,
+    ),
   );
-});
+}
 
-// Use Case Providers
-final searchProductsUseCaseProvider = Provider<SearchProducts>((ref) {
-  final repository = ref.watch(searchRepositoryProvider);
-  return SearchProducts(repository);
-});
+@riverpod
+SearchProducts searchProductsUseCase(Ref ref) {
+  return SearchProducts(ref.watch(searchRepositoryProvider));
+}
 
-final getRecentSearchesUseCaseProvider = Provider<GetRecentSearches>((ref) {
-  final repository = ref.watch(searchRepositoryProvider);
-  return GetRecentSearches(repository);
-});
+@riverpod
+GetRecentSearches getRecentSearchesUseCase(Ref ref) {
+  return GetRecentSearches(ref.watch(searchRepositoryProvider));
+}
 
-final saveRecentSearchUseCaseProvider = Provider<SaveRecentSearch>((ref) {
-  final repository = ref.watch(searchRepositoryProvider);
-  return SaveRecentSearch(repository);
-});
+@riverpod
+ClearRecentSearches clearRecentSearchesUseCase(Ref ref) {
+  return ClearRecentSearches(ref.watch(searchRepositoryProvider));
+}
 
-final clearRecentSearchesUseCaseProvider = Provider<ClearRecentSearches>((ref) {
-  final repository = ref.watch(searchRepositoryProvider);
-  return ClearRecentSearches(repository);
-});
+@riverpod
+DeleteRecentSearch deleteRecentSearchUseCase(Ref ref) {
+  return DeleteRecentSearch(ref.watch(searchRepositoryProvider));
+}
 
 // UI State Providers
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final showAllRecentProvider = StateProvider<bool>((ref) => false);
 final sortByProvider = StateProvider<String>((ref) => 'relevance');
-final viewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.grid);
-
 enum ViewMode { grid, list }
+final viewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.grid);
 
 // Filter Providers
 final minPriceProvider = StateProvider<double?>((ref) => null);
@@ -61,17 +64,12 @@ final maxPriceProvider = StateProvider<double?>((ref) => null);
 final selectedCategoriesProvider = StateProvider<List<String>>((ref) => []);
 final selectedTypesProvider = StateProvider<List<String>>((ref) => []);
 
-// Search Controller
-class SearchController extends StateNotifier<SearchState> {
-  final SearchProducts searchProductsUseCase;
-  final SaveRecentSearch saveRecentSearchUseCase;
-  final Ref ref;
-
-  SearchController({
-    required this.searchProductsUseCase,
-    required this.saveRecentSearchUseCase,
-    required this.ref,
-  }) : super(const SearchState.initial());
+@riverpod
+class SearchController extends _$SearchController {
+  @override
+  SearchState build() {
+    return const SearchState.initial();
+  }
 
   Future<void> searchProducts() async {
     final query = ref.read(searchQueryProvider);
@@ -89,7 +87,7 @@ class SearchController extends StateNotifier<SearchState> {
     final categories = ref.read(selectedCategoriesProvider);
     final types = ref.read(selectedTypesProvider);
 
-    final result = await searchProductsUseCase(
+    final result = await ref.read(searchProductsUseCaseProvider).call(
       query: query,
       sortBy: sortBy,
       minPrice: minPrice,
@@ -102,10 +100,7 @@ class SearchController extends StateNotifier<SearchState> {
       (failure) => state = SearchState.error(failure.message),
       (products) async {
         state = SearchState.loaded(products);
-        await saveRecentSearchUseCase(query);
-        ref
-            .read(recentSearchesControllerProvider.notifier)
-            .loadRecentSearches();
+        ref.read(recentSearchesControllerProvider.notifier).loadRecentSearches();
       },
     );
   }
@@ -115,7 +110,6 @@ class SearchController extends StateNotifier<SearchState> {
     state = const SearchState.initial();
   }
 
-  // NEW: Perform search with a specific query
   Future<void> performSearch(String query) async {
     if (query.trim().isEmpty) {
       state = const SearchState.initial();
@@ -126,13 +120,11 @@ class SearchController extends StateNotifier<SearchState> {
     await searchProducts();
   }
 
-  // NEW: Apply a recent search
   Future<void> applyRecentSearch(String query) async {
     ref.read(searchQueryProvider.notifier).state = query;
     await searchProducts();
   }
 
-  // NEW: Update sort and re-search if needed
   Future<void> updateSort(String sortBy) async {
     ref.read(sortByProvider.notifier).state = sortBy;
 
@@ -142,7 +134,6 @@ class SearchController extends StateNotifier<SearchState> {
     }
   }
 
-  // NEW: Apply filters and re-search
   Future<void> applyFilters({
     double? minPrice,
     double? maxPrice,
@@ -161,36 +152,18 @@ class SearchController extends StateNotifier<SearchState> {
   }
 }
 
-final searchControllerProvider =
-    StateNotifierProvider<SearchController, SearchState>((ref) {
-  final searchProductsUseCase = ref.watch(searchProductsUseCaseProvider);
-  final saveRecentSearchUseCase = ref.watch(saveRecentSearchUseCaseProvider);
-
-  return SearchController(
-    searchProductsUseCase: searchProductsUseCase,
-    saveRecentSearchUseCase: saveRecentSearchUseCase,
-    ref: ref,
-  );
-});
-
-// Recent Searches Controller
-class RecentSearchesController extends StateNotifier<RecentSearchesState> {
-  final GetRecentSearches getRecentSearchesUseCase;
-  final ClearRecentSearches clearRecentSearchesUseCase;
-  final SearchRepository repository;
-
-  RecentSearchesController({
-    required this.getRecentSearchesUseCase,
-    required this.clearRecentSearchesUseCase,
-    required this.repository,
-  }) : super(const RecentSearchesState.initial()) {
-    loadRecentSearches();
+@riverpod
+class RecentSearchesController extends _$RecentSearchesController {
+  @override
+  RecentSearchesState build() {
+    Future.microtask(() => loadRecentSearches());
+    return const RecentSearchesState.initial();
   }
 
   Future<void> loadRecentSearches() async {
     state = const RecentSearchesState.loading();
 
-    final result = await getRecentSearchesUseCase();
+    final result = await ref.read(getRecentSearchesUseCaseProvider).call();
 
     result.fold(
       (failure) => state = RecentSearchesState.error(failure.message),
@@ -199,7 +172,7 @@ class RecentSearchesController extends StateNotifier<RecentSearchesState> {
   }
 
   Future<void> clearAll() async {
-    final result = await clearRecentSearchesUseCase();
+    final result = await ref.read(clearRecentSearchesUseCaseProvider).call();
 
     result.fold(
       (failure) => state = RecentSearchesState.error(failure.message),
@@ -207,8 +180,8 @@ class RecentSearchesController extends StateNotifier<RecentSearchesState> {
     );
   }
 
-  Future<void> removeSearch(String query) async {
-    final result = await repository.removeRecentSearch(query);
+  Future<void> removeSearch(String id) async {
+    final result = await ref.read(deleteRecentSearchUseCaseProvider).call(id);
 
     result.fold(
       (failure) => state = RecentSearchesState.error(failure.message),
@@ -216,17 +189,3 @@ class RecentSearchesController extends StateNotifier<RecentSearchesState> {
     );
   }
 }
-
-final recentSearchesControllerProvider =
-    StateNotifierProvider<RecentSearchesController, RecentSearchesState>((ref) {
-  final getRecentSearchesUseCase = ref.watch(getRecentSearchesUseCaseProvider);
-  final clearRecentSearchesUseCase =
-      ref.watch(clearRecentSearchesUseCaseProvider);
-  final repository = ref.watch(searchRepositoryProvider);
-
-  return RecentSearchesController(
-    getRecentSearchesUseCase: getRecentSearchesUseCase,
-    clearRecentSearchesUseCase: clearRecentSearchesUseCase,
-    repository: repository,
-  );
-});

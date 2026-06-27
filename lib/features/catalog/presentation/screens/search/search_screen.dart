@@ -6,6 +6,7 @@ import '../../providers/search/search_controller.dart';
 import 'widgets/product_card.dart';
 import 'widgets/product_list_item.dart';
 import 'widgets/filter_bottom_sheet.dart';
+import '../../../domain/entities/search_history.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -251,7 +252,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildRecentSearchesSection(
-      List<String> displayedSearches, List<String> allSearches) {
+      List<SearchHistory> displayedSearches, List<SearchHistory> allSearches) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -333,11 +334,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildModernChip(String search) {
+  Widget _buildModernChip(SearchHistory search) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => _applySearch(search),
+        onTap: () => _applySearch(search.query),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -352,7 +353,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               const Icon(Icons.history, size: 14, color: kTextGrey),
               const SizedBox(width: 6),
               Text(
-                search,
+                search.query,
                 style: GoogleFonts.inter(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w500,
@@ -364,7 +365,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 onTap: () {
                   ref
                       .read(recentSearchesControllerProvider.notifier)
-                      .removeSearch(search);
+                      .removeSearch(search.id);
                 },
                 child: const Icon(Icons.close, size: 14, color: kTextGrey),
               ),
