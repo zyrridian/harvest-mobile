@@ -1,4 +1,4 @@
-import '../../../../../data/models/address_model.dart';
+import '../../models/address_model.dart';
 
 /// Simulates API responses with local JSON data
 class AddressLocalDataSource {

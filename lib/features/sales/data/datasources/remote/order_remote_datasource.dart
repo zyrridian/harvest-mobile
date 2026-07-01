@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:harvest_app/data/models/order_model.dart';
+import 'package:harvest_app/features/sales/data/models/order_model.dart';
 
 class OrderRemoteDataSource {
   OrderRemoteDataSource();

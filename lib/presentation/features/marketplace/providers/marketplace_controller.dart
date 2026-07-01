@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/cart.dart';
-import 'package:harvest_app/presentation/features/cart/providers/cart_controller.dart';
+import 'package:harvest_app/features/sales/domain/entities/cart.dart';
+import 'package:harvest_app/features/sales/presentation/providers/cart/cart_controller.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
@@ -12,7 +12,7 @@ import 'package:harvest_app/features/storefront/data/datasources/local/marketpla
 import 'package:harvest_app/features/storefront/data/datasources/remote/marketplace_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
-import 'package:harvest_app/domain/usecases/cart/add_to_cart_usecase.dart';
+import 'package:harvest_app/features/sales/domain/usecases/cart/add_to_cart_usecase.dart';
 import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_usecase.dart';

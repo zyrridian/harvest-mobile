@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/cart_model.dart';
+import 'package:harvest_app/features/sales/data/models/cart_model.dart';
 
 class CartRemoteDataSource {
   final Dio dio;

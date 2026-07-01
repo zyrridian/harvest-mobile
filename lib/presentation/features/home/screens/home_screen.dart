@@ -12,7 +12,7 @@ import 'package:harvest_app/presentation/features/home/widgets/greeting_location
 import 'package:harvest_app/presentation/features/home/widgets/promo_carousel.dart';
 import 'package:harvest_app/presentation/features/home/widgets/quick_action_grid.dart';
 import 'package:harvest_app/presentation/features/messaging/screens/conversations_list_screen.dart';
-import 'package:harvest_app/presentation/features/order/screens/orders_list_screen.dart';
+import 'package:harvest_app/features/sales/presentation/screens/orders/orders_list_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';

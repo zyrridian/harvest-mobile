@@ -1,5 +1,5 @@
 import '../../core/error/failures.dart';
-import '../repositories/address_repository.dart';
+import '../../features/users/domain/repositories/address_repository.dart';
 
 class DeleteAddressUseCase {
   final AddressRepository repository;

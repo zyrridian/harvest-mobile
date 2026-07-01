@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
-import '../entities/address.dart';
-import '../repositories/address_repository.dart';
+import '../../features/users/domain/entities/address.dart';
+import '../../features/users/domain/repositories/address_repository.dart';
 
 class UpdateAddressUseCase {
   final AddressRepository repository;
