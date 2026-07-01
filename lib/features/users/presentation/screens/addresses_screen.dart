@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../providers/address_providers.dart';
-import '../../domain/entities/address.dart';
+import 'package:harvest_app/domain/entities/address.dart';
+import '../providers/address_controller.dart';
+import '../providers/address_state.dart';
 import 'add_edit_address_screen.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -17,7 +18,7 @@ class AddressesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final addressesAsync = ref.watch(addressesProvider);
+    final addressState = ref.watch(addressControllerProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -52,11 +53,12 @@ class AddressesScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: addressesAsync.when(
+      body: addressState.maybeWhen(
         data: (addresses) => _buildAddressesList(context, ref, addresses),
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error) => Center(child: Text('Error: $error')),
+        orElse: () => const SizedBox(),
       ),
     );
   }
@@ -379,7 +381,7 @@ class AddressesScreen extends ConsumerWidget {
         );
       },
       (address) {
-        ref.invalidate(addressesProvider);
+        ref.read(addressControllerProvider.notifier).refresh();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Primary address updated')),
         );
@@ -422,7 +424,7 @@ class AddressesScreen extends ConsumerWidget {
           );
         },
         (_) {
-          ref.invalidate(addressesProvider);
+          ref.read(addressControllerProvider.notifier).refresh();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Address deleted')),
           );

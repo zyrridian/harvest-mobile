@@ -1,5 +1,5 @@
+import 'package:harvest_app/domain/entities/address.dart';
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/address.dart';
 
 part 'address_model.g.dart';
 

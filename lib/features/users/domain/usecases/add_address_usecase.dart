@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
-import '../../core/error/failures.dart';
-import '../../features/users/domain/entities/address.dart';
-import '../../features/users/domain/repositories/address_repository.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../domain/entities/address.dart';
+import '../repositories/address_repository.dart';
 
 class AddAddressUseCase {
   final AddressRepository repository;
 
   AddAddressUseCase(this.repository);
 
-  Future<Either<Failure, Address>> call({
+  Future<Either<Failure, void>> call({
     required String label,
     required String recipientName,
     required String phone,
@@ -24,6 +24,7 @@ class AddAddressUseCase {
     required double latitude,
     required double longitude,
     String? notes,
+    bool isPrimary = false,
   }) async {
     return await repository.addAddress(
       label: label,
@@ -41,6 +42,7 @@ class AddAddressUseCase {
       latitude: latitude,
       longitude: longitude,
       notes: notes,
+      isPrimary: isPrimary,
     );
   }
 }

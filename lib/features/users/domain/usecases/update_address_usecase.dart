@@ -1,14 +1,15 @@
 import 'package:dartz/dartz.dart';
+import 'package:harvest_app/domain/entities/address.dart';
 import '../../../../core/error/failures.dart';
-import '../entities/address.dart';
 import '../repositories/address_repository.dart';
 
-class AddAddress {
+class UpdateAddressUseCase {
   final AddressRepository repository;
 
-  AddAddress(this.repository);
+  UpdateAddressUseCase(this.repository);
 
-  Future<Either<Failure, Address>> call({
+  Future<Either<Failure, void>> call({
+    required String addressId,
     required String label,
     required String recipientName,
     required String phone,
@@ -24,8 +25,10 @@ class AddAddress {
     required double latitude,
     required double longitude,
     String? notes,
+    bool isPrimary = false,
   }) async {
-    return await repository.addAddress(
+    return await repository.updateAddress(
+      addressId: addressId,
       label: label,
       recipientName: recipientName,
       phone: phone,
@@ -41,6 +44,7 @@ class AddAddress {
       latitude: latitude,
       longitude: longitude,
       notes: notes,
+      isPrimary: isPrimary,
     );
   }
 }

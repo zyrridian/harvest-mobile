@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../../core/error/failures.dart';
-import '../../features/users/domain/entities/address.dart';
-import '../../features/users/domain/repositories/address_repository.dart';
+import 'package:harvest_app/domain/entities/address.dart';
+import '../../../../core/error/failures.dart';
+import '../repositories/address_repository.dart';
 
 class SetPrimaryAddressUseCase {
   final AddressRepository repository;

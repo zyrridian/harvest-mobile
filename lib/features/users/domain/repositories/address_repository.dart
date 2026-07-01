@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
-import '../entities/address.dart';
+import 'package:harvest_app/core/error/failures.dart';
+import 'package:harvest_app/domain/entities/address.dart';
 
 abstract class AddressRepository {
   Future<Either<Failure, List<Address>>> getAddresses();
 
-  Future<Either<Failure, Address>> addAddress({
+  Future<Either<Failure, void>> addAddress({
     required String label,
     required String recipientName,
     required String phone,
@@ -21,9 +21,10 @@ abstract class AddressRepository {
     required double latitude,
     required double longitude,
     String? notes,
+    bool isPrimary = false,
   });
 
-  Future<Either<Failure, Address>> updateAddress({
+  Future<Either<Failure, void>> updateAddress({
     required String addressId,
     required String label,
     required String recipientName,
@@ -40,6 +41,7 @@ abstract class AddressRepository {
     required double latitude,
     required double longitude,
     String? notes,
+    bool isPrimary = false,
   });
 
   Future<Either<Failure, void>> deleteAddress(String addressId);

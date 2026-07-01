@@ -27,6 +27,11 @@ class AppConstants {
   static const String marketplaceDataEndpoint = '/storefront/marketplace';
   static const String categoriesEndpoint = '/categories';
 
+  // API Endpoints - Master Data
+  static const String provincesEndpoint = '/system/master/provinces';
+  static const String citiesEndpoint = '/system/master/cities';
+  static const String districtsEndpoint = '/system/master/districts';
+
   // API Endpoints - Producer/Farmer
   static const String producerProfileEndpoint = '/farmers/me';
   static const String producerStatsEndpoint = '/farmers/me/stats';
@@ -50,6 +55,7 @@ class AppConstants {
   static const String conversationsEndpoint = '/community/conversations';
   static const String messagesEndpoint = '/community/messages';
   static const String usersEndpoint = '/users';
+  static const String addressesEndpoint = '/users/me/addresses';
 
   // Storage Keys
   static const String authTokenKey = 'auth_token';
@@ -58,6 +64,10 @@ class AppConstants {
   static const String isLoggedInKey = 'is_logged_in';
   static const String homeDataKey = 'home_data';
   static const String marketplaceDataKey = 'marketplace_data';
+  static const String masterProvincesKey = 'master_provinces';
+  static const String masterCitiesKey = 'master_cities';
+  static const String masterDistrictsKey = 'master_districts';
+  static const String addressesDataKey = 'user_addresses_data';
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);

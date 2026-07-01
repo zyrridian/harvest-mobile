@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../domain/entities/address.dart';
-import '../providers/address_providers.dart';
+import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/features/system/presentation/providers/master_provider.dart';
+import '../providers/address_controller.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'map_picker_screen.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -38,11 +41,12 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
   late TextEditingController _notesController;
 
   // Simulated location data
-  int _provinceId = 31;
-  int _cityId = 3171;
-  int _districtId = 317101;
+  int _provinceId = 0;
+  int _cityId = 0;
+  int _districtId = 0;
   double _latitude = -6.1944;
   double _longitude = 106.8229;
+  bool _isPrimary = false;
 
   @override
   void initState() {
@@ -68,6 +72,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       _districtId = addr.districtId;
       _latitude = addr.latitude;
       _longitude = addr.longitude;
+      _isPrimary = addr.isPrimary;
     }
   }
 
@@ -113,18 +118,19 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
           latitude: _latitude,
           longitude: _longitude,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
+          isPrimary: _isPrimary,
         );
 
-        result.fold(
-          (failure) {
+        await result.fold(
+          (failure) async {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: ${failure.toString()}')),
               );
             }
           },
-          (address) {
-            ref.invalidate(addressesProvider);
+          (address) async {
+            await ref.read(addressControllerProvider.notifier).refresh();
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -155,18 +161,19 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
           latitude: _latitude,
           longitude: _longitude,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
+          isPrimary: _isPrimary,
         );
 
-        result.fold(
-          (failure) {
+        await result.fold(
+          (failure) async {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: ${failure.toString()}')),
               );
             }
           },
-          (address) {
-            ref.invalidate(addressesProvider);
+          (address) async {
+            await ref.read(addressControllerProvider.notifier).refresh();
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -257,18 +264,76 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
                     color: kDarkGreen)),
             const SizedBox(height: 12),
 
-            // Pin Map Button
-            OutlinedButton.icon(
-              onPressed: _showLocationPicker,
-              icon: const Icon(Icons.map_outlined, color: kDarkGreen),
-              label: Text('Pin Location on Map',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: kDarkGreen,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: const BorderSide(color: kDarkGreen),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+            // Map Preview
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPillGrey),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    GoogleMap(
+                      key: ValueKey('$_latitude-$_longitude'),
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(_latitude, _longitude),
+                        zoom: 15,
+                      ),
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('preview'),
+                          position: LatLng(_latitude, _longitude),
+                        ),
+                      },
+                      zoomControlsEnabled: false,
+                      scrollGesturesEnabled: false,
+                      tiltGesturesEnabled: false,
+                      rotateGesturesEnabled: false,
+                      zoomGesturesEnabled: false,
+                      myLocationButtonEnabled: false,
+                      mapToolbarEnabled: false,
+                    ),
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _showLocationPicker,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.edit_location_alt_outlined, size: 16, color: kDarkGreen),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Change',
+                              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: kDarkGreen),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -347,6 +412,13 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               maxLines: 4,
             ),
 
+            SwitchListTile(
+              title: Text('Set as primary address', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: kDarkGreen)),
+              value: _isPrimary,
+              onChanged: (val) => setState(() => _isPrimary = val),
+              activeColor: kAccentOrange,
+              contentPadding: EdgeInsets.zero,
+            ),
             const SizedBox(height: 32),
 
             // Save Button
@@ -449,37 +521,81 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
 
   // --- Mock Selectors (Keep existing logic, just update styling if needed) ---
 
-  void _showProvinceSelector() {
-    _showSelectionSheet('Select Province', [
-      _SelectionItem('DKI Jakarta', 31),
-      _SelectionItem('Jawa Barat', 32),
-      _SelectionItem('Jawa Timur', 35),
-    ], (item) {
-      _provinceController.text = item.label;
-      _provinceId = item.id;
-    });
+  Future<void> _showProvinceSelector() async {
+    try {
+      final items = await ref.read(provincesProvider.future);
+      if (!mounted) return;
+      _showSelectionSheet(
+        'Select Province',
+        items.map((p) => _SelectionItem(p.name, p.id)).toList(),
+        (item) {
+          setState(() {
+            _provinceController.text = item.label;
+            _provinceId = item.id;
+            _cityController.clear();
+            _cityId = 0;
+            _districtController.clear();
+            _districtId = 0;
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading provinces: $e')));
+      }
+    }
   }
 
-  void _showCitySelector() {
-    _showSelectionSheet('Select City', [
-      _SelectionItem('Jakarta Pusat', 3171),
-      _SelectionItem('Jakarta Selatan', 3174),
-      _SelectionItem('Jakarta Barat', 3173),
-    ], (item) {
-      _cityController.text = item.label;
-      _cityId = item.id;
-    });
+  Future<void> _showCitySelector() async {
+    if (_provinceId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a province first')));
+      return;
+    }
+    try {
+      final items = await ref.read(citiesProvider(_provinceId).future);
+      if (!mounted) return;
+      _showSelectionSheet(
+        'Select City',
+        items.map((c) => _SelectionItem(c.name, c.id)).toList(),
+        (item) {
+          setState(() {
+            _cityController.text = item.label;
+            _cityId = item.id;
+            _districtController.clear();
+            _districtId = 0;
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading cities: $e')));
+      }
+    }
   }
 
-  void _showDistrictSelector() {
-    _showSelectionSheet('Select District', [
-      _SelectionItem('Menteng', 317101),
-      _SelectionItem('Tanah Abang', 317102),
-      _SelectionItem('Gambir', 317103),
-    ], (item) {
-      _districtController.text = item.label;
-      _districtId = item.id;
-    });
+  Future<void> _showDistrictSelector() async {
+    if (_cityId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a city first')));
+      return;
+    }
+    try {
+      final items = await ref.read(districtsProvider(_cityId).future);
+      if (!mounted) return;
+      _showSelectionSheet(
+        'Select District',
+        items.map((d) => _SelectionItem(d.name, d.id)).toList(),
+        (item) {
+          setState(() {
+            _districtController.text = item.label;
+            _districtId = item.id;
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading districts: $e')));
+      }
+    }
   }
 
   void _showSelectionSheet(String title, List<_SelectionItem> items,
@@ -514,15 +630,26 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
     );
   }
 
-  void _showLocationPicker() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Map picker would open here', style: GoogleFonts.inter()),
-        backgroundColor: kDarkGreen,
-        behavior: SnackBarBehavior.floating,
+  Future<void> _showLocationPicker() async {
+    final result = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: LatLng(_latitude, _longitude),
+        ),
       ),
     );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location updated successfully')),
+      );
+    }
   }
 }
 
