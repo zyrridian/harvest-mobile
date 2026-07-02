@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/domain/entities/address.dart';
 import '../../providers/cart/cart_controller.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
+import 'package:harvest_app/features/users/presentation/providers/address_controller.dart';
+import 'package:harvest_app/features/users/presentation/providers/address_state.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -26,6 +29,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _notesController = TextEditingController();
   String _deliveryMethod = 'home_delivery';
   String _paymentMethod = 'bank_transfer';
+  Address? _selectedAddress;
 
   @override
   void dispose() {
@@ -36,6 +40,25 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final cartState = ref.watch(cartControllerProvider);
+    final addressState = ref.watch(addressControllerProvider);
+
+    addressState.maybeWhen(
+      data: (addresses) {
+        if (_selectedAddress == null && addresses.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _selectedAddress == null) {
+              try {
+                final primary = addresses.firstWhere((a) => a.isPrimary);
+                setState(() => _selectedAddress = primary);
+              } catch (_) {
+                setState(() => _selectedAddress = addresses.first);
+              }
+            }
+          });
+        }
+      },
+      orElse: () {},
+    );
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -115,8 +138,25 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
                 const SizedBox(height: 32),
 
+                // 2.5. DELIVERY ADDRESS (Only for home_delivery)
+                if (_deliveryMethod == 'home_delivery') ...[
+                  _buildSectionTitle('Delivery Address'),
+                  const SizedBox(height: 12),
+                  _buildAddressSection(addressState),
+                  const SizedBox(height: 32),
+                ],
+
                 // 3. PAYMENT METHOD
                 _buildSectionTitle('Payment Method'),
+                const SizedBox(height: 12),
+                _buildSelectableCard(
+                  value: 'cod',
+                  groupValue: _paymentMethod,
+                  title: 'Cash on Delivery (COD)',
+                  icon: Icons.money_outlined,
+                  onTap: () => setState(() => _paymentMethod = 'cod'),
+                  isWide: true,
+                ),
                 const SizedBox(height: 12),
                 _buildSelectableCard(
                   value: 'bank_transfer',
@@ -128,11 +168,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildSelectableCard(
-                  value: 'ewallet',
+                  value: 'e_wallet',
                   groupValue: _paymentMethod,
                   title: 'E-Wallet',
                   icon: Icons.account_balance_wallet_outlined,
-                  onTap: () => setState(() => _paymentMethod = 'ewallet'),
+                  onTap: () => setState(() => _paymentMethod = 'e_wallet'),
+                  isWide: true,
+                ),
+                const SizedBox(height: 12),
+                _buildSelectableCard(
+                  value: 'credit_card',
+                  groupValue: _paymentMethod,
+                  title: 'Credit Card',
+                  icon: Icons.credit_card_outlined,
+                  onTap: () => setState(() => _paymentMethod = 'credit_card'),
                   isWide: true,
                 ),
 
@@ -278,6 +327,225 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
+  Widget _buildAddressSection(AddressState addressState) {
+    return addressState.maybeWhen(
+      data: (addresses) {
+        if (addresses.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: kPillGrey),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.location_off_outlined, color: kTextGrey),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'No saved addresses found. Please add an address in your profile.',
+                    style: GoogleFonts.inter(color: kTextGrey),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final address = _selectedAddress ?? addresses.first;
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: kPillGrey),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, color: kAccentOrange, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        address.label.toUpperCase(),
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                          fontSize: 12,
+                        ),
+                      ),
+                      if (address.isPrimary) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: kDarkGreen.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Primary',
+                            style: GoogleFonts.inter(
+                              color: kDarkGreen,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () => _showAddressSelectionSheet(addresses),
+                    child: Text(
+                      'Change',
+                      style: GoogleFonts.inter(
+                        color: kAccentOrange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                address.recipientName,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  color: kDarkGreen,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                address.phone,
+                style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
+                style: GoogleFonts.inter(color: kDarkGreen, fontSize: 13, height: 1.4),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      error: (e) => Center(child: Text('Error: $e')),
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  void _showAddressSelectionSheet(List<Address> addresses) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'Select Delivery Address',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: kDarkGreen,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: addresses.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final address = addresses[index];
+                  final isSelected = _selectedAddress?.addressId == address.addressId;
+                  
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedAddress = address);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected ? kDarkGreen.withOpacity(0.05) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? kDarkGreen : kPillGrey,
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                address.label.toUpperCase(),
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? kDarkGreen : kTextGrey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(Icons.check_circle, color: kDarkGreen, size: 20),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            address.recipientName,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${address.fullAddress}, ${address.district}, ${address.city}',
+                            style: GoogleFonts.inter(
+                              color: kTextGrey,
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   Widget _buildCheckoutItemCard(dynamic item) {
     // Assuming 'item' has name, quantity, subtotal.
     return Container(
@@ -406,8 +674,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   void _handlePlaceOrder(dynamic cartState) async {
     final selectedItems = cartState.maybeWhen(
       data: (cart) => cart.items
-          .where((i) => (i as dynamic).isSelected)
-          .map((i) => (i as dynamic).cartItemId)
+          .where((i) => ((i as dynamic).isSelected == true))
+          .map((i) => ((i as dynamic).cartItemId as String))
           .toList(),
       orElse: () => <String>[],
     );
@@ -419,17 +687,28 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       return;
     }
 
-    final payload = {
+    if (_deliveryMethod == 'home_delivery' && _selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a delivery address')),
+      );
+      return;
+    }
+
+    final Map<String, dynamic> payload = {
       "cart_item_ids": selectedItems,
-      "delivery_address_id":
-          "addr_123", // You might want to make this dynamic later
       "delivery_method": _deliveryMethod,
-      "delivery_date": DateTime.now().add(const Duration(days: 1)).toString(),
-      "delivery_time_slot": "morning",
       "payment_method": _paymentMethod,
-      "notes": _notesController.text.trim(),
-      "use_wallet_balance": false,
+      "delivery_date": DateTime.now().add(const Duration(days: 1)).toString().substring(0, 10),
     };
+
+    if (_deliveryMethod == 'home_delivery') {
+      payload["delivery_address_id"] = _selectedAddress!.addressId;
+      payload["delivery_time_slot"] = "Morning (08:00 - 12:00)";
+    }
+
+    if (_notesController.text.trim().isNotEmpty) {
+      payload["notes"] = _notesController.text.trim();
+    }
 
     final createOrderUc = ref.read(createOrderUsecaseProvider);
     final res = await createOrderUc.call(payload: payload);

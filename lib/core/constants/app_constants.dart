@@ -56,6 +56,7 @@ class AppConstants {
   static const String messagesEndpoint = '/community/messages';
   static const String usersEndpoint = '/users';
   static const String addressesEndpoint = '/users/me/addresses';
+  static const String ordersEndpoint = '/sales/orders';
 
   // Storage Keys
   static const String authTokenKey = 'auth_token';

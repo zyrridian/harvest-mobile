@@ -1,10 +1,23 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
+import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/features/sales/data/models/order_model.dart';
 
-class OrderRemoteDataSource {
-  OrderRemoteDataSource();
+abstract class OrderRemoteDataSource {
+  Future<List<OrderModel>> getOrders({required String role, String? status, int page = 1, int limit = 20});
+  Future<OrderModel> getOrderDetail({required String orderId});
+  Future<Map<String, dynamic>> createOrder({required Map<String, dynamic> payload});
+  Future<Map<String, dynamic>> cancelOrder({required String orderId, required Map<String, dynamic> payload});
+}
 
+class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
+  final Dio dio;
+
+  OrderRemoteDataSourceImpl(this.dio);
+
+  @override
   Future<List<OrderModel>> getOrders(
       {required String role,
       String? status,
@@ -83,6 +96,7 @@ class OrderRemoteDataSource {
     return orders;
   }
 
+  @override
   Future<OrderModel> getOrderDetail({required String orderId}) async {
     await Future.delayed(const Duration(milliseconds: 500));
     final Map<String, dynamic> json = {
@@ -147,26 +161,28 @@ class OrderRemoteDataSource {
     return model;
   }
 
+  @override
   Future<Map<String, dynamic>> createOrder(
       {required Map<String, dynamic> payload}) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    return {
-      "status": "success",
-      "message": "Order created successfully",
-      "data": {
-        "orders": [
-          {
-            "order_id": "ord_new_1",
-            "order_number": "FM20251009099",
-            "status": "pending_payment",
-            "total_amount": 75050
-          }
-        ],
-        "payment_summary": {"total_orders": 1, "grand_total": 75050}
+    try {
+      final response = await dio.post(
+        AppConstants.ordersEndpoint,
+        data: payload,
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw ServerException('Failed to create order');
       }
-    };
+    } on DioException catch (e) {
+      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
+  @override
   Future<Map<String, dynamic>> cancelOrder(
       {required String orderId, required Map<String, dynamic> payload}) async {
     await Future.delayed(const Duration(milliseconds: 300));
