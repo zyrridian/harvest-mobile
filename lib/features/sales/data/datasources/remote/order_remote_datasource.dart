@@ -23,77 +23,72 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       String? status,
       int page = 1,
       int limit = 20}) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    final Map<String, dynamic> json = {
-      "status": "success",
-      "data": {
-        "orders": [
-          {
-            "order_id": "ord_1234567890abcdef",
-            "order_number": "FM20251009001",
-            "status": "shipped",
-            "seller": {
-              "user_id": "usr_987",
-              "name": "Green Valley Farm",
-              "profile_picture":
-                  "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-            },
-            "items_preview": [
-              {
-                "product_id": "prd_123",
-                "name": "Organic Fresh Tomatoes",
-                "image": "https://cdn.farmmarket.com/products/prd_123_001.jpg",
-                "quantity": 3
-              }
-            ],
-            "total_items": 2,
-            "total_quantity": 5,
-            "total_amount": 75050,
-            "delivery": {
-              "method": "home_delivery",
-              "estimated_arrival": "2025-10-11",
-              "tracking_number": "TRK123456789"
-            },
-            "created_at": "2025-10-09T11:30:00Z"
-          }
-        ]
+    try {
+      final queryParams = {
+        'role': role,
+        'page': page,
+        'limit': limit,
+      };
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
       }
-    };
 
-    final orders = (json['data']!['orders'] as List<dynamic>).map((o) {
-      final map = o as Map<String, dynamic>;
-      final seller = OrderSellerModel(
-          userId: map['seller']['user_id'] ?? '',
-          name: map['seller']['name'] ?? '',
-          profilePicture: map['seller']['profile_picture']);
-      final items = <OrderItemModel>[];
-      for (final it in (map['items_preview'] as List<dynamic>)) {
-        final m = it as Map<String, dynamic>;
-        items.add(OrderItemModel(
-            orderItemId: m['product_id'] ?? '',
-            product: {"product_id": m['product_id'], "name": m['name']},
-            quantity: m['quantity'] ?? 1,
-            unitPrice: 0,
-            discount: 0,
-            subtotal: 0));
-      }
-      final delivery = OrderDeliveryModel(
-          method: map['delivery']?['method'] ?? 'home_delivery',
-          address: {},
-          date: map['delivery']?['estimated_arrival'],
-          timeSlot: null,
-          fee: 0);
-      return OrderModel(
-          orderId: map['order_id'] ?? '',
-          orderNumber: map['order_number'] ?? '',
-          status: map['status'] ?? '',
-          seller: seller,
-          items: items,
-          delivery: delivery,
-          totalAmount: map['total_amount'] ?? 0);
-    }).toList();
+      final response = await dio.get(
+        AppConstants.ordersEndpoint,
+        queryParameters: queryParams,
+      );
 
-    return orders;
+      final data = response.data['data'];
+      if (data == null || data['orders'] == null) return [];
+
+      final orders = (data['orders'] as List<dynamic>).map((o) {
+        final map = o as Map<String, dynamic>;
+        final sellerMap = map['seller'] ?? {};
+        final seller = OrderSellerModel(
+            userId: sellerMap['user_id'] ?? '',
+            name: sellerMap['name'] ?? '',
+            profilePicture: sellerMap['profile_picture']);
+            
+        final items = <OrderItemModel>[];
+        final itemsList = map['items'] as List<dynamic>? ?? [];
+        for (final it in itemsList) {
+          final m = it as Map<String, dynamic>;
+          items.add(OrderItemModel(
+              orderItemId: m['product_id'] ?? '',
+              product: {
+                "product_id": m['product_id'], 
+                "name": m['product_name'] ?? m['name'] ?? 'Unknown'
+              },
+              quantity: m['quantity'] ?? 1,
+              unitPrice: m['unit_price'] ?? 0,
+              discount: 0,
+              subtotal: 0));
+        }
+        
+        final deliveryMap = map['delivery'] ?? {};
+        final delivery = OrderDeliveryModel(
+            method: deliveryMap['method'] ?? 'home_delivery',
+            address: {}, // not provided in listing
+            date: deliveryMap['date'],
+            timeSlot: null,
+            fee: 0);
+            
+        return OrderModel(
+            orderId: map['order_id'] ?? '',
+            orderNumber: map['order_number'] ?? '',
+            status: map['status'] ?? '',
+            seller: seller,
+            items: items,
+            delivery: delivery,
+            totalAmount: map['total_amount'] ?? 0);
+      }).toList();
+
+      return orders;
+    } on DioException catch (e) {
+      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
   @override

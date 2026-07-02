@@ -39,7 +39,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
 
   @override
   Widget build(BuildContext context) {
-    final ordersAsync = ref.watch(ordersProvider({'role': 'buyer'}));
+    final ordersAsync = ref.watch(ordersProvider(const {'role': 'buyer'}));
 
     return Scaffold(
       backgroundColor: kBgColor,

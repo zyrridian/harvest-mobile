@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/domain/entities/address.dart';
 import '../../providers/cart/cart_controller.dart';
@@ -717,13 +718,29 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       (l) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.message)),
       ),
-      (r) {
-        // Navigate to order success screen with order details
-        final orderId = r['data']?['order_id'] ?? 'ord_unknown';
-        final orderNumber = r['data']?['order_number'] ?? 'ORD-000000';
+      (r) async {
+        final data = r['data'];
+        if (data != null) {
+          final paymentUrl = data['payment_url'] as String?;
+          if (paymentUrl != null && paymentUrl.isNotEmpty) {
+            final uri = Uri.parse(paymentUrl);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          }
 
-        context.go(
-            '${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber');
+          final orders = data['orders'] as List<dynamic>?;
+          final orderId = (orders != null && orders.isNotEmpty) 
+              ? orders.first['order_id'] ?? 'ord_unknown' 
+              : 'ord_unknown';
+          final orderNumber = (orders != null && orders.isNotEmpty) 
+              ? orders.first['order_number'] ?? 'ORD-000000' 
+              : 'ORD-000000';
+
+          if (context.mounted) {
+            context.go('${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber');
+          }
+        }
       },
     );
   }
