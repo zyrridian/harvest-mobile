@@ -11,9 +11,9 @@ class OrderItemModel {
   final Map<String, dynamic> product;
   final int quantity;
   @JsonKey(name: 'unit_price')
-  final int unitPrice;
-  final int discount;
-  final int subtotal;
+  final num unitPrice;
+  final num discount;
+  final num subtotal;
 
   OrderItemModel({
     required this.orderItemId,
@@ -65,7 +65,7 @@ class OrderDeliveryModel {
   final String? date;
   @JsonKey(name: 'time_slot')
   final String? timeSlot;
-  final int fee;
+  final num fee;
 
   OrderDeliveryModel(
       {required this.method,
@@ -97,7 +97,9 @@ class OrderModel {
   final List<OrderItemModel> items;
   final OrderDeliveryModel delivery;
   @JsonKey(name: 'total_amount')
-  final int totalAmount;
+  final num totalAmount;
+  @JsonKey(name: 'payment_url')
+  final String? paymentUrl;
 
   OrderModel({
     required this.orderId,
@@ -107,6 +109,7 @@ class OrderModel {
     required this.items,
     required this.delivery,
     required this.totalAmount,
+    this.paymentUrl,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>
@@ -121,5 +124,6 @@ class OrderModel {
         items: items.map((e) => e.toEntity()).toList(),
         delivery: delivery.toEntity(),
         totalAmount: totalAmount,
+        paymentUrl: paymentUrl,
       );
 }

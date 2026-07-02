@@ -80,7 +80,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
             seller: seller,
             items: items,
             delivery: delivery,
-            totalAmount: map['total_amount'] ?? 0);
+            totalAmount: map['total_amount'] ?? 0,
+            paymentUrl: map['payment']?['payment_url']);
       }).toList();
 
       return orders;
@@ -93,67 +94,34 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
   @override
   Future<OrderModel> getOrderDetail({required String orderId}) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    final Map<String, dynamic> json = {
-      "status": "success",
-      "data": {
-        "order_id": "ord_1234567890abcdef",
-        "order_number": "FM20251009001",
-        "status": "shipped",
-        "seller": {
-          "user_id": "usr_987",
-          "name": "Green Valley Farm",
-          "profile_picture": "https://cdn.farmmarket.com/profiles/usr_987.jpg"
-        },
-        "items": [
-          {
-            "order_item_id": "oi_001",
-            "product": {
-              "product_id": "prd_123",
-              "name": "Organic Fresh Tomatoes",
-              "image": "https://cdn.farmmarket.com/products/prd_123_001.jpg"
-            },
-            "quantity": 3,
-            "unit_price": 15000,
-            "discount": 1500,
-            "subtotal": 40500
-          }
-        ],
-        "delivery": {
-          "method": "home_delivery",
-          "address": {
-            "address_id": "addr_123",
-            "full_address": "Jl. Sudirman No. 123"
-          },
-          "date": "2025-10-11",
-          "time_slot": "morning",
-          "fee": 15000
-        },
-        "pricing": {"subtotal": 64500, "total": 75050},
-        "payment": {"method": "bank_transfer", "status": "paid"},
-        "created_at": "2025-10-09T11:30:00Z"
-      }
-    };
-
-    final d = json['data'] as Map<String, dynamic>;
-    final seller = OrderSellerModel(
-        userId: d['seller']['user_id'] ?? '',
-        name: d['seller']['name'] ?? '',
-        profilePicture: d['seller']['profile_picture']);
-    final items = (d['items'] as List<dynamic>)
-        .map((it) => OrderItemModel.fromJson(it as Map<String, dynamic>))
-        .toList();
-    final delivery =
-        OrderDeliveryModel.fromJson(d['delivery'] as Map<String, dynamic>);
-    final model = OrderModel(
-        orderId: d['order_id'] ?? '',
-        orderNumber: d['order_number'] ?? '',
-        status: d['status'] ?? '',
-        seller: seller,
-        items: items,
-        delivery: delivery,
-        totalAmount: d['pricing']?['total'] ?? d['total'] ?? 0);
-    return model;
+    try {
+      final response = await dio.get('${AppConstants.ordersEndpoint}/$orderId');
+      
+      final d = response.data['data'] as Map<String, dynamic>;
+      final seller = OrderSellerModel(
+          userId: d['seller']['user_id'] ?? '',
+          name: d['seller']['name'] ?? '',
+          profilePicture: d['seller']['profile_picture']);
+      final items = (d['items'] as List<dynamic>)
+          .map((it) => OrderItemModel.fromJson(it as Map<String, dynamic>))
+          .toList();
+      final delivery =
+          OrderDeliveryModel.fromJson(d['delivery'] as Map<String, dynamic>);
+      final model = OrderModel(
+          orderId: d['order_id'] ?? '',
+          orderNumber: d['order_number'] ?? '',
+          status: d['status'] ?? '',
+          seller: seller,
+          items: items,
+          delivery: delivery,
+          totalAmount: d['pricing']?['total'] ?? d['total'] ?? 0,
+          paymentUrl: d['payment']?['payment_url']);
+      return model;
+    } on DioException catch (e) {
+      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
   @override

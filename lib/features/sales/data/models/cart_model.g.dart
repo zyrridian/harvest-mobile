@@ -11,9 +11,9 @@ CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
       cartItemId: json['cart_item_id'] as String,
       product: json['product'] as Map<String, dynamic>,
       quantity: (json['quantity'] as num).toInt(),
-      unitPrice: (json['unit_price'] as num).toInt(),
-      discountPrice: (json['discount_price'] as num?)?.toInt(),
-      subtotal: (json['subtotal'] as num).toInt(),
+      unitPrice: json['unit_price'] as num,
+      discountPrice: json['discount_price'] as num?,
+      subtotal: json['subtotal'] as num,
       notes: json['notes'] as String?,
       isSelected: json['is_selected'] as bool,
       isAvailable: json['is_available'] as bool,
@@ -36,11 +36,11 @@ CartSummaryModel _$CartSummaryModelFromJson(Map<String, dynamic> json) =>
     CartSummaryModel(
       totalItems: (json['total_items'] as num).toInt(),
       totalQuantity: (json['total_quantity'] as num).toInt(),
-      subtotal: (json['subtotal'] as num).toInt(),
-      totalDiscount: (json['total_discount'] as num).toInt(),
-      totalDeliveryFee: (json['total_delivery_fee'] as num).toInt(),
-      serviceFee: (json['service_fee'] as num).toInt(),
-      grandTotal: (json['grand_total'] as num).toInt(),
+      subtotal: json['subtotal'] as num,
+      totalDiscount: json['total_discount'] as num,
+      totalDeliveryFee: json['total_delivery_fee'] as num,
+      serviceFee: json['service_fee'] as num,
+      grandTotal: json['grand_total'] as num,
     );
 
 Map<String, dynamic> _$CartSummaryModelToJson(CartSummaryModel instance) =>

@@ -11,10 +11,10 @@ class CartItemModel {
   final Map<String, dynamic> product;
   final int quantity;
   @JsonKey(name: 'unit_price')
-  final int unitPrice;
+  final num unitPrice;
   @JsonKey(name: 'discount_price')
-  final int? discountPrice;
-  final int subtotal;
+  final num? discountPrice;
+  final num subtotal;
   final String? notes;
   @JsonKey(name: 'is_selected')
   final bool isSelected;
@@ -61,15 +61,15 @@ class CartSummaryModel {
   final int totalItems;
   @JsonKey(name: 'total_quantity')
   final int totalQuantity;
-  final int subtotal;
+  final num subtotal;
   @JsonKey(name: 'total_discount')
-  final int totalDiscount;
+  final num totalDiscount;
   @JsonKey(name: 'total_delivery_fee')
-  final int totalDeliveryFee;
+  final num totalDeliveryFee;
   @JsonKey(name: 'service_fee')
-  final int serviceFee;
+  final num serviceFee;
   @JsonKey(name: 'grand_total')
-  final int grandTotal;
+  final num grandTotal;
 
   CartSummaryModel({
     required this.totalItems,

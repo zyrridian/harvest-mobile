@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
+import '../../../../../core/config/router/app_router.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -30,7 +33,13 @@ class OrderDetailScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: kDarkGreen),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRouter.main);
+            }
+          },
         ),
         title: Text(
           'Order Details',
@@ -326,6 +335,35 @@ class OrderDetailScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         'Cancel Order',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Pay Now Button
+                if (order.status.toLowerCase() == 'pending_payment' && order.paymentUrl != null)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final uri = Uri.parse(order.paymentUrl!);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kDarkGreen,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        'Pay Now',
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

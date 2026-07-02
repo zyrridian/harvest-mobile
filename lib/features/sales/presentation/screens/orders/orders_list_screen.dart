@@ -50,7 +50,13 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: kDarkGreen),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRouter.main);
+            }
+          },
         ),
         title: Text(
           'My Orders',

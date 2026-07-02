@@ -5,10 +5,10 @@ class CartItem extends Equatable {
   final String productId;
   final String name;
   final String? imageUrl;
-  final int unitPrice;
-  final int discountPrice;
+  final num unitPrice;
+  final num discountPrice;
   final int quantity;
-  final int subtotal;
+  final num subtotal;
   final String? notes;
   final bool isSelected;
   final bool isAvailable;
@@ -36,10 +36,10 @@ class CartItem extends Equatable {
     String? productId,
     String? name,
     String? imageUrl,
-    int? unitPrice,
-    int? discountPrice,
+    num? unitPrice,
+    num? discountPrice,
     int? quantity,
-    int? subtotal,
+    num? subtotal,
     String? notes,
     bool? isSelected,
     bool? isAvailable,
@@ -64,9 +64,9 @@ class CartGroupedBySeller extends Equatable {
   final String sellerId;
   final String sellerName;
   final List<CartItem> items;
-  final int subtotal;
-  final int deliveryFee;
-  final int total;
+  final num subtotal;
+  final num deliveryFee;
+  final num total;
 
   const CartGroupedBySeller({
     required this.sellerId,
@@ -84,11 +84,11 @@ class CartGroupedBySeller extends Equatable {
 class CartSummary extends Equatable {
   final int totalItems;
   final int totalQuantity;
-  final int subtotal;
-  final int totalDiscount;
-  final int totalDeliveryFee;
-  final int serviceFee;
-  final int grandTotal;
+  final num subtotal;
+  final num totalDiscount;
+  final num totalDeliveryFee;
+  final num serviceFee;
+  final num grandTotal;
 
   const CartSummary({
     required this.totalItems,

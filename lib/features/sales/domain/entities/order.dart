@@ -5,9 +5,9 @@ class OrderItem extends Equatable {
   final String productId;
   final String name;
   final int quantity;
-  final int unitPrice;
-  final int discount;
-  final int subtotal;
+  final num unitPrice;
+  final num discount;
+  final num subtotal;
 
   const OrderItem({
     required this.orderItemId,
@@ -40,7 +40,7 @@ class OrderDelivery extends Equatable {
   final String? address;
   final String? date;
   final String? timeSlot;
-  final int fee;
+  final num fee;
 
   const OrderDelivery(
       {required this.method,
@@ -60,7 +60,8 @@ class Order extends Equatable {
   final OrderSeller seller;
   final List<OrderItem> items;
   final OrderDelivery delivery;
-  final int totalAmount;
+  final num totalAmount;
+  final String? paymentUrl;
 
   const Order({
     required this.orderId,
@@ -70,8 +71,9 @@ class Order extends Equatable {
     required this.items,
     required this.delivery,
     required this.totalAmount,
+    this.paymentUrl,
   });
 
   @override
-  List<Object?> get props => [orderId, orderNumber, status, totalAmount];
+  List<Object?> get props => [orderId, orderNumber, status, totalAmount, paymentUrl];
 }
