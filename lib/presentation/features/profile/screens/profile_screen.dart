@@ -97,11 +97,12 @@ class ProfileScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           color: kPillGrey,
                           border: Border.all(color: Colors.white, width: 4),
-                          image: DecorationImage(
-                            image: NetworkImage(profile.profileImageUrl ??
-                                'https://i.pravatar.cc/300'),
-                            fit: BoxFit.cover,
-                          ),
+                          image: profile.avatarUrl != null
+                              ? DecorationImage(
+                                  image: NetworkImage(profile.avatarUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
                       ),
                       Container(

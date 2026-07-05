@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import '../../../providers/profile_providers.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../providers/profile_controller.dart';
 import '../../../providers/utility_providers.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -53,53 +55,59 @@ class _PersonalInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final profileAsync = ref.watch(userProfileProvider);
-
-    return Scaffold(
-      backgroundColor: kBgColor,
-      appBar: AppBar(
+    return ref.watch(profileControllerProvider).when(
+      initial: () => const Scaffold(backgroundColor: kBgColor),
+      loading: () => const Scaffold(
         backgroundColor: kBgColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Personal Information',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: kDarkGreen,
-          ),
-        ),
-        actions: [
-          if (!_isEditing)
-            TextButton(
-              onPressed: () {
-                setState(() => _isEditing = true);
-              },
-              child: Text(
-                'Edit',
-                style: GoogleFonts.inter(
-                  color: kDarkGreen,
-                  fontWeight: FontWeight.w600,
-                ),
+        body: Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      ),
+      error: (e) => Scaffold(
+        backgroundColor: kBgColor,
+        body: Center(child: Text(e.toString(), style: GoogleFonts.inter())),
+      ),
+      data: (profile) {
+        if (!_isEditing) {
+          _nameController.text = profile.name;
+          _emailController.text = profile.email;
+          _phoneController.text = profile.phoneNumber ?? '';
+          _bioController.text = profile.bio ?? '';
+        }
+
+        return Scaffold(
+          backgroundColor: kBgColor,
+          appBar: AppBar(
+            backgroundColor: kBgColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Personal Information',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: kDarkGreen,
               ),
             ),
-        ],
-      ),
-      body: profileAsync.when(
-        data: (profile) {
-          // Initialize controllers with current data when not editing
-          if (!_isEditing) {
-            _nameController.text = profile.name;
-            _emailController.text = profile.email;
-            _phoneController.text = profile.phone ?? '';
-            _bioController.text = profile.bio ?? '';
-          }
-
-          return SingleChildScrollView(
+            actions: [
+              if (!_isEditing)
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isEditing = true);
+                  },
+                  child: Text(
+                    'Edit',
+                    style: GoogleFonts.inter(
+                      color: kDarkGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
@@ -122,10 +130,10 @@ class _PersonalInformationScreenState
                                   shape: BoxShape.circle,
                                   color: kPillGrey,
                                   border: Border.all(color: Colors.white, width: 4),
-                                  image: profile.profileImageUrl != null
+                                  image: profile.avatarUrl != null
                                       ? DecorationImage(
                                           image:
-                                              NetworkImage(profile.profileImageUrl!),
+                                              NetworkImage(profile.avatarUrl!),
                                           fit: BoxFit.cover,
                                         )
                                       : null,
@@ -137,7 +145,7 @@ class _PersonalInformationScreenState
                                     ),
                                   ],
                                 ),
-                                child: profile.profileImageUrl == null
+                                child: profile.avatarUrl == null
                                     ? const Icon(Icons.person, size: 60, color: kTextGrey)
                                     : null,
                               ),
@@ -318,16 +326,9 @@ class _PersonalInformationScreenState
                 ],
               ),
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(
-            'Error loading profile',
-            style: GoogleFonts.inter(color: kTextGrey),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -422,10 +423,10 @@ class _PersonalInformationScreenState
     setState(() => _isLoading = true);
 
     try {
-      final updateProfile = ref.read(updateUserProfileProvider);
-      await updateProfile(
+      final profileController = ref.read(profileControllerProvider.notifier);
+      await profileController.updateUserProfile(
         name: _nameController.text,
-        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
+        phoneNumber: _phoneController.text.isEmpty ? null : _phoneController.text,
         bio: _bioController.text.isEmpty ? null : _bioController.text,
       );
 
@@ -486,8 +487,8 @@ class _PersonalInformationScreenState
           );
         },
         (uploadedFile) async {
-          final updateProfileImage = ref.read(updateProfileImageProvider);
-          await updateProfileImage(uploadedFile.url);
+          final profileController = ref.read(profileControllerProvider.notifier);
+          await profileController.updateProfileImage(uploadedFile.url);
           
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(

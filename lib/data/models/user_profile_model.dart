@@ -2,9 +2,11 @@ class UserProfileModel {
   final String id;
   final String name;
   final String email;
-  final String? phone;
-  final String? profileImageUrl;
+  final String? phoneNumber;
+  final String? avatarUrl;
   final String? bio;
+  final String? userType;
+  final bool? isVerified;
   final String createdAt;
   final String updatedAt;
 
@@ -12,9 +14,11 @@ class UserProfileModel {
     required this.id,
     required this.name,
     required this.email,
-    this.phone,
-    this.profileImageUrl,
+    this.phoneNumber,
+    this.avatarUrl,
     this.bio,
+    this.userType,
+    this.isVerified,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -24,11 +28,13 @@ class UserProfileModel {
       id: json['id'] as String,
       name: json['name'] as String,
       email: json['email'] as String,
-      phone: json['phone'] as String?,
-      profileImageUrl: json['profileImageUrl'] as String?,
+      phoneNumber: json['phone_number'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
       bio: json['bio'] as String?,
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
+      userType: json['user_type'] as String?,
+      isVerified: json['is_verified'] as bool?,
+      createdAt: json['created_at'] as String,
+      updatedAt: json['updated_at'] as String,
     );
   }
 
@@ -37,11 +43,13 @@ class UserProfileModel {
       'id': id,
       'name': name,
       'email': email,
-      'phone': phone,
-      'profileImageUrl': profileImageUrl,
+      'phone_number': phoneNumber,
+      'avatar_url': avatarUrl,
       'bio': bio,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'user_type': userType,
+      'is_verified': isVerified,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 }

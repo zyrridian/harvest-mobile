@@ -10,29 +10,36 @@ class UserProfileRepository {
   UserProfileRepository(this._localDataSource, this._remoteDataSource);
 
   Future<UserProfile> getUserProfile() async {
-    final model = await _localDataSource.getUserProfile();
-    return _toEntity(model);
+    try {
+      final model = await _remoteDataSource.getUserProfile();
+      await _localDataSource.cacheUserProfile(model);
+      return _toEntity(model);
+    } catch (e) {
+      final localModel = await _localDataSource.getUserProfile();
+      if (localModel != null) {
+        return _toEntity(localModel);
+      }
+      rethrow;
+    }
   }
 
   Future<UserProfile> updateUserProfile({
     required String name,
-    String? phone,
+    String? phoneNumber,
     String? bio,
   }) async {
     final model = await _remoteDataSource.updateProfile(
       name: name,
-      phone: phone,
+      phoneNumber: phoneNumber,
       bio: bio,
     );
-    // Also update local cache if needed
-    await _localDataSource.updateUserProfile(name: name, phone: phone, bio: bio);
+    await _localDataSource.cacheUserProfile(model);
     return _toEntity(model);
   }
 
   Future<UserProfile> updateProfileImage(String imageUrl) async {
     final model = await _remoteDataSource.updateProfile(avatarUrl: imageUrl);
-    // Also update local cache
-    await _localDataSource.updateProfileImage(imageUrl);
+    await _localDataSource.cacheUserProfile(model);
     return _toEntity(model);
   }
 
@@ -61,8 +68,8 @@ class UserProfileRepository {
       id: model.id,
       name: model.name,
       email: model.email,
-      phone: model.phone,
-      profileImageUrl: model.profileImageUrl,
+      phoneNumber: model.phoneNumber,
+      avatarUrl: model.avatarUrl,
       bio: model.bio,
       createdAt: DateTime.parse(model.createdAt),
       updatedAt: DateTime.parse(model.updatedAt),
