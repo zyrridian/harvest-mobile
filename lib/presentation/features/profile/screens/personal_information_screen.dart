@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import '../../../providers/profile_providers.dart';
+import '../../../providers/utility_providers.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -28,6 +31,7 @@ class _PersonalInformationScreenState
 
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isUploadingPicture = false;
 
   @override
   void initState() {
@@ -103,52 +107,74 @@ class _PersonalInformationScreenState
                 children: [
                   // Profile Picture Section
                   Center(
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: kPillGrey,
-                            border: Border.all(color: Colors.white, width: 4),
-                            image: profile.profileImageUrl != null
-                                ? DecorationImage(
-                                    image:
-                                        NetworkImage(profile.profileImageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                            boxShadow: [
-                              BoxShadow(
-                                color: kDarkGreen.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                    child: GestureDetector(
+                      onTap: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: kPillGrey,
+                                  border: Border.all(color: Colors.white, width: 4),
+                                  image: profile.profileImageUrl != null
+                                      ? DecorationImage(
+                                          image:
+                                              NetworkImage(profile.profileImageUrl!),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: kDarkGreen.withValues(alpha: 0.1),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: profile.profileImageUrl == null
+                                    ? const Icon(Icons.person, size: 60, color: kTextGrey)
+                                    : null,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: kDarkGreen,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: const Icon(Icons.camera_alt,
+                                    size: 18, color: Colors.white),
                               ),
                             ],
                           ),
-                          child: profile.profileImageUrl == null
-                              ? Icon(Icons.person, size: 60, color: kTextGrey)
-                              : null,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: kDarkGreen,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(Icons.camera_alt,
-                              size: 18, color: Colors.white),
-                        ),
-                      ],
+                          if (_isUploadingPicture)
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black.withValues(alpha: 0.5),
+                              ),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: _isLoading ? null : _changeProfilePicture,
+                    onPressed: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
                     child: Text(
                       'Change Profile Picture',
                       style: GoogleFonts.inter(
@@ -437,15 +463,52 @@ class _PersonalInformationScreenState
   }
 
   Future<void> _changeProfilePicture() async {
-    // TODO: Implement image picker
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Image picker not implemented yet',
-          style: GoogleFonts.inter(),
-        ),
-        backgroundColor: kTextGrey,
-      ),
-    );
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+    
+    if (!mounted) return;
+    
+    setState(() => _isUploadingPicture = true);
+    
+    try {
+      final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
+      final result = await uploadFileUseCase(File(pickedFile.path));
+      
+      await result.fold(
+        (failure) async {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(failure.message, style: GoogleFonts.inter()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        (uploadedFile) async {
+          final updateProfileImage = ref.read(updateProfileImageProvider);
+          await updateProfileImage(uploadedFile.url);
+          
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Profile picture updated successfully', style: GoogleFonts.inter()),
+              backgroundColor: kDarkGreen,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile picture', style: GoogleFonts.inter()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingPicture = false);
+    }
   }
 }

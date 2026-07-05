@@ -12,6 +12,12 @@ abstract class ProductRemoteDataSource {
   Future<ProductDetailModel> getProductDetail(String slug);
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug);
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
+  Future<void> submitProductReview({
+    required String productId,
+    required String content,
+    required int rating,
+    List<String> images = const [],
+  });
   Future<FavoriteStatusModel> addToFavorites(String productId);
   Future<FavoriteStatusModel> removeFromFavorites(String productId);
   Future<FavoriteProductListModel> getUserFavorites();
@@ -81,6 +87,30 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         return ReviewResponseModel.fromJson(response.data['data']);
       } else {
         throw ServerException('Failed to get reviews');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown error');
+    }
+  }
+
+  @override
+  Future<void> submitProductReview({
+    required String productId,
+    required String content,
+    required int rating,
+    List<String> images = const [],
+  }) async {
+    try {
+      final response = await dio.post(
+        '/catalog/products/$productId/reviews',
+        data: {
+          'content': content,
+          'rating': rating,
+          'images': images,
+        },
+      );
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException('Failed to submit review');
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Unknown error');

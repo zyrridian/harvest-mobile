@@ -87,6 +87,26 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Either<Failure, void>> submitProductReview({
+    required String productId,
+    required String content,
+    required int rating,
+    List<String> images = const [],
+  }) async {
+    try {
+      await remoteDataSource.submitProductReview(
+        productId: productId,
+        content: content,
+        rating: rating,
+        images: images,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, FavoriteProductList>> getUserFavorites() async {
     try {
       final result = await remoteDataSource.getUserFavorites();

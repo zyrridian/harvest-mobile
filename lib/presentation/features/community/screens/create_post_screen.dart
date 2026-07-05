@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import '../providers/community_providers.dart';
+import '../../../providers/utility_providers.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
@@ -19,6 +22,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final List<String> _tags = [];
   final List<String> _images = [];
   bool _isLoading = false;
+  bool _isUploadingImage = false;
 
   @override
   void dispose() {
@@ -44,7 +48,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     if (url.isNotEmpty) {
       setState(() => _images.add(url.trim()));
       _imageUrlController.clear();
-      Navigator.pop(context); // close dialog
     }
   }
 
@@ -80,32 +83,37 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     );
   }
 
-  void _showAddImageDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Image URL'),
-          content: TextField(
-            controller: _imageUrlController,
-            decoration: const InputDecoration(
-              hintText: 'https://...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => _addImageUrl(_imageUrlController.text),
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+    
+    if (!mounted) return;
+    setState(() => _isUploadingImage = true);
+    
+    try {
+      final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
+      final result = await uploadFileUseCase(File(pickedFile.path));
+      
+      if (!mounted) return;
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
+        },
+        (uploadedFile) {
+          _addImageUrl(uploadedFile.url);
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to upload image')),
+      );
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
   }
 
   @override
@@ -308,7 +316,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     const SizedBox(height: 16),
                   ],
                   GestureDetector(
-                    onTap: _showAddImageDialog,
+                    onTap: _isUploadingImage ? null : _pickAndUploadImage,
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -321,10 +329,16 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              '+ Add image URL',
-                              style: GoogleFonts.inter(color: Colors.blueGrey.shade400, fontWeight: FontWeight.w500),
-                            ),
+                            child: _isUploadingImage 
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(
+                                  '+ Add Image',
+                                  style: GoogleFonts.inter(color: Colors.blueGrey.shade400, fontWeight: FontWeight.w500),
+                                ),
                           ),
                         ),
                       ),

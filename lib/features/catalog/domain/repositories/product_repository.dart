@@ -20,6 +20,12 @@ abstract class ProductRepository {
   /// Product Review
   Future<Either<Failure, ReviewResponse>> getProductReviews(String slug,
       {int limit = 5});
+  Future<Either<Failure, void>> submitProductReview({
+    required String productId,
+    required String content,
+    required int rating,
+    List<String> images = const [],
+  });
 
   /// Others (TODO: check repository)
   Future<Either<Failure, void>> removeFavoriteById(String favoriteId);

@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/dio_provider.dart';
 import '../../features/users/data/datasources/local/user_profile_local_datasource.dart';
 import '../../features/users/data/datasources/local/security_settings_local_datasource.dart';
+import '../../features/users/data/datasources/remote/user_profile_remote_datasource.dart';
 import '../../data/repositories/user_profile_repository.dart';
 import '../../data/repositories/security_settings_repository.dart';
 import '../../domain/entities/user_profile.dart';
@@ -17,10 +19,15 @@ final securitySettingsLocalDataSourceProvider =
   return SecuritySettingsLocalDataSource();
 });
 
+final userProfileRemoteDataSourceProvider = Provider<UserProfileRemoteDataSource>((ref) {
+  return UserProfileRemoteDataSourceImpl(ref.watch(dioProvider));
+});
+
 // ========== REPOSITORIES ==========
 final userProfileRepositoryProvider = Provider<UserProfileRepository>((ref) {
   final localDataSource = ref.read(userProfileLocalDataSourceProvider);
-  return UserProfileRepository(localDataSource);
+  final remoteDataSource = ref.watch(userProfileRemoteDataSourceProvider);
+  return UserProfileRepository(localDataSource, remoteDataSource);
 });
 
 final securitySettingsRepositoryProvider =
