@@ -15,7 +15,7 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   @override
   Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({String? status}) async {
     try {
-      final model = await remoteDataSource.getPreOrderData(status: status);
+      final model = await remoteDataSource.getPreOrderData();
       return Right(model.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));

@@ -27,6 +27,9 @@ class AppConstants {
   static const String marketplaceDataEndpoint = '/storefront/marketplace';
   static const String categoriesEndpoint = '/categories';
 
+  // API Endpoints - Preorder
+  static const String getPreorderDashboardEndpoint = '/preorders/dashboard';
+
   // API Endpoints - Master Data
   static const String provincesEndpoint = '/system/master/provinces';
   static const String citiesEndpoint = '/system/master/cities';
@@ -69,6 +72,7 @@ class AppConstants {
   static const String masterCitiesKey = 'master_cities';
   static const String masterDistrictsKey = 'master_districts';
   static const String addressesDataKey = 'user_addresses_data';
+  static const String preorderDataKey = 'preorder_data';
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/repositories/preorder_repository.dart';
+import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
 
 class ReservePreOrderUseCase {
-  final PreOrderRepository repository;
+  final PreorderRepository repository;
 
   ReservePreOrderUseCase(this.repository);
 

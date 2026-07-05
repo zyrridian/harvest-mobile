@@ -1,10 +1,13 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Removed unused imports
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/preorder_repository_impl.dart';
-import 'package:harvest_app/domain/repositories/preorder_repository.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:harvest_app/core/providers/db_provider.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
+import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
+import 'package:harvest_app/features/preorders/data/repositories/preorder_repository_impl.dart';
+import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
 import 'package:harvest_app/domain/usecases/preorder/get_preorder_data_usecase.dart';
 import 'package:harvest_app/domain/usecases/preorder/reserve_preorder_usecase.dart';
 import 'package:harvest_app/domain/usecases/preorder/get_active_campaigns_usecase.dart';
@@ -13,13 +16,28 @@ import 'preorder_state.dart';
 part 'preorder_controller.g.dart';
 
 // Dependency Injection Providers
-final preOrderRemoteDataSourceProvider = Provider<PreOrderRemoteDataSource>((ref) {
-  // Using a local Dio instance. If the app has a global one, inject it here.
-  return PreOrderRemoteDataSourceImpl(Dio());
+final preOrderRemoteDataSourceProvider =
+    Provider<PreOrderRemoteDataSource>((ref) {
+  final dio = ref.watch(dioProvider);
+  return PreOrderRemoteDataSourceImpl(dio);
 });
 
-final preOrderRepositoryProvider = Provider<PreOrderRepository>((ref) {
-  return PreOrderRepositoryImpl(ref.watch(preOrderRemoteDataSourceProvider));
+final preorderLocalDataSourceProvider =
+    Provider<PreorderLocalDataSource>((ref) {
+  final sharedPreferences = ref.watch(sharedPreferencesProvider);
+  const secureStorage = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: false));
+  return PreorderLocalDataSourceImpl(
+    secureStorage: secureStorage,
+    sharedPreferences: sharedPreferences,
+  );
+});
+
+final preOrderRepositoryProvider = Provider<PreorderRepository>((ref) {
+  return PreorderRepositoryImpl(
+    remoteDataSource: ref.watch(preOrderRemoteDataSourceProvider),
+    localDataSource: ref.watch(preorderLocalDataSourceProvider),
+  );
 });
 
 final getPreOrderDataUseCaseProvider = Provider<GetPreOrderDataUseCase>((ref) {
@@ -30,7 +48,8 @@ final reservePreOrderUseCaseProvider = Provider<ReservePreOrderUseCase>((ref) {
   return ReservePreOrderUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
-final getActiveCampaignsUseCaseProvider = Provider<GetActiveCampaignsUseCase>((ref) {
+final getActiveCampaignsUseCaseProvider =
+    Provider<GetActiveCampaignsUseCase>((ref) {
   return GetActiveCampaignsUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
@@ -88,7 +107,10 @@ class PreOrderController extends _$PreOrderController {
                 activeHarvests: entity.activeHarvests + campaigns.length,
                 yourReservations: entity.yourReservations,
                 avgSavings: entity.avgSavings,
-                availableHarvests: [...mappedCampaigns, ...entity.availableHarvests],
+                availableHarvests: [
+                  ...mappedCampaigns,
+                  ...entity.availableHarvests
+                ],
                 activeReservations: entity.activeReservations,
               );
 
@@ -150,7 +172,10 @@ class PreOrderController extends _$PreOrderController {
           status: 'Pending',
           daysToHarvest: harvest.daysLeft,
         );
-        final updatedActiveReservations = [newReservation, ...data.activeReservations];
+        final updatedActiveReservations = [
+          newReservation,
+          ...data.activeReservations
+        ];
 
         state = PreOrderState.data(data.copyWith(
           availableHarvests: updatedHarvests,
