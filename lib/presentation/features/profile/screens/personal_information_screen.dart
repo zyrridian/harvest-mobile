@@ -116,7 +116,7 @@ class _PersonalInformationScreenState
                   // Profile Picture Section
                   Center(
                     child: GestureDetector(
-                      onTap: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
+                      onTap: (!_isEditing || _isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -132,9 +132,11 @@ class _PersonalInformationScreenState
                                   border: Border.all(color: Colors.white, width: 4),
                                   image: profile.avatarUrl != null
                                       ? DecorationImage(
-                                          image:
-                                              NetworkImage(profile.avatarUrl!),
+                                          image: NetworkImage(profile.avatarUrl!),
                                           fit: BoxFit.cover,
+                                          colorFilter: _isEditing 
+                                              ? null 
+                                              : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
                                         )
                                       : null,
                                   boxShadow: [
@@ -149,16 +151,17 @@ class _PersonalInformationScreenState
                                     ? const Icon(Icons.person, size: 60, color: kTextGrey)
                                     : null,
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: kDarkGreen,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                              if (_isEditing)
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: kDarkGreen,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(Icons.camera_alt,
+                                      size: 18, color: Colors.white),
                                 ),
-                                child: const Icon(Icons.camera_alt,
-                                    size: 18, color: Colors.white),
-                              ),
                             ],
                           ),
                           if (_isUploadingPicture)
@@ -180,17 +183,19 @@ class _PersonalInformationScreenState
                     ),
                   ),
 
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
-                    child: Text(
-                      'Change Profile Picture',
-                      style: GoogleFonts.inter(
-                        color: kDarkGreen,
-                        fontWeight: FontWeight.w600,
+                  if (_isEditing) ...[
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
+                      child: Text(
+                        'Change Profile Picture',
+                        style: GoogleFonts.inter(
+                          color: kDarkGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
 
                   const SizedBox(height: 32),
 

@@ -55,8 +55,8 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
 
       final response = await dio.put('/users/profile', data: data);
 
-      if (response.statusCode == 200) {
-        return UserProfileModel.fromJson(response.data['data']);
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return UserProfileModel.fromJson(response.data['data']['user']);
       } else {
         throw ServerException(
           'Failed to update user profile',

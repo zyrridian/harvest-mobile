@@ -87,35 +87,20 @@ class ProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: kPillGrey,
-                          border: Border.all(color: Colors.white, width: 4),
-                          image: profile.avatarUrl != null
-                              ? DecorationImage(
-                                  image: NetworkImage(profile.avatarUrl!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: kDarkGreen,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(Icons.edit,
-                            size: 14, color: Colors.white),
-                      ),
-                    ],
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: kPillGrey,
+                      border: Border.all(color: Colors.white, width: 4),
+                      image: profile.avatarUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(profile.avatarUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -134,30 +119,7 @@ class ProfileScreen extends ConsumerWidget {
                       fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const PersonalInformationScreen(),
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: kDarkGreen,
-                      side: const BorderSide(color: kPillGrey),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 10),
-                    ),
-                    child: Text(
-                      context.l10n.editProfile,
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                    ),
-                  ),
+
                 ],
               ),
             ),
