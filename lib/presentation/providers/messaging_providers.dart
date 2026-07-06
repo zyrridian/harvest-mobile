@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/dio_provider.dart';
 import '../../features/community/data/datasources/remote/messaging_remote_datasource.dart';
-import '../../data/repositories/messaging_repository_impl.dart';
-import '../../domain/repositories/messaging_repository.dart';
-import '../../domain/usecases/messaging/block_user.dart';
-import '../../domain/usecases/messaging/delete_message.dart';
-import '../../domain/usecases/messaging/get_conversation_detail.dart';
-import '../../domain/usecases/messaging/get_conversations.dart';
-import '../../domain/usecases/messaging/mark_conversation_as_read.dart';
-import '../../domain/usecases/messaging/send_message.dart';
-import '../../domain/usecases/messaging/send_typing_indicator.dart';
-import '../../domain/usecases/messaging/start_conversation.dart';
+import '../../features/community/data/repositories/messaging_repository_impl.dart';
+import '../../features/community/domain/repositories/messaging_repository.dart';
+import '../../features/community/domain/usecases/block_user.dart';
+import '../../features/community/domain/usecases/delete_message.dart';
+import '../../features/community/domain/usecases/get_conversation_detail.dart';
+import '../../features/community/domain/usecases/get_conversations.dart';
+import '../../features/community/domain/usecases/mark_conversation_as_read.dart';
+import '../../features/community/domain/usecases/send_message.dart';
+import '../../features/community/domain/usecases/send_typing_indicator.dart';
+import '../../features/community/domain/usecases/start_conversation.dart';
 
 // Data Source Provider – now backed by the real Dio instance
 final messagingRemoteDataSourceProvider =

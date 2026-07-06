@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/error/exceptions.dart';
-import '../../../../../data/models/community_post_model.dart';
+import '../../models/community_post_model.dart';
 import '../../../../../data/models/recipe_model.dart';
 import '../../../../../data/models/paginated_response_model.dart';
-import '../../../../../data/models/community_comment_model.dart';
+import '../../models/community_comment_model.dart';
 
 abstract class CommunityRemoteDataSource {
   Future<PaginatedResponseModel<CommunityPostModel>> getCommunityPosts({

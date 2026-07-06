@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import '../../../../../data/models/conversation_model.dart';
+import '../../models/conversation_model.dart';
 import '../../../../../data/models/message_model.dart';
-import '../../../../../domain/entities/conversation.dart';
-import '../../../../../domain/entities/message.dart';
+import '../../../domain/entities/conversation.dart';
+import '../../../domain/entities/message.dart';
 import '../../../../../core/constants/app_constants.dart';
 abstract class MessagingRemoteDataSource {
   Future<Map<String, dynamic>> getConversations({

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../../../../domain/entities/review_response.dart';
+import '../../../../community/domain/entities/review_response.dart';
 import 'review_model.dart';
 
 part 'review_response_model.g.dart';

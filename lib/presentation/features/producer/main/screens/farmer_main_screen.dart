@@ -8,8 +8,8 @@ import '../../dashboard/screens/farmer_dashboard_screen.dart';
 import '../../products/screens/product_management_screen.dart';
 import '../../orders/screens/order_tracking_screen.dart';
 import '../../settings/screens/farm_configuration_screen.dart';
-import '../../../messaging/screens/conversations_list_screen.dart';
-import '../../../messaging/providers/chat_socket_providers.dart';
+import '../../../../../features/community/presentation/screens/conversations_list_screen.dart';
+import '../../../../../features/community/presentation/providers/chat_socket_providers.dart';
 
 // Provider to manage which tab is active for the farmer
 final farmerBottomNavIndexProvider = StateProvider<int>((ref) => 0);

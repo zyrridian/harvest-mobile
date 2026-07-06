@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/post_comment.dart';
+import '../../features/community/domain/entities/post_comment.dart';
 
 part 'post_comment_model.g.dart';
 

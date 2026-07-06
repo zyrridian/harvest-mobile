@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../core/error/exceptions.dart';
-import '../../../../../data/models/community_post_model.dart';
+import '../../models/community_post_model.dart';
 import '../../../../../data/models/recipe_model.dart';
 import '../../../../../data/models/paginated_response_model.dart';
 

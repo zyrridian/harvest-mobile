@@ -3,7 +3,7 @@ import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product_detail.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product_list_response.dart';
 import 'package:harvest_app/features/catalog/domain/entities/favorite_status.dart';
-import 'package:harvest_app/domain/entities/review_response.dart';
+import 'package:harvest_app/features/community/domain/entities/review_response.dart';
 
 import 'package:harvest_app/features/catalog/domain/entities/favorite_product.dart';
 

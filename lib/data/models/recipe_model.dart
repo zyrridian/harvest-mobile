@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/recipe.dart';
+import '../../features/community/domain/entities/recipe.dart';
 
 part 'recipe_model.g.dart';
 
