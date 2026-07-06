@@ -8,7 +8,9 @@ import 'package:harvest_app/features/community/presentation/providers/community_
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
+import 'create_recipe_screen.dart';
 import 'community_post_detail_screen.dart';
+import 'recipe_detail_screen.dart';
 
 class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
@@ -135,27 +137,41 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               children: [
                 Text(
                   'Create New',
-                  style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: kPrimaryGreen.withOpacity(0.1), shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: kPrimaryGreen.withOpacity(0.1),
+                        shape: BoxShape.circle),
                     child: const Icon(Icons.post_add, color: kPrimaryGreen),
                   ),
-                  title: Text('Community Post', style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 16)),
-                  subtitle: Text('Share an update or ask a question', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600)),
+                  title: Text('Community Post',
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w500, fontSize: 16)),
+                  subtitle: Text('Share an update or ask a question',
+                      style: GoogleFonts.inter(
+                          fontSize: 13, color: Colors.grey.shade600)),
                   onTap: () => Navigator.pop(context, 'post'),
                 ),
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: kAccentOrange.withOpacity(0.1), shape: BoxShape.circle),
-                    child: const Icon(Icons.restaurant_menu, color: kAccentOrange),
+                    decoration: BoxDecoration(
+                        color: kAccentOrange.withOpacity(0.1),
+                        shape: BoxShape.circle),
+                    child:
+                        const Icon(Icons.restaurant_menu, color: kAccentOrange),
                   ),
-                  title: Text('Kitchen Recipe', style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 16)),
-                  subtitle: Text('Share your favorite cooking recipe', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600)),
+                  title: Text('Kitchen Recipe',
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w500, fontSize: 16)),
+                  subtitle: Text('Share your favorite cooking recipe',
+                      style: GoogleFonts.inter(
+                          fontSize: 13, color: Colors.grey.shade600)),
                   onTap: () => Navigator.pop(context, 'recipe'),
                 ),
               ],
@@ -174,7 +190,15 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         ref.read(communityControllerProvider.notifier).setFilter('All Posts');
       }
     } else if (action == 'recipe') {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create Recipe coming soon!')));
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CreateRecipeScreen()),
+      );
+      if (result == true) {
+        // Change filter to Kitchen Recipes and refresh
+        setState(() => _selectedFilter = 'Kitchen Recipes');
+        ref.read(recipeControllerProvider.notifier).refresh();
+      }
     }
   }
 
@@ -316,16 +340,21 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       child: ActionChip(
                         label: Text(tag),
                         onPressed: () => _onTagSelected(tag),
-                        backgroundColor: isSelected ? const Color(0xFF166534) : Colors.white,
+                        backgroundColor:
+                            isSelected ? const Color(0xFF166534) : Colors.white,
                         labelStyle: GoogleFonts.inter(
-                          color: isSelected ? Colors.white : const Color(0xFF166534),
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF166534),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                              color: isSelected ? const Color(0xFF166534) : Colors.grey.shade300),
+                              color: isSelected
+                                  ? const Color(0xFF166534)
+                                  : Colors.grey.shade300),
                         ),
                       ),
                     );
@@ -417,95 +446,108 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   Widget _buildRecipeCard(Recipe recipe) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.grey.shade100,
-              child: Image.network(
-                recipe.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.restaurant, color: Colors.grey, size: 32),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => RecipeDetailScreen(recipe: recipe)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey.shade100,
+                child: Image.network(
+                  recipe.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.restaurant,
+                      color: Colors.grey,
+                      size: 32),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  recipe.title,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recipe.title,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 12, color: Colors.grey.shade600),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${recipe.prepTimeMinutes + recipe.cookTimeMinutes}m',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.grey.shade200,
-                      backgroundImage: recipe.author.avatarUrl != null
-                          ? NetworkImage(recipe.author.avatarUrl!)
-                          : null,
-                      child: recipe.author.avatarUrl == null
-                          ? const Icon(Icons.person, size: 12, color: Colors.grey)
-                          : null,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        recipe.author.name,
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 12, color: Colors.grey.shade600),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${recipe.prepTimeMinutes + recipe.cookTimeMinutes}m',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: Colors.black87,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.grey.shade200,
+                        backgroundImage: recipe.author.avatarUrl != null
+                            ? NetworkImage(recipe.author.avatarUrl!)
+                            : null,
+                        child: recipe.author.avatarUrl == null
+                            ? const Icon(Icons.person,
+                                size: 12, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          recipe.author.name,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
