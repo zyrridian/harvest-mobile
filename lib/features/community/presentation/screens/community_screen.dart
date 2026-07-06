@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
+import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
+import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
 import 'community_post_detail_screen.dart';
@@ -118,12 +121,60 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   Future<void> _openCreatePost() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Create New',
+                  style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: kPrimaryGreen.withOpacity(0.1), shape: BoxShape.circle),
+                    child: const Icon(Icons.post_add, color: kPrimaryGreen),
+                  ),
+                  title: Text('Community Post', style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 16)),
+                  subtitle: Text('Share an update or ask a question', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600)),
+                  onTap: () => Navigator.pop(context, 'post'),
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: kAccentOrange.withOpacity(0.1), shape: BoxShape.circle),
+                    child: const Icon(Icons.restaurant_menu, color: kAccentOrange),
+                  ),
+                  title: Text('Kitchen Recipe', style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 16)),
+                  subtitle: Text('Share your favorite cooking recipe', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600)),
+                  onTap: () => Navigator.pop(context, 'recipe'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
-    if (result == true) {
-      ref.read(communityControllerProvider.notifier).setFilter('All Posts');
+
+    if (action == 'post') {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+      );
+      if (result == true) {
+        ref.read(communityControllerProvider.notifier).setFilter('All Posts');
+      }
+    } else if (action == 'recipe') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create Recipe coming soon!')));
     }
   }
 
@@ -285,38 +336,176 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            // Posts List
-            state.maybeWhen(
-              data: (response) {
-                if (response.data.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: Center(child: Text('No posts found')),
-                  );
-                }
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final post = response.data[index];
-                      return _buildPostCard(post);
-                    },
-                    childCount: response.data.length,
-                  ),
-                );
-              },
-              loading: () => const SliverFillRemaining(
-                child: Center(
-                    child: CircularProgressIndicator(color: kPrimaryGreen)),
-              ),
-              error: (msg) => SliverFillRemaining(
-                child: Center(child: Text('Error: \$msg')),
-              ),
-              orElse: () => const SliverFillRemaining(child: SizedBox()),
-            ),
+            // Posts List or Recipes List
+            _selectedFilter == 'Kitchen Recipes'
+                ? _buildRecipesList(ref)
+                : _buildPostsList(state),
 
             // Bottom padding for nav bar
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPostsList(CommunityState state) {
+    return state.maybeWhen(
+      data: (response) {
+        if (response.data.isEmpty) {
+          return const SliverFillRemaining(
+            child: Center(child: Text('No posts found')),
+          );
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final post = response.data[index];
+              return _buildPostCard(post);
+            },
+            childCount: response.data.length,
+          ),
+        );
+      },
+      loading: () => const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator(color: kPrimaryGreen)),
+      ),
+      error: (msg) => SliverFillRemaining(
+        child: Center(child: Text('Error: $msg')),
+      ),
+      orElse: () => const SliverFillRemaining(child: SizedBox()),
+    );
+  }
+
+  Widget _buildRecipesList(WidgetRef ref) {
+    final recipeState = ref.watch(recipeControllerProvider);
+
+    return recipeState.maybeWhen(
+      data: (response) {
+        if (response.data.isEmpty) {
+          return const SliverFillRemaining(
+            child: Center(child: Text('No recipes found')),
+          );
+        }
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final recipe = response.data[index];
+                return _buildRecipeCard(recipe);
+              },
+              childCount: response.data.length,
+            ),
+          ),
+        );
+      },
+      loading: () => const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator(color: kPrimaryGreen)),
+      ),
+      error: (msg) => SliverFillRemaining(
+        child: Center(child: Text('Error: $msg')),
+      ),
+      orElse: () => const SliverFillRemaining(child: SizedBox()),
+    );
+  }
+
+  Widget _buildRecipeCard(Recipe recipe) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              color: Colors.grey.shade100,
+              child: Image.network(
+                recipe.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.restaurant, color: Colors.grey, size: 32),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recipe.title,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.access_time, size: 12, color: Colors.grey.shade600),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${recipe.prepTimeMinutes + recipe.cookTimeMinutes}m',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 10,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: recipe.author.avatarUrl != null
+                          ? NetworkImage(recipe.author.avatarUrl!)
+                          : null,
+                      child: recipe.author.avatarUrl == null
+                          ? const Icon(Icons.person, size: 12, color: Colors.grey)
+                          : null,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        recipe.author.name,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/features/community/domain/usecases/get_post_comments_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/create_comment_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/toggle_comment_like_usecase.dart';
-import 'package:harvest_app/features/community/presentation/providers/community_providers.dart';
+import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
 import 'package:harvest_app/features/community/domain/entities/community_comment.dart';
 import 'package:harvest_app/domain/entities/paginated_response.dart';
 import 'post_detail_state.dart';

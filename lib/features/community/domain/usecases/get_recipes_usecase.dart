@@ -1,14 +1,29 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
-import '../entities/recipe.dart';
-import '../repositories/community_repository.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/features/community/domain/entities/recipe.dart';
+import 'package:harvest_app/features/community/domain/repositories/recipe_repository.dart';
 
 class GetRecipesUseCase {
-  final CommunityRepository repository;
+  final RecipeRepository repository;
 
   GetRecipesUseCase(this.repository);
 
-  Future<Either<Failure, List<Recipe>>> call() async {
-    return await repository.getRecipes();
+  Future<Either<Failure, PaginatedResponse<Recipe>>> call({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    String? authorId,
+    String? difficulty,
+    bool? isFeatured,
+  }) async {
+    return await repository.getRecipes(
+      page: page,
+      limit: limit,
+      search: search,
+      authorId: authorId,
+      difficulty: difficulty,
+      isFeatured: isFeatured,
+    );
   }
 }

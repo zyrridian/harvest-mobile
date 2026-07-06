@@ -21,6 +21,11 @@ RecipeModel _$RecipeModelFromJson(Map<String, dynamic> json) => RecipeModel(
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      ingredients: (json['ingredients'] as List<dynamic>?)
+              ?.map((e) =>
+                  RecipeIngredientModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       likesCount: (json['likesCount'] as num).toInt(),
       viewsCount: (json['viewsCount'] as num).toInt(),
       createdAt: json['createdAt'] as String,
@@ -42,6 +47,7 @@ Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) =>
       'difficulty': instance.difficulty,
       'isFeatured': instance.isFeatured,
       'instructions': instance.instructions,
+      'ingredients': instance.ingredients,
       'likesCount': instance.likesCount,
       'viewsCount': instance.viewsCount,
       'createdAt': instance.createdAt,
@@ -61,4 +67,22 @@ Map<String, dynamic> _$RecipeAuthorModelToJson(RecipeAuthorModel instance) =>
       'id': instance.id,
       'name': instance.name,
       'avatarUrl': instance.avatarUrl,
+    };
+
+RecipeIngredientModel _$RecipeIngredientModelFromJson(
+        Map<String, dynamic> json) =>
+    RecipeIngredientModel(
+      name: json['name'] as String,
+      quantity: (json['quantity'] as num?)?.toDouble(),
+      unit: json['unit'] as String?,
+      productId: json['product_id'] as String?,
+    );
+
+Map<String, dynamic> _$RecipeIngredientModelToJson(
+        RecipeIngredientModel instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'quantity': instance.quantity,
+      'unit': instance.unit,
+      'product_id': instance.productId,
     };

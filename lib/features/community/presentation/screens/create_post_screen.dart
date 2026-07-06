@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import '../providers/community_providers.dart';
+import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
 import '../../../../presentation/providers/utility_providers.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {

@@ -12,6 +12,7 @@ class Recipe extends Equatable {
   final String? difficulty;
   final bool isFeatured;
   final List<String> instructions;
+  final List<RecipeIngredient> ingredients;
   final int likesCount;
   final int viewsCount;
   final DateTime createdAt;
@@ -30,6 +31,7 @@ class Recipe extends Equatable {
     this.difficulty,
     required this.isFeatured,
     this.instructions = const [],
+    this.ingredients = const [],
     required this.likesCount,
     required this.viewsCount,
     required this.createdAt,
@@ -50,6 +52,7 @@ class Recipe extends Equatable {
         difficulty,
         isFeatured,
         instructions,
+        ingredients,
         likesCount,
         viewsCount,
         createdAt,
@@ -71,4 +74,21 @@ class RecipeAuthor extends Equatable {
 
   @override
   List<Object?> get props => [id, name, avatarUrl];
+}
+
+class RecipeIngredient extends Equatable {
+  final String name;
+  final double? quantity;
+  final String? unit;
+  final String? productId;
+
+  const RecipeIngredient({
+    required this.name,
+    this.quantity,
+    this.unit,
+    this.productId,
+  });
+
+  @override
+  List<Object?> get props => [name, quantity, unit, productId];
 }

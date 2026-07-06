@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/community_post.dart';
 import '../../domain/entities/community_comment.dart';
-import '../providers/community_providers.dart';
+import '../providers/community_controller.dart';
 import '../providers/post_detail_controller.dart';
 import '../providers/community_controller.dart';
 

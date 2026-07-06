@@ -1,8 +1,19 @@
-import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
+import 'package:harvest_app/core/providers/db_provider.dart';
+import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:harvest_app/features/community/data/datasources/remote/community_remote_datasource.dart';
+import 'package:harvest_app/features/community/data/datasources/local/community_local_datasource.dart';
+import 'package:harvest_app/features/community/data/repositories/community_repository_impl.dart';
 import 'package:harvest_app/features/community/domain/usecases/get_community_posts_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/toggle_post_like_usecase.dart';
-import 'package:harvest_app/features/community/presentation/providers/community_providers.dart'; // To get usecase providers
+import 'package:harvest_app/features/community/domain/usecases/create_post_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/edit_post_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/delete_post_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/get_post_comments_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/create_comment_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/toggle_comment_like_usecase.dart';
 import 'package:harvest_app/domain/entities/paginated_response.dart';
 import 'community_state.dart';
 
@@ -131,3 +142,54 @@ class CommunityController extends _$CommunityController {
     );
   }
 }
+
+// Local Data source provider
+final communityLocalDataSourceProvider = Provider<CommunityLocalDataSource>((ref) {
+  return CommunityLocalDataSourceImpl(sharedPreferences: ref.watch(sharedPreferencesProvider));
+});
+
+// Remote Data source provider
+final communityRemoteDataSourceProvider = Provider<CommunityRemoteDataSource>((ref) {
+  return CommunityRemoteDataSourceImpl(ref.watch(dioProvider));
+});
+
+// Repository provider
+final communityRepositoryProvider = Provider<CommunityRepositoryImpl>((ref) {
+  return CommunityRepositoryImpl(
+    remoteDataSource: ref.watch(communityRemoteDataSourceProvider),
+    localDataSource: ref.watch(communityLocalDataSourceProvider),
+  );
+});
+
+// Use cases providers
+final getCommunityPostsUseCaseProvider = Provider<GetCommunityPostsUseCase>((ref) {
+  return GetCommunityPostsUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final togglePostLikeUseCaseProvider = Provider<TogglePostLikeUseCase>((ref) {
+  return TogglePostLikeUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final createPostUseCaseProvider = Provider<CreatePostUseCase>((ref) {
+  return CreatePostUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final editPostUseCaseProvider = Provider<EditPostUseCase>((ref) {
+  return EditPostUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final deletePostUseCaseProvider = Provider<DeletePostUseCase>((ref) {
+  return DeletePostUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final getPostCommentsUseCaseProvider = Provider<GetPostCommentsUseCase>((ref) {
+  return GetPostCommentsUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
+  return CreateCommentUseCase(ref.watch(communityRepositoryProvider));
+});
+
+final toggleCommentLikeUseCaseProvider = Provider<ToggleCommentLikeUseCase>((ref) {
+  return ToggleCommentLikeUseCase(ref.watch(communityRepositoryProvider));
+});
