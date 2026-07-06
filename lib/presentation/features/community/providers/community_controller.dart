@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/usecases/community/get_community_posts_usecase.dart';
 import 'package:harvest_app/domain/usecases/community/toggle_post_like_usecase.dart';
 import 'package:harvest_app/presentation/features/community/providers/community_providers.dart'; // To get usecase providers
+import 'package:harvest_app/domain/entities/paginated_response.dart';
 import 'community_state.dart';
 
 part 'community_controller.g.dart';
@@ -20,6 +21,19 @@ class CommunityController extends _$CommunityController {
 
   Future<void> _fetchPosts({int page = 1}) async {
     state = const CommunityState.loading();
+    
+    if (_currentFilter == 'recipes') {
+      state = const CommunityState.data(PaginatedResponse<CommunityPost>(
+        data: [],
+        pagination: Pagination(
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: 0,
+        ),
+      ));
+      return;
+    }
+
     final useCase = ref.read(getCommunityPostsUseCaseProvider);
     final result = await useCase.call(
       page: page,
