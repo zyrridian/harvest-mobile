@@ -506,46 +506,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SliverToBoxAdapter(child: PromoCarousel()),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-          // ── 6. CATEGORIES — horizontal chip row ───────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 0, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 24),
-                    child: _sectionHeader(
-                      'Shop by Category',
-                      showSeeAll: true,
-                      onSeeAllTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CategoryScreen(
-                            categoryName: 'All Categories',
-                            categoryId: 'all',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    height: 90,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.zero,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
-                      itemBuilder: (context, i) =>
-                          _buildCategoryChip(categories[i]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
           // ── 7. FARMERS NEAR YOU ───────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
@@ -623,6 +583,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
+
+          // ── 6. CATEGORIES — horizontal chip row ───────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 0, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: _sectionHeader(
+                      'Shop by Category',
+                      showSeeAll: true,
+                      onSeeAllTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CategoryScreen(
+                            categoryName: 'All Categories',
+                            categoryId: 'all',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 90,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.zero,
+                      itemCount: categories.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, i) =>
+                          _buildCategoryChip(categories[i]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           // ── 9. FRESH TODAY ────────────────────────────────────────────────
           SliverToBoxAdapter(

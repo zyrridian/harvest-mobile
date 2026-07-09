@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
 import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
 import 'package:harvest_app/presentation/features/preorder/providers/preorder_state.dart';
+import 'package:harvest_app/features/users/presentation/providers/address_controller.dart';
 import 'package:intl/intl.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
@@ -577,15 +578,7 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen>
                     ),
                     GestureDetector(
                       onTap: () {
-                        ref
-                            .read(preOrderControllerProvider.notifier)
-                            .reserveHarvest(harvest);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Reserving ${harvest.title}...'),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
+                        _showReserveBottomSheet(context, harvest);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -678,6 +671,302 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _showReserveBottomSheet(BuildContext context, PreOrderHarvest harvest) {
+    int quantity = 1;
+    String deliveryMethod = 'PICKUP';
+    String? addressId;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                left: 24,
+                right: 24,
+                top: 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Reserve ${harvest.title}',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: kTextGreen,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Quantity (${harvest.unit})',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: kTextGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: quantity > 1
+                            ? () => setState(() => quantity--)
+                            : null,
+                        icon: const Icon(Icons.remove_circle_outline),
+                        color: kDarkGreen,
+                      ),
+                      Text(
+                        '$quantity',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: quantity < harvest.remainingQuantity
+                            ? () => setState(() => quantity++)
+                            : null,
+                        icon: const Icon(Icons.add_circle_outline),
+                        color: kDarkGreen,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Delivery Method',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: kTextGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => deliveryMethod = 'PICKUP'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: deliveryMethod == 'PICKUP'
+                                  ? const Color(0xFFE8F3E8)
+                                  : Colors.white,
+                              border: Border.all(
+                                color: deliveryMethod == 'PICKUP'
+                                    ? kDarkGreen
+                                    : Colors.grey[300]!,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Pickup',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  color: deliveryMethod == 'PICKUP'
+                                      ? kDarkGreen
+                                      : Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => deliveryMethod = 'DELIVERY'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: deliveryMethod == 'DELIVERY'
+                                  ? const Color(0xFFE8F3E8)
+                                  : Colors.white,
+                              border: Border.all(
+                                color: deliveryMethod == 'DELIVERY'
+                                    ? kDarkGreen
+                                    : Colors.grey[300]!,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Delivery',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  color: deliveryMethod == 'DELIVERY'
+                                      ? kDarkGreen
+                                      : Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (deliveryMethod == 'DELIVERY') ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'Delivery Address',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: kTextGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final addressState = ref.watch(addressControllerProvider);
+                        return addressState.when(
+                          initial: () => const Center(child: CircularProgressIndicator()),
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (msg) => Text('Error loading addresses: $msg', style: const TextStyle(color: Colors.red)),
+                          data: (addresses) {
+                            if (addresses.isEmpty) {
+                              return Text(
+                                'No addresses found. Please add an address in your profile.',
+                                style: GoogleFonts.inter(color: Colors.grey[600]),
+                              );
+                            }
+                            
+                            // Set default if none selected
+                            if (addressId == null && addresses.isNotEmpty) {
+                              final defaultAddr = addresses.firstWhere(
+                                (a) => a.isPrimary,
+                                orElse: () => addresses.first,
+                              );
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                setState(() {
+                                  addressId = defaultAddr.addressId;
+                                });
+                              });
+                            }
+
+                            return DropdownButtonFormField<String>(
+                              value: addressId,
+                              hint: const Text('Select an address'),
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                              ),
+                              items: addresses.map((addr) {
+                                return DropdownMenuItem<String>(
+                                  value: addr.addressId,
+                                  child: Text(
+                                    '${addr.label} - ${addr.fullAddress}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  addressId = val;
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Reserving ${harvest.title}...'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                        
+                        final success = await ref
+                            .read(preOrderControllerProvider.notifier)
+                            .reserveHarvest(
+                              harvest,
+                              quantity: quantity,
+                              deliveryMethod: deliveryMethod,
+                              addressId: addressId,
+                            );
+                            
+                        if (mounted) {
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Reservation successful!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to reserve harvest.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kDarkGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Confirm Reservation',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

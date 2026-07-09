@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/domain/repositories/harvest_schedule_repository.dart';
 
 class GetScheduleDashboardUseCase {
@@ -7,7 +8,7 @@ class GetScheduleDashboardUseCase {
 
   GetScheduleDashboardUseCase(this.repository);
 
-  Future<Either<Failure, Map<String, dynamic>>> call({
+  Future<Either<Failure, HarvestScheduleDashboardEntity>> call({
     String? month,
     double? latitude,
     double? longitude,

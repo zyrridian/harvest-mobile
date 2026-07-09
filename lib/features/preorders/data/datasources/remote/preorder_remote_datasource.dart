@@ -4,12 +4,13 @@ import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/data/models/preorder/preorder_model.dart';
 import 'package:harvest_app/data/models/preorder/preorder_response_model.dart';
 import 'package:harvest_app/data/models/preorder/campaign_model.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreOrderRemoteDataSource {
   Future<PreOrderModel> getPreOrderData({double? latitude, double? longitude});
   
   // New endpoints
-  Future<PreorderCampaignModel> createCampaign(PreorderCampaignModel campaign);
+  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params);
   Future<List<PreorderCampaignModel>> getActiveCampaigns();
   Future<List<PreorderCampaignModel>> getMyCampaigns();
   Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);
@@ -88,11 +89,11 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<PreorderCampaignModel> createCampaign(PreorderCampaignModel campaign) async {
+  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params) async {
     try {
       final response = await dio.post(
         '/preorders/campaigns',
-        data: campaign.toJson(),
+        data: params.toJson(),
       );
       if (response.data['status'] == 'success') {
         return PreorderCampaignModel.fromJson(response.data['data']);

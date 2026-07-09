@@ -55,8 +55,10 @@ class FarmerProductsController extends _$FarmerProductsController {
     return const FarmerProductsState.loading();
   }
 
-  Future<void> _fetchProducts() async {
-    state = const FarmerProductsState.loading();
+  Future<void> _fetchProducts({bool showLoading = true}) async {
+    if (showLoading) {
+      state = const FarmerProductsState.loading();
+    }
     
     final result = await ref.read(getFarmerProductsUseCaseProvider).call(status: _currentFilter);
 
@@ -77,7 +79,7 @@ class FarmerProductsController extends _$FarmerProductsController {
   }
 
   Future<void> refresh() async {
-    await _fetchProducts();
+    await _fetchProducts(showLoading: false);
   }
 
   Future<void> setFilter(String status) async {

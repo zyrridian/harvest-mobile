@@ -16,7 +16,7 @@ abstract class HarvestScheduleRepository {
     required String pickupTime,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> getScheduleDashboard({
+  Future<Either<Failure, HarvestScheduleDashboardEntity>> getScheduleDashboard({
     String? month,
     double? latitude,
     double? longitude,

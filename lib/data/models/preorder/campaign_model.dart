@@ -19,20 +19,22 @@ class PreorderCampaignModel extends PreorderCampaign {
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
     return PreorderCampaignModel(
       id: json['id'] ?? json['campaignId'] ?? '',
-      productId: json['productId'] ?? (json['product']?['id']) ?? '',
-      productName: json['product']?['name'],
-      productImage: json['product']?['image'],
+      productId: json['productId'] ?? json['farmerId'] ?? (json['product']?['id']) ?? '',
+      productName: json['title'] ?? json['productName'] ?? json['product']?['name'],
+      productImage: json['productImage'] ?? json['product']?['image'],
       farmerName: json['farmerName'],
       targetQuantity: json['targetQuantity'] ?? 0,
-      currentReservations: json['currentReservations'] ?? 0,
+      currentReservations: json['currentBookedQuantity'] ?? json['currentReservations'] ?? 0,
       deadline: json['deadline'] != null
           ? DateTime.parse(json['deadline'])
-          : DateTime.now(),
+          : (json['estimatedHarvestDate'] != null 
+              ? DateTime.parse(json['estimatedHarvestDate']) 
+              : DateTime.now()),
       estimatedHarvestDate: json['estimatedHarvestDate'] != null
           ? DateTime.parse(json['estimatedHarvestDate'])
           : DateTime.now(),
-      depositRequired: json['depositRequired'] ?? false,
-      depositAmount: (json['depositAmount'] ?? 0).toDouble(),
+      depositRequired: json['depositRequired'] ?? ((json['depositPercentage'] ?? 0) > 0),
+      depositAmount: (json['depositAmount'] ?? json['depositPercentage'] ?? 0).toDouble(),
       status: json['status'],
     );
   }

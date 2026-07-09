@@ -1,6 +1,7 @@
 // Removed unused imports
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
@@ -136,11 +137,17 @@ class PreOrderController extends _$PreOrderController {
     );
   }
 
-  Future<void> reserveHarvest(PreOrderHarvest harvest) async {
-    state.maybeWhen(
+  Future<bool> reserveHarvest(
+    PreOrderHarvest harvest, {
+    required int quantity,
+    required String deliveryMethod,
+    String? addressId,
+  }) async {
+    bool isSuccess = false;
+    await state.maybeWhen(
       data: (data) async {
         // Optimistic UI update
-        final newBookedQuantity = harvest.bookedQuantity + 1;
+        final newBookedQuantity = harvest.bookedQuantity + quantity;
         final updatedHarvests = data.availableHarvests.map((h) {
           if (h.id == harvest.id) {
             return PreOrderHarvest(
@@ -167,7 +174,7 @@ class PreOrderController extends _$PreOrderController {
           id: 'r_optimistic',
           title: harvest.title,
           farmerName: harvest.farmerName,
-          quantityStr: '1 ${harvest.unit}',
+          quantityStr: '$quantity ${harvest.unit}',
           imageUrl: harvest.imageUrl,
           status: 'Pending',
           daysToHarvest: harvest.daysLeft,
@@ -185,19 +192,37 @@ class PreOrderController extends _$PreOrderController {
 
         // Call backend API
         final usecase = ref.read(reservePreOrderUseCaseProvider);
-        final result = await usecase.call(harvestId: harvest.id, quantity: 1);
+        final result = await usecase.call(
+          harvestId: harvest.id,
+          quantity: quantity,
+          deliveryMethod: deliveryMethod,
+          addressId: addressId,
+        );
 
         result.fold(
           (failure) {
             // Revert changes or show error message
-            // E.g., re-assign old state
+            isSuccess = false;
           },
           (responseData) {
             // Success! The background API updated successfully.
+            isSuccess = true;
           },
         );
       },
-      orElse: () {},
+      orElse: () async {
+        isSuccess = false;
+      },
+    );
+    return isSuccess;
+  }
+
+  Future<bool> createCampaign(CreatePreorderCampaignParams params) async {
+    final repository = ref.read(preOrderRepositoryProvider);
+    final result = await repository.createCampaign(params);
+    return result.fold(
+      (failure) => false,
+      (campaign) => true,
     );
   }
 }

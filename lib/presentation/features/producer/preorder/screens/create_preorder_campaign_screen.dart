@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
+import 'package:harvest_app/presentation/features/producer/products/providers/farmer_campaigns_controller.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CreatePreorderCampaignScreen extends ConsumerStatefulWidget {
@@ -11,37 +14,68 @@ class CreatePreorderCampaignScreen extends ConsumerStatefulWidget {
 
 class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCampaignScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _productIdController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _unitController = TextEditingController();
+  final _pricePerUnitController = TextEditingController();
   final _targetQuantityController = TextEditingController();
-  final _depositAmountController = TextEditingController();
+  final _minimumOrderQuantityController = TextEditingController();
+  final _depositPercentageController = TextEditingController();
 
-  DateTime? _deadline;
   DateTime? _estimatedHarvestDate;
-  bool _depositRequired = false;
 
   @override
   void dispose() {
-    _productIdController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _unitController.dispose();
+    _pricePerUnitController.dispose();
     _targetQuantityController.dispose();
-    _depositAmountController.dispose();
+    _minimumOrderQuantityController.dispose();
+    _depositPercentageController.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate() && _deadline != null && _estimatedHarvestDate != null) {
-      // Implement the actual submit logic here using the PreOrderRepository
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Campaign created successfully!')),
+  Future<void> _submit() async {
+    if (_formKey.currentState!.validate() && _estimatedHarvestDate != null) {
+      final params = CreatePreorderCampaignParams(
+        title: _titleController.text,
+        description: _descriptionController.text,
+        unit: _unitController.text,
+        pricePerUnit: double.tryParse(_pricePerUnitController.text) ?? 0,
+        targetQuantity: int.tryParse(_targetQuantityController.text) ?? 0,
+        estimatedHarvestDate: _estimatedHarvestDate!,
+        minimumOrderQuantity: int.tryParse(_minimumOrderQuantityController.text) ?? 1,
+        depositPercentage: int.tryParse(_depositPercentageController.text) ?? 0,
+        status: "ACTIVE",
       );
-      Navigator.pop(context);
+
+      // We will call the controller here
+      final success = await ref.read(preOrderControllerProvider.notifier).createCampaign(params);
+      
+      if (mounted) {
+        if (success) {
+          // Refresh the farmer campaigns list to show the new campaign
+          ref.read(farmerCampaignsControllerProvider.notifier).refresh();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Campaign created successfully!')),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to create campaign. Please try again.')),
+          );
+        }
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields.')),
+        const SnackBar(content: Text('Please fill all required fields and dates.')),
       );
     }
   }
 
-  Future<void> _pickDate(bool isDeadline) async {
+  Future<void> _pickDate() async {
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 1)),
@@ -51,11 +85,7 @@ class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCam
 
     if (date != null) {
       setState(() {
-        if (isDeadline) {
-          _deadline = date;
-        } else {
-          _estimatedHarvestDate = date;
-        }
+        _estimatedHarvestDate = date;
       });
     }
   }
@@ -77,35 +107,27 @@ class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCam
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Product', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+              Text('Title', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              // Dummy implementation. Will be replaced by consumer from FarmerProductsController
-              DropdownButtonFormField<String>(
+              TextFormField(
+                controller: _titleController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Choose a product...',
+                  hintText: 'e.g. Fresh Organic Tomatoes',
                   fillColor: Colors.white,
                   filled: true,
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'p1', child: Text('Strawberry Ganitri - Batch #4')),
-                  DropdownMenuItem(value: 'p2', child: Text('Organic Tomatoes - Box')),
-                  DropdownMenuItem(value: 'p3', child: Text('Fresh Basil - 500g')),
-                ],
-                onChanged: (value) {
-                  _productIdController.text = value ?? '';
-                },
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                validator: (value) => value!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              Text('Target Quantity', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+              Text('Description', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _targetQuantityController,
-                keyboardType: TextInputType.number,
+                controller: _descriptionController,
+                maxLines: 3,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'e.g., 50',
+                  hintText: 'e.g. Sweet and juicy tomatoes from our next harvest.',
                   fillColor: Colors.white,
                   filled: true,
                 ),
@@ -118,19 +140,17 @@ class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCam
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Deadline', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        Text('Unit', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        InkWell(
-                          onTap: () => _pickDate(true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(_deadline == null ? 'Select Date' : '${_deadline!.toLocal()}'.split(' ')[0]),
+                        TextFormField(
+                          controller: _unitController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g. kg',
+                            fillColor: Colors.white,
+                            filled: true,
                           ),
+                          validator: (value) => value!.isEmpty ? 'Required' : null,
                         ),
                       ],
                     ),
@@ -140,18 +160,115 @@ class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCam
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Harvest Date', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        Text('Price per Unit', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _pricePerUnitController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g. 25000',
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
+                          validator: (value) => value!.isEmpty ? 'Required' : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Target Quantity', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _targetQuantityController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g. 100',
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
+                          validator: (value) => value!.isEmpty ? 'Required' : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Min. Order Qty', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _minimumOrderQuantityController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g. 1',
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
+                          validator: (value) => value!.isEmpty ? 'Required' : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Deposit Percentage (%)', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _depositPercentageController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g. 50',
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
+                          validator: (value) => value!.isEmpty ? 'Required' : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Estimated Harvest Date', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         InkWell(
-                          onTap: () => _pickDate(false),
+                          onTap: _pickDate,
                           child: Container(
+                            width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(_estimatedHarvestDate == null ? 'Select Date' : '${_estimatedHarvestDate!.toLocal()}'.split(' ')[0]),
+                            child: Text(
+                              _estimatedHarvestDate == null 
+                                  ? 'Select Date' 
+                                  : '${_estimatedHarvestDate!.toLocal()}'.split(' ')[0],
+                            ),
                           ),
                         ),
                       ],
@@ -159,30 +276,6 @@ class _CreatePreorderCampaignScreenState extends ConsumerState<CreatePreorderCam
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('Require Deposit', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-                value: _depositRequired,
-                activeColor: const Color(0xFF2D4A3E),
-                onChanged: (val) => setState(() => _depositRequired = val),
-              ),
-              if (_depositRequired) ...[
-                const SizedBox(height: 16),
-                Text('Deposit Amount (Rp)', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _depositAmountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'e.g., 50000',
-                    fillColor: Colors.white,
-                    filled: true,
-                  ),
-                  validator: (value) => value!.isEmpty ? 'Required' : null,
-                ),
-              ],
               const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,

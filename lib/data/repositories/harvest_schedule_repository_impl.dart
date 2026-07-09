@@ -69,7 +69,7 @@ class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getScheduleDashboard({
+  Future<Either<Failure, HarvestScheduleDashboardEntity>> getScheduleDashboard({
     String? month,
     double? latitude,
     double? longitude,
@@ -80,7 +80,7 @@ class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
         latitude: latitude,
         longitude: longitude,
       );
-      return Right(result);
+      return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

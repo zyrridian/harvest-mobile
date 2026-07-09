@@ -27,6 +27,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String _orderType = 'standard'; // 'standard' or 'pre_orders'
 
   final List<String> _tabs = [
     'All',
@@ -90,15 +91,23 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: kDarkGreen,
-          unselectedLabelColor: kTextGrey,
-          indicatorColor: kAccentOrange,
-          indicatorWeight: 3,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
-          tabs: _tabs.map((t) => Tab(text: t)).toList(),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(100),
+          child: Column(
+            children: [
+              _buildSegmentedControl(),
+              TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: kDarkGreen,
+                unselectedLabelColor: kTextGrey,
+                indicatorColor: kAccentOrange,
+                indicatorWeight: 3,
+                labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                tabs: _tabs.map((t) => Tab(text: t)).toList(),
+              ),
+            ],
+          ),
         ),
       ),
       body: ordersState.maybeWhen(
@@ -158,7 +167,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     final matchesSearch = _searchQuery.isEmpty ||
                         o.orderNumber.toLowerCase().contains(_searchQuery) ||
                         o.buyerName.toLowerCase().contains(_searchQuery);
-                    return matchesStatus && matchesSearch;
+                    final isHarvestSchedule = o.deliveryMethod == 'harvest_schedule';
+                    final matchesType = _orderType == 'standard' ? !isHarvestSchedule : isHarvestSchedule;
+                    return matchesStatus && matchesSearch && matchesType;
                   }).toList();
                   return _buildOrdersTab(filteredOrders);
                 }).toList(),
@@ -176,6 +187,63 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         backgroundColor: kAccentOrange,
         icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
         label: Text('Route Plan', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildSegmentedControl() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: kBorderColor),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _orderType = 'standard'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _orderType == 'standard' ? kPrimaryGreen.withOpacity(0.1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'Standard Orders',
+                    style: GoogleFonts.inter(
+                      fontWeight: _orderType == 'standard' ? FontWeight.bold : FontWeight.w500,
+                      color: _orderType == 'standard' ? kDarkGreen : kTextGrey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _orderType = 'pre_orders'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _orderType == 'pre_orders' ? kPrimaryGreen.withOpacity(0.1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'Pre-orders',
+                    style: GoogleFonts.inter(
+                      fontWeight: _orderType == 'pre_orders' ? FontWeight.bold : FontWeight.w500,
+                      color: _orderType == 'pre_orders' ? kDarkGreen : kTextGrey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -10,10 +10,14 @@ class ReservePreOrderUseCase {
   Future<Either<Failure, Map<String, dynamic>>> call({
     required String harvestId,
     required int quantity,
+    required String deliveryMethod,
+    String? addressId,
   }) async {
-    return await repository.reservePreOrder(
-      harvestId: harvestId,
-      quantity: quantity,
+    return await repository.reserveSpot(
+      harvestId,
+      quantity,
+      deliveryMethod,
+      addressId,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/harvest_schedule_repository_impl.dart';
@@ -15,7 +16,7 @@ part 'harvest_schedule_controller.g.dart';
 
 // Dependency Injection Providers
 final harvestScheduleRemoteDataSourceProvider = Provider<HarvestScheduleRemoteDataSource>((ref) {
-  return HarvestScheduleRemoteDataSourceImpl(Dio());
+  return HarvestScheduleRemoteDataSourceImpl(ref.watch(dioProvider));
 });
 
 final harvestScheduleRepositoryProvider = Provider<HarvestScheduleRepository>((ref) {
@@ -55,22 +56,17 @@ class HarvestScheduleController extends _$HarvestScheduleController {
     }
 
     try {
-      final usecase = ref.read(getHarvestScheduleUseCaseProvider);
       final dashboardUseCase = ref.read(getScheduleDashboardUseCaseProvider);
       
       final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
       
-      final result = await usecase.call(month: monthStr);
       final dashboardResult = await dashboardUseCase.call(month: monthStr);
 
-      result.fold(
+      dashboardResult.fold(
         (failure) {
           state = HarvestScheduleState.error(failure.message);
         },
         (entity) {
-          // If dashboardResult is successful, we can optionally merge the data into entity, 
-          // but for now we just use entity from getHarvestScheduleUseCase and ignore failure of the new endpoint
-          
           state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(
             entity,
             baseDate: date,

@@ -10,7 +10,7 @@ abstract class HarvestScheduleRemoteDataSource {
     required String harvestId,
     required String pickupTime,
   });
-  Future<Map<String, dynamic>> getScheduleDashboard({String? month, double? latitude, double? longitude});
+  Future<HarvestScheduleDashboardModel> getScheduleDashboard({String? month, double? latitude, double? longitude});
 }
 
 class HarvestScheduleRemoteDataSourceImpl
@@ -150,16 +150,16 @@ class HarvestScheduleRemoteDataSourceImpl
   }
 
   @override
-  Future<Map<String, dynamic>> getScheduleDashboard({String? month, double? latitude, double? longitude}) async {
+  Future<HarvestScheduleDashboardModel> getScheduleDashboard({String? month, double? latitude, double? longitude}) async {
     try {
       final Map<String, dynamic> params = {};
       if (month != null) params['month'] = month;
       if (latitude != null) params['latitude'] = latitude;
       if (longitude != null) params['longitude'] = longitude;
 
-      final response = await dio.get('/api/v1/preorders/schedule', queryParameters: params);
+      final response = await dio.get('/preorders/schedule', queryParameters: params);
       if (response.data['status'] == 'success') {
-        return response.data['data'] as Map<String, dynamic>;
+        return HarvestScheduleDashboardModel.fromJson(response.data['data']);
       }
       throw ServerException('Failed to fetch schedule dashboard');
     } catch (e) {
