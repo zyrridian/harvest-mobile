@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
 import 'package:harvest_app/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreOrderRepository {
   Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({
@@ -13,7 +14,7 @@ abstract class PreOrderRepository {
     required int quantity,
   });
 
-  Future<Either<Failure, PreorderCampaign>> createCampaign(PreorderCampaign campaign);
+  Future<Either<Failure, PreorderCampaign>> createCampaign(CreatePreorderCampaignParams params);
   Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns();
   Future<Either<Failure, List<PreorderCampaign>>> getMyCampaigns();
   Future<Either<Failure, Map<String, dynamic>>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);

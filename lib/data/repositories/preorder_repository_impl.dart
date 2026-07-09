@@ -1,9 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
 import 'package:harvest_app/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/data/models/preorder/campaign_model.dart';
 import 'package:harvest_app/domain/repositories/preorder_repository.dart';
 
@@ -53,9 +55,9 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, PreorderCampaign>> createCampaign(PreorderCampaign campaign) async {
+  Future<Either<Failure, PreorderCampaign>> createCampaign(CreatePreorderCampaignParams params) async {
     try {
-      final result = await remoteDataSource.createCampaign(campaign as PreorderCampaignModel);
+      final result = await remoteDataSource.createCampaign(params);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));

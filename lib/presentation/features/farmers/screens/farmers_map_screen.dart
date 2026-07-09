@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:harvest_app/presentation/features/farmers/providers/farmers_state.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../domain/entities/farmer.dart';
 import '../providers/farmers_controller.dart';
-import '../widgets/farmer_filter_bottom_sheet.dart';
 
 // --- DESIGN CONSTANTS ---
 const kDarkGreen = Color(0xFF1A2F25);
+const kPrimaryGreen = Color(0xFF2E7D32);
 const kPillGrey = Color(0xFFF0F2F0);
 
 class FarmersMapScreen extends ConsumerStatefulWidget {
@@ -21,94 +21,19 @@ class FarmersMapScreen extends ConsumerStatefulWidget {
 
 class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
   final TextEditingController _searchController = TextEditingController();
-  GoogleMapController? _mapController;
-  bool _isListVisible = false;
-
-  void _toggleListVisibility() {
-    setState(() {
-      _isListVisible = !_isListVisible;
-    });
-  }
-
-  void _goToFarmerLocation(Farmer farmer) {
-    if (_mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(farmer.latitude, farmer.longitude),
-            zoom: 16.0,
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _goToCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
-
-    if (permission == LocationPermission.deniedForever) return;
-
-    final position = await Geolocator.getCurrentPosition();
-    if (_mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(position.latitude, position.longitude),
-            zoom: 16.0,
-          ),
-        ),
-      );
-    }
-  }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _mapController?.dispose();
     super.dispose();
   }
 
-  // ... (Keep existing _performSearch, _showFilterBottomSheet logic) ...
-  void _performSearch() {}
-  void _showFilterBottomSheet() {}
-
-  LatLng _calculateCenter(List<Farmer> f) {
-    final mapFarmers = f.where((farmer) => farmer.hasMapFeature).toList();
-    if (mapFarmers.isEmpty)
-      return const LatLng(-6.200000, 106.816666); // Default to Jakarta
-    double lat = 0;
-    double lng = 0;
-    for (var farmer in mapFarmers) {
-      lat += farmer.latitude;
-      lng += farmer.longitude;
-    }
-    return LatLng(lat / mapFarmers.length, lng / mapFarmers.length);
+  void _performSearch() {
+    // Implement search
   }
 
-  Set<Marker> _createMarkers(List<Farmer> f) {
-    return f.where((farmer) => farmer.hasMapFeature).map((farmer) {
-      return Marker(
-        markerId: MarkerId(farmer.id),
-        position: LatLng(farmer.latitude, farmer.longitude),
-        infoWindow: InfoWindow(
-          title: farmer.name,
-          snippet: farmer.address,
-        ),
-        onTap: () {
-          _goToFarmerLocation(farmer);
-        },
-      );
-    }).toSet();
+  void _showFilterBottomSheet() {
+    // Show filter logic
   }
 
   @override
@@ -116,390 +41,594 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     final farmersState = ref.watch(farmersControllerProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // 1. FULL SCREEN MAP
-          farmersState.when(
-            initial: () => const Center(child: CircularProgressIndicator()),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            loaded: (farmers) {
-              final center = _calculateCenter(farmers);
-              return GoogleMap(
-                initialCameraPosition: CameraPosition(target: center, zoom: 12),
-                onMapCreated: (controller) => _mapController = controller,
-                markers: _createMarkers(farmers),
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: true,
-                mapToolbarEnabled: false,
-              );
-            },
-            error: (msg) => Center(child: Text('error: $msg')),
+      backgroundColor: const Color(0xFFFAFAFA),
+      body: CustomScrollView(
+        slivers: [
+          // 1. Hero Section (Search & Map entry)
+          SliverToBoxAdapter(
+            child: _buildHeroSection(),
           ),
 
-          // 2. FLOATING TOP BAR (Back + Search)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    // Floating Back Button — hidden when used as a tab
-                    if (!widget.isTab) ...
-                    [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4)),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_rounded,
-                              color: kDarkGreen),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
-
-                    // Floating Search
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(25), // Pill
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4)),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 16),
-                            Icon(Icons.search, color: Colors.grey[500]),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                style: GoogleFonts.inter(color: kDarkGreen),
-                                decoration: InputDecoration(
-                                  hintText: 'Search map area...',
-                                  hintStyle: GoogleFonts.inter(
-                                      color: Colors.grey[500]),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  disabledBorder: InputBorder.none,
-                                  errorBorder: InputBorder.none,
-                                  focusedErrorBorder: InputBorder.none,
-                                ),
-                                onSubmitted: (_) => _performSearch(),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.tune_rounded,
-                                  color: kDarkGreen),
-                              onPressed: _showFilterBottomSheet,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          // 2. In Season Right Now
+          SliverToBoxAdapter(
+            child: _buildInSeasonSection(),
           ),
 
-          // 3. FLOATING COUNT CAPSULE
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: _isListVisible ? -100 : 30,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: farmersState.maybeWhen(
-                loaded: (farmers) {
-                  final count = farmers.where((f) => f.hasMapFeature).length;
-                  if (count == 0) return const SizedBox.shrink();
-
-                  return GestureDetector(
-                    onTap: _toggleListVisibility,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: kDarkGreen,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                              color: kDarkGreen.withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4)),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.map, color: Colors.white, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$count farmers nearby',
-                            style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                orElse: () => const SizedBox.shrink(),
-              ),
-            ),
+          // 3. Nearby Farmers (Upgraded cards)
+          SliverToBoxAdapter(
+            child: _buildNearbyFarmersSection(farmersState),
           ),
 
-          // 3.5 CURRENT LOCATION BUTTON
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: _isListVisible
-                ? (MediaQuery.of(context).size.height * 0.6) + 16
-                : 100,
-            right: 16,
-            child: Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4)),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.my_location, color: kDarkGreen),
-                onPressed: _goToCurrentLocation,
-              ),
-            ),
+          // 4. Active Pre-orders / Trending Deals
+          SliverToBoxAdapter(
+            child: _buildActivePreordersSection(),
           ),
 
-          // 4. ANIMATED BOTTOM SHEET (FARMERS LIST)
-          farmersState.maybeWhen(
-            loaded: (farmers) {
-              final visibleFarmers =
-                  farmers.where((f) => f.hasMapFeature).toList();
-              if (visibleFarmers.isEmpty) return const SizedBox.shrink();
-
-              return AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                bottom: _isListVisible
-                    ? 0
-                    : -(MediaQuery.of(context).size.height * 0.6),
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(24)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, -5),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Handle bar
-                      GestureDetector(
-                        onTap: _toggleListVisibility,
-                        onVerticalDragUpdate: (details) {
-                          if (details.primaryDelta! > 5) {
-                            setState(() {
-                              _isListVisible = false;
-                            });
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          color: Colors.transparent, // to catch taps
-                          padding: const EdgeInsets.only(top: 12, bottom: 16),
-                          child: Center(
-                            child: Container(
-                              width: 40,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Title
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '${visibleFarmers.length} Farmers Nearby',
-                              style: GoogleFonts.inter(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: kDarkGreen,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: _toggleListVisibility,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(),
-                      // List
-                      Expanded(
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(20),
-                          itemCount: visibleFarmers.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) {
-                            final farmer = visibleFarmers[index];
-                            return _buildFarmerListItem(farmer);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)), // Bottom padding
         ],
       ),
     );
   }
 
-  Widget _buildFarmerListItem(Farmer farmer) {
-    return InkWell(
-      onTap: () {
-        _goToFarmerLocation(farmer);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          children: [
-            // Farmer Image
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-                image: farmer.coverImage?.isNotEmpty == true
-                    ? DecorationImage(
-                        image: NetworkImage(farmer.coverImage!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: (farmer.coverImage?.isEmpty ?? true)
-                  ? const Icon(Icons.store, color: Colors.grey)
-                  : null,
+  Widget _buildSectionHeader(String title, String subtitle, {VoidCallback? onSeeAll}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.outfit(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            // Farmer Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    farmer.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: kDarkGreen,
+          ),
+          if (onSeeAll != null)
+            GestureDetector(
+              onTap: onSeeAll,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  ],
+                ),
+                child: Text(
+                  'See all',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: kPrimaryGreen,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    farmer.description,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroSection() {
+    return Container(
+      height: 320,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage(
+              'https://images.unsplash.com/photo-1595858641158-96425974c5d5?auto=format&fit=crop&q=80'), // Farm aesthetic
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withOpacity(0.3),
+              Colors.black.withOpacity(0.7),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!widget.isTab)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    alignment: Alignment.centerLeft,
                   ),
-                  const SizedBox(height: 8),
-                  Row(
+                const Spacer(),
+                Text(
+                  'Find fresh, local\nfood near you.',
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Premium Search Bar
+                Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Row(
                     children: [
-                      Icon(Icons.location_on,
-                          size: 14, color: Colors.grey[500]),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 16),
+                      Icon(PhosphorIconsRegular.magnifyingGlass, color: Colors.grey[500]),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          farmer.address,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: Colors.grey[500],
+                        child: TextField(
+                          controller: _searchController,
+                          style: GoogleFonts.inter(color: kDarkGreen),
+                          decoration: InputDecoration(
+                            hintText: 'Search for tomatoes, farms...',
+                            hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                            border: InputBorder.none,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          onSubmitted: (_) => _performSearch(),
+                        ),
+                      ),
+                      Container(
+                        height: 32,
+                        width: 1,
+                        color: Colors.grey[200],
+                      ),
+                      IconButton(
+                        icon: Icon(PhosphorIconsRegular.fadersHorizontal, color: kDarkGreen),
+                        onPressed: _showFilterBottomSheet,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Map Action Button
+                GestureDetector(
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Interactive Map View coming soon!')),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(PhosphorIconsFill.mapPin, color: Colors.white, size: 16),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Explore on Map',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 12),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInSeasonSection() {
+    final seasons = [
+      {
+        'title': 'Summer Berries',
+        'image': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80',
+        'farms': 12
+      },
+      {
+        'title': 'Fresh Greens',
+        'image': 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&q=80',
+        'farms': 8
+      },
+      {
+        'title': 'Organic Roots',
+        'image': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80', // Using tomatoes as roots/veg placeholder
+        'farms': 15
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('In Season Right Now', 'Peak flavor and freshness this week'),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: seasons.length,
+            separatorBuilder: (context, _) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final item = seasons[index];
+              return Container(
+                width: 140,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image: NetworkImage(item['image'] as String),
+                    fit: BoxFit.cover,
+                    // errorBuilder: (context, error, stackTrace) =>
+                    //     Container(color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        item['title'] as String,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${item['farms']} Farms',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white70,
                         ),
                       ),
                     ],
                   ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNearbyFarmersSection(FarmersState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Farms Near You', 'Support local growers in your area', onSeeAll: () {}),
+        SizedBox(
+          height: 280,
+          child: state.when(
+            initial: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            loaded: (farmers) {
+              final featured = farmers.take(5).toList();
+              if (featured.isEmpty) {
+                return const Center(child: Text('No farmers nearby'));
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemCount: featured.length,
+                separatorBuilder: (context, _) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  final farmer = featured[index];
+                  // Provide a high quality default image if none exists
+                  final defaultImage = index % 2 == 0 
+                      ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80'
+                      : 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80';
+                  
+                  return Container(
+                    width: 240,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Large Cover Image
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                farmer.coverImage?.isNotEmpty == true ? farmer.coverImage! : defaultImage,
+                                height: 140,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(height: 140, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                              ),
+                              Positioned(
+                                top: 12,
+                                right: 12,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.star_rounded, color: Colors.orange, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        farmer.rating.toStringAsFixed(1),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                farmer.name,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: kDarkGreen,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(PhosphorIconsRegular.mapPin, size: 14, color: Colors.grey[600]),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${(1.2 + (index * 0.8)).toStringAsFixed(1)} km away', // Mock distance
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              // Specialties tags
+                              Wrap(
+                                spacing: 8,
+                                children: (farmer.specialties.isEmpty ? ['Vegetables', 'Fruits'] : farmer.specialties.take(2))
+                                    .map((tag) => Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: kPrimaryGreen.withOpacity(0.08),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            tag ?? '',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: kPrimaryGreen,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            error: (msg) => Center(child: Text('Error: $msg', textAlign: TextAlign.center)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActivePreordersSection() {
+    final preorders = [
+      {
+        'title': 'Heirloom Tomatoes Batch',
+        'farmer': 'Green Valley Farm',
+        'image': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80',
+        'progress': 0.75,
+        'daysLeft': 3,
+      },
+      {
+        'title': 'Summer Sweet Corn',
+        'farmer': 'Sunrise Organic',
+        'image': 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80',
+        'progress': 0.40,
+        'daysLeft': 5,
+      }
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Active Pre-orders', 'Reserve upcoming harvests at a discount', onSeeAll: () {}),
+        ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: preorders.length,
+          separatorBuilder: (context, _) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            final campaign = preorders[index];
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey[200]!),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            // Distance / Action
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: kPillGrey,
-                shape: BoxShape.circle,
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      campaign['image'] as String,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(width: 80, height: 80, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${campaign['daysLeft']} days left',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange[800],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          campaign['title'] as String,
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          campaign['farmer'] as String,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 10),
+                        // Progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: campaign['progress'] as double,
+                            backgroundColor: Colors.grey[200],
+                            valueColor: AlwaysStoppedAnimation<Color>(kPrimaryGreen),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: kPrimaryGreen.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(PhosphorIconsRegular.caretRight, color: kPrimaryGreen, size: 20),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.directions, color: kDarkGreen, size: 20),
-            )
-          ],
+            );
+          },
         ),
-      ),
+      ],
     );
   }
 }
