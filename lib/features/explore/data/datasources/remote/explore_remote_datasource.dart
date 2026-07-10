@@ -14,7 +14,7 @@ class ExploreRemoteDataSourceImpl implements ExploreRemoteDataSource {
   @override
   Future<ExploreModel> getExploreData() async {
     try {
-      final response = await dio.get('/explore');
+      final response = await dio.get('/storefront/explore');
       
       if (response.statusCode == 200 && response.data['success'] == true) {
         return ExploreModel.fromJson(response.data['data']);

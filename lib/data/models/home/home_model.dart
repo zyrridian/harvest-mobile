@@ -7,9 +7,9 @@ part 'home_model.g.dart';
 class HomeModel {
   @JsonKey(name: 'active_order')
   final HomeActiveOrderModel? activeOrder;
-  @JsonKey(name: 'farmer_updates')
+  @JsonKey(name: 'farmer_updates', defaultValue: [])
   final List<HomeFarmerUpdateModel> farmerUpdates;
-  @JsonKey(name: 'weekly_staples')
+  @JsonKey(name: 'weekly_staples', defaultValue: [])
   final List<HomeWeeklyStapleModel> weeklyStaples;
 
   HomeModel({
@@ -137,6 +137,7 @@ class HomeWeeklyStapleModel {
   final String name;
   @JsonKey(name: 'quantity_label')
   final String quantityLabel;
+  @JsonKey(fromJson: _priceFromJson)
   final double price;
   final String currency;
   final String image;
@@ -177,3 +178,5 @@ class HomeWeeklyStapleModel {
     );
   }
 }
+
+double _priceFromJson(dynamic value) => (value as num).toDouble();

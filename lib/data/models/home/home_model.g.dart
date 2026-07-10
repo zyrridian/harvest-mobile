@@ -11,12 +11,16 @@ HomeModel _$HomeModelFromJson(Map<String, dynamic> json) => HomeModel(
           ? null
           : HomeActiveOrderModel.fromJson(
               json['active_order'] as Map<String, dynamic>),
-      farmerUpdates: (json['farmer_updates'] as List<dynamic>)
-          .map((e) => HomeFarmerUpdateModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      weeklyStaples: (json['weekly_staples'] as List<dynamic>)
-          .map((e) => HomeWeeklyStapleModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      farmerUpdates: (json['farmer_updates'] as List<dynamic>?)
+              ?.map((e) =>
+                  HomeFarmerUpdateModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      weeklyStaples: (json['weekly_staples'] as List<dynamic>?)
+              ?.map((e) =>
+                  HomeWeeklyStapleModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$HomeModelToJson(HomeModel instance) => <String, dynamic>{
@@ -69,7 +73,7 @@ HomeWeeklyStapleModel _$HomeWeeklyStapleModelFromJson(
       id: json['id'] as String,
       name: json['name'] as String,
       quantityLabel: json['quantity_label'] as String,
-      price: (json['price'] as num).toDouble(),
+      price: _priceFromJson(json['price']),
       currency: json['currency'] as String,
       image: json['image'] as String,
     );
