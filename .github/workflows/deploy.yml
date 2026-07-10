@@ -28,8 +28,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Create env file
+        run: |
+          mkdir -p env
+          echo '{"BASE_URL": "https://marketplace.zyrridian.dev"}' > env/prod.json
+
       - name: Build Flutter Web
-        run: flutter build web --release
+        run: flutter build web --release --dart-define-from-file=env/prod.json
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
