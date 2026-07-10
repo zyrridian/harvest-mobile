@@ -7,7 +7,7 @@ part of 'harvest_schedule_controller.dart';
 // **************************************************************************
 
 String _$harvestScheduleControllerHash() =>
-    r'270300c55c770d81303ffcace3f0698a44d9c656';
+    r'2183ee70a9c24687312438531d1866f12cbec48a';
 
 /// See also [HarvestScheduleController].
 @ProviderFor(HarvestScheduleController)

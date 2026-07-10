@@ -41,17 +41,9 @@ class HomeController extends _$HomeController {
     return const HomeState.loading();
   }
 
-  Future<void> _fetchHomeData({
-    double? latitude,
-    double? longitude,
-    double? radius,
-  }) async {
+  Future<void> _fetchHomeData() async {
     state = const HomeState.loading();
-    final result = await ref.read(getHomeUseCaseProvider).call(
-          latitude: latitude,
-          longitude: longitude,
-          radius: radius,
-        );
+    final result = await ref.read(getHomeUseCaseProvider).call();
 
     result.fold(
       (failure) => state = HomeState.error(failure.message),
@@ -59,15 +51,7 @@ class HomeController extends _$HomeController {
     );
   }
 
-  Future<void> refresh({
-    double? latitude,
-    double? longitude,
-    double? radius,
-  }) async {
-    await _fetchHomeData(
-      latitude: latitude,
-      longitude: longitude,
-      radius: radius,
-    );
+  Future<void> refresh() async {
+    await _fetchHomeData();
   }
 }

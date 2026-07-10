@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/domain/entities/home.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/home_controller.dart';
@@ -15,7 +16,6 @@ import 'package:harvest_app/features/community/presentation/screens/conversation
 import 'package:harvest_app/features/sales/presentation/screens/orders/orders_list_screen.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
 import 'package:intl/intl.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
@@ -27,51 +27,6 @@ const kFreshGreen = Color(0xFF10B981);
 const kPreOrderBlue = Color(0xFF3B82F6);
 const kSage = Color(0xFF7C9070);
 const kSand = Color(0xFFF0EAD6);
-
-// ─── Local models ─────────────────────────────────────────────────────────────
-class Category {
-  final String id;
-  final String name;
-  final String emoji;
-  final IconData? icon;
-  final List<Color> gradient;
-
-  Category({
-    required this.id,
-    required this.name,
-    required this.emoji,
-    this.icon,
-    required this.gradient,
-  });
-}
-
-class Product {
-  final String id;
-  final String name;
-  final String seller;
-  final double price;
-  final String unit;
-  final String imageUrl;
-  final double? rating;
-  final bool isPerishable;
-  final bool acceptsPreOrder;
-  final DateTime? harvestDate;
-  final int? daysUntilHarvest;
-
-  Product({
-    required this.id,
-    required this.name,
-    required this.seller,
-    required this.price,
-    required this.unit,
-    required this.imageUrl,
-    this.rating,
-    this.isPerishable = false,
-    this.acceptsPreOrder = false,
-    this.harvestDate,
-    this.daysUntilHarvest,
-  });
-}
 
 // ─── Home Screen ──────────────────────────────────────────────────────────────
 class HomeScreen extends ConsumerStatefulWidget {
@@ -86,159 +41,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLocationAndFetch();
+      ref.read(homeControllerProvider.notifier).refresh();
     });
   }
 
-  Future<void> _checkLocationAndFetch() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        _showLocationDeniedSnack();
-        return;
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      _showLocationDeniedForeverDialog();
-      return;
-    }
-
-    try {
-      Position position = await Geolocator.getCurrentPosition();
-      if (mounted) {
-        ref.read(homeControllerProvider.notifier).refresh(
-              latitude: position.latitude,
-              longitude: position.longitude,
-              radius: 10.0,
-            );
-      }
-    } catch (_) {}
-  }
-
-  void _showLocationDeniedSnack() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Location access denied. Showing default farmers.'),
-        action: SnackBarAction(
-          label: 'Retry',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            _checkLocationAndFetch();
-          },
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  void _showLocationDeniedForeverDialog() {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Location Required',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
-        content: const Text(
-            'Location permissions are permanently denied. Enable them in device settings.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              Geolocator.openAppSettings();
-              Navigator.pop(context);
-            },
-            child: const Text('Settings'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _onRefresh() async {
-    try {
-      final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        Position pos = await Geolocator.getCurrentPosition();
-        await ref.read(homeControllerProvider.notifier).refresh(
-              latitude: pos.latitude,
-              longitude: pos.longitude,
-              radius: 10.0,
-            );
-      } else {
-        await ref.read(homeControllerProvider.notifier).refresh();
-      }
-    } catch (_) {
-      await ref.read(homeControllerProvider.notifier).refresh();
-    }
-  }
-
-  // ── Categories ──────────────────────────────────────────────────────────────
-  final List<Category> _staticCategories = [
-    Category(
-      id: 'vegetables',
-      name: 'Vegetables',
-      emoji: '🥦',
-      gradient: [Color(0xFFD4E2D4), Color(0xFFB8C6B8)],
-    ),
-    Category(
-      id: 'fruits',
-      name: 'Fruits',
-      emoji: '🍓',
-      gradient: [Color(0xFFFFE5D9), Color(0xFFFFD1BC)],
-    ),
-    Category(
-      id: 'meat',
-      name: 'Meat',
-      emoji: '🥩',
-      gradient: [Color(0xFFF2E6E6), Color(0xFFE6D0D0)],
-    ),
-    Category(
-      id: 'fish',
-      name: 'Fish',
-      emoji: '🐟',
-      gradient: [Color(0xFFDBEAFE), Color(0xFF93C5FD)],
-    ),
-    Category(
-      id: 'dairy',
-      name: 'Dairy',
-      emoji: '🧀',
-      gradient: [Color(0xFFFFF9E6), Color(0xFFFFF0C2)],
-    ),
-    Category(
-      id: 'eggs',
-      name: 'Eggs',
-      emoji: '🥚',
-      gradient: [Color(0xFFFEF9C3), Color(0xFFFDE047)],
-    ),
-    Category(
-      id: 'grains',
-      name: 'Grains',
-      emoji: '🌾',
-      gradient: [Color(0xFFF0EAD6), Color(0xFFE6DEBF)],
-    ),
-    Category(
-      id: 'more',
-      name: 'More',
-      emoji: '',
-      icon: Icons.grid_view_rounded,
-      gradient: [Color(0xFFF3F4F6), Color(0xFFD1D5DB)],
-    ),
-  ];
-
-  Color _colorFromHex(String hexColor) {
-    hexColor = hexColor.toUpperCase().replaceAll('#', '');
-    if (hexColor.length == 6) hexColor = 'FF$hexColor';
-    return Color(int.parse(hexColor, radix: 16));
+    await ref.read(homeControllerProvider.notifier).refresh();
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
@@ -250,42 +58,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       backgroundColor: kBgColor,
       body: homeState.maybeWhen(
         data: (homeData) {
-          final dynamicCategories = homeData.categories.map((c) {
-            return Category(
-              id: c.slug,
-              name: c.name,
-              emoji: c.emoji,
-              gradient: c.gradientColors.map((h) => _colorFromHex(h)).toList(),
-            );
-          }).toList();
-          dynamicCategories.add(Category(
-            id: 'more',
-            name: 'More',
-            emoji: '',
-            icon: Icons.grid_view_rounded,
-            gradient: [const Color(0xFFF3F4F6), const Color(0xFFD1D5DB)],
-          ));
-
-          final apiFreshToday = homeData.freshToday
-              .map((item) => Product(
-                    id: item.slug,
-                    name: item.name,
-                    seller: item.farmer.name,
-                    price: item.price.toDouble(),
-                    unit: item.unit,
-                    imageUrl: item.image ?? AppConstants.placeholderImage,
-                    rating: item.rating.toDouble(),
-                    isPerishable: true,
-                  ))
-              .toList();
-
           return _buildContent(
-            dynamicCategories.isNotEmpty
-                ? dynamicCategories
-                : _staticCategories,
-            apiFreshToday,
-            homeData.nearbyFarmers.farmers,
-            homeData.preOrders,
+            homeData.activeOrder,
+            homeData.farmerUpdates,
+            homeData.weeklyStaples,
           );
         },
         error: (message) => Center(child: Text(message)),
@@ -296,10 +72,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildContent(
-    List<Category> categories,
-    List<Product> freshToday,
-    List<HomeFarmer> nearbyFarmers,
-    List<HomePreOrders> preOrders,
+    HomeActiveOrder? activeOrder,
+    List<HomeFarmerUpdate> farmerUpdates,
+    List<HomeWeeklyStaple> weeklyStaples,
   ) {
     return RefreshIndicator(
       color: kDarkGreen,
@@ -453,9 +228,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       QuickAction(
                         label: 'Nearby Farmers',
                         iconPath: 'assets/icons/ic_nearby_farmer.svg',
-                        badge: nearbyFarmers.isNotEmpty
-                            ? '${nearbyFarmers.length}'
-                            : null,
                         onTap: () => context.push(AppRouter.farmersMap),
                       ),
                       QuickAction(
@@ -510,7 +282,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: _buildActiveOrderWidget(),
+              child: _buildActiveOrderWidget(activeOrder),
             ),
           ),
 
@@ -523,20 +295,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           // ── 8. UPDATES FROM MY FARMERS ────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 32),
-              child: _buildMyFarmersUpdates(),
+          if (farmerUpdates.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 32),
+                child: _buildMyFarmersUpdates(farmerUpdates),
+              ),
             ),
-          ),
 
           // ── 9. WEEKLY STAPLES (REORDER) ───────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _buildWeeklyStaples(),
+          if (weeklyStaples.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildWeeklyStaples(weeklyStaples),
+              ),
             ),
-          ),
 
           // Bottom padding
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -547,22 +321,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
-  Widget _buildMyFarmersUpdates() {
-    final updates = [
-      {
-        'farmer': 'Sunrise Farm',
-        'avatar': 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80',
-        'update': 'Just listed our first batch of Summer Sweet Corn! 🌽',
-        'time': '2h ago',
-      },
-      {
-        'farmer': 'Green Valley',
-        'avatar': 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80',
-        'update': 'Restocked organic free-range eggs. Selling out fast!',
-        'time': '5h ago',
-      },
-    ];
-
+  Widget _buildMyFarmersUpdates(List<HomeFarmerUpdate> updates) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -602,7 +361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       children: [
                         ClipOval(
                           child: Image.network(
-                            update['avatar']!,
+                            update.farmerAvatar,
                             width: 32,
                             height: 32,
                             fit: BoxFit.cover,
@@ -617,7 +376,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            update['farmer']!,
+                            update.farmerName,
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -626,7 +385,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         Text(
-                          update['time']!,
+                          update.timeAgo,
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: Colors.grey[500],
@@ -636,7 +395,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      update['update']!,
+                      update.content,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: Colors.black87,
@@ -655,22 +414,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildWeeklyStaples() {
-    final staples = [
-      {
-        'title': 'Organic Free-Range Eggs',
-        'qty': '1 Dozen',
-        'price': 'Rp 35.000',
-        'image': 'https://images.unsplash.com/photo-1582722872425-47fc942978aa?auto=format&fit=crop&q=80',
-      },
-      {
-        'title': 'Fresh Whole Milk',
-        'qty': '1 Liter',
-        'price': 'Rp 25.000',
-        'image': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80',
-      },
-    ];
-
+  Widget _buildWeeklyStaples(List<HomeWeeklyStaple> staples) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -709,7 +453,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
-                      item['image']!,
+                      item.image,
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
@@ -727,7 +471,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item['title']!,
+                          item.name,
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -736,7 +480,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          item['qty']!,
+                          item.quantityLabel,
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.grey[500],
@@ -744,7 +488,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          item['price']!,
+                          '${item.currency} ${item.price.toInt()}',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -783,7 +527,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
-  Widget _buildActiveOrderWidget() {
+  Widget _buildActiveOrderWidget(HomeActiveOrder? activeOrder) {
+    if (activeOrder == null) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -814,7 +560,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Arriving Today',
+                  activeOrder.status,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -823,7 +569,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '5kg Organic Tomatoes',
+                  activeOrder.productName,
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -833,7 +579,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'from Green Valley Farm',
+                  'from ${activeOrder.farmerName}',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -1005,66 +751,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryChip(Category category) {
-    return GestureDetector(
-      onTap: () {
-        if (category.id == 'more') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const CategoryScreen(
-                categoryName: 'All Categories',
-                categoryId: 'all',
-              ),
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CategoryScreen(
-                categoryName: category.name,
-                categoryId: category.id,
-              ),
-            ),
-          );
-        }
-      },
-      child: Column(
-        children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: category.gradient,
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(
-              child: category.id == 'more'
-                  ? Icon(category.icon, color: kDarkGreen, size: 26)
-                  : Text(
-                      category.emoji,
-                      style: const TextStyle(fontSize: 28),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            category.name,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: kDarkGreen,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildCategoryChip(Category category) {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       if (category.id == 'more') {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (_) => const CategoryScreen(
+  //               categoryName: 'All Categories',
+  //               categoryId: 'all',
+  //             ),
+  //           ),
+  //         );
+  //       } else {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (_) => CategoryScreen(
+  //               categoryName: category.name,
+  //               categoryId: category.id,
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     },
+  //     child: Column(
+  //       children: [
+  //         Container(
+  //           width: 62,
+  //           height: 62,
+  //           decoration: BoxDecoration(
+  //             gradient: LinearGradient(
+  //               begin: Alignment.topLeft,
+  //               end: Alignment.bottomRight,
+  //               colors: category.gradient,
+  //             ),
+  //             borderRadius: BorderRadius.circular(20),
+  //           ),
+  //           child: Center(
+  //             child: category.id == 'more'
+  //                 ? Icon(category.icon, color: kDarkGreen, size: 26)
+  //                 : Text(
+  //                     category.emoji,
+  //                     style: const TextStyle(fontSize: 28),
+  //                   ),
+  //           ),
+  //         ),
+  //         const SizedBox(height: 6),
+  //         Text(
+  //           category.name,
+  //           style: GoogleFonts.inter(
+  //             fontSize: 11,
+  //             fontWeight: FontWeight.w600,
+  //             color: kDarkGreen,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildMapPreview() {
     return GestureDetector(
@@ -1191,428 +937,428 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildFarmerCard(HomeFarmer farmer) {
-    return GestureDetector(
-      onTap: () {
-        final fullFarmer = Farmer(
-          id: farmer.id,
-          userId: farmer.userId,
-          name: farmer.name,
-          description: '',
-          profileImage: farmer.profileImage,
-          coverImage: null,
-          latitude: farmer.latitude ?? 0.0,
-          longitude: farmer.longitude ?? 0.0,
-          address: farmer.address ?? '',
-          rating: farmer.rating ?? 0.0,
-          totalReviews: 0,
-          totalProducts: farmer.totalProducts ?? 0,
-          specialties: const [],
-          isVerified: farmer.isVerified ?? false,
-          hasMapFeature: false,
-          joinedDate: DateTime.now(),
-          isOnline: false,
-          distance: farmer.distanceKm,
-        );
-        context.push(AppRouter.farmerDetail, extra: fullFarmer);
-      },
-      child: Container(
-        width: 110,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: kPillGrey),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: AppCachedImage(
-                    imageUrl:
-                        farmer.profileImage ?? AppConstants.placeholderImage,
-                    width: 52,
-                    height: 52,
-                  ),
-                ),
-                if (farmer.isVerified == true)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: kFreshGreen,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      child: const Icon(Icons.verified,
-                          size: 8, color: Colors.white),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              farmer.name,
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
-                color: kDarkGreen,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${farmer.distanceKm?.toStringAsFixed(1) ?? '?'} km',
-              style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//   Widget _buildFarmerCard(HomeFarmer farmer) {
+//     return GestureDetector(
+//       onTap: () {
+//         final fullFarmer = Farmer(
+//           id: farmer.id,
+//           userId: farmer.userId,
+//           name: farmer.name,
+//           description: '',
+//           profileImage: farmer.profileImage,
+//           coverImage: null,
+//           latitude: farmer.latitude ?? 0.0,
+//           longitude: farmer.longitude ?? 0.0,
+//           address: farmer.address ?? '',
+//           rating: farmer.rating ?? 0.0,
+//           totalReviews: 0,
+//           totalProducts: farmer.totalProducts ?? 0,
+//           specialties: const [],
+//           isVerified: farmer.isVerified ?? false,
+//           hasMapFeature: false,
+//           joinedDate: DateTime.now(),
+//           isOnline: false,
+//           distance: farmer.distanceKm,
+//         );
+//         context.push(AppRouter.farmerDetail, extra: fullFarmer);
+//       },
+//       child: Container(
+//         width: 110,
+//         margin: const EdgeInsets.only(right: 12),
+//         padding: const EdgeInsets.all(10),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(18),
+//           border: Border.all(color: kPillGrey),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.04),
+//               blurRadius: 8,
+//               offset: const Offset(0, 2),
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Stack(
+//               children: [
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.circular(14),
+//                   child: AppCachedImage(
+//                     imageUrl:
+//                         farmer.profileImage ?? AppConstants.placeholderImage,
+//                     width: 52,
+//                     height: 52,
+//                   ),
+//                 ),
+//                 if (farmer.isVerified == true)
+//                   Positioned(
+//                     bottom: 0,
+//                     right: 0,
+//                     child: Container(
+//                       padding: const EdgeInsets.all(3),
+//                       decoration: BoxDecoration(
+//                         color: kFreshGreen,
+//                         shape: BoxShape.circle,
+//                         border: Border.all(color: Colors.white, width: 1.5),
+//                       ),
+//                       child: const Icon(Icons.verified,
+//                           size: 8, color: Colors.white),
+//                     ),
+//                   ),
+//               ],
+//             ),
+//             const SizedBox(height: 6),
+//             Text(
+//               farmer.name,
+//               style: GoogleFonts.inter(
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 11,
+//                 color: kDarkGreen,
+//               ),
+//               maxLines: 1,
+//               overflow: TextOverflow.ellipsis,
+//               textAlign: TextAlign.center,
+//             ),
+//             const SizedBox(height: 2),
+//             Text(
+//               '${farmer.distanceKm?.toStringAsFixed(1) ?? '?'} km',
+//               style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500]),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-  Widget _buildPreOrderCard(HomePreOrders harvest) {
-    final daysUntil = harvest.daysUntilHarvest ??
-        (harvest.harvestDate != null
-            ? harvest.harvestDate!.difference(DateTime.now()).inDays
-            : 0);
-    final totalQty = harvest.targetAmount ?? harvest.stockQuantity ?? 0;
-    final currentBooked = harvest.currentBooked ?? 0;
-    final availableQty = totalQty - currentBooked;
-    final preOrderPct =
-        totalQty > 0 ? (currentBooked / totalQty * 100).clamp(0.0, 100.0) : 0.0;
+//   Widget _buildPreOrderCard(HomePreOrders harvest) {
+//     final daysUntil = harvest.daysUntilHarvest ??
+//         (harvest.harvestDate != null
+//             ? harvest.harvestDate!.difference(DateTime.now()).inDays
+//             : 0);
+//     final totalQty = harvest.targetAmount ?? harvest.stockQuantity ?? 0;
+//     final currentBooked = harvest.currentBooked ?? 0;
+//     final availableQty = totalQty - currentBooked;
+//     final preOrderPct =
+//         totalQty > 0 ? (currentBooked / totalQty * 100).clamp(0.0, 100.0) : 0.0;
 
-    return GestureDetector(
-      onTap: () {
-        if (harvest.slug != null && harvest.slug!.isNotEmpty) {
-          context.push('${AppRouter.products}/${harvest.slug}');
-        }
-      },
-      child: Container(
-        width: 200,
-        margin: const EdgeInsets.only(right: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: kPillGrey),
-          boxShadow: [
-            BoxShadow(
-              color: kDarkGreen.withOpacity(0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: AppCachedImage(
-                    imageUrl: harvest.image ?? AppConstants.placeholderImage,
-                    width: double.infinity,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // Countdown badge
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: daysUntil <= 1 ? kAccentOrange : kDarkGreen,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.schedule,
-                            size: 11, color: Colors.white),
-                        const SizedBox(width: 3),
-                        Text(
-                          harvest.countdownLabel ??
-                              (daysUntil == 0
-                                  ? 'Today!'
-                                  : daysUntil == 1
-                                      ? 'Tomorrow'
-                                      : '$daysUntil days'),
-                          style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (harvest.isOrganic == true)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
-                      child: const Text('🌿', style: TextStyle(fontSize: 11)),
-                    ),
-                  ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    harvest.name,
-                    style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: kDarkGreen),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    harvest.farmer?.name ?? 'Unknown Farmer',
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: Colors.grey[500]),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  // Progress bar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${preOrderPct.toStringAsFixed(0)}% booked',
-                        style: GoogleFonts.inter(
-                            fontSize: 10, color: Colors.grey[500]),
-                      ),
-                      Text(
-                        '$availableQty ${harvest.unit ?? 'kg'} left',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              availableQty < 20 ? kAccentOrange : kFreshGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: preOrderPct / 100,
-                      minHeight: 5,
-                      backgroundColor: kPillGrey,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        preOrderPct > 70 ? kAccentOrange : kFreshGreen,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        NumberFormat.currency(
-                          locale: 'id',
-                          symbol: 'Rp ',
-                          decimalDigits: 0,
-                        ).format(harvest.price ?? 0),
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: kPreOrderBlue,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'Pre-Order',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//     return GestureDetector(
+//       onTap: () {
+//         if (harvest.slug != null && harvest.slug!.isNotEmpty) {
+//           context.push('${AppRouter.products}/${harvest.slug}');
+//         }
+//       },
+//       child: Container(
+//         width: 200,
+//         margin: const EdgeInsets.only(right: 16),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(24),
+//           border: Border.all(color: kPillGrey),
+//           boxShadow: [
+//             BoxShadow(
+//               color: kDarkGreen.withOpacity(0.05),
+//               blurRadius: 12,
+//               offset: const Offset(0, 4),
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Stack(
+//               children: [
+//                 ClipRRect(
+//                   borderRadius:
+//                       const BorderRadius.vertical(top: Radius.circular(24)),
+//                   child: AppCachedImage(
+//                     imageUrl: harvest.image ?? AppConstants.placeholderImage,
+//                     width: double.infinity,
+//                     height: 120,
+//                     fit: BoxFit.cover,
+//                   ),
+//                 ),
+//                 // Countdown badge
+//                 Positioned(
+//                   top: 8,
+//                   left: 8,
+//                   child: Container(
+//                     padding:
+//                         const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+//                     decoration: BoxDecoration(
+//                       color: daysUntil <= 1 ? kAccentOrange : kDarkGreen,
+//                       borderRadius: BorderRadius.circular(20),
+//                     ),
+//                     child: Row(
+//                       mainAxisSize: MainAxisSize.min,
+//                       children: [
+//                         const Icon(Icons.schedule,
+//                             size: 11, color: Colors.white),
+//                         const SizedBox(width: 3),
+//                         Text(
+//                           harvest.countdownLabel ??
+//                               (daysUntil == 0
+//                                   ? 'Today!'
+//                                   : daysUntil == 1
+//                                       ? 'Tomorrow'
+//                                       : '$daysUntil days'),
+//                           style: GoogleFonts.inter(
+//                               fontSize: 10,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.white),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 if (harvest.isOrganic == true)
+//                   Positioned(
+//                     top: 8,
+//                     right: 8,
+//                     child: Container(
+//                       padding: const EdgeInsets.all(5),
+//                       decoration: const BoxDecoration(
+//                           color: Colors.white, shape: BoxShape.circle),
+//                       child: const Text('🌿', style: TextStyle(fontSize: 11)),
+//                     ),
+//                   ),
+//               ],
+//             ),
+//             Padding(
+//               padding: const EdgeInsets.all(12),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     harvest.name,
+//                     style: GoogleFonts.inter(
+//                         fontWeight: FontWeight.w700,
+//                         fontSize: 14,
+//                         color: kDarkGreen),
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                   const SizedBox(height: 2),
+//                   Text(
+//                     harvest.farmer?.name ?? 'Unknown Farmer',
+//                     style: GoogleFonts.inter(
+//                         fontSize: 11, color: Colors.grey[500]),
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                   const SizedBox(height: 8),
+//                   // Progress bar
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         '${preOrderPct.toStringAsFixed(0)}% booked',
+//                         style: GoogleFonts.inter(
+//                             fontSize: 10, color: Colors.grey[500]),
+//                       ),
+//                       Text(
+//                         '$availableQty ${harvest.unit ?? 'kg'} left',
+//                         style: GoogleFonts.inter(
+//                           fontSize: 10,
+//                           fontWeight: FontWeight.w600,
+//                           color:
+//                               availableQty < 20 ? kAccentOrange : kFreshGreen,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                   const SizedBox(height: 4),
+//                   ClipRRect(
+//                     borderRadius: BorderRadius.circular(6),
+//                     child: LinearProgressIndicator(
+//                       value: preOrderPct / 100,
+//                       minHeight: 5,
+//                       backgroundColor: kPillGrey,
+//                       valueColor: AlwaysStoppedAnimation<Color>(
+//                         preOrderPct > 70 ? kAccentOrange : kFreshGreen,
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 10),
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         NumberFormat.currency(
+//                           locale: 'id',
+//                           symbol: 'Rp ',
+//                           decimalDigits: 0,
+//                         ).format(harvest.price ?? 0),
+//                         style: GoogleFonts.inter(
+//                           fontWeight: FontWeight.bold,
+//                           fontSize: 13,
+//                           color: kDarkGreen,
+//                         ),
+//                       ),
+//                       Container(
+//                         padding: const EdgeInsets.symmetric(
+//                             horizontal: 10, vertical: 6),
+//                         decoration: BoxDecoration(
+//                           color: kPreOrderBlue,
+//                           borderRadius: BorderRadius.circular(10),
+//                         ),
+//                         child: Text(
+//                           'Pre-Order',
+//                           style: GoogleFonts.inter(
+//                             fontSize: 10,
+//                             fontWeight: FontWeight.bold,
+//                             color: Colors.white,
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-  Widget _buildProductCard(Product product) {
-    return GestureDetector(
-      onTap: () => context.push('${AppRouter.products}/${product.id}'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: kPillGrey),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: AppCachedImage(
-                    imageUrl: product.imageUrl,
-                    width: double.infinity,
-                    height: 120,
-                    fit: BoxFit.cover,
-                    errorAssetImage: AppConstants.placeholderImage,
-                  ),
-                ),
-                // Favorite button
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.favorite_border,
-                        size: 15, color: Colors.grey),
-                  ),
-                ),
-                // Fresh badge
-                if (product.isPerishable)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 7, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: kFreshGreen,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'FRESH',
-                        style: GoogleFonts.inter(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: kDarkGreen,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product.seller,
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: Colors.grey[500]),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        NumberFormat.currency(
-                          locale: 'id',
-                          symbol: 'Rp ',
-                          decimalDigits: 0,
-                        ).format(product.price),
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                      if (product.rating != null)
-                        Row(
-                          children: [
-                            const Icon(Icons.star_rounded,
-                                size: 12, color: kAccentOrange),
-                            const SizedBox(width: 2),
-                            Text(
-                              product.rating!.toStringAsFixed(1),
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: kAccentOrange,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//   Widget _buildProductCard(Product product) {
+//     return GestureDetector(
+//       onTap: () => context.push('${AppRouter.products}/${product.id}'),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(20),
+//           border: Border.all(color: kPillGrey),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.04),
+//               blurRadius: 8,
+//               offset: const Offset(0, 2),
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Stack(
+//               children: [
+//                 ClipRRect(
+//                   borderRadius:
+//                       const BorderRadius.vertical(top: Radius.circular(20)),
+//                   child: AppCachedImage(
+//                     imageUrl: product.imageUrl,
+//                     width: double.infinity,
+//                     height: 120,
+//                     fit: BoxFit.cover,
+//                     errorAssetImage: AppConstants.placeholderImage,
+//                   ),
+//                 ),
+//                 // Favorite button
+//                 Positioned(
+//                   top: 8,
+//                   right: 8,
+//                   child: Container(
+//                     padding: const EdgeInsets.all(6),
+//                     decoration: const BoxDecoration(
+//                       color: Colors.white,
+//                       shape: BoxShape.circle,
+//                     ),
+//                     child: const Icon(Icons.favorite_border,
+//                         size: 15, color: Colors.grey),
+//                   ),
+//                 ),
+//                 // Fresh badge
+//                 if (product.isPerishable)
+//                   Positioned(
+//                     top: 8,
+//                     left: 8,
+//                     child: Container(
+//                       padding: const EdgeInsets.symmetric(
+//                           horizontal: 7, vertical: 3),
+//                       decoration: BoxDecoration(
+//                         color: kFreshGreen,
+//                         borderRadius: BorderRadius.circular(8),
+//                       ),
+//                       child: Text(
+//                         'FRESH',
+//                         style: GoogleFonts.inter(
+//                           fontSize: 8,
+//                           fontWeight: FontWeight.w800,
+//                           color: Colors.white,
+//                           letterSpacing: 0.5,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//               ],
+//             ),
+//             Padding(
+//               padding: const EdgeInsets.all(10),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     product.name,
+//                     style: GoogleFonts.inter(
+//                       fontWeight: FontWeight.w700,
+//                       fontSize: 13,
+//                       color: kDarkGreen,
+//                     ),
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                   const SizedBox(height: 2),
+//                   Text(
+//                     product.seller,
+//                     style: GoogleFonts.inter(
+//                         fontSize: 11, color: Colors.grey[500]),
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                   const SizedBox(height: 6),
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         NumberFormat.currency(
+//                           locale: 'id',
+//                           symbol: 'Rp ',
+//                           decimalDigits: 0,
+//                         ).format(product.price),
+//                         style: GoogleFonts.inter(
+//                           fontWeight: FontWeight.bold,
+//                           fontSize: 13,
+//                           color: kDarkGreen,
+//                         ),
+//                       ),
+//                       if (product.rating != null)
+//                         Row(
+//                           children: [
+//                             const Icon(Icons.star_rounded,
+//                                 size: 12, color: kAccentOrange),
+//                             const SizedBox(width: 2),
+//                             Text(
+//                               product.rating!.toStringAsFixed(1),
+//                               style: GoogleFonts.inter(
+//                                 fontSize: 11,
+//                                 fontWeight: FontWeight.w600,
+//                                 color: kAccentOrange,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 }
 
 // ─── Custom Painters ─────────────────────────────────────────────────────────

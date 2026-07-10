@@ -16,18 +16,10 @@ class HomeRepositoryImpl implements HomeRepository {
   });
 
   @override
-  Future<Either<Failure, Home>> getHomeData({
-    double? latitude,
-    double? longitude,
-    double? radius,
-  }) async {
+  Future<Either<Failure, Home>> getHomeData() async {
     try {
       // Always try to fetch fresh data from remote first
-      final remoteHome = await remoteDataSource.getHomeData(
-        latitude: latitude,
-        longitude: longitude,
-        radius: radius,
-      );
+      final remoteHome = await remoteDataSource.getHomeData();
 
       // Save to local storage for offline fallback
       await localDataSource.saveHomeData(remoteHome);

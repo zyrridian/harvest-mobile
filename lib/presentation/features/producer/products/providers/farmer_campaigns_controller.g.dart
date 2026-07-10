@@ -7,7 +7,7 @@ part of 'farmer_campaigns_controller.dart';
 // **************************************************************************
 
 String _$farmerCampaignsControllerHash() =>
-    r'7275a703760c4bde04b8190470364d63c35a13c6';
+    r'6ae80f0dd8340267cec571ea4300e8626323388a';
 
 /// See also [FarmerCampaignsController].
 @ProviderFor(FarmerCampaignsController)
