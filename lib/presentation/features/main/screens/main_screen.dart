@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../features/storefront/presentation/screens/home_screen.dart';
 import '../../../../features/community/presentation/screens/community_screen.dart';
 import '../../profile/screens/profile_screen.dart';
-import '../../farmers/screens/farmers_map_screen.dart';
+import '../../../../features/explore/presentation/screens/explore_screen.dart';
 
 // Provider to manage which tab is active
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -19,7 +19,7 @@ class MainScreen extends ConsumerWidget {
 
     final screens = [
       const HomeScreen(),
-      const FarmersMapScreen(isTab: true), // Explore tab → full-screen map, no back button
+      const ExploreScreen(isTab: true), // Explore tab
       const CommunityScreen(),
       const ProfileScreen(),
     ];

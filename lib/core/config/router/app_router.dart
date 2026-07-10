@@ -14,7 +14,7 @@ import '../../../presentation/features/producer/main/screens/farmer_main_screen.
 import '../../../presentation/features/producer/dashboard/screens/farmer_dashboard_screen.dart';
 import '../../../presentation/features/producer/products/screens/add_product_screen.dart';
 import '../../../presentation/features/producer/orders/screens/harvest_schedule_detail_screen.dart';
-import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
+import '../../../features/explore/presentation/screens/explore_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
 import '../../../presentation/features/settings/screens/settings_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
@@ -62,7 +62,7 @@ class AppRouter {
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
   static const String routePlan = '/route-plan';
-  static const String farmersMap = '/farmers-map';
+  static const String explore = '/explore';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
   static const String preorder = '/preorder'; // preorder list
@@ -175,9 +175,9 @@ class AppRouter {
         builder: (context, state) => const RoutePlanScreen(),
       ),
       GoRoute(
-        path: farmersMap,
-        name: 'farmersMap',
-        builder: (context, state) => const NearbyFarmerScreen(),
+        path: explore,
+        name: 'explore',
+        builder: (context, state) => const ExploreScreen(isTab: false),
       ),
       GoRoute(
         path: farmerDetail,

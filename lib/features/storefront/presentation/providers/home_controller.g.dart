@@ -40,7 +40,7 @@ final getHomeUseCaseProvider = AutoDisposeProvider<GetHomeUseCase>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetHomeUseCaseRef = AutoDisposeProviderRef<GetHomeUseCase>;
-String _$homeControllerHash() => r'5b132140e679bbe52aa64b45a0c00d763a2c2c9b';
+String _$homeControllerHash() => r'11d5a40ad5a16afc1735a6eee63e2330dbc6e994';
 
 /// See also [HomeController].
 @ProviderFor(HomeController)

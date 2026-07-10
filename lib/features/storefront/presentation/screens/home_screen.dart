@@ -228,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       QuickAction(
                         label: 'Nearby Farmers',
                         iconPath: 'assets/icons/ic_nearby_farmer.svg',
-                        onTap: () => context.push(AppRouter.farmersMap),
+                        onTap: () => context.push(AppRouter.explore),
                       ),
                       QuickAction(
                         label: 'My Orders',
@@ -814,7 +814,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildMapPreview() {
     return GestureDetector(
-      onTap: () => context.push(AppRouter.farmersMap),
+      onTap: () => context.push(AppRouter.explore),
       child: Container(
         height: 180,
         decoration: BoxDecoration(

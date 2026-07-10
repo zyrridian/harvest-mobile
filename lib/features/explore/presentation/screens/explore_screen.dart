@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:harvest_app/presentation/features/farmers/providers/farmers_state.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../../../../domain/entities/farmer.dart';
-import '../providers/farmers_controller.dart';
+import 'package:intl/intl.dart';
+
+import '../providers/explore_controller.dart';
+import '../../../../domain/entities/explore.dart';
+import '../../../../core/config/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 // --- DESIGN CONSTANTS ---
 const kDarkGreen = Color(0xFF1A2F25);
 const kPrimaryGreen = Color(0xFF2E7D32);
 const kPillGrey = Color(0xFFF0F2F0);
 
-class FarmersMapScreen extends ConsumerStatefulWidget {
+class ExploreScreen extends ConsumerStatefulWidget {
   final bool isTab;
-  const FarmersMapScreen({super.key, this.isTab = false});
+  const ExploreScreen({super.key, this.isTab = true});
 
   @override
-  ConsumerState<FarmersMapScreen> createState() => _FarmersMapScreenState();
+  ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
 }
 
-class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
+class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -38,49 +41,60 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final farmersState = ref.watch(farmersControllerProvider);
+    final exploreState = ref.watch(exploreControllerProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      body: CustomScrollView(
-        slivers: [
-          // 1. Hero Section (Search & Map entry)
-          SliverToBoxAdapter(
-            child: _buildHeroSection(),
-          ),
+      body: exploreState.when(
+        initial: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (msg) => Center(child: Text('Error: $msg')),
+        loaded: (exploreData) => CustomScrollView(
+          slivers: [
+            // 1. Hero Section (Search & Map entry)
+            SliverToBoxAdapter(
+              child: _buildHeroSection(),
+            ),
 
-          // 2. Live from the Farm
-          SliverToBoxAdapter(
-            child: _buildLiveFromTheFarm(),
-          ),
+            // 2. Live from the Farm
+            if (exploreData.liveStreams.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildLiveFromTheFarm(exploreData.liveStreams),
+              ),
 
-          // 3. In Season Right Now
-          SliverToBoxAdapter(
-            child: _buildInSeasonSection(),
-          ),
+            // 3. In Season Right Now
+            if (exploreData.inSeason.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildInSeasonSection(exploreData.inSeason),
+              ),
 
-          // 4. Community Deals (Group Buy)
-          SliverToBoxAdapter(
-            child: _buildCommunityDeals(),
-          ),
+            // 4. Community Deals (Group Buy)
+            if (exploreData.groupBuys.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildCommunityDeals(exploreData.groupBuys),
+              ),
 
-          // 5. Nearby Farmers (Upgraded cards)
-          SliverToBoxAdapter(
-            child: _buildNearbyFarmersSection(farmersState),
-          ),
+            // 5. Nearby Farmers
+            if (exploreData.nearbyFarmers.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildNearbyFarmersSection(exploreData.nearbyFarmers),
+              ),
 
-          // 6. Farm Experiences
-          SliverToBoxAdapter(
-            child: _buildExperiences(),
-          ),
+            // 6. Farm Experiences
+            if (exploreData.experiences.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildExperiences(exploreData.experiences),
+              ),
 
-          // 7. Active Pre-orders / Trending Deals
-          SliverToBoxAdapter(
-            child: _buildActivePreordersSection(),
-          ),
+            // 7. Active Pre-orders / Trending Deals
+            if (exploreData.activePreorders.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _buildActivePreordersSection(exploreData.activePreorders),
+              ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 120)), // Bottom padding
-        ],
+            const SliverToBoxAdapter(child: SizedBox(height: 120)), // Bottom padding
+          ],
+        ),
       ),
     );
   }
@@ -279,25 +293,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     );
   }
 
-  Widget _buildInSeasonSection() {
-    final seasons = [
-      {
-        'title': 'Summer Berries',
-        'image': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80',
-        'farms': 12
-      },
-      {
-        'title': 'Fresh Greens',
-        'image': 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&q=80',
-        'farms': 8
-      },
-      {
-        'title': 'Organic Roots',
-        'image': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80', // Using tomatoes as roots/veg placeholder
-        'farms': 15
-      },
-    ];
-
+  Widget _buildInSeasonSection(List<ExploreInSeason> inSeason) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -307,19 +303,17 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
-            itemCount: seasons.length,
+            itemCount: inSeason.length,
             separatorBuilder: (context, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              final item = seasons[index];
+              final item = inSeason[index];
               return Container(
                 width: 140,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   image: DecorationImage(
-                    image: NetworkImage(item['image'] as String),
+                    image: NetworkImage(item.image),
                     fit: BoxFit.cover,
-                    // errorBuilder: (context, error, stackTrace) =>
-                    //     Container(color: Colors.grey[200], child: const Icon(Icons.broken_image)),
                   ),
                 ),
                 child: Container(
@@ -340,7 +334,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        item['title'] as String,
+                        item.title,
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -349,7 +343,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${item['farms']} Farms',
+                        '${item.farmsCount} Farms',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           color: Colors.white70,
@@ -366,174 +360,145 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     );
   }
 
-  Widget _buildNearbyFarmersSection(FarmersState state) {
+  Widget _buildNearbyFarmersSection(List<ExploreNearbyFarmer> farmers) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Farms Near You', 'Support local growers in your area', onSeeAll: () {}),
         SizedBox(
           height: 280,
-          child: state.when(
-            initial: () => const Center(child: CircularProgressIndicator()),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            loaded: (farmers) {
-              final featured = farmers.take(5).toList();
-              if (featured.isEmpty) {
-                return const Center(child: Text('No farmers nearby'));
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: featured.length,
-                separatorBuilder: (context, _) => const SizedBox(width: 16),
-                itemBuilder: (context, index) {
-                  final farmer = featured[index];
-                  // Provide a high quality default image if none exists
-                  final defaultImage = index % 2 == 0 
-                      ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80'
-                      : 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80';
-                  
-                  return Container(
-                    width: 240,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: farmers.length,
+            separatorBuilder: (context, _) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final farmer = farmers[index];
+              final defaultImage = index % 2 == 0 
+                  ? 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80'
+                  : 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80';
+              
+              return Container(
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Large Cover Image
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                          child: Stack(
-                            children: [
-                              Image.network(
-                                farmer.coverImage?.isNotEmpty == true ? farmer.coverImage! : defaultImage,
-                                height: 140,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(height: 140, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
-                              ),
-                              Positioned(
-                                top: 12,
-                                right: 12,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.star_rounded, color: Colors.orange, size: 14),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        farmer.rating.toStringAsFixed(1),
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Large Cover Image
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                      child: Stack(
+                        children: [
+                          Image.network(
+                            farmer.coverImage.isNotEmpty == true ? farmer.coverImage : defaultImage,
+                            height: 140,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(height: 140, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                farmer.name,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: kDarkGreen,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(height: 6),
-                              Row(
+                              child: Row(
                                 children: [
-                                  Icon(PhosphorIconsRegular.mapPin, size: 14, color: Colors.grey[600]),
+                                  const Icon(Icons.star_rounded, color: Colors.orange, size: 14),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${(1.2 + (index * 0.8)).toStringAsFixed(1)} km away', // Mock distance
+                                    farmer.rating.toStringAsFixed(1),
                                     style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                              // Specialties tags
-                              Wrap(
-                                spacing: 8,
-                                children: (farmer.specialties.isEmpty ? ['Vegetables', 'Fruits'] : farmer.specialties.take(2))
-                                    .map((tag) => Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: kPrimaryGreen.withOpacity(0.08),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            tag ?? '',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600,
-                                              color: kPrimaryGreen,
-                                            ),
-                                          ),
-                                        ))
-                                    .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            farmer.name,
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(PhosphorIconsRegular.mapPin, size: 14, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${farmer.distanceKm.toStringAsFixed(1)} km away',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          // Specialties tags
+                          Wrap(
+                            spacing: 8,
+                            children: (farmer.specialties.isEmpty ? ['Vegetables', 'Fruits'] : farmer.specialties.take(2))
+                                .map((tag) => Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: kPrimaryGreen.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        tag,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: kPrimaryGreen,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                },
+                  ],
+                ),
               );
             },
-            error: (msg) => Center(child: Text('Error: $msg', textAlign: TextAlign.center)),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildActivePreordersSection() {
-    final preorders = [
-      {
-        'title': 'Heirloom Tomatoes Batch',
-        'farmer': 'Green Valley Farm',
-        'image': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80',
-        'progress': 0.75,
-        'daysLeft': 3,
-      },
-      {
-        'title': 'Summer Sweet Corn',
-        'farmer': 'Sunrise Organic',
-        'image': 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80',
-        'progress': 0.40,
-        'daysLeft': 5,
-      }
-    ];
-
+  Widget _buildActivePreordersSection(List<ExplorePreOrder> preorders) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -565,7 +530,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
-                      campaign['image'] as String,
+                      campaign.image,
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
@@ -585,7 +550,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            '${campaign['daysLeft']} days left',
+                            '${campaign.daysLeft} days left',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -595,7 +560,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          campaign['title'] as String,
+                          campaign.title,
                           style: GoogleFonts.outfit(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -606,7 +571,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          campaign['farmer'] as String,
+                          campaign.farmerName,
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -619,9 +584,9 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: campaign['progress'] as double,
+                            value: campaign.progressPercentage,
                             backgroundColor: Colors.grey[200],
-                            valueColor: AlwaysStoppedAnimation<Color>(kPrimaryGreen),
+                            valueColor: const AlwaysStoppedAnimation<Color>(kPrimaryGreen),
                             minHeight: 6,
                           ),
                         ),
@@ -636,7 +601,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                       color: kPrimaryGreen.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(PhosphorIconsRegular.caretRight, color: kPrimaryGreen, size: 20),
+                    child: const Icon(PhosphorIconsRegular.caretRight, color: kPrimaryGreen, size: 20),
                   ),
                 ],
               ),
@@ -647,28 +612,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     );
   }
 
-  Widget _buildLiveFromTheFarm() {
-    final streams = [
-      {
-        'farmer': 'Sarah M.',
-        'title': 'Harvesting Heirloom Tomatoes 🍅',
-        'image': 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80',
-        'viewers': 124,
-      },
-      {
-        'farmer': 'David O.',
-        'title': 'Morning Egg Collection 🥚',
-        'image': 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80',
-        'viewers': 89,
-      },
-      {
-        'farmer': 'Elena P.',
-        'title': 'Strawberry Field Tour 🍓',
-        'image': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80',
-        'viewers': 210,
-      },
-    ];
-
+  Widget _buildLiveFromTheFarm(List<ExploreLiveStream> streams) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -682,84 +626,91 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             separatorBuilder: (context, _) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final stream = streams[index];
-              return Container(
-                width: 130,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: NetworkImage(stream['image'] as String),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              return GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Playing HLS stream: ${stream.streamUrl}')),
+                  );
+                },
                 child: Container(
+                  width: 130,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.4),
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.8),
-                      ],
-                      stops: const [0.0, 0.5, 1.0],
+                    image: DecorationImage(
+                      image: NetworkImage(stream.thumbnail),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.8),
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'LIVE',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                            child: Text(
-                              'LIVE',
+                            const Spacer(),
+                            const Icon(PhosphorIconsFill.eye, color: Colors.white, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${stream.viewers}',
                               style: GoogleFonts.inter(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
                             ),
-                          ),
-                          const Spacer(),
-                          Icon(PhosphorIconsFill.eye, color: Colors.white, size: 12),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${stream['viewers']}',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        stream['title'] as String,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1.2,
+                          ],
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        stream['farmer'] as String,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: Colors.white70,
+                        const Spacer(),
+                        Text(
+                          stream.title,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          stream.farmerName,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -770,28 +721,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     );
   }
 
-  Widget _buildCommunityDeals() {
-    final deals = [
-      {
-        'title': 'Box of Organic Avocados',
-        'farm': 'Sunshine Grove',
-        'price': 'Rp 85.000',
-        'originalPrice': 'Rp 120.000',
-        'image': 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80',
-        'joined': 12,
-        'target': 20,
-      },
-      {
-        'title': 'Fresh Honeycomb (500g)',
-        'farm': 'Happy Bees Apiary',
-        'price': 'Rp 65.000',
-        'originalPrice': 'Rp 90.000',
-        'image': 'https://images.unsplash.com/photo-1587049352847-81a56d773c1c?auto=format&fit=crop&q=80',
-        'joined': 4,
-        'target': 10,
-      },
-    ];
-
+  Widget _buildCommunityDeals(List<ExploreGroupBuy> deals) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -806,10 +736,11 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             itemBuilder: (context, index) {
               final deal = deals[index];
               return Container(
-                width: 320,
+                width: 300,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.grey[200]!),
                   boxShadow: [
                     BoxShadow(
@@ -819,18 +750,15 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        deal['image'] as String,
-                        width: 90,
-                        height: double.infinity,
+                        deal.image,
+                        width: 100,
+                        height: 100,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(width: 90, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -840,7 +768,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            deal['title'] as String,
+                            deal.title,
                             style: GoogleFonts.outfit(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -851,7 +779,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            deal['farm'] as String,
+                            deal.farmName,
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               color: Colors.grey[600],
@@ -861,7 +789,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                           Row(
                             children: [
                               Text(
-                                deal['price'] as String,
+                                NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(deal.price),
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -870,7 +798,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                deal['originalPrice'] as String,
+                                NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(deal.originalPrice),
                                 style: GoogleFonts.inter(
                                   fontSize: 11,
                                   decoration: TextDecoration.lineThrough,
@@ -887,7 +815,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
-                                    value: (deal['joined'] as int) / (deal['target'] as int),
+                                    value: deal.joinedCount / deal.targetCount,
                                     backgroundColor: Colors.grey[200],
                                     valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
                                     minHeight: 6,
@@ -896,7 +824,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                '${deal['joined']}/${deal['target']}',
+                                '${deal.joinedCount}/${deal.targetCount}',
                                 style: GoogleFonts.inter(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -918,24 +846,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
     );
   }
 
-  Widget _buildExperiences() {
-    final experiences = [
-      {
-        'title': 'Weekend Apple Picking',
-        'farm': 'Orchard Valley',
-        'image': 'https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?auto=format&fit=crop&q=80',
-        'price': 'Rp 50.000 / person',
-        'distance': '4.5 km',
-      },
-      {
-        'title': 'Goat Cheese Masterclass',
-        'farm': 'Happy Dairy',
-        'image': 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&q=80',
-        'price': 'Rp 150.000 / person',
-        'distance': '12 km',
-      },
-    ];
-
+  Widget _buildExperiences(List<ExploreExperience> experiences) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -954,7 +865,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
-                    image: NetworkImage(exp['image'] as String),
+                    image: NetworkImage(exp.image),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -977,10 +888,10 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(PhosphorIconsFill.mapPin, color: Colors.white70, size: 12),
+                          const Icon(PhosphorIconsFill.mapPin, color: Colors.white70, size: 12),
                           const SizedBox(width: 4),
                           Text(
-                            exp['distance'] as String,
+                            exp.location,
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               color: Colors.white70,
@@ -991,7 +902,7 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        exp['title'] as String,
+                        exp.title,
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1004,14 +915,14 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            exp['farm'] as String,
+                            exp.dateString,
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.white70,
                             ),
                           ),
                           Text(
-                            exp['price'] as String,
+                            NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(exp.price),
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
