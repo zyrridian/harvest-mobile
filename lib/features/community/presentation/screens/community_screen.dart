@@ -208,74 +208,45 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: _showScrollUp
-          ? FloatingActionButton(
-              mini: true,
-              backgroundColor: const Color(0xFF166534),
-              onPressed: () {
-                _scrollController.animateTo(0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut);
-              },
-              child: const Icon(Icons.arrow_upward, color: Colors.white),
-            )
-          : null,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (_showScrollUp)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: FloatingActionButton(
+                heroTag: 'scroll_up_fab',
+                mini: true,
+                backgroundColor: Colors.white,
+                onPressed: () {
+                  _scrollController.animateTo(0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut);
+                },
+                child: const Icon(Icons.arrow_upward, color: kDarkGreen),
+              ),
+            ),
+          FloatingActionButton.extended(
+            heroTag: 'create_post_fab',
+            backgroundColor: kPrimaryGreen,
+            onPressed: _openCreatePost,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: Text(
+              'Create Post',
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // Search Bar
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search in community...',
-                          hintStyle: GoogleFonts.inter(
-                              color: Colors.grey.shade500, fontSize: 15),
-                          prefixIcon:
-                              Icon(Icons.search, color: Colors.grey.shade400),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: Color(0xFF166534)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: _openCreatePost,
-                      child: Container(
-                        height: 48,
-                        width: 48,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF166534),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.add, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+
 
             // Filters
             SliverPersistentHeader(

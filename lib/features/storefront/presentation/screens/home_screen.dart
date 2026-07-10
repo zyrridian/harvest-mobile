@@ -506,148 +506,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SliverToBoxAdapter(child: PromoCarousel()),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-          // ── 7. FARMERS NEAR YOU ───────────────────────────────────────────
+          // ── 6. ACTIVE ORDER ───────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child: _sectionHeader(
-                'Farmers Near You',
-                showSeeAll: true,
-                onSeeAllTap: () => context.push(AppRouter.farmersMap),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-              child: _buildMapPreview(),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 14)),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 120,
-              child: nearbyFarmers.isNotEmpty
-                  ? ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      itemCount: nearbyFarmers.length,
-                      itemBuilder: (context, i) =>
-                          _buildFarmerCard(nearbyFarmers[i]),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Center(
-                        child: Text('No farmers found nearby',
-                            style: GoogleFonts.inter(color: Colors.grey[500])),
-                      ),
-                    ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-
-          // ── 8. PRE-ORDER HARVESTS ──────────────────────────────────────────
-          if (preOrders.isNotEmpty) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sectionHeader(
-                      '🔥 Pre-Order Harvests',
-                      showSeeAll: true,
-                      onSeeAllTap: () => context.push(AppRouter.products),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Reserve fresh produce before harvest day',
-                      style: GoogleFonts.inter(
-                          fontSize: 13, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 285,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  itemCount: preOrders.length,
-                  itemBuilder: (context, index) =>
-                      _buildPreOrderCard(preOrders[index]),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
-
-          // ── 6. CATEGORIES — horizontal chip row ───────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 0, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 24),
-                    child: _sectionHeader(
-                      'Shop by Category',
-                      showSeeAll: true,
-                      onSeeAllTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CategoryScreen(
-                            categoryName: 'All Categories',
-                            categoryId: 'all',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    height: 90,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.zero,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
-                      itemBuilder: (context, i) =>
-                          _buildCategoryChip(categories[i]),
-                    ),
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: _buildActiveOrderWidget(),
             ),
           ),
 
-          // ── 9. FRESH TODAY ────────────────────────────────────────────────
+          // ── 7. REQUEST GOODS BANNER ───────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child: _sectionHeader(
-                'Fresh Today',
-                showSeeAll: true,
-                onSeeAllTap: () => context.push(AppRouter.products),
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              child: _buildRequestGoodsBanner(),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildProductCard(freshToday[index]),
-                childCount: freshToday.length,
-              ),
+
+          // ── 8. UPDATES FROM MY FARMERS ────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: _buildMyFarmersUpdates(),
+            ),
+          ),
+
+          // ── 9. WEEKLY STAPLES (REORDER) ───────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildWeeklyStaples(),
             ),
           ),
 
@@ -659,6 +546,379 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  Widget _buildMyFarmersUpdates() {
+    final updates = [
+      {
+        'farmer': 'Sunrise Farm',
+        'avatar': 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80',
+        'update': 'Just listed our first batch of Summer Sweet Corn! 🌽',
+        'time': '2h ago',
+      },
+      {
+        'farmer': 'Green Valley',
+        'avatar': 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80',
+        'update': 'Restocked organic free-range eggs. Selling out fast!',
+        'time': '5h ago',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: _sectionHeader('Updates from Your Farmers', showSeeAll: true),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 130,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            scrollDirection: Axis.horizontal,
+            itemCount: updates.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final update = updates[index];
+              return Container(
+                width: 280,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: kPillGrey, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            update['avatar']!,
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 32,
+                              height: 32,
+                              color: kPillGrey,
+                              child: const Icon(Icons.person, color: Colors.grey, size: 20),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            update['farmer']!,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          update['time']!,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      update['update']!,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeeklyStaples() {
+    final staples = [
+      {
+        'title': 'Organic Free-Range Eggs',
+        'qty': '1 Dozen',
+        'price': 'Rp 35.000',
+        'image': 'https://images.unsplash.com/photo-1582722872425-47fc942978aa?auto=format&fit=crop&q=80',
+      },
+      {
+        'title': 'Fresh Whole Milk',
+        'qty': '1 Liter',
+        'price': 'Rp 25.000',
+        'image': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionHeader('Your Weekly Staples', showSeeAll: false),
+              const SizedBox(height: 4),
+              Text(
+                'Items you frequently buy, ready for 1-click reorder',
+                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: staples.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = staples[index];
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: kPillGrey, width: 1),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      item['image']!,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60,
+                        height: 60,
+                        color: kPillGrey,
+                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title']!,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item['qty']!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          item['price']!,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: kFreshGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: kPillGrey,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.refresh_rounded, size: 14, color: kDarkGreen),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Reorder',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+  Widget _buildActiveOrderWidget() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED), // light orange bg
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.local_shipping_rounded, color: kAccentOrange, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Arriving Today',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: kAccentOrange,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '5kg Organic Tomatoes',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'from Green Valley Farm',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRequestGoodsBanner() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: kDarkGreen,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: kDarkGreen.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Broadcast a Bulk Request',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Can\'t find what you need? Request specific goods in bulk directly from our farmers network.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.white70,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            width: double.infinity,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              'Request Goods Now',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: kDarkGreen,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _iconBtn({
     required IconData icon,

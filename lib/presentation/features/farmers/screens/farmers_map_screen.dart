@@ -49,17 +49,32 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
             child: _buildHeroSection(),
           ),
 
-          // 2. In Season Right Now
+          // 2. Live from the Farm
+          SliverToBoxAdapter(
+            child: _buildLiveFromTheFarm(),
+          ),
+
+          // 3. In Season Right Now
           SliverToBoxAdapter(
             child: _buildInSeasonSection(),
           ),
 
-          // 3. Nearby Farmers (Upgraded cards)
+          // 4. Community Deals (Group Buy)
+          SliverToBoxAdapter(
+            child: _buildCommunityDeals(),
+          ),
+
+          // 5. Nearby Farmers (Upgraded cards)
           SliverToBoxAdapter(
             child: _buildNearbyFarmersSection(farmersState),
           ),
 
-          // 4. Active Pre-orders / Trending Deals
+          // 6. Farm Experiences
+          SliverToBoxAdapter(
+            child: _buildExperiences(),
+          ),
+
+          // 7. Active Pre-orders / Trending Deals
           SliverToBoxAdapter(
             child: _buildActivePreordersSection(),
           ),
@@ -627,6 +642,390 @@ class _FarmersMapScreenState extends ConsumerState<FarmersMapScreen> {
               ),
             );
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLiveFromTheFarm() {
+    final streams = [
+      {
+        'farmer': 'Sarah M.',
+        'title': 'Harvesting Heirloom Tomatoes 🍅',
+        'image': 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80',
+        'viewers': 124,
+      },
+      {
+        'farmer': 'David O.',
+        'title': 'Morning Egg Collection 🥚',
+        'image': 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80',
+        'viewers': 89,
+      },
+      {
+        'farmer': 'Elena P.',
+        'title': 'Strawberry Field Tour 🍓',
+        'image': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80',
+        'viewers': 210,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Live from the Farm', 'Watch and buy directly from the field'),
+        SizedBox(
+          height: 200,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: streams.length,
+            separatorBuilder: (context, _) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final stream = streams[index];
+              return Container(
+                width: 130,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image: NetworkImage(stream['image'] as String),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.4),
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'LIVE',
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(PhosphorIconsFill.eye, color: Colors.white, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${stream['viewers']}',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Text(
+                        stream['title'] as String,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        stream['farmer'] as String,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCommunityDeals() {
+    final deals = [
+      {
+        'title': 'Box of Organic Avocados',
+        'farm': 'Sunshine Grove',
+        'price': 'Rp 85.000',
+        'originalPrice': 'Rp 120.000',
+        'image': 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80',
+        'joined': 12,
+        'target': 20,
+      },
+      {
+        'title': 'Fresh Honeycomb (500g)',
+        'farm': 'Happy Bees Apiary',
+        'price': 'Rp 65.000',
+        'originalPrice': 'Rp 90.000',
+        'image': 'https://images.unsplash.com/photo-1587049352847-81a56d773c1c?auto=format&fit=crop&q=80',
+        'joined': 4,
+        'target': 10,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Community Group Buys', 'Join neighbors to unlock bulk discounts', onSeeAll: () {}),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: deals.length,
+            separatorBuilder: (context, _) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final deal = deals[index];
+              return Container(
+                width: 320,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey[200]!),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        deal['image'] as String,
+                        width: 90,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(width: 90, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            deal['title'] as String,
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            deal['farm'] as String,
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                deal['price'] as String,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: kPrimaryGreen,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                deal['originalPrice'] as String,
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Progress Bar
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: (deal['joined'] as int) / (deal['target'] as int),
+                                    backgroundColor: Colors.grey[200],
+                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                                    minHeight: 6,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${deal['joined']}/${deal['target']}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExperiences() {
+    final experiences = [
+      {
+        'title': 'Weekend Apple Picking',
+        'farm': 'Orchard Valley',
+        'image': 'https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?auto=format&fit=crop&q=80',
+        'price': 'Rp 50.000 / person',
+        'distance': '4.5 km',
+      },
+      {
+        'title': 'Goat Cheese Masterclass',
+        'farm': 'Happy Dairy',
+        'image': 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&q=80',
+        'price': 'Rp 150.000 / person',
+        'distance': '12 km',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Agritourism & Experiences', 'Plan your next weekend farm visit', onSeeAll: () {}),
+        SizedBox(
+          height: 180,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: experiences.length,
+            separatorBuilder: (context, _) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final exp = experiences[index];
+              return Container(
+                width: 260,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  image: DecorationImage(
+                    image: NetworkImage(exp['image'] as String),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(PhosphorIconsFill.mapPin, color: Colors.white70, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            exp['distance'] as String,
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        exp['title'] as String,
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            exp['farm'] as String,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          Text(
+                            exp['price'] as String,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFA5D6A7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );
