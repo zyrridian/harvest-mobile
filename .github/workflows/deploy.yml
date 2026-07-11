@@ -73,4 +73,4 @@ jobs:
             docker pull $IMAGE_URL
             docker stop flutter-web-app || true
             docker rm flutter-web-app || true
-            docker run -d --name flutter-web-app -p 80:80 --restart unless-stopped $IMAGE_URL
+            docker run -d --name flutter-web-app -p 3001:80 --restart unless-stopped $IMAGE_URL
