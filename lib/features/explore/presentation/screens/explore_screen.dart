@@ -44,56 +44,61 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final exploreState = ref.watch(exploreControllerProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: const Color(0xFFFFFFFF),
       body: exploreState.when(
         initial: () => const Center(child: CircularProgressIndicator()),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (msg) => Center(child: Text('Error: $msg')),
-        loaded: (exploreData) => CustomScrollView(
-          slivers: [
-            // 1. Hero Section (Search & Map entry)
-            SliverToBoxAdapter(
-              child: _buildHeroSection(),
-            ),
-
-            // 2. Live from the Farm
-            if (exploreData.liveStreams.isNotEmpty)
+        loaded: (exploreData) => RefreshIndicator.adaptive(
+          onRefresh: () async {
+            ref.invalidate(exploreControllerProvider);
+          },
+          child: CustomScrollView(
+            slivers: [
+              // 1. Hero Section (Search & Map entry)
               SliverToBoxAdapter(
-                child: _buildLiveFromTheFarm(exploreData.liveStreams),
+                child: _buildHeroSection(),
               ),
-
-            // 3. In Season Right Now
-            if (exploreData.inSeason.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildInSeasonSection(exploreData.inSeason),
-              ),
-
-            // 4. Community Deals (Group Buy)
-            if (exploreData.groupBuys.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildCommunityDeals(exploreData.groupBuys),
-              ),
-
-            // 5. Nearby Farmers
-            if (exploreData.nearbyFarmers.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildNearbyFarmersSection(exploreData.nearbyFarmers),
-              ),
-
-            // 6. Farm Experiences
-            if (exploreData.experiences.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildExperiences(exploreData.experiences),
-              ),
-
-            // 7. Active Pre-orders / Trending Deals
-            if (exploreData.activePreorders.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildActivePreordersSection(exploreData.activePreorders),
-              ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 120)), // Bottom padding
-          ],
+          
+              // 2. Live from the Farm
+              if (exploreData.liveStreams.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildLiveFromTheFarm(exploreData.liveStreams),
+                ),
+          
+              // 3. In Season Right Now
+              if (exploreData.inSeason.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildInSeasonSection(exploreData.inSeason),
+                ),
+          
+              // 4. Community Deals (Group Buy)
+              if (exploreData.groupBuys.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildCommunityDeals(exploreData.groupBuys),
+                ),
+          
+              // 5. Nearby Farmers
+              if (exploreData.nearbyFarmers.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildNearbyFarmersSection(exploreData.nearbyFarmers),
+                ),
+          
+              // 6. Farm Experiences
+              if (exploreData.experiences.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildExperiences(exploreData.experiences),
+                ),
+          
+              // 7. Active Pre-orders / Trending Deals
+              if (exploreData.activePreorders.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildActivePreordersSection(exploreData.activePreorders),
+                ),
+          
+              const SliverToBoxAdapter(child: SizedBox(height: 120)), // Bottom padding
+            ],
+          ),
         ),
       ),
     );
@@ -112,7 +117,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -121,7 +126,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
                   ),
@@ -148,7 +153,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ),
                 child: Text(
                   'See all',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: kPrimaryGreen,
@@ -167,7 +172,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: NetworkImage(
-              'https://images.unsplash.com/photo-1595858641158-96425974c5d5?auto=format&fit=crop&q=80'), // Farm aesthetic
+              'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80'), // Map aesthetic
           fit: BoxFit.cover,
         ),
       ),
@@ -191,7 +196,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               children: [
                 if (!widget.isTab)
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: Colors.white),
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
                     alignment: Alignment.centerLeft,
@@ -199,7 +204,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 const Spacer(),
                 Text(
                   'Find fresh, local\nfood near you.',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -229,11 +234,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          style: GoogleFonts.inter(color: kDarkGreen),
+                          style: TextStyle(color: kDarkGreen),
                           decoration: InputDecoration(
                             hintText: 'Search for tomatoes, farms...',
-                            hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                            hintStyle: TextStyle(color: Colors.grey[400]),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                           ),
                           onSubmitted: (_) => _performSearch(),
                         ),
@@ -273,14 +280,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'Explore on Map',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 12),
+                      const PhosphorIcon(PhosphorIconsRegular.caretRight, color: Colors.white, size: 12),
                     ],
                   ),
                 ),
@@ -335,7 +342,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     children: [
                       Text(
                         item.title,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -344,7 +351,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${item.farmsCount} Farms',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.white70,
                         ),
@@ -366,9 +373,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       children: [
         _buildSectionHeader('Farms Near You', 'Support local growers in your area', onSeeAll: () {}),
         SizedBox(
-          height: 280,
+          height: 310,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             scrollDirection: Axis.horizontal,
             itemCount: farmers.length,
             separatorBuilder: (context, _) => const SizedBox(width: 16),
@@ -405,7 +412,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                Container(height: 140, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                                Container(height: 140, color: Colors.grey[200], child: const PhosphorIcon(PhosphorIconsRegular.imageBroken)),
                           ),
                           Positioned(
                             top: 12,
@@ -418,11 +425,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.star_rounded, color: Colors.orange, size: 14),
+                                  const PhosphorIcon(PhosphorIconsFill.star, color: Colors.orange, size: 14),
                                   const SizedBox(width: 4),
                                   Text(
                                     farmer.rating.toStringAsFixed(1),
-                                    style: GoogleFonts.inter(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -441,7 +448,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         children: [
                           Text(
                             farmer.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -456,7 +463,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 '${farmer.distanceKm.toStringAsFixed(1)} km away',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey[600],
                                 ),
@@ -465,25 +472,30 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                           const SizedBox(height: 12),
                           // Specialties tags
-                          Wrap(
-                            spacing: 8,
-                            children: (farmer.specialties.isEmpty ? ['Vegetables', 'Fruits'] : farmer.specialties.take(2))
-                                .map((tag) => Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: kPrimaryGreen.withOpacity(0.08),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        tag,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: kPrimaryGreen,
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: (farmer.specialties.isEmpty ? ['Vegetables', 'Fruits'] : farmer.specialties)
+                                  .map((tag) => Padding(
+                                        padding: const EdgeInsets.only(right: 8.0),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: kPrimaryGreen.withOpacity(0.08),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: kPrimaryGreen,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ))
-                                .toList(),
+                                      ))
+                                  .toList(),
+                            ),
                           ),
                         ],
                       ),
@@ -535,7 +547,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       height: 80,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) =>
-                          Container(width: 80, height: 80, color: Colors.grey[200], child: const Icon(Icons.broken_image)),
+                          Container(width: 80, height: 80, color: Colors.grey[200], child: const PhosphorIcon(PhosphorIconsRegular.imageBroken)),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -551,7 +563,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                           child: Text(
                             '${campaign.daysLeft} days left',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.orange[800],
@@ -561,7 +573,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         const SizedBox(height: 6),
                         Text(
                           campaign.title,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
@@ -572,7 +584,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         const SizedBox(height: 2),
                         Text(
                           campaign.farmerName,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
                           ),
@@ -669,7 +681,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               ),
                               child: Text(
                                 'LIVE',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -681,7 +693,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             const SizedBox(width: 4),
                             Text(
                               '${stream.viewers}',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -692,7 +704,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         const Spacer(),
                         Text(
                           stream.title,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -704,7 +716,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         const SizedBox(height: 4),
                         Text(
                           stream.farmerName,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 10,
                             color: Colors.white70,
                           ),
@@ -769,7 +781,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         children: [
                           Text(
                             deal.title,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -780,7 +792,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           const SizedBox(height: 2),
                           Text(
                             deal.farmName,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[600],
                             ),
@@ -790,7 +802,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             children: [
                               Text(
                                 NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(deal.price),
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: kPrimaryGreen,
@@ -799,7 +811,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               const SizedBox(width: 6),
                               Text(
                                 NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(deal.originalPrice),
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 11,
                                   decoration: TextDecoration.lineThrough,
                                   color: Colors.grey[400],
@@ -825,7 +837,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 '${deal.joinedCount}/${deal.targetCount}',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.orange[800],
@@ -892,7 +904,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           const SizedBox(width: 4),
                           Text(
                             exp.location,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 11,
                               color: Colors.white70,
                               fontWeight: FontWeight.w600,
@@ -903,7 +915,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       const SizedBox(height: 4),
                       Text(
                         exp.title,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -916,14 +928,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         children: [
                           Text(
                             exp.dateString,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
                             ),
                           ),
                           Text(
                             NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(exp.price),
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFFA5D6A7),

@@ -14,6 +14,7 @@ class CommunityComment extends Equatable {
   final CommunityUser? replyToUser;
   final List<CommunityComment> replies;
   final bool isLikedByUser;
+  final bool isPending;
 
   const CommunityComment({
     required this.id,
@@ -28,6 +29,7 @@ class CommunityComment extends Equatable {
     this.replyToUser,
     this.replies = const [],
     this.isLikedByUser = false,
+    this.isPending = false,
   });
 
   @override
@@ -44,5 +46,6 @@ class CommunityComment extends Equatable {
         replyToUser,
         replies,
         isLikedByUser,
+        isPending,
       ];
 }

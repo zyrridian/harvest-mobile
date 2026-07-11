@@ -11,6 +11,8 @@ import 'create_post_screen.dart';
 import 'create_recipe_screen.dart';
 import 'community_post_detail_screen.dart';
 import 'recipe_detail_screen.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
@@ -97,6 +99,23 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     super.dispose();
   }
 
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} min ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hr ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return DateFormat.yMMMd().format(date);
+    }
+  }
+
   void _onFilterSelected(String filter) {
     setState(() => _selectedFilter = filter);
     final apiFilterMap = {
@@ -125,56 +144,73 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   Future<void> _openCreatePost() async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Create New',
-                  style: GoogleFonts.inter(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
-                        color: kPrimaryGreen.withOpacity(0.1),
-                        shape: BoxShape.circle),
-                    child: const Icon(Icons.post_add, color: kPrimaryGreen),
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  title: Text('Community Post',
-                      style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500, fontSize: 16)),
-                  subtitle: Text('Share an update or ask a question',
-                      style: GoogleFonts.inter(
-                          fontSize: 13, color: Colors.grey.shade600)),
-                  onTap: () => Navigator.pop(context, 'post'),
-                ),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: kAccentOrange.withOpacity(0.1),
-                        shape: BoxShape.circle),
-                    child:
-                        const Icon(Icons.restaurant_menu, color: kAccentOrange),
+                  const SizedBox(height: 24),
+                  Transform.rotate(
+                    angle: -0.017, // -1 degree
+                    child: Text(
+                      'What are we making?',
+                      style: GoogleFonts.caveat(
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        color: kDarkGreen,
+                      ),
+                    ),
                   ),
-                  title: Text('Kitchen Recipe',
-                      style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500, fontSize: 16)),
-                  subtitle: Text('Share your favorite cooking recipe',
-                      style: GoogleFonts.inter(
-                          fontSize: 13, color: Colors.grey.shade600)),
-                  onTap: () => Navigator.pop(context, 'recipe'),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    'PICK A POST TYPE',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 11,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _CreateOptionCard(
+                    title: 'Community Post',
+                    subtitle: 'Share an update or ask a question',
+                    icon: PhosphorIconsRegular.pencilSimple,
+                    iconColor: kPrimaryGreen,
+                    rotation: -0.012, // -0.7 deg
+                    tapeColor: kPrimaryGreen.withOpacity(0.15),
+                    onTap: () => Navigator.pop(context, 'post'),
+                  ),
+                  const SizedBox(height: 24),
+                  _CreateOptionCard(
+                    title: 'Kitchen Recipe',
+                    subtitle: 'Share your favorite cooking recipe',
+                    icon: PhosphorIconsRegular.cookingPot,
+                    iconColor: kAccentOrange,
+                    rotation: 0.014, // 0.8 deg
+                    tagText: 'RECIPE',
+                    tagColor: kAccentOrange,
+                    onTap: () => Navigator.pop(context, 'recipe'),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -205,6 +241,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(communityControllerProvider);
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.maybeWhen(
+      authenticated: (user) => user.id,
+      orElse: () => null,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -243,113 +284,72 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         ],
       ),
       body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-
-
-            // Filters
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _StickyHeaderDelegate(
-                height: 48,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _filters.length,
-                  itemBuilder: (context, index) {
-                    final filter = _filters[index];
-                    final isSelected = _selectedFilter == filter;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ChoiceChip(
-                        showCheckmark: false,
-                        label: Text(filter),
-                        selected: isSelected,
-                        onSelected: (_) => _onFilterSelected(filter),
-                        selectedColor: kPrimaryGreen,
-                        backgroundColor: Colors.white,
-                        labelStyle: TextStyle(
-                          color:
-                              isSelected ? Colors.white : Colors.grey.shade700,
-                          fontWeight:
-                              isSelected ? FontWeight.w500 : FontWeight.normal,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
+        child: RefreshIndicator.adaptive(
+          onRefresh: () async {
+            ref.invalidate(communityControllerProvider);
+          },
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              // Filters
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _StickyHeaderDelegate(
+                  height: 48,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: _filters.length,
+                    itemBuilder: (context, index) {
+                      final filter = _filters[index];
+                      final isSelected = _selectedFilter == filter;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ChoiceChip(
+                          showCheckmark: false,
+                          label: Text(filter),
+                          selected: isSelected,
+                          onSelected: (_) => _onFilterSelected(filter),
+                          selectedColor: kPrimaryGreen,
+                          backgroundColor: Colors.white,
+                          labelStyle: TextStyle(
                             color: isSelected
-                                ? kPrimaryGreen
-                                : Colors.grey.shade300,
+                                ? Colors.white
+                                : Colors.grey.shade700,
+                            fontWeight: isSelected
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(
+                              color: isSelected
+                                  ? kPrimaryGreen
+                                  : Colors.grey.shade300,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            const SliverToBoxAdapter(
-                child: Divider(height: 1, color: Color(0xFFE5E7EB))),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              // Posts List or Recipes List
+              _selectedFilter == 'Kitchen Recipes'
+                  ? _buildRecipesList(ref)
+                  : _buildPostsList(state, currentUserId),
 
-            // Tags
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 36,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _tags.length,
-                  itemBuilder: (context, index) {
-                    final tag = _tags[index];
-                    final isSelected = _selectedTag == tag.replaceAll('#', '');
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ActionChip(
-                        label: Text(tag),
-                        onPressed: () => _onTagSelected(tag),
-                        backgroundColor:
-                            isSelected ? const Color(0xFF166534) : Colors.white,
-                        labelStyle: GoogleFonts.inter(
-                          color: isSelected
-                              ? Colors.white
-                              : const Color(0xFF166534),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                              color: isSelected
-                                  ? const Color(0xFF166534)
-                                  : Colors.grey.shade300),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-            // Posts List or Recipes List
-            _selectedFilter == 'Kitchen Recipes'
-                ? _buildRecipesList(ref)
-                : _buildPostsList(state),
-
-            // Bottom padding for nav bar
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              // Bottom padding for nav bar
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPostsList(CommunityState state) {
+  Widget _buildPostsList(CommunityState state, String? currentUserId) {
     return state.maybeWhen(
       data: (response) {
         if (response.data.isEmpty) {
@@ -361,7 +361,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final post = response.data[index];
-              return _buildPostCard(post);
+              return _buildPostCard(post, currentUserId);
             },
             childCount: response.data.length,
           ),
@@ -523,7 +523,86 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildPostCard(CommunityPost post) {
+  void _deletePost(CommunityPost post) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Post'),
+        content: const Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // close dialog
+              try {
+                await ref.read(communityControllerProvider.notifier).deletePost(post.id);
+              } catch (e) {
+                // handle error silently
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editPost(CommunityPost post) {
+    final titleController = TextEditingController(text: post.title);
+    final contentController = TextEditingController(text: post.content);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Post'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(labelText: 'Content'),
+              maxLines: 4,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newTitle = titleController.text.trim();
+              final newContent = contentController.text.trim();
+              if (newTitle.isNotEmpty && newContent.isNotEmpty) {
+                Navigator.pop(context);
+                try {
+                  await ref.read(communityControllerProvider.notifier).editPost(post.id, newTitle, newContent);
+                } catch (e) {
+                  // error handled
+                }
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildPostCard(CommunityPost post, String? currentUserId) {
+    final isMyPost = post.userId == currentUserId;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -577,7 +656,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                         ),
                       ),
                       Text(
-                        DateFormat('M/d/yyyy').format(post.createdAt),
+                        _formatDate(post.createdAt),
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           color: Colors.grey.shade500,
@@ -586,11 +665,46 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.more_horiz),
-                  color: Colors.grey.shade600,
-                  onPressed: () {},
-                ),
+                if (isMyPost)
+                  PopupMenuButton<String>(
+                    icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _editPost(post);
+                      } else if (value == 'delete') {
+                        _deletePost(post);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: const [
+                            PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 20),
+                            SizedBox(width: 12),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: const [
+                            PhosphorIcon(PhosphorIconsRegular.trash, size: 20, color: Colors.red),
+                            SizedBox(width: 12),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  IconButton(
+                    icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.transparent),
+                    onPressed: null,
+                  ),
               ],
             ),
             const SizedBox(height: 16),
@@ -716,12 +830,160 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(width: 16),
-                Icon(Icons.share_outlined,
-                    size: 20, color: Colors.grey.shade600),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CreateOptionCard extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color iconColor;
+  final double rotation;
+  final Color? tapeColor;
+  final String? tagText;
+  final Color? tagColor;
+  final VoidCallback onTap;
+
+  const _CreateOptionCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.iconColor,
+    required this.rotation,
+    this.tapeColor,
+    this.tagText,
+    this.tagColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_CreateOptionCard> createState() => _CreateOptionCardState();
+}
+
+class _CreateOptionCardState extends State<_CreateOptionCard> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  bool get _isActive => _isHovered || _isPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          transformAlignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..translate(0.0, _isActive ? -5.0 : 0.0)
+            ..rotateZ(_isActive ? 0.0 : widget.rotation),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: widget.iconColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(widget.icon, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.title,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.subtitle,
+                            style: GoogleFonts.inter(
+                              fontSize: 13.5,
+                              color: Colors.grey.shade600,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.tapeColor != null)
+                Positioned(
+                  top: -8,
+                  left: 48,
+                  child: Transform.rotate(
+                    angle: -0.12, // -7 deg
+                    child: Container(
+                      width: 46,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: widget.tapeColor,
+                        border: Border.all(color: widget.tapeColor!.withOpacity(0.5)),
+                      ),
+                    ),
+                  ),
+                ),
+              if (widget.tagText != null && widget.tagColor != null)
+                Positioned(
+                  top: -10,
+                  right: 14,
+                  child: Transform.rotate(
+                    angle: 0.1, // 6 deg
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: widget.tagColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        widget.tagText!,
+                        style: GoogleFonts.spaceMono(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

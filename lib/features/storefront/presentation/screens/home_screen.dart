@@ -19,7 +19,7 @@ import 'package:intl/intl.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -365,11 +365,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             width: 32,
                             height: 32,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
                               width: 32,
                               height: 32,
                               color: kPillGrey,
-                              child: const Icon(Icons.person, color: Colors.grey, size: 20),
+                              child: const Icon(Icons.person,
+                                  color: Colors.grey, size: 20),
                             ),
                           ),
                         ),
@@ -461,7 +463,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         width: 60,
                         height: 60,
                         color: kPillGrey,
-                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                        child: const Icon(Icons.image_not_supported,
+                            color: Colors.grey),
                       ),
                     ),
                   ),
@@ -499,14 +502,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: kPillGrey,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.refresh_rounded, size: 14, color: kDarkGreen),
+                        const Icon(Icons.refresh_rounded,
+                            size: 14, color: kDarkGreen),
                         const SizedBox(width: 6),
                         Text(
                           'Reorder',
@@ -527,6 +532,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
+
   Widget _buildActiveOrderWidget(HomeActiveOrder? activeOrder) {
     if (activeOrder == null) return const SizedBox.shrink();
 
@@ -552,7 +558,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               color: const Color(0xFFFFF7ED), // light orange bg
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.local_shipping_rounded, color: kAccentOrange, size: 24),
+            child: const Icon(Icons.local_shipping_rounded,
+                color: kAccentOrange, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -588,7 +595,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+          const Icon(Icons.arrow_forward_ios_rounded,
+              size: 14, color: Colors.grey),
         ],
       ),
     );
@@ -619,7 +627,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: Colors.white.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 20),
+                child: const Icon(Icons.campaign_rounded,
+                    color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(

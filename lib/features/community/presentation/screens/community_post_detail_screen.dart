@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/community_post.dart';
+import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/community_comment.dart';
 import '../providers/community_controller.dart';
 import '../providers/post_detail_controller.dart';
@@ -29,6 +31,23 @@ class _CommunityPostDetailScreenState
   void dispose() {
     _commentController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} min ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hr ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return DateFormat.yMMMd().format(date);
+    }
   }
 
   void _submitComment() {
@@ -64,54 +83,88 @@ class _CommunityPostDetailScreenState
     FocusScope.of(context).requestFocus(); // Show keyboard
   }
 
-  void _deletePost() async {
-    final useCase = ref.read(deletePostUseCaseProvider);
-    final result = await useCase.call(postId: widget.post.id);
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(failure.message)));
-      },
-      (_) {
-        ref
-            .read(communityControllerProvider.notifier)
-            .setFilter('All Posts'); // refresh feed
-        Navigator.pop(context);
-      },
+  void _deletePost() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Post'),
+        content: const Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // close dialog
+              Navigator.pop(context); // close screen
+              try {
+                await ref
+                    .read(communityControllerProvider.notifier)
+                    .deletePost(widget.post.id);
+              } catch (e) {
+                // error handled
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
-  void _showPostOptions() {
-    showModalBottomSheet(
+  void _editPost() {
+    final titleController = TextEditingController(text: widget.post.title);
+    final contentController = TextEditingController(text: widget.post.content);
+
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => SafeArea(
-        child: Column(
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Post'),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Handle edit
-              },
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _deletePost();
-              },
+            const SizedBox(height: 16),
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(labelText: 'Content'),
+              maxLines: 4,
             ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newTitle = titleController.text.trim();
+              final newContent = contentController.text.trim();
+              if (newTitle.isNotEmpty && newContent.isNotEmpty) {
+                Navigator.pop(context);
+                try {
+                  await ref
+                      .read(communityControllerProvider.notifier)
+                      .editPost(widget.post.id, newTitle, newContent);
+                } catch (e) {
+                  // error handled
+                }
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,50 +176,55 @@ class _CommunityPostDetailScreenState
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _buildPostHeader(),
-                ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 8,
-                    color: Colors.grey.shade100,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(postDetailControllerProvider(widget.post.id));
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: _buildPostHeader(),
                   ),
-                ),
-                state.maybeWhen(
-                  data: (data) {
-                    if (data.data.isEmpty) {
-                      return const SliverFillRemaining(
-                        child: Center(child: Text('No comments yet')),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 8,
+                      color: Colors.grey.shade100,
+                    ),
+                  ),
+                  state.maybeWhen(
+                    data: (data) {
+                      if (data.data.isEmpty) {
+                        return const SliverFillRemaining(
+                          child: Center(child: Text('No comments yet')),
+                        );
+                      }
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final comment = data.data[index];
+                            return _buildCommentThread(comment);
+                          },
+                          childCount: data.data.length,
+                        ),
                       );
-                    }
-                    return SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final comment = data.data[index];
-                          return _buildCommentThread(comment);
-                        },
-                        childCount: data.data.length,
-                      ),
-                    );
-                  },
-                  loading: () => const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
+                    },
+                    loading: () => const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (msg) => SliverFillRemaining(
+                      child: Center(child: Text(msg)),
+                    ),
+                    orElse: () => const SliverFillRemaining(child: SizedBox()),
                   ),
-                  error: (msg) => SliverFillRemaining(
-                    child: Center(child: Text(msg)),
-                  ),
-                  orElse: () => const SliverFillRemaining(child: SizedBox()),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           _buildCommentInput(),
@@ -176,8 +234,23 @@ class _CommunityPostDetailScreenState
   }
 
   Widget _buildPostHeader() {
+    final postsState = ref.watch(communityControllerProvider);
+    final CommunityPost currentPost = postsState.maybeWhen(
+      data: (data) => data.data
+          .firstWhere((p) => p.id == widget.post.id, orElse: () => widget.post),
+      orElse: () => widget.post,
+    );
+
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.maybeWhen(
+      authenticated: (user) => user.id,
+      orElse: () => null,
+    );
+
+    final isMyPost = currentPost.userId == currentUserId;
+
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -187,11 +260,11 @@ class _CommunityPostDetailScreenState
               CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey.shade100,
-                backgroundImage: widget.post.user.avatarUrl != null
-                    ? NetworkImage(widget.post.user.avatarUrl!)
+                backgroundImage: currentPost.user.avatarUrl != null
+                    ? NetworkImage(currentPost.user.avatarUrl!)
                     : null,
-                child: widget.post.user.avatarUrl == null
-                    ? Icon(Icons.person_outline, color: Colors.grey.shade500)
+                child: currentPost.user.avatarUrl == null
+                    ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
                     : null,
               ),
               const SizedBox(width: 12),
@@ -200,39 +273,75 @@ class _CommunityPostDetailScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.post.user.name,
+                      currentPost.user.name,
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w500, fontSize: 15),
                     ),
                     Text(
-                      DateFormat('M/d/yyyy').format(widget.post.createdAt),
+                      _formatDate(currentPost.createdAt),
                       style: GoogleFonts.inter(
                           fontSize: 12, color: Colors.grey.shade500),
                     ),
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz),
-                onPressed: _showPostOptions,
-              ),
+              if (isMyPost)
+                PopupMenuButton<String>(
+                  icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _editPost();
+                    } else if (value == 'delete') {
+                      _deletePost();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: const [
+                          PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 20),
+                          SizedBox(width: 12),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: const [
+                          PhosphorIcon(PhosphorIconsRegular.trash, size: 20, color: Colors.red),
+                          SizedBox(width: 12),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else
+                IconButton(
+                  icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.transparent),
+                  onPressed: null,
+                ),
             ],
           ),
           const SizedBox(height: 16),
 
           Text(
-            widget.post.title,
+            currentPost.title,
             style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            widget.post.content,
+            currentPost.content,
             style: GoogleFonts.inter(fontSize: 16, height: 1.5),
           ),
 
-          if (widget.post.images.isNotEmpty) ...[
+          if (currentPost.images.isNotEmpty) ...[
             const SizedBox(height: 16),
-            ...widget.post.images
+            ...currentPost.images
                 .map((url) => Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: ClipRRect(
@@ -244,11 +353,11 @@ class _CommunityPostDetailScreenState
                 .toList(),
           ],
 
-          if (widget.post.tags.isNotEmpty) ...[
+          if (currentPost.tags.isNotEmpty) ...[
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
-              children: widget.post.tags
+              children: currentPost.tags
                   .map((t) => Text(
                         '#${t.tag}',
                         style: GoogleFonts.inter(
@@ -260,39 +369,45 @@ class _CommunityPostDetailScreenState
           ],
 
           const SizedBox(height: 16),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
+          // const Divider(height: 1),
+          // const SizedBox(height: 12),
 
           Wrap(
             spacing: 16,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    widget.post.isLikedByUser
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    size: 20,
-                    color: widget.post.isLikedByUser
-                        ? Colors.red
-                        : Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 6),
-                  Text('${widget.post.likesCount}'),
-                ],
+              GestureDetector(
+                onTap: () {
+                  ref
+                      .read(communityControllerProvider.notifier)
+                      .toggleLike(currentPost.id, currentPost.isLikedByUser);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PhosphorIcon(
+                      currentPost.isLikedByUser
+                          ? PhosphorIconsFill.heart
+                          : PhosphorIconsRegular.heart,
+                      size: 20,
+                      color: currentPost.isLikedByUser
+                          ? Colors.red
+                          : Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 6),
+                    Text('${currentPost.likesCount}'),
+                  ],
+                ),
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.chat_bubble_outline,
+                  PhosphorIcon(PhosphorIconsRegular.chatCircle,
                       size: 20, color: Colors.grey.shade600),
                   const SizedBox(width: 6),
-                  Text('${widget.post.commentsCount}'),
+                  Text('${currentPost.commentsCount}'),
                 ],
               ),
-              Icon(Icons.share_outlined, size: 20, color: Colors.grey.shade600),
             ],
           ),
         ],
@@ -314,7 +429,6 @@ class _CommunityPostDetailScreenState
                   .toList(),
             ),
           ),
-        const Divider(height: 1),
       ],
     );
   }
@@ -322,123 +436,157 @@ class _CommunityPostDetailScreenState
   Widget _buildCommentItem(CommunityComment comment, {required bool isReply}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 0 : 16, 16, 16, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.grey.shade100,
-            backgroundImage: comment.user.avatarUrl != null
-                ? NetworkImage(comment.user.avatarUrl!)
-                : null,
-            child: comment.user.avatarUrl == null
-                ? Icon(Icons.person_outline,
-                    size: 16, color: Colors.grey.shade500)
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      comment.user.name,
-                      style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600, fontSize: 13),
-                    ),
-                    if (isReply && comment.replyToUser != null) ...[
-                      Text(' replied to ',
-                          style: GoogleFonts.inter(
-                              fontSize: 13, color: Colors.grey.shade600)),
-                      Flexible(
-                        child: Text(
-                          '@${comment.replyToUser!.name}',
-                          style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                              color: const Color(0xFF166534)),
-                          overflow: TextOverflow.ellipsis,
+      child: Opacity(
+        opacity: comment.isPending ? 0.5 : 1.0,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.grey.shade100,
+              backgroundImage: comment.user.avatarUrl != null
+                  ? NetworkImage(comment.user.avatarUrl!)
+                  : null,
+              child: comment.user.avatarUrl == null
+                  ? PhosphorIcon(PhosphorIconsRegular.user,
+                      size: 16, color: Colors.grey.shade500)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        comment.user.name,
+                        style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600, fontSize: 13),
+                      ),
+                      if (isReply && comment.replyToUser != null) ...[
+                        Text(' replied to ',
+                            style: GoogleFonts.inter(
+                                fontSize: 13, color: Colors.grey.shade600)),
+                        Flexible(
+                          child: Text(
+                            '@${comment.replyToUser!.name}',
+                            style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                color: const Color(0xFF166534)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                      ],
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatDate(comment.createdAt),
+                        style: GoogleFonts.inter(
+                            fontSize: 12, color: Colors.grey.shade500),
                       ),
                     ],
-                    const SizedBox(width: 8),
-                    Text(
-                      DateFormat('M/d/yyyy').format(comment.createdAt),
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: Colors.grey.shade500),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  comment.content,
-                  style: GoogleFonts.inter(fontSize: 14, height: 1.4),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        ref
-                            .read(postDetailControllerProvider(widget.post.id)
-                                .notifier)
-                            .toggleCommentLike(
-                                comment.id, comment.isLikedByUser);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            comment.isLikedByUser
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 16,
-                            color: comment.isLikedByUser
-                                ? Colors.red
-                                : Colors.grey.shade500,
-                          ),
-                          if (comment.likesCount > 0) ...[
-                            const SizedBox(width: 4),
-                            Text(
-                              '${comment.likesCount}',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: comment.isLikedByUser
-                                    ? Colors.red
-                                    : Colors.grey.shade600,
-                              ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    comment.content,
+                    style: GoogleFonts.inter(fontSize: 14, height: 1.4),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          ref
+                              .read(postDetailControllerProvider(widget.post.id)
+                                  .notifier)
+                              .toggleCommentLike(
+                                  comment.id, comment.isLikedByUser);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PhosphorIcon(
+                              comment.isLikedByUser
+                                  ? PhosphorIconsFill.heart
+                                  : PhosphorIconsRegular.heart,
+                              size: 16,
+                              color: comment.isLikedByUser
+                                  ? Colors.red
+                                  : Colors.grey.shade500,
                             ),
+                            if (comment.likesCount > 0) ...[
+                              const SizedBox(width: 4),
+                              Text(
+                                '${comment.likesCount}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: comment.isLikedByUser
+                                      ? Colors.red
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _setReplyContext(comment),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.reply,
-                              size: 16, color: Colors.grey.shade500),
-                          const SizedBox(width: 4),
-                          Text('Reply',
-                              style: GoogleFonts.inter(
-                                  fontSize: 13, color: Colors.grey.shade600)),
-                        ],
+                      GestureDetector(
+                        onTap: () => _setReplyContext(comment),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PhosphorIcon(PhosphorIconsRegular.arrowUUpLeft,
+                                size: 16, color: Colors.grey.shade500),
+                            const SizedBox(width: 4),
+                            Text('Reply',
+                                style: GoogleFonts.inter(
+                                    fontSize: 13, color: Colors.grey.shade600)),
+                          ],
+                        ),
                       ),
-                    ),
-                    Icon(Icons.delete_outline,
-                        size: 16, color: Colors.grey.shade500),
-                  ],
-                ),
-              ],
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Comment'),
+                              content: const Text(
+                                  'Are you sure you want to delete this comment?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel',
+                                      style: TextStyle(color: Colors.black87)),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    ref
+                                        .read(postDetailControllerProvider(
+                                                widget.post.id)
+                                            .notifier)
+                                        .deleteComment(comment.id);
+                                  },
+                                  child: const Text('Delete',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: PhosphorIcon(PhosphorIconsRegular.trash,
+                            size: 16, color: Colors.grey.shade500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -478,7 +626,7 @@ class _CommunityPostDetailScreenState
                         _replyToCommentId = null;
                       });
                     },
-                    child: Icon(Icons.close,
+                    child: PhosphorIcon(PhosphorIconsRegular.x,
                         size: 16, color: Colors.grey.shade500),
                   ),
                 ],
@@ -501,13 +649,21 @@ class _CommunityPostDetailScreenState
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   onSubmitted: (_) => _submitComment(),
                 ),
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.send_rounded, color: Color(0xFF166534)),
+                icon: const PhosphorIcon(PhosphorIconsFill.paperPlaneRight, color: Color(0xFF166534)),
                 onPressed: _submitComment,
               ),
             ],

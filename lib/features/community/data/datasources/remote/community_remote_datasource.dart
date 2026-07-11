@@ -49,6 +49,10 @@ abstract class CommunityRemoteDataSource {
   });
 
   Future<void> likeComment(String commentId);
+
+  Future<void> unlikeComment(String commentId);
+
+  Future<void> deleteComment(String commentId);
 }
 
 class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
@@ -306,6 +310,34 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       final response = await dio.post('/community/comments/$commentId/like');
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw ServerException('Failed to like comment', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> unlikeComment(String commentId) async {
+    try {
+      final response = await dio.delete('/community/comments/$commentId/like');
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to unlike comment', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteComment(String commentId) async {
+    try {
+      final response = await dio.delete('/community/comments/$commentId');
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to delete comment', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

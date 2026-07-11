@@ -252,4 +252,36 @@ class CommunityRepositoryImpl implements CommunityRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, void>> unlikeComment(String commentId) async {
+    try {
+      await remoteDataSource.unlikeComment(commentId);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(ServerFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteComment(String commentId) async {
+    try {
+      await remoteDataSource.deleteComment(commentId);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(ServerFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
 }

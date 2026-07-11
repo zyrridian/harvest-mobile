@@ -30,10 +30,24 @@ class CommunityController extends _$CommunityController {
     return const CommunityState.loading();
   }
 
+  String _mapFilterToApi(String uiFilter) {
+    switch (uiFilter) {
+      case 'Farmer Updates':
+        return 'farmers';
+      case 'Following':
+        return 'following';
+      case 'My Posts':
+        return 'my_posts';
+      case 'All Posts':
+      default:
+        return 'all';
+    }
+  }
+
   Future<void> _fetchPosts({int page = 1}) async {
     state = const CommunityState.loading();
     
-    if (_currentFilter == 'recipes') {
+    if (_currentFilter == 'Kitchen Recipes' || _currentFilter == 'recipes') {
       state = const CommunityState.data(PaginatedResponse<CommunityPost>(
         data: [],
         pagination: Pagination(
@@ -45,11 +59,13 @@ class CommunityController extends _$CommunityController {
       return;
     }
 
+    final apiFilter = _mapFilterToApi(_currentFilter);
+
     final useCase = ref.read(getCommunityPostsUseCaseProvider);
     final result = await useCase.call(
       page: page,
       limit: 10,
-      filter: _currentFilter,
+      filter: apiFilter,
       tag: _currentTag,
     );
 
@@ -101,18 +117,45 @@ class CommunityController extends _$CommunityController {
   }
 
   Future<void> toggleLike(String postId, bool isCurrentlyLiked) async {
+    // 1. Optimistically update state
+    state.maybeWhen(
+      data: (data) {
+        final updatedPosts = data.data.map((post) {
+          if (post.id == postId) {
+            return CommunityPost(
+              id: post.id,
+              userId: post.userId,
+              farmerId: post.farmerId,
+              title: post.title,
+              content: post.content,
+              likesCount: isCurrentlyLiked ? post.likesCount - 1 : post.likesCount + 1,
+              commentsCount: post.commentsCount,
+              createdAt: post.createdAt,
+              updatedAt: post.updatedAt,
+              user: post.user,
+              farmer: post.farmer,
+              images: post.images,
+              tags: post.tags,
+              isLikedByUser: !isCurrentlyLiked,
+            );
+          }
+          return post;
+        }).toList();
+        state = CommunityState.data(data.copyWith(data: updatedPosts));
+      },
+      orElse: () {},
+    );
+
+    // 2. Make API call
     final useCase = ref.read(togglePostLikeUseCaseProvider);
     final result = await useCase.call(postId: postId, isCurrentlyLiked: isCurrentlyLiked);
 
+    // 3. Revert if failed
     result.fold(
       (failure) {
-        // Handle error, maybe show snackbar (would need to expose error differently or let UI handle it)
-      },
-      (_) {
-        // Optimistically update state
         state.maybeWhen(
           data: (data) {
-            final updatedPosts = data.data.map((post) {
+            final revertedPosts = data.data.map((post) {
               if (post.id == postId) {
                 return CommunityPost(
                   id: post.id,
@@ -120,7 +163,7 @@ class CommunityController extends _$CommunityController {
                   farmerId: post.farmerId,
                   title: post.title,
                   content: post.content,
-                  likesCount: isCurrentlyLiked ? post.likesCount - 1 : post.likesCount + 1,
+                  likesCount: isCurrentlyLiked ? post.likesCount + 1 : post.likesCount - 1,
                   commentsCount: post.commentsCount,
                   createdAt: post.createdAt,
                   updatedAt: post.updatedAt,
@@ -128,17 +171,109 @@ class CommunityController extends _$CommunityController {
                   farmer: post.farmer,
                   images: post.images,
                   tags: post.tags,
-                  isLikedByUser: !isCurrentlyLiked,
+                  isLikedByUser: isCurrentlyLiked,
                 );
               }
               return post;
             }).toList();
-            
+            state = CommunityState.data(data.copyWith(data: revertedPosts));
+          },
+          orElse: () {},
+        );
+      },
+      (_) {},
+    );
+  }
+
+  Future<void> editPost(String postId, String title, String content) async {
+    // 1. Optimistic edit
+    List<CommunityPost> oldPosts = [];
+    state.maybeWhen(
+      data: (data) {
+        oldPosts = data.data;
+        final updatedPosts = data.data.map((post) {
+          if (post.id == postId) {
+            return CommunityPost(
+              id: post.id,
+              userId: post.userId,
+              farmerId: post.farmerId,
+              title: title,
+              content: content,
+              likesCount: post.likesCount,
+              commentsCount: post.commentsCount,
+              createdAt: post.createdAt,
+              updatedAt: DateTime.now(),
+              user: post.user,
+              farmer: post.farmer,
+              images: post.images,
+              tags: post.tags,
+              isLikedByUser: post.isLikedByUser,
+            );
+          }
+          return post;
+        }).toList();
+        state = CommunityState.data(data.copyWith(data: updatedPosts));
+      },
+      orElse: () {},
+    );
+
+    // 2. Make API call
+    final useCase = ref.read(editPostUseCaseProvider);
+    final result = await useCase.call(postId: postId, title: title, content: content);
+
+    // 3. Revert if failed
+    result.fold(
+      (failure) {
+        state.maybeWhen(
+          data: (data) {
+            state = CommunityState.data(data.copyWith(data: oldPosts));
+          },
+          orElse: () {},
+        );
+        throw failure;
+      },
+      (editedPost) {
+        state.maybeWhen(
+          data: (data) {
+            final updatedPosts = data.data.map((post) {
+              return post.id == postId ? editedPost : post;
+            }).toList();
             state = CommunityState.data(data.copyWith(data: updatedPosts));
           },
           orElse: () {},
         );
       },
+    );
+  }
+
+  Future<void> deletePost(String postId) async {
+    // 1. Optimistic delete
+    List<CommunityPost> oldPosts = [];
+    state.maybeWhen(
+      data: (data) {
+        oldPosts = data.data;
+        final updatedPosts = data.data.where((p) => p.id != postId).toList();
+        state = CommunityState.data(data.copyWith(data: updatedPosts));
+      },
+      orElse: () {},
+    );
+
+    // 2. Make API call
+    final useCase = ref.read(deletePostUseCaseProvider);
+    final result = await useCase.call(postId: postId);
+
+    // 3. Revert if failed
+    result.fold(
+      (failure) {
+        state.maybeWhen(
+          data: (data) {
+            state = CommunityState.data(data.copyWith(data: oldPosts));
+          },
+          orElse: () {},
+        );
+        throw failure;
+      },
+      (_) {},
     );
   }
 }

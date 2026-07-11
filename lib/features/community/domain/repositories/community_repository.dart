@@ -48,4 +48,8 @@ abstract class CommunityRepository {
   });
 
   Future<Either<Failure, void>> likeComment(String commentId);
+
+  Future<Either<Failure, void>> unlikeComment(String commentId);
+
+  Future<Either<Failure, void>> deleteComment(String commentId);
 }

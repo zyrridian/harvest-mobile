@@ -145,7 +145,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF86A789),
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      minimumSize: const Size(72, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                     child: const Text('Post', style: TextStyle(color: Colors.white)),
                   ),
