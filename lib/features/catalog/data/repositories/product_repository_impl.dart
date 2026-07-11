@@ -20,9 +20,29 @@ class ProductRepositoryImpl implements ProductRepository {
   });
 
   @override
-  Future<Either<Failure, ProductListResponse>> getProducts() async {
+  Future<Either<Failure, ProductListResponse>> getProducts({
+    int? page,
+    int? limit,
+    String? category,
+    String? sellerId,
+    bool? isOrganic,
+    double? minPrice,
+    double? maxPrice,
+    String? sortBy,
+    String? order,
+  }) async {
     try {
-      final remoteProducts = await remoteDataSource.getProducts();
+      final remoteProducts = await remoteDataSource.getProducts(
+        page: page,
+        limit: limit,
+        category: category,
+        sellerId: sellerId,
+        isOrganic: isOrganic,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        sortBy: sortBy,
+        order: order,
+      );
       await localDataSource.cacheProducts(remoteProducts);
       return Right(remoteProducts.toEntity());
     } on ServerException catch (e) {

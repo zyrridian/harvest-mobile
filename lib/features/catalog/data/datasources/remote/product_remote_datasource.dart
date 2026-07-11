@@ -8,7 +8,17 @@ import 'package:harvest_app/features/catalog/data/models/product/favorite_produc
 import 'package:harvest_app/features/catalog/data/models/product/product_list_response_model.dart';
 
 abstract class ProductRemoteDataSource {
-  Future<ProductListResponseModel> getProducts();
+  Future<ProductListResponseModel> getProducts({
+    int? page,
+    int? limit,
+    String? category,
+    String? sellerId,
+    bool? isOrganic,
+    double? minPrice,
+    double? maxPrice,
+    String? sortBy,
+    String? order,
+  });
   Future<ProductDetailModel> getProductDetail(String slug);
   Future<FavoriteStatusModel> checkFavoriteStatus(String slug);
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
@@ -30,9 +40,30 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   ProductRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<ProductListResponseModel> getProducts() async {
+  Future<ProductListResponseModel> getProducts({
+    int? page,
+    int? limit,
+    String? category,
+    String? sellerId,
+    bool? isOrganic,
+    double? minPrice,
+    double? maxPrice,
+    String? sortBy,
+    String? order,
+  }) async {
     try {
-      final response = await dio.get('/catalog/products');
+      final Map<String, dynamic> queryParameters = {};
+      if (page != null) queryParameters['page'] = page;
+      if (limit != null) queryParameters['limit'] = limit;
+      if (category != null) queryParameters['category'] = category;
+      if (sellerId != null) queryParameters['seller_id'] = sellerId;
+      if (isOrganic != null) queryParameters['is_organic'] = isOrganic;
+      if (minPrice != null) queryParameters['min_price'] = minPrice;
+      if (maxPrice != null) queryParameters['max_price'] = maxPrice;
+      if (sortBy != null) queryParameters['sort_by'] = sortBy;
+      if (order != null) queryParameters['order'] = order;
+
+      final response = await dio.get('/catalog/products', queryParameters: queryParameters);
       if (response.statusCode == 200 && response.data['status'] == 'success') {
         return ProductListResponseModel.fromJson(response.data['data']);
       } else {

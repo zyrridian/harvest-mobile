@@ -9,7 +9,17 @@ import 'package:harvest_app/features/catalog/domain/entities/favorite_product.da
 
 abstract class ProductRepository {
   /// Product
-  Future<Either<Failure, ProductListResponse>> getProducts();
+  Future<Either<Failure, ProductListResponse>> getProducts({
+    int? page,
+    int? limit,
+    String? category,
+    String? sellerId,
+    bool? isOrganic,
+    double? minPrice,
+    double? maxPrice,
+    String? sortBy,
+    String? order,
+  });
   Future<Either<Failure, ProductDetail>> getProductDetail(String slug);
 
   /// Product Favorite

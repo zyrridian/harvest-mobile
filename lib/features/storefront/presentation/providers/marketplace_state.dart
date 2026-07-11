@@ -3,26 +3,72 @@ import 'package:harvest_app/domain/entities/marketplace.dart';
 
 part 'marketplace_state.freezed.dart';
 
+class ProductFilterParams {
+  final String? categoryId;
+  final double? minPrice;
+  final double? maxPrice;
+  final bool? isOrganic;
+  final String? sortBy;
+  final String? order;
+
+  const ProductFilterParams({
+    this.categoryId,
+    this.minPrice,
+    this.maxPrice,
+    this.isOrganic,
+    this.sortBy,
+    this.order,
+  });
+
+  ProductFilterParams copyWith({
+    String? categoryId,
+    double? minPrice,
+    double? maxPrice,
+    bool? isOrganic,
+    String? sortBy,
+    String? order,
+  }) {
+    return ProductFilterParams(
+      categoryId: categoryId ?? this.categoryId,
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      isOrganic: isOrganic ?? this.isOrganic,
+      sortBy: sortBy ?? this.sortBy,
+      order: order ?? this.order,
+    );
+  }
+
+  bool get isEmpty =>
+      categoryId == null &&
+      minPrice == null &&
+      maxPrice == null &&
+      isOrganic == null &&
+      sortBy == null &&
+      order == null;
+}
+
 class MarketplaceData {
   final FlashHarvest? flashHarvest;
   final List<MarketplaceCategory> categories;
   final List<MarketplaceProduct> products;
-  final String selectedFilter;
+  final ProductFilterParams filterParams;
   final int cartItemCount;
   final double cartTotal;
+  final bool isRefetching;
 
   MarketplaceData({
     this.flashHarvest,
     required this.categories,
     required this.products,
-    this.selectedFilter = 'All',
+    this.filterParams = const ProductFilterParams(),
     this.cartItemCount = 0,
     this.cartTotal = 0.0,
+    this.isRefetching = false,
   });
 
   factory MarketplaceData.fromResponseEntity(
     MarketplaceResponseEntity entity, {
-    String selectedFilter = 'All',
+    ProductFilterParams filterParams = const ProductFilterParams(),
     int cartItemCount = 0,
     double cartTotal = 0.0,
   }) {
@@ -30,7 +76,7 @@ class MarketplaceData {
       flashHarvest: entity.flashHarvest,
       categories: entity.categories,
       products: entity.products,
-      selectedFilter: selectedFilter,
+      filterParams: filterParams,
       cartItemCount: cartItemCount,
       cartTotal: cartTotal,
     );
@@ -40,17 +86,19 @@ class MarketplaceData {
     FlashHarvest? flashHarvest,
     List<MarketplaceCategory>? categories,
     List<MarketplaceProduct>? products,
-    String? selectedFilter,
+    ProductFilterParams? filterParams,
     int? cartItemCount,
     double? cartTotal,
+    bool? isRefetching,
   }) {
     return MarketplaceData(
       flashHarvest: flashHarvest ?? this.flashHarvest,
       categories: categories ?? this.categories,
       products: products ?? this.products,
-      selectedFilter: selectedFilter ?? this.selectedFilter,
+      filterParams: filterParams ?? this.filterParams,
       cartItemCount: cartItemCount ?? this.cartItemCount,
       cartTotal: cartTotal ?? this.cartTotal,
+      isRefetching: isRefetching ?? this.isRefetching,
     );
   }
 }

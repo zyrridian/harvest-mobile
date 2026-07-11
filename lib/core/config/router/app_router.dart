@@ -34,6 +34,8 @@ import '../../../features/sales/presentation/screens/orders/order_detail_screen.
 import '../../../features/sales/presentation/screens/orders/order_success_screen.dart';
 import '../../../features/community/presentation/screens/chat_screen.dart';
 import '../../../features/storefront/presentation/screens/marketplace_screen.dart';
+import '../../../features/storefront/presentation/screens/category_products_screen.dart';
+import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
 import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
 import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
@@ -234,6 +236,15 @@ class AppRouter {
         path: products,
         name: 'products',
         builder: (context, state) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: '/category/:id',
+        name: 'categoryProducts',
+        builder: (context, state) {
+          final category = state.extra as MarketplaceCategory?;
+          final categoryId = state.pathParameters['id'] ?? '';
+          return CategoryProductsScreen(categoryId: categoryId, category: category);
+        },
       ),
       GoRoute(
         path: preorder,

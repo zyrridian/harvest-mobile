@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/features/sales/domain/entities/cart.dart';
@@ -12,6 +11,7 @@ import 'package:harvest_app/features/storefront/data/datasources/local/marketpla
 import 'package:harvest_app/features/storefront/data/datasources/remote/marketplace_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/get_products_usecase.dart';
 import 'package:harvest_app/features/sales/domain/usecases/cart/add_to_cart_usecase.dart';
 import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
@@ -63,22 +63,74 @@ final removeFavoriteUseCaseProvider = Provider<RemoveFavoriteUseCase>((ref) {
   return RemoveFavoriteUseCase(ref.watch(productRepositoryProvider));
 });
 
+final getProductsUseCaseProvider = Provider<GetProductsUseCase>((ref) {
+  return GetProductsUseCase(ref.watch(productRepositoryProvider));
+});
+
 @riverpod
 class MarketplaceController extends _$MarketplaceController {
   @override
   MarketplaceState build() {
-    _fetchData();
+    Future.microtask(() => _fetchData());
     return const MarketplaceState.loading();
   }
 
-  Future<void> _fetchData({String? filter, String? search}) async {
-    state = const MarketplaceState.loading();
+  Future<void> _fetchData({ProductFilterParams? filterParams}) async {
+    MarketplaceData? currentData;
+    state.maybeWhen(
+      data: (data) {
+        currentData = data;
+        state = MarketplaceState.data(data.copyWith(isRefetching: true));
+      },
+      orElse: () {
+        state = const MarketplaceState.loading();
+      },
+    );
+
+    // If we already have dashboard data and the filter is not entirely empty
+    if (currentData != null && filterParams != null && !filterParams.isEmpty) {
+      final getProducts = ref.read(getProductsUseCaseProvider);
+      final productsResult = await getProducts(
+        category: filterParams.categoryId,
+        minPrice: filterParams.minPrice,
+        maxPrice: filterParams.maxPrice,
+        isOrganic: filterParams.isOrganic,
+        sortBy: filterParams.sortBy,
+        order: filterParams.order,
+      );
+
+      productsResult.fold(
+        (failure) {
+          state = MarketplaceState.error(failure.message);
+        },
+        (productList) {
+          final mappedProducts = productList.products.map((p) => MarketplaceProduct(
+                id: p.id,
+                name: p.name,
+                farmerName: p.farmer.name,
+                price: p.price,
+                unit: p.unit,
+                imageUrl: p.imageUrl,
+                rating: p.rating,
+                soldCount: p.reviewCount,
+                isFresh: p.isHarvest,
+              )).toList();
+          
+          state = MarketplaceState.data(currentData!.copyWith(
+            products: mappedProducts,
+            filterParams: filterParams,
+            isRefetching: false,
+          ));
+        },
+      );
+      return;
+    }
 
     final usecase = ref.read(getMarketplaceDataUseCaseProvider);
     
     // Fetch both marketplace data and cart data concurrently
     final results = await Future.wait([
-      usecase.call(filter: filter, search: search),
+      usecase.call(filter: filterParams?.sortBy, search: null),
       ref.read(getCartUsecaseProvider).call(),
     ]);
 
@@ -103,7 +155,7 @@ class MarketplaceController extends _$MarketplaceController {
       (entity) {
         state = MarketplaceState.data(MarketplaceData.fromResponseEntity(
           entity,
-          selectedFilter: filter ?? 'All',
+          filterParams: filterParams ?? const ProductFilterParams(),
           cartItemCount: cartItemCount,
           cartTotal: cartTotal,
         ));
@@ -111,27 +163,13 @@ class MarketplaceController extends _$MarketplaceController {
     );
   }
 
-  void selectFilter(String filter) {
-    state.maybeWhen(
-      data: (data) {
-        // Update UI state immediately
-        state = MarketplaceState.data(data.copyWith(selectedFilter: filter));
-        // Optionally fetch new data based on filter:
-        _fetchData(filter: filter);
-      },
-      orElse: () {},
-    );
+  void selectFilter(ProductFilterParams filterParams) {
+    _fetchData(filterParams: filterParams);
   }
 
   void searchProducts(String query) {
-    state.maybeWhen(
-      data: (data) {
-        _fetchData(filter: data.selectedFilter, search: query);
-      },
-      orElse: () {
-        _fetchData(search: query);
-      },
-    );
+    // For search, we might need to reset or keep filters. For now, clear them:
+    _fetchData(filterParams: const ProductFilterParams());
   }
 
   Future<void> addToCart(MarketplaceProduct product) async {

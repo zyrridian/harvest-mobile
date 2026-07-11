@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_state.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/presentation/widgets/marketplace_filter_sheet.dart';
+import 'package:harvest_app/presentation/shared_widgets/marketplace_product_card.dart';
+import 'package:harvest_app/presentation/shared_widgets/app_search_bar.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,7 +25,8 @@ Widget _buildImage(String imageUrl,
         fit: fit,
       );
     } catch (e) {
-      return Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48);
+      return PhosphorIcon(PhosphorIconsRegular.imageBroken,
+          color: Colors.grey, size: width ?? 48);
     }
   } else if (imageUrl.startsWith('http')) {
     return CachedNetworkImage(
@@ -34,11 +39,14 @@ Widget _buildImage(String imageUrl,
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2))),
-      errorWidget: (context, url, error) =>
-          Icon(Icons.broken_image, color: Colors.grey, size: width ?? 48),
+      errorWidget: (context, url, error) => PhosphorIcon(
+          PhosphorIconsRegular.imageBroken,
+          color: Colors.grey,
+          size: width ?? 48),
     );
   } else {
-    return Icon(Icons.image, color: Colors.grey, size: width ?? 48);
+    return PhosphorIcon(PhosphorIconsRegular.image,
+        color: Colors.grey, size: width ?? 48);
   }
 }
 
@@ -66,33 +74,25 @@ class MarketplaceScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: const Icon(Icons.chevron_left, color: kDarkGreen),
-          ),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
             }
           },
         ),
-        title: Text(
-          'Marketplace',
-          style: GoogleFonts.inter(
-            color: kDarkGreen,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
+        titleSpacing: 0,
+        title: AppSearchBar(
+          hintText: 'Search produce...',
+          onSubmitted: (value) => ref
+              .read(marketplaceControllerProvider.notifier)
+              .searchProducts(value),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(left: 12.0, right: 20.0),
             child: GestureDetector(
               onTap: () => context.push('/cart'),
               child: Stack(
@@ -104,9 +104,8 @@ class MarketplaceScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey[200]!),
                     ),
-                    child: const Icon(Icons.shopping_bag_outlined,
+                    child: const PhosphorIcon(PhosphorIconsRegular.shoppingBag,
                         color: kDarkGreen),
                   ),
                   if (cartItemCount > 0)
@@ -122,7 +121,7 @@ class MarketplaceScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           cartItemCount.toString(),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -139,8 +138,7 @@ class MarketplaceScreen extends ConsumerWidget {
       ),
       body: state.when(
         initial: () => const SizedBox(),
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () => _buildFullShimmer(),
         error: (err) => Center(child: Text('Error: $err')),
         data: (data) {
           return RefreshIndicator(
@@ -152,89 +150,8 @@ class MarketplaceScreen extends ConsumerWidget {
               children: [
                 CustomScrollView(
                   slivers: [
-                    // Search Bar
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8),
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey[200]!),
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 16),
-                              const Icon(Icons.search, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Search produce, farmers...',
-                                    hintStyle: GoogleFonts.inter(
-                                        color: Colors.grey, fontSize: 14),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                  ),
-                                  style: GoogleFonts.inter(
-                                      color: Colors.black87, fontSize: 14),
-                                  onSubmitted: (value) {
-                                    ref
-                                        .read(marketplaceControllerProvider
-                                            .notifier)
-                                        .searchProducts(value);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                      left:
-                                          BorderSide(color: Colors.grey[200]!)),
-                                ),
-                                child:
-                                    const Icon(Icons.tune, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 8)),
-                    // Filter Chips
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 40,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          children: [
-                            _buildFilterChip('All',
-                                isSelected: data.selectedFilter == 'All',
-                                ref: ref),
-                            const SizedBox(width: 8),
-                            _buildFilterChip('Nearest',
-                                isSelected: data.selectedFilter == 'Nearest',
-                                ref: ref),
-                            const SizedBox(width: 8),
-                            _buildFilterChip('Best Rated',
-                                isSelected: data.selectedFilter == 'Best Rated',
-                                ref: ref),
-                            const SizedBox(width: 8),
-                            _buildFilterChip('Harvest Today',
-                                isSelected:
-                                    data.selectedFilter == 'Harvest Today',
-                                ref: ref),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    // Search moved to AppBar
+
                     // Flash Harvest Banner
                     if (data.flashHarvest != null)
                       SliverToBoxAdapter(
@@ -254,7 +171,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       'FLASH HARVEST',
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                         color: const Color(0xFF8CD867),
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
@@ -264,7 +181,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                     const SizedBox(height: 8),
                                     Text(
                                       data.flashHarvest!.title,
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -273,7 +190,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                     const SizedBox(height: 4),
                                     Text(
                                       '${data.flashHarvest!.subtitle} · ${data.flashHarvest!.distance}',
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 12,
                                       ),
@@ -288,7 +205,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                       ),
                                       child: Text(
                                         'Order now',
-                                        style: GoogleFonts.inter(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 12,
@@ -325,7 +242,7 @@ class MarketplaceScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'SHOP BY CATEGORY',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -341,7 +258,8 @@ class MarketplaceScreen extends ConsumerWidget {
                                     .map((cat) => Padding(
                                           padding: const EdgeInsets.only(
                                               right: 16.0),
-                                          child: _buildCategoryItem(cat),
+                                          child: _buildCategoryItem(
+                                              cat, context, ref),
                                         ))
                                     .toList(),
                               ),
@@ -361,8 +279,8 @@ class MarketplaceScreen extends ConsumerWidget {
                             Row(
                               children: [
                                 Text(
-                                  'Fresh Today',
-                                  style: GoogleFonts.inter(
+                                  'All Products',
+                                  style: TextStyle(
                                     color: kDarkGreen,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -370,32 +288,60 @@ class MarketplaceScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '· 48 items',
-                                  style: GoogleFonts.inter(
+                                  '· ${data.products.length} items',
+                                  style: TextStyle(
                                     color: Colors.grey[500],
                                     fontSize: 14,
                                   ),
                                 ),
                               ],
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey[300]!),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Sort by',
-                                    style: GoogleFonts.inter(
-                                        fontSize: 12, color: Colors.black87),
+                            GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom,
+                                    ),
+                                    child: MarketplaceFilterSheet(
+                                      initialParams: data.filterParams,
+                                      onApply: (params) {
+                                        ref
+                                            .read(marketplaceControllerProvider
+                                                .notifier)
+                                            .selectFilter(params);
+                                      },
+                                    ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.expand_more,
-                                      size: 16, color: Colors.black87),
-                                ],
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.grey[200]!, width: 1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      'Filter & Sort',
+                                      style: TextStyle(
+                                          fontSize: 12, color: Colors.black87),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const PhosphorIcon(
+                                        PhosphorIconsRegular.faders,
+                                        size: 16,
+                                        color: Colors.black87),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -406,23 +352,26 @@ class MarketplaceScreen extends ConsumerWidget {
                     // Products Grid
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio:
-                              0.65, // Adjust to fit content based on image
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return _buildProductCard(
-                                data.products[index], context, ref);
-                          },
-                          childCount: data.products.length,
-                        ),
-                      ),
+                      sliver: data.isRefetching
+                          ? _buildShimmerGrid()
+                          : SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio:
+                                    0.65, // Adjust to fit content based on image
+                              ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  return MarketplaceProductCard(
+                                    product: data.products[index],
+                                  );
+                                },
+                                childCount: data.products.length,
+                              ),
+                            ),
                     ),
                     const SliverToBoxAdapter(
                         child: SizedBox(
@@ -461,7 +410,7 @@ class MarketplaceScreen extends ConsumerWidget {
                               ),
                               child: Text(
                                 '${data.cartItemCount} items',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -492,7 +441,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                   .replaceAll(',00', '')
                                   .replaceFirst('Rp ', 'Rp\n'),
                               textAlign: TextAlign.right,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: const Color(
                                     0xFFD4A373), // A golden-like color based on the design
                                 fontSize: 14,
@@ -513,269 +462,154 @@ class MarketplaceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterChip(String label,
-      {bool isSelected = false, required WidgetRef ref}) {
+  Widget _buildCategoryItem(
+      MarketplaceCategory category, BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        ref.read(marketplaceControllerProvider.notifier).selectFilter(label);
+        context.push('/category/${category.id}', extra: category);
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF28482A) : Colors.white,
-          border: Border.all(
-              color: isSelected ? Colors.transparent : Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: GoogleFonts.inter(
-              color: isSelected ? Colors.white : Colors.black87,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: PhosphorIcon(
+                _getCategoryIcon(category.name),
+                size: 24,
+                color: Colors.black87,
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            category.name,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCategoryItem(MarketplaceCategory category) {
-    return Column(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Color(category.gradientColors.first).withOpacity(0.5),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              category.iconPath,
-              style: const TextStyle(fontSize: 24),
+  IconData _getCategoryIcon(String name) {
+    switch (name.toLowerCase()) {
+      case 'vegetables':
+        return PhosphorIconsRegular.leaf;
+      case 'fruits':
+        return PhosphorIconsRegular.appleLogo;
+      case 'meat':
+        return PhosphorIconsRegular.cow;
+      case 'fish':
+        return PhosphorIconsRegular.fishSimple;
+      case 'dairy':
+        return PhosphorIconsRegular.drop;
+      case 'eggs':
+        return PhosphorIconsRegular.egg;
+      case 'grains':
+        return PhosphorIconsRegular.plant;
+      default:
+        return PhosphorIconsRegular.basket;
+    }
+  }
+
+  Widget _buildFullShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[200]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          // Banner
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          category.name,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: Colors.black87,
+          const SizedBox(height: 24),
+          // Categories
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(
+                  4,
+                  (index) => Column(
+                        children: [
+                          Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                  color: Colors.white, shape: BoxShape.circle)),
+                          const SizedBox(height: 8),
+                          Container(width: 40, height: 12, color: Colors.white),
+                        ],
+                      )),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          // Products Grid
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  sliver: _buildShimmerGrid(isSliver: true),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildProductCard(
-      MarketplaceProduct product, BuildContext context, WidgetRef ref) {
-    Color bgColor = Colors.grey[100]!;
-    if (product.name.contains('Bayam')) bgColor = const Color(0xFFE8F3E8);
-    if (product.name.contains('Strawberry')) bgColor = const Color(0xFFFDE8F1);
-    if (product.name.contains('Ikan')) bgColor = const Color(0xFFE3F2FD);
-    if (product.name.contains('Wortel')) bgColor = const Color(0xFFFFF3E0);
-
-    final formatter =
-        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Viewing ${product.name}'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image / Top Area
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: bgColor,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(16)),
-                    ),
-                    child: ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(16)),
-                      child: _buildImage(
-                        product.imageUrl,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+  Widget _buildShimmerGrid({bool isSliver = true}) {
+    final grid = SliverGrid(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.65,
+      ),
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[200]!,
+            highlightColor: Colors.grey[100]!,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  if (product.isFresh)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF28482A),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'FRESH',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () {
-                        ref
-                            .read(marketplaceControllerProvider.notifier)
-                            .toggleFavorite(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(product.isFavorite
-                                ? 'Removed from favorites'
-                                : 'Added to favorites'),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: Icon(
-                          product.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 16,
-                          color:
-                              product.isFavorite ? Colors.red : Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Container(width: 100, height: 16, color: Colors.white),
+                const SizedBox(height: 4),
+                Container(width: 60, height: 14, color: Colors.white),
+                const SizedBox(height: 8),
+                Container(width: 80, height: 18, color: Colors.white),
+              ],
             ),
-            // Details Area
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 12, color: Colors.orange),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${product.rating} · ${product.soldCount} sold',
-                        style: GoogleFonts.inter(
-                            fontSize: 10, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.name,
-                    style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product.farmerName,
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: Colors.grey[500]),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: formatter
-                                    .format(product.price)
-                                    .replaceAll(',00', ''),
-                                style: GoogleFonts.inter(
-                                  color: const Color(0xFF28482A),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ' /${product.unit}',
-                                style: GoogleFonts.inter(
-                                  color: Colors.grey[500],
-                                  fontSize: 9,
-                                ),
-                              ),
-                            ],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          ref
-                              .read(marketplaceControllerProvider.notifier)
-                              .addToCart(product);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${product.name} added to cart'),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.add,
-                              size: 14, color: Colors.black87),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
+        childCount: 4,
       ),
     );
+    return isSliver ? grid : CustomScrollView(slivers: [grid]);
   }
 }
