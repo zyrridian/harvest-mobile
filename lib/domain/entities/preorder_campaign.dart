@@ -13,6 +13,12 @@ class PreorderCampaign extends Equatable {
   final bool depositRequired;
   final double depositAmount;
   final String? status;
+  final double? price;
+  final String? unit;
+  final String? description;
+  final bool? hasReserved;
+  final double? distance;
+  final String? location;
 
   const PreorderCampaign({
     required this.id,
@@ -27,6 +33,12 @@ class PreorderCampaign extends Equatable {
     required this.depositRequired,
     required this.depositAmount,
     this.status,
+    this.price,
+    this.unit,
+    this.description,
+    this.hasReserved,
+    this.distance,
+    this.location,
   });
 
   @override
@@ -43,5 +55,11 @@ class PreorderCampaign extends Equatable {
         depositRequired,
         depositAmount,
         status,
+        price,
+        unit,
+        description,
+        hasReserved,
+        distance,
+        location,
       ];
 }

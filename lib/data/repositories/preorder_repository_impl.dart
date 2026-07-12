@@ -14,21 +14,21 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
 
   PreOrderRepositoryImpl(this.remoteDataSource);
 
-  @override
-  Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({String? status}) async {
-    try {
-      final model = await remoteDataSource.getPreOrderData();
-      return Right(model.toEntity());
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
+  // @override
+  // Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({String? status}) async {
+  //   try {
+  //     final model = await remoteDataSource.getPreOrderData();
+  //     return Right(model.toEntity());
+  //   } on ServerException catch (e) {
+  //     return Left(ServerFailure(e.message, statusCode: e.statusCode));
+  //   } on NetworkException catch (e) {
+  //     return Left(NetworkFailure(e.message));
+  //   } on AuthException catch (e) {
+  //     return Left(AuthFailure(e.message));
+  //   } catch (e) {
+  //     return Left(ServerFailure(e.toString()));
+  //   }
+  // }
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> reservePreOrder({

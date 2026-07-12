@@ -73,6 +73,7 @@ class AppRouter {
   static const String preorderReservations = '/preorder-reservations'; // preorder reservations
   static const String preorderDetail = '/preorder/:slug'; // preorder detail
   static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
+  static const String nearbyFarmers = '/nearby-farmers'; // nearby farmers
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
   static const String subscriptionIntro = '/subscription-intro';
@@ -174,6 +175,11 @@ class AppRouter {
         path: harvestScheduleDetail,
         name: 'harvestScheduleDetail',
         builder: (context, state) => const HarvestScheduleDetailScreen(),
+      ),
+      GoRoute(
+        path: nearbyFarmers,
+        name: 'nearbyFarmers',
+        builder: (context, state) => const NearbyFarmerScreen(),
       ),
       GoRoute(
         path: routePlan,

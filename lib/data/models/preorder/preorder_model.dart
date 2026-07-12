@@ -128,6 +128,10 @@ class PreOrderHarvestModel {
 @JsonSerializable()
 class PreOrderReservationModel {
   final String id;
+  @JsonKey(name: 'campaign_id')
+  final String campaignId;
+  @JsonKey(name: 'product_id')
+  final String productId;
   final String title;
   @JsonKey(name: 'farmer_name')
   final String farmerName;
@@ -141,6 +145,8 @@ class PreOrderReservationModel {
 
   PreOrderReservationModel({
     required this.id,
+    required this.campaignId,
+    required this.productId,
     required this.title,
     required this.farmerName,
     required this.quantityStr,
@@ -157,6 +163,8 @@ class PreOrderReservationModel {
   PreOrderReservation toEntity() {
     return PreOrderReservation(
       id: id,
+      campaignId: campaignId,
+      productId: productId,
       title: title,
       farmerName: farmerName,
       quantityStr: quantityStr,
@@ -169,6 +177,8 @@ class PreOrderReservationModel {
   factory PreOrderReservationModel.fromEntity(PreOrderReservation res) {
     return PreOrderReservationModel(
       id: res.id,
+      campaignId: res.campaignId,
+      productId: res.productId,
       title: res.title,
       farmerName: res.farmerName,
       quantityStr: res.quantityStr,

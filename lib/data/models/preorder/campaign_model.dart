@@ -14,6 +14,12 @@ class PreorderCampaignModel extends PreorderCampaign {
     required super.depositRequired,
     required super.depositAmount,
     super.status,
+    super.price,
+    super.unit,
+    super.description,
+    super.hasReserved,
+    super.distance,
+    super.location,
   });
 
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +42,12 @@ class PreorderCampaignModel extends PreorderCampaign {
       depositRequired: json['depositRequired'] ?? ((json['depositPercentage'] ?? 0) > 0),
       depositAmount: (json['depositAmount'] ?? json['depositPercentage'] ?? 0).toDouble(),
       status: json['status'],
+      price: (json['price'] ?? 0).toDouble(),
+      unit: json['unit'],
+      description: json['description'],
+      hasReserved: json['hasReserved'],
+      distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
+      location: json['location'],
     );
   }
 
@@ -50,6 +62,12 @@ class PreorderCampaignModel extends PreorderCampaign {
       'depositRequired': depositRequired,
       'depositAmount': depositAmount,
       'status': status,
+      'price': price,
+      'unit': unit,
+      'description': description,
+      'hasReserved': hasReserved,
+      'distance': distance,
+      'location': location,
     };
   }
 }

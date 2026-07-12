@@ -48,6 +48,8 @@ class PreOrderHarvest extends Equatable {
 
 class PreOrderReservation extends Equatable {
   final String id;
+  final String campaignId;
+  final String productId;
   final String title;
   final String farmerName;
   final String quantityStr;
@@ -57,6 +59,8 @@ class PreOrderReservation extends Equatable {
 
   const PreOrderReservation({
     required this.id,
+    required this.campaignId,
+    required this.productId,
     required this.title,
     required this.farmerName,
     required this.quantityStr,
@@ -68,6 +72,8 @@ class PreOrderReservation extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        campaignId,
+        productId,
         title,
         farmerName,
         quantityStr,

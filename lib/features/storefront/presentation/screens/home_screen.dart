@@ -228,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       QuickAction(
                         label: 'Nearby Farmers',
                         iconPath: 'assets/icons/ic_nearby_farmer.svg',
-                        onTap: () => context.push(AppRouter.explore),
+                        onTap: () => context.push(AppRouter.nearbyFarmers),
                       ),
                       QuickAction(
                         label: 'My Orders',

@@ -19,38 +19,15 @@ class PreorderRepositoryImpl implements PreorderRepository {
   });
 
   @override
-  Future<Either<Failure, PreOrderResponseEntity>> getPreorderData({
-    double? latitude,
-    double? longitude,
-  }) async {
+  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns() async {
     try {
-      // Always try to fetch fresh data from remote first
-      final remoteData = await remoteDataSource.getPreOrderData(
-        latitude: latitude,
-        longitude: longitude,
-      );
-
-      // Save to local storage for offline fallback
-      await localDataSource.savePreorderData(remoteData);
-
-      return Right(remoteData.toEntity());
+      final campaigns = await remoteDataSource.getActiveCampaigns();
+      return Right(campaigns);
     } catch (e) {
-      // If remote fails (e.g. no internet), try to get from local cache
-      try {
-        final localData = await localDataSource.getPreorderData();
-        if (localData != null) {
-          return Right(localData.toEntity());
-        }
-      } catch (_) {
-        // Ignore local cache error, handle the remote error below
-      }
-
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
       } else if (e is NetworkException) {
         return Left(NetworkFailure(e.message));
-      } else if (e is AuthException) {
-        return Left(AuthFailure(e.message, statusCode: e.statusCode));
       } else {
         return Left(UnexpectedFailure('An unexpected error occurred: $e'));
       }
@@ -58,10 +35,10 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns() async {
+  Future<Either<Failure, PreorderCampaign>> getCampaignDetail(String id) async {
     try {
-      final campaigns = await remoteDataSource.getActiveCampaigns();
-      return Right(campaigns);
+      final campaign = await remoteDataSource.getCampaignDetail(id);
+      return Right(campaign);
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
@@ -114,6 +91,23 @@ class PreorderRepositoryImpl implements PreorderRepository {
     try {
       final result = await remoteDataSource.getMyCampaigns();
       return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PreOrderReservation>>> getMyReservations() async {
+    try {
+      final models = await remoteDataSource.getMyReservations();
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Right(entities);
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));

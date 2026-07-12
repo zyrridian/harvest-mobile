@@ -67,6 +67,8 @@ PreOrderReservationModel _$PreOrderReservationModelFromJson(
         Map<String, dynamic> json) =>
     PreOrderReservationModel(
       id: json['id'] as String,
+      campaignId: json['campaign_id'] as String,
+      productId: json['product_id'] as String,
       title: json['title'] as String,
       farmerName: json['farmer_name'] as String,
       quantityStr: json['quantity_str'] as String,
@@ -79,6 +81,8 @@ Map<String, dynamic> _$PreOrderReservationModelToJson(
         PreOrderReservationModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'campaign_id': instance.campaignId,
+      'product_id': instance.productId,
       'title': instance.title,
       'farmer_name': instance.farmerName,
       'quantity_str': instance.quantityStr,

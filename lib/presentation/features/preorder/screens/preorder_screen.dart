@@ -307,9 +307,7 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
 
     return GestureDetector(
       onTap: () {
-        final slug =
-            harvest.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
-        context.push('/preorder/$slug');
+        context.push('/preorder/${harvest.id}');
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

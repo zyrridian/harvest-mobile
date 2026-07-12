@@ -29,7 +29,7 @@ class _PreOrderReservationsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(preOrderControllerProvider);
+    final reservationsAsync = ref.watch(myReservationsProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -79,17 +79,18 @@ class _PreOrderReservationsScreenState
             ),
           ];
         },
-        body: state.when(
-          initial: () => const SizedBox(),
+        body: reservationsAsync.when(
           loading: () =>
               const Center(child: CircularProgressIndicator(color: kTextGreen)),
-          error: (err) => Center(child: Text('Error: $err')),
-          data: (data) {
+          error: (err, stack) => Center(child: Text('Error: $err')),
+          data: (reservations) {
+            final activeReservations = reservations.where((r) => r.status != 'Completed').toList();
+            final completedReservations = reservations.where((r) => r.status == 'Completed').toList();
             return CustomScrollView(
               slivers: [
                 if (_selectedTabIndex == 0) ...[
                   // Active Drops
-                  if (data.activeReservations.isEmpty)
+                  if (activeReservations.isEmpty)
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
@@ -139,14 +140,14 @@ class _PreOrderReservationsScreenState
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 6),
+                                    const SizedBox(height: 12),
                                     Text(
-                                      "You've supported 2 local farms this season. Farmers earned Rp 450.000 more through your direct purchases.",
+                                      'You saved 12kg of imperfect produce from going to waste!',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                            color: Colors.grey[600],
+                                            color: kTextGreen,
                                             fontSize: 13,
                                             height: 1.4,
                                           ),
@@ -158,12 +159,12 @@ class _PreOrderReservationsScreenState
                           }
 
                           final reservation =
-                              data.activeReservations[index - 1];
+                              activeReservations[index - 1];
                           return Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                             child: GestureDetector(
                               onTap: () {
-                                context.push('/preorder/${reservation.id}');
+                                context.push('/preorder/${reservation.campaignId}');
                               },
                               child: Container(
                                 decoration: BoxDecoration(
@@ -177,23 +178,44 @@ class _PreOrderReservationsScreenState
                             ),
                           );
                         },
-                        childCount: data.activeReservations.length + 1,
+                        childCount: activeReservations.length + 1,
                       ),
                     ),
                 ] else ...[
                   // Completed Tab
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Text(
-                        'No completed reservations yet.',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: Colors.grey[500]),
+                  if (completedReservations.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Text(
+                          'No completed reservations yet.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: Colors.grey[500]),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final reservation = completedReservations[index];
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey[200]!),
+                              ),
+                              child: _buildPremiumReservationItem(reservation),
+                            ),
+                          );
+                        },
+                        childCount: completedReservations.length,
                       ),
                     ),
-                  ),
                 ],
               ],
             );
@@ -246,13 +268,20 @@ class _PreOrderReservationsScreenState
                           highlightColor: Colors.grey[100]!,
                           child: Container(color: Colors.white),
                         ),
-                        errorWidget: (context, url, error) =>
-                            const PhosphorIcon(PhosphorIconsRegular.image,
-                                color: Colors.grey),
+                        errorWidget: (context, url, error) => Container(
+                          color: kDarkGreen.withValues(alpha: 0.1),
+                          child: const Center(
+                            child: PhosphorIcon(PhosphorIconsRegular.leaf,
+                                color: kDarkGreen, size: 20),
+                          ),
+                        ),
                       )
-                    : Center(
-                        child: Text(reservation.imageUrl,
-                            style: const TextStyle(fontSize: 32)),
+                    : Container(
+                        color: kDarkGreen.withValues(alpha: 0.1),
+                        child: const Center(
+                          child: PhosphorIcon(PhosphorIconsRegular.leaf,
+                              color: kDarkGreen, size: 20),
+                        ),
                       ),
               ),
               const SizedBox(width: 16),

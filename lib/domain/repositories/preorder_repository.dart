@@ -5,9 +5,9 @@ import 'package:harvest_app/domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreOrderRepository {
-  Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({
-    String? status,
-  });
+  // Future<Either<Failure, PreOrderResponseEntity>> getPreOrderData({
+  //   String? status,
+  // });
 
   Future<Either<Failure, Map<String, dynamic>>> reservePreOrder({
     required String harvestId,
