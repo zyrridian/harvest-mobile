@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -21,15 +21,15 @@ class AboutUsScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'About Us',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
       ),
@@ -62,8 +62,8 @@ class AboutUsScreen extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.eco,
+                  child: PhosphorIcon(
+                    PhosphorIconsRegular.leaf,
                     size: 64,
                     color: kDarkGreen,
                   ),
@@ -71,7 +71,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   'Harvest',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -80,7 +80,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Farm to Table, Simplified',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
@@ -88,7 +88,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Version 1.0.0',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 14,
                     color: Colors.white60,
                   ),
@@ -101,7 +101,7 @@ class AboutUsScreen extends StatelessWidget {
 
           // Mission Section
           _buildInfoCard(
-            icon: Icons.favorite_border,
+            icon: PhosphorIconsRegular.heart,
             iconColor: kAccentOrange,
             title: 'Our Mission',
             content:
@@ -110,7 +110,7 @@ class AboutUsScreen extends StatelessWidget {
 
           // Story Section
           _buildInfoCard(
-            icon: Icons.auto_stories_outlined,
+            icon: PhosphorIconsRegular.bookOpen,
             iconColor: kDarkGreen,
             title: 'Our Story',
             content:
@@ -144,12 +144,12 @@ class AboutUsScreen extends StatelessWidget {
                         color: kDarkGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(Icons.stars, color: kDarkGreen, size: 24),
+                      child: PhosphorIcon(PhosphorIconsRegular.star, color: kDarkGreen, size: 24),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Our Values',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -159,23 +159,23 @@ class AboutUsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 _buildValueItem(
-                  icon: Icons.verified_outlined,
+                  icon: PhosphorIconsRegular.sealCheck,
                   title: 'Quality First',
                   description:
                       'Every product is carefully selected and verified',
                 ),
                 _buildValueItem(
-                  icon: Icons.handshake_outlined,
+                  icon: PhosphorIconsRegular.handshake,
                   title: 'Fair Trade',
                   description: 'Supporting farmers with fair pricing',
                 ),
                 _buildValueItem(
-                  icon: Icons.eco_outlined,
+                  icon: PhosphorIconsRegular.leaf,
                   title: 'Sustainability',
                   description: 'Promoting eco-friendly farming practices',
                 ),
                 _buildValueItem(
-                  icon: Icons.people_outline,
+                  icon: PhosphorIconsRegular.users,
                   title: 'Community',
                   description:
                       'Building connections between farmers and consumers',
@@ -198,7 +198,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   'By the Numbers',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -245,7 +245,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   'Get in Touch',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -253,19 +253,19 @@ class AboutUsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _buildContactItem(
-                  icon: Icons.email_outlined,
+                  icon: PhosphorIconsRegular.envelope,
                   label: 'Email',
                   value: 'hello@harvestapp.com',
                   onTap: () => _launchURL('mailto:hello@harvestapp.com'),
                 ),
                 _buildContactItem(
-                  icon: Icons.phone_outlined,
+                  icon: PhosphorIconsRegular.phone,
                   label: 'Phone',
                   value: '+1 (555) 123-4567',
                   onTap: () => _launchURL('tel:+15551234567'),
                 ),
                 _buildContactItem(
-                  icon: Icons.location_on_outlined,
+                  icon: PhosphorIconsRegular.mapPin,
                   label: 'Address',
                   value: '123 Farm Lane, Green Valley, CA 94000',
                 ),
@@ -274,7 +274,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   'Follow Us',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -284,21 +284,21 @@ class AboutUsScreen extends StatelessWidget {
                 Row(
                   children: [
                     _buildSocialButton(
-                      icon: Icons.facebook,
+                      icon: PhosphorIconsRegular.facebookLogo,
                       onTap: () =>
                           _launchURL('https://facebook.com/harvestapp'),
                     ),
                     _buildSocialButton(
-                      icon: Icons.camera_alt,
+                      icon: PhosphorIconsRegular.instagramLogo,
                       onTap: () =>
                           _launchURL('https://instagram.com/harvestapp'),
                     ),
                     _buildSocialButton(
-                      icon: Icons.alternate_email,
+                      icon: PhosphorIconsRegular.twitterLogo,
                       onTap: () => _launchURL('https://twitter.com/harvestapp'),
                     ),
                     _buildSocialButton(
-                      icon: Icons.play_arrow,
+                      icon: PhosphorIconsRegular.youtubeLogo,
                       onTap: () => _launchURL('https://youtube.com/harvestapp'),
                     ),
                   ],
@@ -320,7 +320,7 @@ class AboutUsScreen extends StatelessWidget {
                 },
                 child: Text(
                   'Terms of Service',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kTextGrey,
                     fontSize: 13,
                     decoration: TextDecoration.underline,
@@ -334,7 +334,7 @@ class AboutUsScreen extends StatelessWidget {
                 },
                 child: Text(
                   'Privacy Policy',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kTextGrey,
                     fontSize: 13,
                     decoration: TextDecoration.underline,
@@ -348,7 +348,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             '© 2024 Harvest. All rights reserved.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               color: kTextGrey,
               fontSize: 12,
             ),
@@ -392,12 +392,12 @@ class AboutUsScreen extends StatelessWidget {
                   color: iconColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 24),
+                child: PhosphorIcon(icon, color: iconColor, size: 24),
               ),
               const SizedBox(width: 12),
               Text(
                 title,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -408,7 +408,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             content,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               color: kTextGrey,
               height: 1.7,
@@ -429,7 +429,7 @@ class AboutUsScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: kDarkGreen, size: 20),
+          PhosphorIcon(icon, color: kDarkGreen, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -437,7 +437,7 @@ class AboutUsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -446,7 +446,7 @@ class AboutUsScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     color: kTextGrey,
                   ),
@@ -471,7 +471,7 @@ class AboutUsScreen extends StatelessWidget {
         children: [
           Text(
             number,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -481,7 +481,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 12,
               color: kTextGrey,
             ),
@@ -506,7 +506,7 @@ class AboutUsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
-              Icon(icon, color: kDarkGreen, size: 20),
+              PhosphorIcon(icon, color: kDarkGreen, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -514,14 +514,14 @@ class AboutUsScreen extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 12,
                         color: kTextGrey,
                       ),
                     ),
                     Text(
                       value,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: kDarkGreen,
@@ -531,7 +531,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                Icon(Icons.arrow_forward_ios, color: kTextGrey, size: 14),
+                Icon(PhosphorIconsRegular.caretRight, color: kTextGrey, size: 14),
             ],
           ),
         ),
@@ -555,7 +555,7 @@ class AboutUsScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: kDarkGreen.withOpacity(0.1)),
           ),
-          child: Icon(icon, color: kDarkGreen, size: 20),
+          child: PhosphorIcon(icon, color: kDarkGreen, size: 20),
         ),
       ),
     );

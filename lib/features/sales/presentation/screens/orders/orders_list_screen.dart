@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
 import '../../../../../core/config/router/app_router.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -49,7 +49,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         centerTitle: false,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -60,11 +60,10 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         ),
         title: Text(
           'My Orders',
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
-            letterSpacing: -0.5,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         bottom: TabBar(
@@ -73,11 +72,11 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           unselectedLabelColor: kTextGrey,
           indicatorColor: kDarkGreen,
           indicatorWeight: 3,
-          labelStyle: GoogleFonts.inter(
+          labelStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
-          unselectedLabelStyle: GoogleFonts.inter(
+          unselectedLabelStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.normal,
           ),
@@ -114,9 +113,9 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: kTextGrey),
+              const PhosphorIcon(PhosphorIconsRegular.warningCircle, size: 48, color: kTextGrey),
               const SizedBox(height: 16),
-              Text('Error: $e', style: GoogleFonts.inter(color: kTextGrey)),
+              Text('Error: $e', style: TextStyle(color: kTextGrey)),
             ],
           ),
         ),
@@ -135,13 +134,13 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
               color: kPillGrey,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shopping_bag_outlined,
+            child: const PhosphorIcon(PhosphorIconsRegular.shoppingBag,
                 size: 48, color: Colors.grey),
           ),
           const SizedBox(height: 24),
           Text(
             'No orders yet',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -150,7 +149,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           const SizedBox(height: 8),
           Text(
             'Your orders will appear here',
-            style: GoogleFonts.inter(color: kTextGrey),
+            style: TextStyle(color: kTextGrey),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
@@ -174,7 +173,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       return Center(
         child: Text(
           'No orders in this category',
-          style: GoogleFonts.inter(color: kTextGrey),
+          style: TextStyle(color: kTextGrey),
         ),
       );
     }
@@ -218,7 +217,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
               children: [
                 Text(
                   order.orderNumber,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -242,7 +241,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   child: Center(
                     child: Text(
                       order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
                       ),
@@ -256,7 +255,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     children: [
                       Text(
                         order.seller.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: kDarkGreen,
@@ -264,7 +263,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                       ),
                       Text(
                         '${order.items.length} item${order.items.length > 1 ? 's' : ''}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: kTextGrey,
                         ),
@@ -289,14 +288,14 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   children: [
                     Text(
                       'Total Amount',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 12,
                         color: kTextGrey,
                       ),
                     ),
                     Text(
                       'Rp ${order.totalAmount}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -310,8 +309,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     color: kPillGrey,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
+                  child: const PhosphorIcon(
+                    PhosphorIconsRegular.caretRight,
                     size: 16,
                     color: kDarkGreen,
                   ),
@@ -333,22 +332,22 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       case 'processing':
         bgColor = kAccentOrange.withOpacity(0.1);
         textColor = kAccentOrange;
-        icon = Icons.refresh;
+        icon = PhosphorIconsRegular.arrowsClockwise;
         break;
       case 'delivered':
         bgColor = Colors.green.withOpacity(0.1);
         textColor = Colors.green;
-        icon = Icons.check_circle;
+        icon = PhosphorIconsRegular.checkCircle;
         break;
       case 'cancelled':
         bgColor = Colors.red.withOpacity(0.1);
         textColor = Colors.red;
-        icon = Icons.cancel;
+        icon = PhosphorIconsRegular.xCircle;
         break;
       default:
         bgColor = kPillGrey;
         textColor = kTextGrey;
-        icon = Icons.info;
+        icon = PhosphorIconsRegular.info;
     }
 
     return Container(
@@ -360,11 +359,11 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: textColor),
+          PhosphorIcon(icon, size: 14, color: textColor),
           const SizedBox(width: 4),
           Text(
             status,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/presentation/features/profile/providers/profile_controller.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -37,15 +36,15 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Security',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
       ),
@@ -55,7 +54,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           child: CircularProgressIndicator(color: kDarkGreen),
         ),
         error: (error) => Center(
-          child: Text(error.toString(), style: GoogleFonts.inter()),
+          child: Text(error.toString(), style: TextStyle()),
         ),
         data: (profile) {
           return securitySettingsAsync.when(
@@ -76,7 +75,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       _buildSwitchTile(
                         title: 'Two-Factor Authentication',
                         subtitle: 'Add an extra layer of security',
-                        icon: Icons.security_outlined,
+                        icon: PhosphorIconsRegular.shieldCheck,
                         value: settings.twoFactorEnabled,
                         onChanged: (value) => _toggleTwoFactor(value),
                       ),
@@ -84,7 +83,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       _buildSwitchTile(
                         title: 'Biometric Login',
                         subtitle: 'Use fingerprint or face recognition',
-                        icon: Icons.fingerprint,
+                        icon: PhosphorIconsRegular.fingerprint,
                         value: settings.biometricEnabled,
                         onChanged: (value) => _toggleBiometric(value),
                       ),
@@ -92,7 +91,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       _buildSwitchTile(
                         title: 'Email Notifications',
                         subtitle: 'Get notified of security events',
-                        icon: Icons.mail_outline,
+                        icon: PhosphorIconsRegular.envelope,
                         value: settings.emailNotificationsEnabled,
                         onChanged: (value) => _updateEmailNotifications(value),
                       ),
@@ -118,7 +117,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                         subtitle: settings.lastPasswordChange != null
                             ? 'Last changed ${_formatDate(settings.lastPasswordChange!)}'
                             : 'Never changed',
-                        icon: Icons.lock_outline,
+                        icon: PhosphorIconsRegular.lock,
                         onTap: () => _showChangePasswordDialog(),
                       ),
                     ],
@@ -168,12 +167,12 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded,
+                          Icon(PhosphorIconsRegular.warning,
                               color: const Color(0xFFDC2626), size: 24),
                           const SizedBox(width: 12),
                           Text(
                             'Delete Account',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFFDC2626),
@@ -184,7 +183,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       const SizedBox(height: 8),
                       Text(
                         'Permanently delete your account and all associated data. This action cannot be undone.',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 13,
                           color: const Color(0xFF991B1B),
                         ),
@@ -204,7 +203,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                           ),
                           child: Text(
                             'Delete My Account',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -219,7 +218,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             error: (error, stack) => Center(
               child: Text(
                 'Error loading security settings',
-                style: GoogleFonts.inter(color: kTextGrey),
+                style: TextStyle(color: kTextGrey),
               ),
             ),
           );
@@ -233,7 +232,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
       padding: const EdgeInsets.only(left: 8),
       child: Text(
         title,
-        style: GoogleFonts.inter(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: kTextGrey,
@@ -259,7 +258,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               color: kDarkGreen.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: kDarkGreen, size: 22),
+            child: PhosphorIcon(icon, color: kDarkGreen, size: 22),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -268,7 +267,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -277,7 +276,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     color: kTextGrey,
                   ),
@@ -316,7 +315,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   color: kDarkGreen.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: kDarkGreen, size: 22),
+                child: PhosphorIcon(icon, color: kDarkGreen, size: 22),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -325,7 +324,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: kDarkGreen,
@@ -334,7 +333,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
                         color: kTextGrey,
                       ),
@@ -342,7 +341,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: kPillGrey, size: 20),
+              Icon(PhosphorIconsRegular.caretRight, color: kPillGrey, size: 20),
             ],
           ),
         ),
@@ -364,8 +363,8 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   : kTextGrey.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              isCurrent ? Icons.phone_android : Icons.devices,
+            child: PhosphorIcon(
+              isCurrent ? PhosphorIconsRegular.deviceMobile : PhosphorIconsRegular.devices,
               color: isCurrent ? kDarkGreen : kTextGrey,
               size: 20,
             ),
@@ -377,7 +376,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               children: [
                 Text(
                   sessionName,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -386,7 +385,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                 if (isCurrent)
                   Text(
                     'This device',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 12,
                       color: kTextGrey,
                     ),
@@ -399,7 +398,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               onPressed: () => _terminateSession(sessionName),
               child: Text(
                 'Terminate',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: const Color(0xFFDC2626),
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -449,7 +448,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           SnackBar(
             content: Text(
               'Failed to update two-factor authentication',
-              style: GoogleFonts.inter(),
+              style: TextStyle(),
             ),
             backgroundColor: Colors.red,
           ),
@@ -468,7 +467,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           SnackBar(
             content: Text(
               'Failed to update biometric login',
-              style: GoogleFonts.inter(),
+              style: TextStyle(),
             ),
             backgroundColor: Colors.red,
           ),
@@ -487,7 +486,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           SnackBar(
             content: Text(
               'Email notifications ${enabled ? "enabled" : "disabled"}',
-              style: GoogleFonts.inter(),
+              style: TextStyle(),
             ),
             backgroundColor: kDarkGreen,
           ),
@@ -498,7 +497,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-                Text('Failed to update setting', style: GoogleFonts.inter()),
+                Text('Failed to update setting', style: TextStyle()),
             backgroundColor: Colors.red,
           ),
         );
@@ -514,22 +513,22 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Terminate Session',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Text(
           'Are you sure you want to terminate this session?',
-          style: GoogleFonts.inter(color: kTextGrey),
+          style: TextStyle(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.inter(color: kTextGrey)),
+            child: Text('Cancel', style: TextStyle(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               'Terminate',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: const Color(0xFFDC2626),
                 fontWeight: FontWeight.bold,
               ),
@@ -549,7 +548,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             SnackBar(
               content: Text(
                 'Session terminated',
-                style: GoogleFonts.inter(),
+                style: TextStyle(),
               ),
               backgroundColor: kDarkGreen,
             ),
@@ -560,7 +559,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to terminate session',
-                  style: GoogleFonts.inter()),
+                  style: TextStyle()),
               backgroundColor: Colors.red,
             ),
           );
@@ -577,7 +576,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Change Password',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Form(
           key: _formKey,
@@ -635,7 +634,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.inter(color: kTextGrey)),
+            child: Text('Cancel', style: TextStyle(color: kTextGrey)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -652,7 +651,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       SnackBar(
                         content: Text(
                           'Password changed successfully',
-                          style: GoogleFonts.inter(),
+                          style: TextStyle(),
                         ),
                         backgroundColor: kDarkGreen,
                       ),
@@ -664,7 +663,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                       SnackBar(
                         content: Text(
                           'Failed to change password',
-                          style: GoogleFonts.inter(),
+                          style: TextStyle(),
                         ),
                         backgroundColor: Colors.red,
                       ),
@@ -681,7 +680,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               ),
             ),
             child: Text('Change Password',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -696,19 +695,19 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Delete Account',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             color: const Color(0xFFDC2626),
           ),
         ),
         content: Text(
           'This action is permanent and cannot be undone. All your data will be deleted.',
-          style: GoogleFonts.inter(color: kTextGrey),
+          style: TextStyle(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.inter(color: kTextGrey)),
+            child: Text('Cancel', style: TextStyle(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () {
@@ -718,7 +717,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                 SnackBar(
                   content: Text(
                     'Account deletion not implemented',
-                    style: GoogleFonts.inter(),
+                    style: TextStyle(),
                   ),
                   backgroundColor: kTextGrey,
                 ),
@@ -726,7 +725,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             },
             child: Text(
               'Delete',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: const Color(0xFFDC2626),
                 fontWeight: FontWeight.bold,
               ),

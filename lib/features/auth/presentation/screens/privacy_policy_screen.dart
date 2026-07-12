@@ -21,12 +21,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
           icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Privacy Policy',
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         centerTitle: true,

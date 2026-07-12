@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -28,7 +28,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   final List<Map<String, dynamic>> _faqCategories = [
     {
       'title': 'Getting Started',
-      'icon': Icons.rocket_launch_outlined,
+      'icon': PhosphorIconsRegular.rocketLaunch,
       'questions': [
         {
           'q': 'How do I create an account?',
@@ -49,7 +49,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'title': 'Orders & Delivery',
-      'icon': Icons.local_shipping_outlined,
+      'icon': PhosphorIconsRegular.truck,
       'questions': [
         {
           'q': 'How can I track my order?',
@@ -75,7 +75,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'title': 'Products & Farmers',
-      'icon': Icons.agriculture_outlined,
+      'icon': PhosphorIconsRegular.plant,
       'questions': [
         {
           'q': 'How do I know products are fresh?',
@@ -96,7 +96,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'title': 'Premium Subscription',
-      'icon': Icons.workspace_premium_outlined,
+      'icon': PhosphorIconsRegular.crown,
       'questions': [
         {
           'q': 'What benefits do Premium members get?',
@@ -117,7 +117,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'title': 'Account & Security',
-      'icon': Icons.security_outlined,
+      'icon': PhosphorIconsRegular.shieldCheck,
       'questions': [
         {
           'q': 'How do I reset my password?',
@@ -167,15 +167,15 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Help Center',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
       ),
@@ -189,11 +189,11 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
                 hintText: 'Search for help...',
-                hintStyle: GoogleFonts.inter(color: kTextGrey),
-                prefixIcon: const Icon(Icons.search, color: kTextGrey),
+                hintStyle: TextStyle(color: kTextGrey),
+                prefixIcon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass, color: kTextGrey),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: kTextGrey),
+                        icon: const PhosphorIcon(PhosphorIconsRegular.x, color: kTextGrey),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -260,7 +260,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 children: [
                   Text(
                     'Still need help?',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -269,7 +269,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Our support team is available 24/7',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: Colors.white70,
                       fontSize: 13,
                     ),
@@ -282,10 +282,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                           onPressed: () {
                             // TODO: Open chat support
                           },
-                          icon: const Icon(Icons.chat_bubble_outline, size: 18, color: kDarkGreen,),
+                          icon: const PhosphorIcon(PhosphorIconsRegular.chatCircle, size: 18, color: kDarkGreen,),
                           label: Text(
                             'Chat',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -306,10 +306,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                           onPressed: () {
                             // TODO: Open email support
                           },
-                          icon: const Icon(Icons.email_outlined, size: 18, color: Colors.white,),
+                          icon: const PhosphorIcon(PhosphorIconsRegular.envelope, size: 18, color: Colors.white,),
                           label: Text(
                             'Email',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -366,12 +366,12 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                     color: kDarkGreen.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: kDarkGreen, size: 24),
+                  child: PhosphorIcon(icon, color: kDarkGreen, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -416,7 +416,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         title: Text(
           question,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: kDarkGreen,
@@ -427,7 +427,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         children: [
           Text(
             answer,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               color: kTextGrey,
               height: 1.6,

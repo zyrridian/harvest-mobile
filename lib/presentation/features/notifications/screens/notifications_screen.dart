@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../providers/notification_providers.dart';
 import '../../../../domain/entities/notification.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -51,21 +51,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         scrolledUnderElevation: 0,
         title: Text(
           'Notifications',
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
-            letterSpacing: -0.5,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.done_all_rounded, color: kDarkGreen),
+            icon: const PhosphorIcon(PhosphorIconsRegular.checks, color: kDarkGreen),
             onPressed: () => _markAllAsRead(),
             tooltip: 'Mark all as read',
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: kDarkGreen),
+            icon: const PhosphorIcon(PhosphorIconsRegular.gear, color: kDarkGreen),
             onPressed: () => _showSettings(),
             tooltip: 'Notification settings',
           ),
@@ -99,9 +98,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               labelColor: Colors.white,
               unselectedLabelColor: kTextGrey,
               labelStyle:
-                  GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+                  TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               unselectedLabelStyle:
-                  GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+                  TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
               dividerColor: Colors.transparent,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
 
@@ -171,12 +170,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             const SizedBox(height: 16),
             Text(
               'All caught up!',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
             Text(
               'No new notifications to show.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
             ),
           ],
         ),
@@ -209,12 +208,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline_rounded,
+                      const PhosphorIcon(PhosphorIconsRegular.info,
                           color: Color(0xFFD97706), size: 20),
                       const SizedBox(width: 12),
                       Text(
                         'You have ${notificationList.stats.totalUnread} unread notifications',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: const Color(0xFF92400E),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -254,7 +253,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24),
         color: const Color(0xFFEF4444), // Red
-        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+        child: const PhosphorIcon(PhosphorIconsRegular.trash, color: Colors.white, size: 28),
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) => _deleteNotification(notification),
@@ -283,7 +282,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                           Expanded(
                             child: Text(
                               notification.title,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontWeight: isUnread
                                     ? FontWeight.w700
                                     : FontWeight.w600,
@@ -297,7 +296,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                             padding: const EdgeInsets.only(left: 8),
                             child: Text(
                               _formatTime(notification.createdAt),
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: kTextGrey,
                                 fontSize: 11,
                               ),
@@ -308,7 +307,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       const SizedBox(height: 4),
                       Text(
                         notification.message,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: isUnread
                               ? kDarkGreen.withOpacity(0.8)
                               : kTextGrey,
@@ -334,7 +333,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                             ),
                             child: Text(
                               notification.priority.name.toUpperCase(),
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: _getPriorityColor(notification.priority),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -390,7 +389,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     }
 
     // Default Fallback Icons (Styled like Categories)
-    IconData iconData = Icons.notifications_none;
+    IconData iconData = PhosphorIconsRegular.bell;
     List<Color> gradient = [
       const Color(0xFFF3F4F6),
       const Color(0xFFD1D5DB)
@@ -402,19 +401,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     final titleLower = notification.title.toLowerCase();
 
     if (titleLower.contains('order') || titleLower.contains('shipped')) {
-      iconData = Icons.local_shipping_outlined;
+      iconData = PhosphorIconsRegular.truck;
       gradient = [const Color(0xFFFFE5D9), const Color(0xFFFFD1BC)]; // Peach
       iconColor = const Color(0xFFA6442E);
     } else if (titleLower.contains('price') || titleLower.contains('sale')) {
-      iconData = Icons.local_offer_outlined;
+      iconData = PhosphorIconsRegular.tag;
       gradient = [const Color(0xFFFEF9C3), const Color(0xFFFDE047)]; // Yellow
       iconColor = const Color(0xFFB45309);
     } else if (titleLower.contains('message')) {
-      iconData = Icons.chat_bubble_outline;
+      iconData = PhosphorIconsRegular.chatCircle;
       gradient = [const Color(0xFFD4E2D4), const Color(0xFFB8C6B8)]; // Sage
       iconColor = const Color(0xFF2D4A3E);
     } else if (titleLower.contains('stock')) {
-      iconData = Icons.inventory_2_outlined;
+      iconData = PhosphorIconsRegular.package;
       gradient = [const Color(0xFFDBEAFE), const Color(0xFF93C5FD)]; // Blue
       iconColor = const Color(0xFF1E40AF);
     }
@@ -478,7 +477,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Notification deleted', style: GoogleFonts.inter()),
+          content: Text('Notification deleted', style: TextStyle()),
           backgroundColor: kDarkGreen,
           behavior: SnackBarBehavior.floating,
         ),

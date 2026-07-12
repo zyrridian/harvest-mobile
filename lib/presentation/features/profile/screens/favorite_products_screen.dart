@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/features/catalog/domain/entities/favorite_product.dart';
 import 'package:harvest_app/presentation/features/profile/providers/favorite_products_controller.dart';
 import 'package:intl/intl.dart';
 
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 
 class FavoriteProductsScreen extends ConsumerWidget {
@@ -23,20 +23,12 @@ class FavoriteProductsScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: const Icon(Icons.chevron_left, color: kDarkGreen),
-          ),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Favorite Products',
-          style: GoogleFonts.inter(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -115,7 +107,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                         height: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Container(width: double.infinity, height: double.infinity, color: Colors.grey[200], child: const Icon(Icons.broken_image, color: Colors.grey)),
+                            Container(width: double.infinity, height: double.infinity, color: Colors.grey[200], child: const PhosphorIcon(PhosphorIconsRegular.imageBroken, color: Colors.grey)),
                       ),
                     ),
                   ),
@@ -131,7 +123,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           'FRESH',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
@@ -159,8 +151,8 @@ class FavoriteProductsScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.grey[300]!),
                         ),
-                        child: const Icon(
-                          Icons.favorite,
+                        child: const PhosphorIcon(
+                          PhosphorIconsFill.heart,
                           size: 16, 
                           color: Colors.red,
                         ),
@@ -178,25 +170,25 @@ class FavoriteProductsScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.star, size: 12, color: Colors.orange),
+                      const PhosphorIcon(PhosphorIconsFill.star, size: 12, color: Colors.orange),
                       const SizedBox(width: 4),
                       Text(
                         '${product.rating}',
-                        style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     product.name,
-                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black87),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black87),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     product.farmerName,
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -210,7 +202,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                             children: [
                               TextSpan(
                                 text: formatter.format(product.price).replaceAll(',00', ''),
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: const Color(0xFF28482A),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
@@ -218,7 +210,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                               ),
                               TextSpan(
                                 text: ' /${product.unit}',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: Colors.grey[500],
                                   fontSize: 9,
                                 ),

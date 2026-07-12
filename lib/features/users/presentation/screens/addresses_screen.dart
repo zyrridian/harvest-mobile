@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/domain/entities/address.dart';
 import '../providers/address_controller.dart';
 import '../providers/address_state.dart';
 import 'add_edit_address_screen.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -29,10 +29,10 @@ class AddressesScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Text(
           'My Addresses',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         actions: [
@@ -45,7 +45,7 @@ class AddressesScreen extends ConsumerWidget {
                   color: kDarkGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 20),
+                child: const PhosphorIcon(PhosphorIconsRegular.plus, color: Colors.white, size: 20),
               ),
               onPressed: () => _showAddAddressDialog(context, ref),
               tooltip: 'Add address',
@@ -76,13 +76,13 @@ class AddressesScreen extends ConsumerWidget {
                 color: Color(0xFFFFF9E6),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.location_off_outlined,
+              child: const PhosphorIcon(PhosphorIconsRegular.mapPin,
                   size: 48, color: Color(0xFFD97706)),
             ),
             const SizedBox(height: 16),
             Text(
               'No addresses saved',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -91,12 +91,12 @@ class AddressesScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               'Add a location to start ordering.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => _showAddAddressDialog(context, ref),
-              icon: const Icon(Icons.add),
+              icon: const PhosphorIcon(PhosphorIconsRegular.plus),
               label: const Text('Add Address'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
@@ -161,7 +161,7 @@ class AddressesScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         address.label.toUpperCase(),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kDarkGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
@@ -179,7 +179,7 @@ class AddressesScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           'Primary',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: kDarkGreen,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
@@ -187,14 +187,14 @@ class AddressesScreen extends ConsumerWidget {
                         ),
                       ),
                     const Spacer(),
-                    Icon(Icons.more_horiz, color: kTextGrey),
+                    PhosphorIcon(PhosphorIconsRegular.dotsThree, color: kTextGrey),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.location_on_outlined,
+                    PhosphorIcon(PhosphorIconsRegular.mapPin,
                         color: kAccentOrange, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
@@ -203,7 +203,7 @@ class AddressesScreen extends ConsumerWidget {
                         children: [
                           Text(
                             address.recipientName,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: kDarkGreen,
@@ -212,13 +212,13 @@ class AddressesScreen extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             address.phone,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 color: kTextGrey, fontSize: 13),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 color: kDarkGreen, height: 1.4),
                           ),
                           if (address.notes != null) ...[
@@ -231,13 +231,13 @@ class AddressesScreen extends ConsumerWidget {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.info_outline,
+                                  const PhosphorIcon(PhosphorIconsRegular.info,
                                       size: 16, color: Color(0xFFD97706)),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       address.notes!,
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                         color: const Color(0xFF92400E),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -294,11 +294,11 @@ class AddressesScreen extends ConsumerWidget {
                     color: kDarkGreen.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.star, color: kDarkGreen),
+                  child: const PhosphorIcon(PhosphorIconsRegular.star, color: kDarkGreen),
                 ),
                 title: Text(
                   'Set as Primary',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -312,11 +312,11 @@ class AddressesScreen extends ConsumerWidget {
                   color: kDarkGreen.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.edit, color: kDarkGreen),
+                child: const PhosphorIcon(PhosphorIconsRegular.pencilSimple, color: kDarkGreen),
               ),
               title: Text(
                 'Edit Address',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -337,11 +337,11 @@ class AddressesScreen extends ConsumerWidget {
                     color: Colors.red.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete, color: Colors.red),
+                  child: const PhosphorIcon(PhosphorIconsRegular.trash, color: Colors.red),
                 ),
                 title: Text(
                   'Delete Address',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.red,
                   ),

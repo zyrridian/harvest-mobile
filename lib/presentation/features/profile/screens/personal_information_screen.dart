@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../providers/profile_controller.dart';
 import '../../../providers/utility_providers.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -63,7 +61,7 @@ class _PersonalInformationScreenState
       ),
       error: (e) => Scaffold(
         backgroundColor: kBgColor,
-        body: Center(child: Text(e.toString(), style: GoogleFonts.inter())),
+        body: Center(child: Text(e.toString(), style: TextStyle())),
       ),
       data: (profile) {
         if (!_isEditing) {
@@ -80,15 +78,15 @@ class _PersonalInformationScreenState
             elevation: 0,
             scrolledUnderElevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+              icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               'Personal Information',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
               ),
             ),
             actions: [
@@ -99,7 +97,7 @@ class _PersonalInformationScreenState
                   },
                   child: Text(
                     'Edit',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: kDarkGreen,
                       fontWeight: FontWeight.w600,
                     ),
@@ -148,7 +146,7 @@ class _PersonalInformationScreenState
                                   ],
                                 ),
                                 child: profile.avatarUrl == null
-                                    ? const Icon(Icons.person, size: 60, color: kTextGrey)
+                                    ? const PhosphorIcon(PhosphorIconsRegular.user, size: 60, color: kTextGrey)
                                     : null,
                               ),
                               if (_isEditing)
@@ -159,7 +157,7 @@ class _PersonalInformationScreenState
                                     shape: BoxShape.circle,
                                     border: Border.all(color: Colors.white, width: 2),
                                   ),
-                                  child: const Icon(Icons.camera_alt,
+                                  child: const PhosphorIcon(PhosphorIconsRegular.camera,
                                       size: 18, color: Colors.white),
                                 ),
                             ],
@@ -189,7 +187,7 @@ class _PersonalInformationScreenState
                       onPressed: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
                       child: Text(
                         'Change Profile Picture',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kDarkGreen,
                           fontWeight: FontWeight.w600,
                         ),
@@ -203,7 +201,7 @@ class _PersonalInformationScreenState
                   _buildTextField(
                     controller: _nameController,
                     label: 'Full Name',
-                    icon: Icons.person_outline,
+                    icon: PhosphorIconsRegular.user,
                     enabled: _isEditing,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -218,7 +216,7 @@ class _PersonalInformationScreenState
                   _buildTextField(
                     controller: _emailController,
                     label: 'Email Address',
-                    icon: Icons.email_outlined,
+                    icon: PhosphorIconsRegular.envelope,
                     enabled: false, // Email cannot be edited here
                     keyboardType: TextInputType.emailAddress,
                   ),
@@ -228,7 +226,7 @@ class _PersonalInformationScreenState
                   _buildTextField(
                     controller: _phoneController,
                     label: 'Phone Number',
-                    icon: Icons.phone_outlined,
+                    icon: PhosphorIconsRegular.phone,
                     enabled: _isEditing,
                     keyboardType: TextInputType.phone,
                   ),
@@ -238,7 +236,7 @@ class _PersonalInformationScreenState
                   _buildTextField(
                     controller: _bioController,
                     label: 'Bio',
-                    icon: Icons.info_outline,
+                    icon: PhosphorIconsRegular.info,
                     enabled: _isEditing,
                     maxLines: 3,
                   ),
@@ -291,7 +289,7 @@ class _PersonalInformationScreenState
                             ),
                             child: Text(
                               'Cancel',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -320,7 +318,7 @@ class _PersonalInformationScreenState
                                   )
                                 : Text(
                                     'Save Changes',
-                                    style: GoogleFonts.inter(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -352,13 +350,13 @@ class _PersonalInformationScreenState
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
-      style: GoogleFonts.inter(
+      style: TextStyle(
         color: enabled ? kDarkGreen : kTextGrey,
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.inter(color: kTextGrey),
-        prefixIcon: Icon(icon, color: kTextGrey),
+        labelStyle: TextStyle(color: kTextGrey),
+        prefixIcon: PhosphorIcon(icon, color: kTextGrey),
         filled: true,
         fillColor: enabled ? Colors.white : kPillGrey,
         border: OutlineInputBorder(
@@ -387,14 +385,14 @@ class _PersonalInformationScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kTextGrey,
             fontSize: 13,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -445,7 +443,7 @@ class _PersonalInformationScreenState
           SnackBar(
             content: Text(
               'Profile updated successfully',
-              style: GoogleFonts.inter(),
+              style: TextStyle(),
             ),
             backgroundColor: kDarkGreen,
           ),
@@ -459,7 +457,7 @@ class _PersonalInformationScreenState
           SnackBar(
             content: Text(
               'Failed to update profile',
-              style: GoogleFonts.inter(),
+              style: TextStyle(),
             ),
             backgroundColor: Colors.red,
           ),
@@ -486,7 +484,7 @@ class _PersonalInformationScreenState
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(failure.message, style: GoogleFonts.inter()),
+              content: Text(failure.message, style: TextStyle()),
               backgroundColor: Colors.red,
             ),
           );
@@ -498,7 +496,7 @@ class _PersonalInformationScreenState
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Profile picture updated successfully', style: GoogleFonts.inter()),
+              content: Text('Profile picture updated successfully', style: TextStyle()),
               backgroundColor: kDarkGreen,
             ),
           );
@@ -508,7 +506,7 @@ class _PersonalInformationScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile picture', style: GoogleFonts.inter()),
+            content: Text('Failed to update profile picture', style: TextStyle()),
             backgroundColor: Colors.red,
           ),
         );

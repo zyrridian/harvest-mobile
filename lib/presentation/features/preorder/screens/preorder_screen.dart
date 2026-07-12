@@ -76,14 +76,30 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
               titleSpacing: 0,
               centerTitle: false,
               title: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 150),
+                duration: const Duration(milliseconds: 200),
                 crossFadeState: _isSearchVisible
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
+                layoutBuilder: (Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Positioned(
+                        key: bottomChildKey,
+                        left: 0.0,
+                        right: 0.0,
+                        child: bottomChild,
+                      ),
+                      Positioned(
+                        key: topChildKey,
+                        child: topChild,
+                      ),
+                    ],
+                  );
+                },
                 firstChild: Padding(
-                  padding: const EdgeInsets.only(
-                      left:
-                          48), // Offsets the width of the 2 action buttons to keep it visually centered
+                  padding: const EdgeInsets.only(left: 48), 
                   child: SizedBox(
                     width: double.infinity,
                     child: Center(
@@ -98,11 +114,9 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
                     ),
                   ),
                 ),
-                secondChild: Padding(
-                  padding: _isSearchVisible
-                      ? EdgeInsets.zero
-                      : EdgeInsets.only(left: 16),
-                  child: const AppSearchBar(
+                secondChild: const SizedBox(
+                  width: double.infinity,
+                  child: AppSearchBar(
                     hintText: 'Search harvests...',
                     height: 38,
                   ),
@@ -149,30 +163,23 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
               ],
             ),
             SliverPersistentHeader(
-              pinned: true,
+              pinned: !_isSearchVisible,
               delegate: PillTabBarDelegate(
-                child: AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 200),
-                  crossFadeState: _isSearchVisible
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  firstChild: PillTabBar(
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, top: 4, bottom: 12),
-                    tabs: _filters
-                        .map((f) => PillTabItem(
-                              name: f['name'] as String,
-                              icon: f['icon'] as IconData?,
-                            ))
-                        .toList(),
-                    selectedIndex: _selectedFilterIndex,
-                    onTabSelected: _onFilterTapped,
-                  ),
-                  secondChild: Container(
-                    height: 52,
-                    color: Colors.white,
-                  ),
-                ),
+                height: _isSearchVisible ? 0.0 : 52.0,
+                child: _isSearchVisible
+                    ? const SizedBox()
+                    : PillTabBar(
+                        padding: const EdgeInsets.only(
+                            left: 16, right: 16, top: 4, bottom: 12),
+                        tabs: _filters
+                            .map((f) => PillTabItem(
+                                  name: f['name'] as String,
+                                  icon: f['icon'] as IconData?,
+                                ))
+                            .toList(),
+                        selectedIndex: _selectedFilterIndex,
+                        onTabSelected: _onFilterTapped,
+                      ),
               ),
             ),
           ];

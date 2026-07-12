@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/utils/localization_extension.dart';
@@ -18,7 +18,7 @@ import 'language_selection_screen.dart';
 // import '../../../../core/config/theme/app_colors.dart'; // Local constants used for demo
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -41,10 +41,10 @@ class ProfileScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Text(
           context.l10n.profile,
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
             letterSpacing: -0.5,
           ),
         ),
@@ -58,11 +58,11 @@ class ProfileScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: kTextGrey),
+              const PhosphorIcon(PhosphorIconsRegular.warningCircle, size: 48, color: kTextGrey),
               const SizedBox(height: 16),
               Text(
                 error,
-                style: GoogleFonts.inter(color: kTextGrey),
+                style: TextStyle(color: kTextGrey),
               ),
             ],
           ),
@@ -79,9 +79,9 @@ class ProfileScreen extends ConsumerWidget {
                 border: Border.all(color: kPillGrey),
                 boxShadow: [
                   BoxShadow(
-                    color: kDarkGreen.withOpacity(0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -105,7 +105,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     profile.name,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -114,7 +114,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     profile.email,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: kTextGrey,
                       fontSize: 14,
                     ),
@@ -140,9 +140,9 @@ class ProfileScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: kDarkGreen.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
+                    color: kDarkGreen.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -161,7 +161,7 @@ class ProfileScreen extends ConsumerWidget {
                             color: Colors.white.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.workspace_premium_rounded,
+                          child: const PhosphorIcon(PhosphorIconsRegular.crown,
                               color: Color(0xFFFFD700), size: 28),
                         ),
                         const SizedBox(width: 16),
@@ -171,7 +171,7 @@ class ProfileScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 context.l10n.harvestPremium,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -180,7 +180,7 @@ class ProfileScreen extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Text(
                                 context.l10n.premiumDescription,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12,
                                 ),
@@ -188,7 +188,7 @@ class ProfileScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios_rounded,
+                        const PhosphorIcon(PhosphorIconsRegular.caretRight,
                             color: Colors.white54, size: 16),
                       ],
                     ),
@@ -211,7 +211,7 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   _buildModernMenuItem(
-                    icon: Icons.person_outline_rounded,
+                    icon: PhosphorIconsRegular.user,
                     title: context.l10n.personalInformation,
                     onTap: () => Navigator.push(
                       context,
@@ -222,13 +222,13 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.location_on_outlined,
+                    icon: PhosphorIconsRegular.mapPin,
                     title: context.l10n.myAddresses,
                     onTap: () => context.push(AppRouter.addresses),
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.favorite_border_rounded,
+                    icon: PhosphorIconsRegular.heart,
                     title: 'Favorite Products', // Or localized
                     onTap: () => Navigator.push(
                       context,
@@ -239,13 +239,13 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.notifications_outlined,
+                    icon: PhosphorIconsRegular.bell,
                     title: context.l10n.notifications,
                     onTap: () => context.push(AppRouter.notifications),
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.security_outlined,
+                    icon: PhosphorIconsRegular.shieldCheck,
                     title: context.l10n.security,
                     onTap: () => Navigator.push(
                       context,
@@ -256,7 +256,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.language,
+                    icon: PhosphorIconsRegular.globe,
                     title: context.l10n.language,
                     trailingText: currentLanguage,
                     onTap: () => Navigator.push(
@@ -284,7 +284,7 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   _buildModernMenuItem(
-                    icon: Icons.help_outline_rounded,
+                    icon: PhosphorIconsRegular.question,
                     title: context.l10n.helpCenter,
                     onTap: () => Navigator.push(
                       context,
@@ -295,7 +295,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.privacy_tip_outlined,
+                    icon: PhosphorIconsRegular.shield,
                     title: context.l10n.privacyPolicy,
                     onTap: () => Navigator.push(
                       context,
@@ -306,7 +306,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _buildDivider(),
                   _buildModernMenuItem(
-                    icon: Icons.info_outline_rounded,
+                    icon: PhosphorIconsRegular.info,
                     title: context.l10n.aboutUs,
                     onTap: () => Navigator.push(
                       context,
@@ -334,7 +334,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   context.l10n.logout,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: const Color(0xFFDC2626), // Dark Red
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -347,7 +347,7 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Text(
                 context.l10n.version,
-                style: GoogleFonts.inter(color: kTextGrey, fontSize: 12),
+                style: TextStyle(color: kTextGrey, fontSize: 12),
               ),
             ),
             const SizedBox(height: 40),
@@ -364,7 +364,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 8),
       child: Text(
         title,
-        style: GoogleFonts.inter(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: kTextGrey,
@@ -387,12 +387,12 @@ class ProfileScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Row(
             children: [
-              Icon(icon, color: kDarkGreen, size: 22),
+              PhosphorIcon(icon, color: kDarkGreen, size: 22),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: kDarkGreen,
@@ -404,10 +404,10 @@ class ProfileScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(right: 8),
                   child: Text(
                     trailingText,
-                    style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+                    style: TextStyle(color: kTextGrey, fontSize: 13),
                   ),
                 ),
-              Icon(Icons.chevron_right_rounded, color: kPillGrey, size: 20),
+              PhosphorIcon(PhosphorIconsRegular.caretRight, color: kPillGrey, size: 20),
             ],
           ),
         ),
@@ -427,16 +427,16 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(context.l10n.logout,
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
           context.l10n.logoutConfirm,
-          style: GoogleFonts.inter(color: kTextGrey),
+          style: TextStyle(color: kTextGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.cancel,
-                style: GoogleFonts.inter(color: kTextGrey)),
+                style: TextStyle(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () async {
@@ -465,7 +465,7 @@ class ProfileScreen extends ConsumerWidget {
             },
             child: Text(
               context.l10n.logout,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   color: const Color(0xFFDC2626), fontWeight: FontWeight.bold),
             ),
           ),

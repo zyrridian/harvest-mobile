@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../core/localization/language_constants.dart';
 import '../../../../core/providers/language_provider.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -27,15 +27,15 @@ class LanguageSelectionScreen extends ConsumerWidget {
         centerTitle: false,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Select Language',
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: kDarkGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
             letterSpacing: -0.5,
           ),
         ),
@@ -46,7 +46,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
           // Description
           Text(
             'Choose your preferred language for the app',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               color: kTextGrey,
             ),
@@ -61,7 +61,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               border: Border.all(color: kPillGrey),
               boxShadow: [
                 BoxShadow(
-                  color: kDarkGreen.withOpacity(0.05),
+                  color: Colors.black.withOpacity(0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -140,12 +140,12 @@ class LanguageSelectionScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: kDarkGreen, size: 20),
+                PhosphorIcon(PhosphorIconsRegular.info, color: kDarkGreen, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'The app will restart to apply the new language',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 13,
                       color: kDarkGreen,
                     ),
@@ -179,7 +179,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               SnackBar(
                 content: Text(
                   'Language changed to $languageName',
-                  style: GoogleFonts.inter(),
+                  style: TextStyle(),
                 ),
                 backgroundColor: kDarkGreen,
                 behavior: SnackBarBehavior.floating,
@@ -216,7 +216,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   languageName,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected ? kDarkGreen : kDarkGreen.withOpacity(0.7),
@@ -232,8 +232,8 @@ class LanguageSelectionScreen extends ConsumerWidget {
                     color: kDarkGreen,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check,
+                  child: const PhosphorIcon(
+                    PhosphorIconsRegular.check,
                     color: Colors.white,
                     size: 16,
                   ),
