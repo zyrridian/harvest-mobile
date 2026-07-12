@@ -94,7 +94,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     ref.watch(authControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: Colors.white,
       body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
@@ -115,15 +115,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFFF0F5F2), // Light green tint
                   borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
                 ),
                 child: const Icon(
                   Icons.agriculture,
@@ -139,7 +132,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 style: TextStyle(
                   fontSize: 42,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.primary,
                   letterSpacing: 2,
                 ),
               ),
@@ -150,20 +143,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 'Fresh from the Farm',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Color(0xFF6E7A75), // kTextGrey
                   letterSpacing: 1,
                 ),
               ),
               const SizedBox(height: 48),
 
               // Loading indicator
-              SizedBox(
+              const SizedBox(
                 width: 30,
                 height: 30,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.white.withOpacity(0.8),
+                    AppColors.primary,
                   ),
                 ),
               ),

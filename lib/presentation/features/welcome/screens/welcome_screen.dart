@@ -4,6 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/core/services/storage_service.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+const kBgColor = Color(0xFFFFFFFF);
+const kDarkGreen = Color(0xFF1A2F25);
+const kTextGrey = Color(0xFF6E7A75);
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -18,32 +23,32 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      icon: Icons.agriculture,
-      title: 'Welcome to Harvest',
+      icon: PhosphorIconsRegular.plant,
+      title: 'Fresh from the Farm',
       description:
           'Connect directly with local farmers and get the freshest produce delivered to your doorstep.',
-      color: AppColors.primary,
+      color: kDarkGreen,
     ),
     OnboardingPage(
-      icon: Icons.schedule,
-      title: 'Pre-Order Fresh Harvests',
+      icon: PhosphorIconsRegular.calendarCheck,
+      title: 'Pre-Order Harvests',
       description:
-          'Know when farmers are harvesting and pre-order to get the freshest produce at better prices.',
-      color: const Color(0xFF4CAF50),
+          'Know exactly when farmers are harvesting and secure your fresh produce at better prices.',
+      color: kDarkGreen,
     ),
     OnboardingPage(
-      icon: Icons.location_on,
-      title: 'Discover Nearby Farmers',
+      icon: PhosphorIconsRegular.mapPin,
+      title: 'Support Local',
       description:
-          'Find farmers in your area and subscribe to get notified about their upcoming harvests.',
-      color: const Color(0xFFFF9800),
+          'Discover farmers in your area and build a sustainable local food community.',
+      color: kDarkGreen,
     ),
     OnboardingPage(
-      icon: Icons.verified,
+      icon: PhosphorIconsRegular.sealCheck,
       title: 'Quality Guaranteed',
       description:
-          'Get organic, fresh, and quality produce directly from verified local farmers.',
-      color: const Color(0xFF2196F3),
+          'Get organic, fresh, and hand-picked produce directly from verified growers.',
+      color: kDarkGreen,
     ),
   ];
 
@@ -72,6 +77,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -85,8 +91,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   child: Text(
                     'Skip',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
+                      color: kTextGrey,
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -175,12 +182,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             width: 160,
             height: 160,
             decoration: BoxDecoration(
-              color: page.color.withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: const Color(0xFFF0F5F2), // Light green tint
+              borderRadius: BorderRadius.circular(32),
             ),
-            child: Icon(
+            child: PhosphorIcon(
               page.icon,
-              size: 80,
+              size: 64,
               color: page.color,
             ),
           ),
@@ -193,7 +200,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: kDarkGreen,
             ),
           ),
           const SizedBox(height: 16),
@@ -203,8 +210,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             page.description,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
-              color: AppColors.textSecondary,
+              fontSize: 15,
+              color: kTextGrey,
               height: 1.5,
             ),
           ),

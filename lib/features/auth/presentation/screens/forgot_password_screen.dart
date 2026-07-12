@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 // Design constants matching current style
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -66,15 +66,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kPillGrey),
-            ),
-            child: const Icon(Icons.arrow_back, color: kDarkGreen, size: 20),
-          ),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => context.pop(),
         ),
       ),
@@ -99,24 +91,20 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF2D4A3E), Color(0xFF1A2F25)],
-            ),
+            color: const Color(0xFFF0F5F2), // Light green tint
             borderRadius: BorderRadius.circular(24),
           ),
-          child: const Icon(
-            Icons.lock_reset_rounded,
+          child: const PhosphorIcon(
+            PhosphorIconsRegular.lockKey,
             size: 50,
-            color: Colors.white,
+            color: kDarkGreen,
           ),
         ),
         const SizedBox(height: 32),
 
         Text(
           'Forgot Password?',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -127,7 +115,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         Text(
           'Enter your email address and we\'ll send you instructions to reset your password.',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kTextGrey,
             fontSize: 15,
             height: 1.5,
@@ -147,12 +135,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 enabled: !_isLoading,
-                style: GoogleFonts.inter(color: kDarkGreen),
+                style: TextStyle(color: kDarkGreen),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: GoogleFonts.inter(color: kTextGrey),
+                  labelStyle: TextStyle(color: kTextGrey),
                   prefixIcon:
-                      const Icon(Icons.email_outlined, color: kDarkGreen),
+                      const PhosphorIcon(PhosphorIconsRegular.envelope, color: kDarkGreen),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -210,7 +198,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       )
                     : Text(
                         'Send Reset Link',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -223,7 +211,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 onPressed: () => context.pop(),
                 child: Text(
                   'Back to Login',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kDarkGreen,
                     fontWeight: FontWeight.w600,
                   ),
@@ -258,7 +246,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         Text(
           'Check Your Email',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -269,7 +257,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         Text(
           'We\'ve sent password reset instructions to:',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kTextGrey,
             fontSize: 15,
           ),
@@ -279,7 +267,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         Text(
           _emailController.text.trim(),
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -302,7 +290,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               Expanded(
                 child: Text(
                   'Didn\'t receive the email? Check your spam folder or try again.',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: const Color(0xFF92400E),
                     fontSize: 13,
                   ),
@@ -329,7 +317,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             child: Text(
               'Back to Login',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -344,7 +332,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           },
           child: Text(
             'Try different email',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               color: kDarkGreen,
               fontWeight: FontWeight.w600,
             ),

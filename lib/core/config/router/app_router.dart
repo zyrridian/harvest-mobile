@@ -7,6 +7,8 @@ import 'package:harvest_app/features/auth/presentation/screens/forgot_password_s
 import '../../../features/auth/presentation/screens/login_screen.dart';
 import '../../../features/auth/presentation/screens/role_selection_screen.dart';
 import '../../../features/auth/presentation/screens/register_screen.dart';
+import '../../../features/auth/presentation/screens/terms_of_service_screen.dart';
+import '../../../features/auth/presentation/screens/privacy_policy_screen.dart';
 import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
@@ -53,6 +55,8 @@ class AppRouter {
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
+  static const String termsOfService = '/terms-of-service';
+  static const String privacyPolicy = '/privacy-policy';
 
   // Main routes
   static const String main = '/main';
@@ -113,17 +117,33 @@ class AppRouter {
       GoRoute(
         path: login,
         name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) {
+          final role = state.uri.queryParameters['role'] ?? 'CONSUMER';
+          return LoginScreen(role: role);
+        },
       ),
       GoRoute(
         path: register,
         name: 'register',
-        builder: (context, state) => const RegisterScreen(),
+        builder: (context, state) {
+          final role = state.uri.queryParameters['role'] ?? 'CONSUMER';
+          return RegisterScreen(role: role);
+        },
       ),
       GoRoute(
         path: forgotPassword,
         name: 'forgotPassword',
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: termsOfService,
+        name: 'termsOfService',
+        builder: (context, state) => const TermsOfServiceScreen(),
+      ),
+      GoRoute(
+        path: privacyPolicy,
+        name: 'privacyPolicy',
+        builder: (context, state) => const PrivacyPolicyScreen(),
       ),
       GoRoute(
         path: main,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,17 +7,18 @@ import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/features/auth/domain/entities/user.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_state.dart';
-import 'package:harvest_app/features/auth/presentation/providers/auth_role_provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 // Design constants matching current style
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  final String role;
+  const RegisterScreen({super.key, required this.role});
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -52,7 +54,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         SnackBar(
           content: Text(
             'Please accept the terms and conditions',
-            style: GoogleFonts.inter(),
+            style: TextStyle(),
           ),
           backgroundColor: const Color(0xFFDC2626),
           behavior: SnackBarBehavior.floating,
@@ -61,7 +63,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    final userType = ref.read(authRoleProvider);
+    final userType = widget.role;
 
     await ref.read(authControllerProvider.notifier).register(
           email: _emailController.text.trim(),
@@ -86,7 +88,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             SnackBar(
               content: Text(
                 message,
-                style: GoogleFonts.inter(),
+                style: TextStyle(),
               ),
               backgroundColor: const Color(0xFFDC2626),
               behavior: SnackBarBehavior.floating,
@@ -111,15 +113,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kPillGrey),
-            ),
-            child: const Icon(Icons.arrow_back, color: kDarkGreen, size: 20),
-          ),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => context.pop(),
         ),
       ),
@@ -136,23 +130,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF2D4A3E), Color(0xFF1A2F25)],
-                    ),
+                    color: const Color(0xFFF0F5F2), // Light green tint
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kPillGrey, width: 1),
                   ),
                   child: const Icon(
                     Icons.agriculture,
                     size: 40,
-                    color: Colors.white,
+                    color: kDarkGreen,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'Join Harvest',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -162,7 +153,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Create an account to start ordering fresh produce',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kTextGrey,
                     fontSize: 14,
                   ),
@@ -177,12 +168,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: 'Full Name',
                     hintText: 'Enter your full name',
                     prefixIcon:
-                        const Icon(Icons.person_outline, color: kTextGrey),
+                        const PhosphorIcon(PhosphorIconsRegular.user, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
-                    labelStyle: GoogleFonts.inter(color: kTextGrey),
+                    labelStyle: TextStyle(color: kTextGrey),
                     hintStyle:
-                        GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                        TextStyle(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -225,12 +216,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: 'Email',
                     hintText: 'Enter your email',
                     prefixIcon:
-                        const Icon(Icons.email_outlined, color: kTextGrey),
+                        const PhosphorIcon(PhosphorIconsRegular.envelope, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
-                    labelStyle: GoogleFonts.inter(color: kTextGrey),
+                    labelStyle: TextStyle(color: kTextGrey),
                     hintStyle:
-                        GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                        TextStyle(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -277,12 +268,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: 'Phone Number (Optional)',
                     hintText: '+62 xxx xxxx xxxx',
                     prefixIcon:
-                        const Icon(Icons.phone_outlined, color: kTextGrey),
+                        const PhosphorIcon(PhosphorIconsRegular.phone, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
-                    labelStyle: GoogleFonts.inter(color: kTextGrey),
+                    labelStyle: TextStyle(color: kTextGrey),
                     hintStyle:
-                        GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                        TextStyle(color: kTextGrey.withOpacity(0.5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: kPillGrey),
@@ -324,17 +315,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: 'Password',
                     hintText: 'Enter your password',
                     prefixIcon:
-                        const Icon(Icons.lock_outline, color: kTextGrey),
+                        const PhosphorIcon(PhosphorIconsRegular.lock, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
-                    labelStyle: GoogleFonts.inter(color: kTextGrey),
+                    labelStyle: TextStyle(color: kTextGrey),
                     hintStyle:
-                        GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                        TextStyle(color: kTextGrey.withOpacity(0.5)),
                     suffixIcon: IconButton(
-                      icon: Icon(
+                      icon: PhosphorIcon(
                         _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? PhosphorIconsRegular.eyeSlash
+                            : PhosphorIconsRegular.eye,
                         color: kTextGrey,
                       ),
                       onPressed: () {
@@ -385,17 +376,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: 'Confirm Password',
                     hintText: 'Re-enter your password',
                     prefixIcon:
-                        const Icon(Icons.lock_outline, color: kTextGrey),
+                        const PhosphorIcon(PhosphorIconsRegular.lock, color: kTextGrey),
                     filled: true,
                     fillColor: Colors.white,
-                    labelStyle: GoogleFonts.inter(color: kTextGrey),
+                    labelStyle: TextStyle(color: kTextGrey),
                     hintStyle:
-                        GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                        TextStyle(color: kTextGrey.withOpacity(0.5)),
                     suffixIcon: IconButton(
-                      icon: Icon(
+                      icon: PhosphorIcon(
                         _obscureConfirmPassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? PhosphorIconsRegular.eyeSlash
+                            : PhosphorIconsRegular.eye,
                         color: kTextGrey,
                       ),
                       onPressed: () {
@@ -464,25 +455,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         child: Text.rich(
                           TextSpan(
                             text: 'I agree to the ',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 13,
                               color: kTextGrey,
                             ),
                             children: [
                               TextSpan(
                                 text: 'Terms of Service',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: kDarkGreen,
                                   fontWeight: FontWeight.w600,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.push(AppRouter.termsOfService);
+                                  },
                               ),
                               const TextSpan(text: ' and '),
                               TextSpan(
                                 text: 'Privacy Policy',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: kDarkGreen,
                                   fontWeight: FontWeight.w600,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.push(AppRouter.privacyPolicy);
+                                  },
                               ),
                             ],
                           ),
@@ -528,7 +527,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           )
                         : Text(
                             'Create Account',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
@@ -544,7 +543,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: kTextGrey,
                         fontSize: 14,
                       ),
@@ -561,7 +560,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       child: Text(
                         'Login',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
