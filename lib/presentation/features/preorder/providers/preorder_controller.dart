@@ -58,12 +58,20 @@ final getActiveCampaignsUseCaseProvider =
 class PreOrderController extends _$PreOrderController {
   @override
   PreOrderState build() {
-    _fetchData();
+    Future.microtask(() => _fetchData());
     return const PreOrderState.loading();
   }
 
-  Future<void> _fetchData() async {
-    state = const PreOrderState.loading();
+  Future<void> _fetchData({bool showLoading = true}) async {
+    int currentTabIndex = 0;
+    state.maybeWhen(
+      data: (data) => currentTabIndex = data.selectedTabIndex,
+      orElse: () {},
+    );
+
+    if (showLoading) {
+      state = const PreOrderState.loading();
+    }
 
     try {
       final usecase = ref.read(getPreOrderDataUseCaseProvider);
@@ -81,7 +89,7 @@ class PreOrderController extends _$PreOrderController {
             (fail) {
               state = PreOrderState.data(PreOrderData.fromResponseEntity(
                 entity,
-                selectedTabIndex: 0,
+                selectedTabIndex: currentTabIndex,
               ));
             },
             (campaigns) {
@@ -117,7 +125,7 @@ class PreOrderController extends _$PreOrderController {
 
               state = PreOrderState.data(PreOrderData.fromResponseEntity(
                 updatedEntity,
-                selectedTabIndex: 0,
+                selectedTabIndex: currentTabIndex,
               ));
             },
           );
@@ -126,6 +134,10 @@ class PreOrderController extends _$PreOrderController {
     } catch (e) {
       state = PreOrderState.error(e.toString());
     }
+  }
+
+  Future<void> refresh() async {
+    await _fetchData(showLoading: false);
   }
 
   void setTabIndex(int index) {

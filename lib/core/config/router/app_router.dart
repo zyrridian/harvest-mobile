@@ -37,6 +37,8 @@ import '../../../features/storefront/presentation/screens/marketplace_screen.dar
 import '../../../features/storefront/presentation/screens/category_products_screen.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_detail_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_reservations_screen.dart';
 import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
 import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
 import '../../../presentation/features/producer/route_plan/screens/route_plan_screen.dart';
@@ -68,6 +70,8 @@ class AppRouter {
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
   static const String preorder = '/preorder'; // preorder list
+  static const String preorderReservations = '/preorder-reservations'; // preorder reservations
+  static const String preorderDetail = '/preorder/:slug'; // preorder detail
   static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
@@ -250,6 +254,19 @@ class AppRouter {
         path: preorder,
         name: 'preorder',
         builder: (context, state) => const PreOrderScreen(),
+      ),
+      GoRoute(
+        path: preorderReservations,
+        name: 'preorderReservations',
+        builder: (context, state) => const PreOrderReservationsScreen(),
+      ),
+      GoRoute(
+        path: preorderDetail,
+        name: 'preorderDetail',
+        builder: (context, state) {
+          final slug = state.pathParameters['slug'] ?? 'unknown';
+          return PreOrderDetailScreen(slug: slug);
+        },
       ),
       GoRoute(
         path: harvestSchedule,

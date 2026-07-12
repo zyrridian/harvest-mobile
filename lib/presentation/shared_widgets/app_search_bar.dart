@@ -33,6 +33,7 @@ class AppSearchBar extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
+        textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(color: Colors.black87, fontSize: 13),
         decoration: InputDecoration(
           hintText: hintText,
@@ -60,7 +61,7 @@ class AppSearchBar extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         ),
       ),
     );

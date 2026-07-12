@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary Colors
-  static const Color primary = Color(0xFF166534); // Harvest Green
+  static const Color primary = Color(0xFF1A2F25); //Color(0xFF166534); // Harvest Green
   static const Color primaryDark = Color(0xFF14532D);
   static const Color primaryLight = Color(0xFF4ADE80);
 

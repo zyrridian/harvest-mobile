@@ -13,38 +13,12 @@ import 'community_post_detail_screen.dart';
 import 'recipe_detail_screen.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-
-class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final double height;
-
-  _StickyHeaderDelegate({required this.child, this.height = 40.0});
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.only(bottom: 8),
-      child: child,
-    );
-  }
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
-}
+import 'package:harvest_app/presentation/shared_widgets/pill_tab_bar.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
-const kPrimaryGreen = Color(0xFF166534);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
 
@@ -193,9 +167,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     title: 'Community Post',
                     subtitle: 'Share an update or ask a question',
                     icon: PhosphorIconsRegular.pencilSimple,
-                    iconColor: kPrimaryGreen,
+                    iconColor: AppColors.primary,
                     rotation: -0.012, // -0.7 deg
-                    tapeColor: kPrimaryGreen.withOpacity(0.15),
+                    tapeColor: AppColors.primary.withOpacity(0.15),
                     onTap: () => Navigator.pop(context, 'post'),
                   ),
                   const SizedBox(height: 24),
@@ -270,7 +244,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             ),
           FloatingActionButton.extended(
             heroTag: 'create_post_fab',
-            backgroundColor: kPrimaryGreen,
+            backgroundColor: AppColors.primary,
             onPressed: _openCreatePost,
             icon: const Icon(Icons.add, color: Colors.white),
             label: Text(
@@ -294,43 +268,14 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               // Filters
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _StickyHeaderDelegate(
-                  height: 48,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _filters.length,
-                    itemBuilder: (context, index) {
-                      final filter = _filters[index];
-                      final isSelected = _selectedFilter == filter;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          showCheckmark: false,
-                          label: Text(filter),
-                          selected: isSelected,
-                          onSelected: (_) => _onFilterSelected(filter),
-                          selectedColor: kPrimaryGreen,
-                          backgroundColor: Colors.white,
-                          labelStyle: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.grey.shade700,
-                            fontWeight: isSelected
-                                ? FontWeight.w500
-                                : FontWeight.normal,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(
-                              color: isSelected
-                                  ? kPrimaryGreen
-                                  : Colors.grey.shade300,
-                            ),
-                          ),
-                        ),
-                      );
+                delegate: PillTabBarDelegate(
+                  child: PillTabBar(
+                    tabs: _filters.map((f) => PillTabItem(name: f)).toList(),
+                    selectedIndex: _filters.indexOf(_selectedFilter),
+                    onTabSelected: (index) {
+                      _onFilterSelected(_filters[index]);
                     },
+                    activeColor: AppColors.primary,
                   ),
                 ),
               ),
@@ -368,7 +313,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: kPrimaryGreen)),
+        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -407,7 +352,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: kPrimaryGreen)),
+        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -768,7 +713,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     .map((t) => Text(
                           '#${t.tag}',
                           style: GoogleFonts.inter(
-                            color: kPrimaryGreen,
+                            color: AppColors.primary,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),

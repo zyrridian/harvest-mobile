@@ -79,7 +79,7 @@ class AppTheme {
       ),
 
       // Text Theme
-      textTheme: GoogleFonts.interTextTheme(const TextTheme(
+      textTheme: GoogleFonts.poppinsTextTheme(const TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         displayMedium: AppTextStyles.displayMedium,
         displaySmall: AppTextStyles.displaySmall,
