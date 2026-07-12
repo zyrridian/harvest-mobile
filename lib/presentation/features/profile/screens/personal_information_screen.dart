@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../providers/profile_providers.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../providers/profile_controller.dart';
+import '../../../providers/utility_providers.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -28,6 +33,7 @@ class _PersonalInformationScreenState
 
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isUploadingPicture = false;
 
   @override
   void initState() {
@@ -49,53 +55,59 @@ class _PersonalInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final profileAsync = ref.watch(userProfileProvider);
-
-    return Scaffold(
-      backgroundColor: kBgColor,
-      appBar: AppBar(
+    return ref.watch(profileControllerProvider).when(
+      initial: () => const Scaffold(backgroundColor: kBgColor),
+      loading: () => const Scaffold(
         backgroundColor: kBgColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Personal Information',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: kDarkGreen,
-          ),
-        ),
-        actions: [
-          if (!_isEditing)
-            TextButton(
-              onPressed: () {
-                setState(() => _isEditing = true);
-              },
-              child: Text(
-                'Edit',
-                style: GoogleFonts.inter(
-                  color: kDarkGreen,
-                  fontWeight: FontWeight.w600,
-                ),
+        body: Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      ),
+      error: (e) => Scaffold(
+        backgroundColor: kBgColor,
+        body: Center(child: Text(e.toString(), style: GoogleFonts.inter())),
+      ),
+      data: (profile) {
+        if (!_isEditing) {
+          _nameController.text = profile.name;
+          _emailController.text = profile.email;
+          _phoneController.text = profile.phoneNumber ?? '';
+          _bioController.text = profile.bio ?? '';
+        }
+
+        return Scaffold(
+          backgroundColor: kBgColor,
+          appBar: AppBar(
+            backgroundColor: kBgColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Personal Information',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: kDarkGreen,
               ),
             ),
-        ],
-      ),
-      body: profileAsync.when(
-        data: (profile) {
-          // Initialize controllers with current data when not editing
-          if (!_isEditing) {
-            _nameController.text = profile.name;
-            _emailController.text = profile.email;
-            _phoneController.text = profile.phone ?? '';
-            _bioController.text = profile.bio ?? '';
-          }
-
-          return SingleChildScrollView(
+            actions: [
+              if (!_isEditing)
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isEditing = true);
+                  },
+                  child: Text(
+                    'Edit',
+                    style: GoogleFonts.inter(
+                      color: kDarkGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
@@ -103,60 +115,87 @@ class _PersonalInformationScreenState
                 children: [
                   // Profile Picture Section
                   Center(
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: kPillGrey,
-                            border: Border.all(color: Colors.white, width: 4),
-                            image: profile.profileImageUrl != null
-                                ? DecorationImage(
-                                    image:
-                                        NetworkImage(profile.profileImageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                            boxShadow: [
-                              BoxShadow(
-                                color: kDarkGreen.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                    child: GestureDetector(
+                      onTap: (!_isEditing || _isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: kPillGrey,
+                                  border: Border.all(color: Colors.white, width: 4),
+                                  image: profile.avatarUrl != null
+                                      ? DecorationImage(
+                                          image: NetworkImage(profile.avatarUrl!),
+                                          fit: BoxFit.cover,
+                                          colorFilter: _isEditing 
+                                              ? null 
+                                              : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                        )
+                                      : null,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: kDarkGreen.withValues(alpha: 0.1),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: profile.avatarUrl == null
+                                    ? const Icon(Icons.person, size: 60, color: kTextGrey)
+                                    : null,
                               ),
+                              if (_isEditing)
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: kDarkGreen,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(Icons.camera_alt,
+                                      size: 18, color: Colors.white),
+                                ),
                             ],
                           ),
-                          child: profile.profileImageUrl == null
-                              ? Icon(Icons.person, size: 60, color: kTextGrey)
-                              : null,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: kDarkGreen,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(Icons.camera_alt,
-                              size: 18, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: _isLoading ? null : _changeProfilePicture,
-                    child: Text(
-                      'Change Profile Picture',
-                      style: GoogleFonts.inter(
-                        color: kDarkGreen,
-                        fontWeight: FontWeight.w600,
+                          if (_isUploadingPicture)
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black.withValues(alpha: 0.5),
+                              ),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
+
+                  if (_isEditing) ...[
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: (_isLoading || _isUploadingPicture) ? null : _changeProfilePicture,
+                      child: Text(
+                        'Change Profile Picture',
+                        style: GoogleFonts.inter(
+                          color: kDarkGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 32),
 
@@ -292,16 +331,9 @@ class _PersonalInformationScreenState
                 ],
               ),
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(
-            'Error loading profile',
-            style: GoogleFonts.inter(color: kTextGrey),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -396,10 +428,10 @@ class _PersonalInformationScreenState
     setState(() => _isLoading = true);
 
     try {
-      final updateProfile = ref.read(updateUserProfileProvider);
-      await updateProfile(
+      final profileController = ref.read(profileControllerProvider.notifier);
+      await profileController.updateUserProfile(
         name: _nameController.text,
-        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
+        phoneNumber: _phoneController.text.isEmpty ? null : _phoneController.text,
         bio: _bioController.text.isEmpty ? null : _bioController.text,
       );
 
@@ -437,15 +469,52 @@ class _PersonalInformationScreenState
   }
 
   Future<void> _changeProfilePicture() async {
-    // TODO: Implement image picker
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Image picker not implemented yet',
-          style: GoogleFonts.inter(),
-        ),
-        backgroundColor: kTextGrey,
-      ),
-    );
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+    
+    if (!mounted) return;
+    
+    setState(() => _isUploadingPicture = true);
+    
+    try {
+      final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
+      final result = await uploadFileUseCase(File(pickedFile.path));
+      
+      await result.fold(
+        (failure) async {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(failure.message, style: GoogleFonts.inter()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        (uploadedFile) async {
+          final profileController = ref.read(profileControllerProvider.notifier);
+          await profileController.updateProfileImage(uploadedFile.url);
+          
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Profile picture updated successfully', style: GoogleFonts.inter()),
+              backgroundColor: kDarkGreen,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile picture', style: GoogleFonts.inter()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingPicture = false);
+    }
   }
 }

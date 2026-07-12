@@ -1,0 +1,76 @@
+name: Deploy Flutter Web to VM via GHCR
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.4"
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Create env file
+        run: |
+          mkdir -p env
+          echo '{"BASE_URL": "https://marketplace.zyrridian.dev"}' > env/prod.json
+
+      - name: Build Flutter Web
+        run: flutter build web --release --dart-define-from-file=env/prod.json
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            IMAGE_URL=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | tr '[:upper:]' '[:lower:]')
+            
+            # Uncomment the next line and add VM_GH_PAT secret if repo is private
+            # echo ${{ secrets.VM_GH_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            docker pull $IMAGE_URL
+            docker stop flutter-web-app || true
+            docker rm flutter-web-app || true
+            docker run -d --name flutter-web-app -p 3001:80 --restart unless-stopped $IMAGE_URL

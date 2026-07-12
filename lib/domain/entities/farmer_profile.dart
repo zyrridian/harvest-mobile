@@ -7,6 +7,8 @@ class FarmerProfile extends Equatable {
   final String? profileImage;
   final String? coverImage;
   final String address;
+  final String? city;
+  final String? state;
   final double latitude;
   final double longitude;
   final String? phoneNumber;
@@ -20,6 +22,8 @@ class FarmerProfile extends Equatable {
     this.profileImage,
     this.coverImage,
     required this.address,
+    this.city,
+    this.state,
     required this.latitude,
     required this.longitude,
     this.phoneNumber,
@@ -35,6 +39,8 @@ class FarmerProfile extends Equatable {
         profileImage,
         coverImage,
         address,
+        city,
+        state,
         latitude,
         longitude,
         phoneNumber,

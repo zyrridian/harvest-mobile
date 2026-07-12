@@ -1,5 +1,5 @@
 import '../../domain/entities/security_settings.dart';
-import '../datasources/security_settings_local_datasource.dart';
+import '../../features/users/data/datasources/local/security_settings_local_datasource.dart';
 import '../models/security_settings_model.dart';
 
 class SecuritySettingsRepository {

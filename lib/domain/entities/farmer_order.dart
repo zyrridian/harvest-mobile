@@ -9,6 +9,7 @@ class FarmerOrder extends Equatable {
   final List<FarmerOrderItem> items;
   final double totalAmount;
   final String deliveryMethod;
+  final String? deliveryDate;
 
   const FarmerOrder({
     required this.id,
@@ -19,6 +20,7 @@ class FarmerOrder extends Equatable {
     required this.items,
     required this.totalAmount,
     required this.deliveryMethod,
+    this.deliveryDate,
   });
 
   @override
@@ -31,6 +33,7 @@ class FarmerOrder extends Equatable {
         items,
         totalAmount,
         deliveryMethod,
+        deliveryDate,
       ];
 }
 
@@ -38,13 +41,15 @@ class FarmerOrderItem extends Equatable {
   final String productName;
   final int quantity;
   final double subtotal;
+  final String? productImage;
 
   const FarmerOrderItem({
     required this.productName,
     required this.quantity,
     required this.subtotal,
+    this.productImage,
   });
 
   @override
-  List<Object?> get props => [productName, quantity, subtotal];
+  List<Object?> get props => [productName, quantity, subtotal, productImage];
 }

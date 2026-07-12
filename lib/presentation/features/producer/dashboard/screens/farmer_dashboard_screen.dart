@@ -26,6 +26,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: _buildAppBar(context),
+
       body: dashboardState.maybeWhen(
         loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (error) => Center(
@@ -50,7 +51,17 @@ class FarmerDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRevenueCard(stats),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Route to Wallet/Earnings screen
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Navigate to Wallet')),
+                    );
+                  },
+                  child: _buildRevenueCard(stats),
+                ),
+                const SizedBox(height: 24),
+                _buildActiveDropPointCard(context),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Urgent Orders', 'View all'),
                 const SizedBox(height: 16),
@@ -100,12 +111,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
             context.push(AppRouter.community);
           },
           icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
-        ),
-        IconButton(
-          onPressed: () {
-            context.push(AppRouter.conversations);
-          },
-          icon: const Icon(PhosphorIconsRegular.chatCircleText, color: kDarkGreen),
         ),
         IconButton(
           onPressed: () {},
@@ -279,6 +284,90 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActiveDropPointCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kBorderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kPrimaryGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(PhosphorIconsFill.mapPin, color: kPrimaryGreen, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Active Drop Point',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: kTextGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Main Street Market',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '2.5 km away • Until 5:00 PM',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: kTextGrey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Update Location clicked')),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPrimaryGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              minimumSize: const Size(0, 36),
+              elevation: 0,
+            ),
+            child: Text(
+              'Update',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

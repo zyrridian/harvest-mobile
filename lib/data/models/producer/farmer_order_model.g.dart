@@ -11,15 +11,14 @@ FarmerOrderModel _$FarmerOrderModelFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       orderNumber: json['order_number'] as String,
       status: json['status'] as String,
-      buyerName: json['buyer_name'] as String?,
-      buyerAvatar: json['buyer_avatar'] as String?,
-      firstItem: json['first_item'] == null
-          ? null
-          : FarmerOrderFirstItemModel.fromJson(
-              json['first_item'] as Map<String, dynamic>),
-      itemsCount: (json['items_count'] as num?)?.toInt(),
+      buyer:
+          FarmerOrderBuyerModel.fromJson(json['buyer'] as Map<String, dynamic>),
+      items: (json['items'] as List<dynamic>)
+          .map((e) => FarmerOrderItemModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       totalAmount: json['total_amount'] as num,
       deliveryMethod: json['delivery_method'] as String?,
+      deliveryDate: json['delivery_date'] as String?,
     );
 
 Map<String, dynamic> _$FarmerOrderModelToJson(FarmerOrderModel instance) =>
@@ -27,24 +26,45 @@ Map<String, dynamic> _$FarmerOrderModelToJson(FarmerOrderModel instance) =>
       'id': instance.id,
       'order_number': instance.orderNumber,
       'status': instance.status,
-      'buyer_name': instance.buyerName,
-      'buyer_avatar': instance.buyerAvatar,
-      'first_item': instance.firstItem?.toJson(),
-      'items_count': instance.itemsCount,
+      'buyer': instance.buyer.toJson(),
+      'items': instance.items.map((e) => e.toJson()).toList(),
       'total_amount': instance.totalAmount,
       'delivery_method': instance.deliveryMethod,
+      'delivery_date': instance.deliveryDate,
     };
 
-FarmerOrderFirstItemModel _$FarmerOrderFirstItemModelFromJson(
+FarmerOrderBuyerModel _$FarmerOrderBuyerModelFromJson(
         Map<String, dynamic> json) =>
-    FarmerOrderFirstItemModel(
+    FarmerOrderBuyerModel(
       name: json['name'] as String,
-      image: json['image'] as String?,
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
+      avatar: json['avatar'] as String?,
     );
 
-Map<String, dynamic> _$FarmerOrderFirstItemModelToJson(
-        FarmerOrderFirstItemModel instance) =>
+Map<String, dynamic> _$FarmerOrderBuyerModelToJson(
+        FarmerOrderBuyerModel instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'image': instance.image,
+      'email': instance.email,
+      'phone': instance.phone,
+      'avatar': instance.avatar,
+    };
+
+FarmerOrderItemModel _$FarmerOrderItemModelFromJson(
+        Map<String, dynamic> json) =>
+    FarmerOrderItemModel(
+      productName: json['product_name'] as String,
+      productImage: json['product_image'] as String?,
+      quantity: (json['quantity'] as num).toInt(),
+      subtotal: json['subtotal'] as num,
+    );
+
+Map<String, dynamic> _$FarmerOrderItemModelToJson(
+        FarmerOrderItemModel instance) =>
+    <String, dynamic>{
+      'product_name': instance.productName,
+      'product_image': instance.productImage,
+      'quantity': instance.quantity,
+      'subtotal': instance.subtotal,
     };

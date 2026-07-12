@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/message.dart';
+import '../../features/community/domain/entities/message.dart';
 
 part 'message_model.g.dart';
 

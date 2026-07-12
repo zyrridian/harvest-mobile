@@ -4,9 +4,5 @@ import 'package:harvest_app/domain/entities/home.dart';
 
 abstract class HomeRepository {
   /// Fetch home data for the dashboard
-  Future<Either<Failure, Home>> getHomeData({
-    double? latitude,
-    double? longitude,
-    double? radius,
-  });
+  Future<Either<Failure, Home>> getHomeData();
 }

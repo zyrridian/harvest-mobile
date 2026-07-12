@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../providers/profile_providers.dart';
+import 'dart:ui';
+import 'package:harvest_app/presentation/features/profile/providers/profile_controller.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
@@ -18,9 +19,16 @@ class SecurityScreen extends ConsumerStatefulWidget {
 }
 
 class _SecurityScreenState extends ConsumerState<SecurityScreen> {
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    final securityAsync = ref.watch(securitySettingsProvider);
+    final securitySettingsAsync = ref.watch(securitySettingsProvider);
+    final userProfileAsync = ref.watch(profileControllerProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -41,170 +49,181 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           ),
         ),
       ),
-      body: securityAsync.when(
-        data: (settings) => ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            // Security Settings Section
-            _buildSectionTitle('Security Settings'),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                children: [
-                  _buildSwitchTile(
-                    title: 'Two-Factor Authentication',
-                    subtitle: 'Add an extra layer of security',
-                    icon: Icons.security_outlined,
-                    value: settings.twoFactorEnabled,
-                    onChanged: (value) => _updateTwoFactor(value),
+      body: userProfileAsync.when(
+        initial: () => const SizedBox(),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: kDarkGreen),
+        ),
+        error: (error) => Center(
+          child: Text(error.toString(), style: GoogleFonts.inter()),
+        ),
+        data: (profile) {
+          return securitySettingsAsync.when(
+            data: (settings) => ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                // Security Settings Section
+                _buildSectionTitle('Security Settings'),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kPillGrey),
                   ),
-                  _buildDivider(),
-                  _buildSwitchTile(
-                    title: 'Biometric Login',
-                    subtitle: 'Use fingerprint or face recognition',
-                    icon: Icons.fingerprint,
-                    value: settings.biometricEnabled,
-                    onChanged: (value) => _updateBiometric(value),
-                  ),
-                  _buildDivider(),
-                  _buildSwitchTile(
-                    title: 'Email Notifications',
-                    subtitle: 'Get notified of security events',
-                    icon: Icons.mail_outline,
-                    value: settings.emailNotificationsEnabled,
-                    onChanged: (value) => _updateEmailNotifications(value),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Password Section
-            _buildSectionTitle('Password'),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                children: [
-                  _buildActionTile(
-                    title: 'Change Password',
-                    subtitle: settings.lastPasswordChange != null
-                        ? 'Last changed ${_formatDate(settings.lastPasswordChange!)}'
-                        : 'Never changed',
-                    icon: Icons.lock_outline,
-                    onTap: () => _showChangePasswordDialog(),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Active Sessions Section
-            _buildSectionTitle('Active Sessions'),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                children: settings.activeSessions.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final session = entry.value;
-                  return Column(
+                  child: Column(
                     children: [
-                      if (index > 0) _buildDivider(),
-                      _buildSessionTile(session),
+                      _buildSwitchTile(
+                        title: 'Two-Factor Authentication',
+                        subtitle: 'Add an extra layer of security',
+                        icon: Icons.security_outlined,
+                        value: settings.twoFactorEnabled,
+                        onChanged: (value) => _toggleTwoFactor(value),
+                      ),
+                      _buildDivider(),
+                      _buildSwitchTile(
+                        title: 'Biometric Login',
+                        subtitle: 'Use fingerprint or face recognition',
+                        icon: Icons.fingerprint,
+                        value: settings.biometricEnabled,
+                        onChanged: (value) => _toggleBiometric(value),
+                      ),
+                      _buildDivider(),
+                      _buildSwitchTile(
+                        title: 'Email Notifications',
+                        subtitle: 'Get notified of security events',
+                        icon: Icons.mail_outline,
+                        value: settings.emailNotificationsEnabled,
+                        onChanged: (value) => _updateEmailNotifications(value),
+                      ),
                     ],
-                  );
-                }).toList(),
-              ),
-            ),
+                  ),
+                ),
 
-            const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-            // Danger Zone
-            _buildSectionTitle('Danger Zone'),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(20),
-                border:
-                    Border.all(color: const Color(0xFFDC2626).withOpacity(0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                // Password Section
+                _buildSectionTitle('Password'),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kPillGrey),
+                  ),
+                  child: Column(
                     children: [
-                      Icon(Icons.warning_amber_rounded,
-                          color: const Color(0xFFDC2626), size: 24),
-                      const SizedBox(width: 12),
+                      _buildActionTile(
+                        title: 'Change Password',
+                        subtitle: settings.lastPasswordChange != null
+                            ? 'Last changed ${_formatDate(settings.lastPasswordChange!)}'
+                            : 'Never changed',
+                        icon: Icons.lock_outline,
+                        onTap: () => _showChangePasswordDialog(),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Active Sessions Section
+                _buildSectionTitle('Active Sessions'),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kPillGrey),
+                  ),
+                  child: Column(
+                    children: settings.activeSessions.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final session = entry.value;
+                      return Column(
+                        children: [
+                          if (index > 0) _buildDivider(),
+                          _buildSessionTile(session),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Danger Zone
+                _buildSectionTitle('Danger Zone'),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(20),
+                    border:
+                        Border.all(color: const Color(0xFFDC2626).withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded,
+                              color: const Color(0xFFDC2626), size: 24),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Delete Account',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFDC2626),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       Text(
-                        'Delete Account',
+                        'Permanently delete your account and all associated data. This action cannot be undone.',
                         style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFDC2626),
+                          fontSize: 13,
+                          color: const Color(0xFF991B1B),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () => _showDeleteAccountDialog(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFDC2626),
+                            side: const BorderSide(color: Color(0xFFDC2626)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Delete My Account',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Permanently delete your account and all associated data. This action cannot be undone.',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: const Color(0xFF991B1B),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => _showDeleteAccountDialog(),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFDC2626),
-                        side: const BorderSide(color: Color(0xFFDC2626)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        'Delete My Account',
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
+
+                const SizedBox(height: 40),
+              ],
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(
+              child: Text(
+                'Error loading security settings',
+                style: GoogleFonts.inter(color: kTextGrey),
               ),
             ),
-
-            const SizedBox(height: 40),
-          ],
-        ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(
-            'Error loading security settings',
-            style: GoogleFonts.inter(color: kTextGrey),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -420,27 +439,18 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
-  Future<void> _updateTwoFactor(bool enabled) async {
-    final updateTwoFactor = ref.read(updateTwoFactorProvider);
+  Future<void> _toggleTwoFactor(bool value) async {
     try {
-      await updateTwoFactor(enabled);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Two-factor authentication ${enabled ? "enabled" : "disabled"}',
-              style: GoogleFonts.inter(),
-            ),
-            backgroundColor: kDarkGreen,
-          ),
-        );
-      }
+      final profileController = ref.read(profileControllerProvider.notifier);
+      await profileController.updateTwoFactor(value);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Failed to update setting', style: GoogleFonts.inter()),
+            content: Text(
+              'Failed to update two-factor authentication',
+              style: GoogleFonts.inter(),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -448,27 +458,18 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
     }
   }
 
-  Future<void> _updateBiometric(bool enabled) async {
-    final updateBiometric = ref.read(updateBiometricProvider);
+  Future<void> _toggleBiometric(bool value) async {
     try {
-      await updateBiometric(enabled);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Biometric login ${enabled ? "enabled" : "disabled"}',
-              style: GoogleFonts.inter(),
-            ),
-            backgroundColor: kDarkGreen,
-          ),
-        );
-      }
+      final profileController = ref.read(profileControllerProvider.notifier);
+      await profileController.updateBiometric(value);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Failed to update setting', style: GoogleFonts.inter()),
+            content: Text(
+              'Failed to update biometric login',
+              style: GoogleFonts.inter(),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -539,9 +540,10 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
     );
 
     if (confirmed == true) {
-      final terminateSession = ref.read(terminateSessionProvider);
       try {
-        await terminateSession(sessionName);
+        final profileController = ref.read(profileControllerProvider.notifier);
+        await profileController.terminateSession(sessionName);
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -568,11 +570,6 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
   }
 
   void _showChangePasswordDialog() {
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -583,12 +580,12 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         content: Form(
-          key: formKey,
+          key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                controller: currentPasswordController,
+                controller: _currentPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Current Password',
@@ -601,7 +598,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: newPasswordController,
+                controller: _newPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'New Password',
@@ -617,7 +614,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: confirmPasswordController,
+                controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
@@ -626,7 +623,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   ),
                 ),
                 validator: (value) {
-                  if (value != newPasswordController.text) {
+                  if (value != _newPasswordController.text) {
                     return 'Passwords don\'t match';
                   }
                   return null;
@@ -642,15 +639,14 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (formKey.currentState!.validate()) {
+              if (_formKey.currentState!.validate()) {
                 Navigator.pop(context);
-                final changePassword = ref.read(changePasswordProvider);
+                final profileController = ref.read(profileControllerProvider.notifier);
                 try {
-                  await changePassword(
-                    currentPassword: currentPasswordController.text,
-                    newPassword: newPasswordController.text,
+                  await profileController.changePassword(
+                    currentPassword: _currentPasswordController.text,
+                    newPassword: _newPasswordController.text,
                   );
-                  ref.invalidate(securitySettingsProvider);
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -680,8 +676,12 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: kDarkGreen,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: Text('Change', style: GoogleFonts.inter()),
+            child: Text('Change Password',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

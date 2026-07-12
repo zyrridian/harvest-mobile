@@ -57,6 +57,7 @@ dependencies:
   socket_io_client: ^3.0.0
   phosphor_flutter: ^2.1.0
   flutter_svg: ^2.2.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,7 @@ dev_dependencies:
 
   # Database Code Generation
   drift_dev: ^2.20.3
+  mocktail: ^1.0.5
 
 flutter:
   uses-material-design: true

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/presentation/features/community/screens/community_screen.dart';
-import 'package:harvest_app/presentation/features/messaging/screens/conversations_list_screen.dart';
+import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
+import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import '../../../main.dart';
-import 'package:harvest_app/presentation/features/auth/screens/forgot_password_screen.dart';
-import '../../../presentation/features/auth/screens/login_screen.dart';
-import '../../../presentation/features/auth/screens/role_selection_screen.dart';
-import '../../../presentation/features/auth/screens/register_screen.dart';
+import 'package:harvest_app/features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../../features/auth/presentation/screens/login_screen.dart';
+import '../../../features/auth/presentation/screens/role_selection_screen.dart';
+import '../../../features/auth/presentation/screens/register_screen.dart';
 import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
@@ -14,25 +14,36 @@ import '../../../presentation/features/producer/main/screens/farmer_main_screen.
 import '../../../presentation/features/producer/dashboard/screens/farmer_dashboard_screen.dart';
 import '../../../presentation/features/producer/products/screens/add_product_screen.dart';
 import '../../../presentation/features/producer/orders/screens/harvest_schedule_detail_screen.dart';
-import '../../../presentation/features/farmers/screens/farmers_map_screen.dart';
+import '../../../features/explore/presentation/screens/explore_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
 import '../../../presentation/features/settings/screens/settings_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
 import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
+import '../../../presentation/features/producer/settings/screens/edit_farm_profile_screen.dart';
+import '../../../presentation/features/producer/settings/screens/farm_reviews_screen.dart';
+import '../../../presentation/features/producer/settings/screens/delivery_settings_screen.dart';
+import '../../../presentation/features/producer/settings/screens/drop_points_screen.dart';
+import '../../../presentation/features/producer/settings/screens/edit_drop_point_screen.dart';
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
-import '../../../presentation/features/addresses/screens/addresses_screen.dart';
+import '../../../features/users/presentation/screens/addresses_screen.dart';
 import '../../../presentation/features/product/screens/product_detail_screen.dart';
-import '../../../presentation/features/cart/screens/cart_screen.dart';
-import '../../../presentation/features/cart/screens/checkout_screen.dart';
-import '../../../presentation/features/order/screens/orders_list_screen.dart';
-import '../../../presentation/features/order/screens/order_detail_screen.dart';
-import '../../../presentation/features/order/screens/order_success_screen.dart';
-import '../../../presentation/features/messaging/screens/chat_screen.dart';
-import '../../../presentation/features/marketplace/screens/marketplace_screen.dart';
+import '../../../features/sales/presentation/screens/cart/cart_screen.dart';
+import '../../../features/sales/presentation/screens/cart/checkout_screen.dart';
+import '../../../features/sales/presentation/screens/orders/orders_list_screen.dart';
+import '../../../features/sales/presentation/screens/orders/order_detail_screen.dart';
+import '../../../features/sales/presentation/screens/orders/order_success_screen.dart';
+import '../../../features/community/presentation/screens/chat_screen.dart';
+import '../../../features/storefront/presentation/screens/marketplace_screen.dart';
+import '../../../features/storefront/presentation/screens/category_products_screen.dart';
+import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../presentation/features/preorder/screens/preorder_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_detail_screen.dart';
+import '../../../presentation/features/preorder/screens/preorder_reservations_screen.dart';
 import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
 import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
+import '../../../presentation/features/producer/route_plan/screens/route_plan_screen.dart';
 import '../../../domain/entities/farmer.dart';
+import '../../../domain/entities/drop_point.dart';
 
 class AppRouter {
   // Auth routes
@@ -47,12 +58,20 @@ class AppRouter {
   static const String main = '/main';
   static const String community = '/community';
   static const String farmerDashboard = '/farmer-dashboard';
+  static const String editFarmProfile = '/edit-farm-profile';
+  static const String farmReviews = '/farm-reviews';
+  static const String deliverySettings = '/delivery-settings';
+  static const String dropPoints = '/drop-points';
+  static const String editDropPoint = '/edit-drop-point';
   static const String addProduct = '/add-product';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
-  static const String farmersMap = '/farmers-map';
+  static const String routePlan = '/route-plan';
+  static const String explore = '/explore';
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
   static const String preorder = '/preorder'; // preorder list
+  static const String preorderReservations = '/preorder-reservations'; // preorder reservations
+  static const String preorderDetail = '/preorder/:slug'; // preorder detail
   static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
   static const String farmerDetail = '/farmer-detail';
   static const String settings = '/settings';
@@ -116,9 +135,40 @@ class AppRouter {
         builder: (context, state) => const FarmerMainScreen(),
       ),
       GoRoute(
+        path: editFarmProfile,
+        name: 'editFarmProfile',
+        builder: (context, state) => const EditFarmProfileScreen(),
+      ),
+      GoRoute(
+        path: farmReviews,
+        name: 'farmReviews',
+        builder: (context, state) => const FarmReviewsScreen(),
+      ),
+      GoRoute(
+        path: deliverySettings,
+        name: 'deliverySettings',
+        builder: (context, state) => const DeliverySettingsScreen(),
+      ),
+      GoRoute(
+        path: dropPoints,
+        name: 'dropPoints',
+        builder: (context, state) => const DropPointsScreen(),
+      ),
+      GoRoute(
+        path: editDropPoint,
+        name: 'editDropPoint',
+        builder: (context, state) {
+          final dropPoint = state.extra as DropPoint?;
+          return EditDropPointScreen(dropPoint: dropPoint);
+        },
+      ),
+      GoRoute(
         path: addProduct,
         name: 'addProduct',
-        builder: (context, state) => const AddProductScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          return AddProductScreen(productId: extra is String ? extra : null);
+        },
       ),
       GoRoute(
         path: harvestScheduleDetail,
@@ -126,9 +176,14 @@ class AppRouter {
         builder: (context, state) => const HarvestScheduleDetailScreen(),
       ),
       GoRoute(
-        path: farmersMap,
-        name: 'farmersMap',
-        builder: (context, state) => const NearbyFarmerScreen(),
+        path: routePlan,
+        name: 'routePlan',
+        builder: (context, state) => const RoutePlanScreen(),
+      ),
+      GoRoute(
+        path: explore,
+        name: 'explore',
+        builder: (context, state) => const ExploreScreen(isTab: false),
       ),
       GoRoute(
         path: farmerDetail,
@@ -187,9 +242,31 @@ class AppRouter {
         builder: (context, state) => const MarketplaceScreen(),
       ),
       GoRoute(
+        path: '/category/:id',
+        name: 'categoryProducts',
+        builder: (context, state) {
+          final category = state.extra as MarketplaceCategory?;
+          final categoryId = state.pathParameters['id'] ?? '';
+          return CategoryProductsScreen(categoryId: categoryId, category: category);
+        },
+      ),
+      GoRoute(
         path: preorder,
         name: 'preorder',
         builder: (context, state) => const PreOrderScreen(),
+      ),
+      GoRoute(
+        path: preorderReservations,
+        name: 'preorderReservations',
+        builder: (context, state) => const PreOrderReservationsScreen(),
+      ),
+      GoRoute(
+        path: preorderDetail,
+        name: 'preorderDetail',
+        builder: (context, state) {
+          final slug = state.pathParameters['slug'] ?? 'unknown';
+          return PreOrderDetailScreen(slug: slug);
+        },
       ),
       GoRoute(
         path: harvestSchedule,

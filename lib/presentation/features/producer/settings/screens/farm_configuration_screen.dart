@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/providers/auth_controller.dart';
+import '../../../../../features/auth/presentation/providers/auth_controller.dart';
 import '../providers/farmer_settings_controller.dart';
 import '../../../../../domain/entities/farmer_profile.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -27,7 +27,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
       backgroundColor: kBgColor,
       appBar: AppBar(
         title: Text(
-          'Settings & Configuration',
+          'Profile',
           style: GoogleFonts.inter(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
@@ -184,24 +184,40 @@ class FarmConfigurationScreen extends ConsumerWidget {
             icon: PhosphorIconsRegular.storefront,
             title: 'Edit Farm Profile',
             subtitle: profile.name,
+            onTap: () => context.push(AppRouter.editFarmProfile),
+          ),
+          const Divider(height: 1, color: kBorderColor),
+          _buildSettingsTile(
+            icon: PhosphorIconsRegular.star,
+            title: 'My Farm Reviews',
+            subtitle: 'See what buyers are saying',
+            onTap: () => context.push(AppRouter.farmReviews),
+          ),
+          const Divider(height: 1, color: kBorderColor),
+          _buildSettingsTile(
+            icon: PhosphorIconsRegular.wallet,
+            title: 'Wallet & Earnings',
+            subtitle: 'Manage your payouts and transactions',
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
             icon: PhosphorIconsRegular.mapTrifold,
             title: 'Manage Drop Points',
             subtitle: 'Set pickup locations for consumers',
+            onTap: () => context.push(AppRouter.dropPoints),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
             icon: PhosphorIconsRegular.truck,
             title: 'Delivery Settings',
             subtitle: 'Configure wholesale delivery radius',
+            onTap: () => context.push(AppRouter.deliverySettings),
           ),
           const Divider(height: 1, color: kBorderColor),
           _buildSettingsTile(
-            icon: PhosphorIconsRegular.wallet,
-            title: 'Payout Methods',
-            subtitle: 'Bank accounts and deposit settings',
+            icon: PhosphorIconsRegular.gear,
+            title: 'Account Settings',
+            subtitle: 'Password, notifications, and language',
           ),
           const Divider(height: 1, color: kBorderColor),
           ListTile(
@@ -237,6 +253,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -263,7 +280,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
         ),
       ),
       trailing: const Icon(PhosphorIconsRegular.caretRight, color: kTextGrey, size: 16),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

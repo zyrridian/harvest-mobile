@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/error/failures.dart';
-import '../../entities/product.dart';
+import '../../../features/catalog/domain/entities/product.dart';
 import '../../entities/paginated_response.dart';
 import '../../repositories/farmer_products_repository.dart';
 

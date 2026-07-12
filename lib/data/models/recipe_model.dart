@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/recipe.dart';
+import '../../features/community/domain/entities/recipe.dart';
 
 part 'recipe_model.g.dart';
 
@@ -16,6 +16,7 @@ class RecipeModel {
   final String? difficulty;
   final bool isFeatured;
   final List<String> instructions;
+  final List<RecipeIngredientModel> ingredients;
   final int likesCount;
   final int viewsCount;
   final String createdAt;
@@ -34,6 +35,7 @@ class RecipeModel {
     this.difficulty,
     required this.isFeatured,
     this.instructions = const [],
+    this.ingredients = const [],
     required this.likesCount,
     required this.viewsCount,
     required this.createdAt,
@@ -59,6 +61,7 @@ class RecipeModel {
       difficulty: difficulty,
       isFeatured: isFeatured,
       instructions: instructions,
+      ingredients: ingredients.map((i) => i.toEntity()).toList(),
       likesCount: likesCount,
       viewsCount: viewsCount,
       createdAt: DateTime.parse(createdAt),
@@ -80,6 +83,7 @@ class RecipeModel {
       difficulty: entity.difficulty,
       isFeatured: entity.isFeatured,
       instructions: entity.instructions,
+      ingredients: entity.ingredients.map((i) => RecipeIngredientModel.fromEntity(i)).toList(),
       likesCount: entity.likesCount,
       viewsCount: entity.viewsCount,
       createdAt: entity.createdAt.toIso8601String(),
@@ -119,6 +123,45 @@ class RecipeAuthorModel {
       id: entity.id,
       name: entity.name,
       avatarUrl: entity.avatarUrl,
+    );
+  }
+}
+
+@JsonSerializable()
+class RecipeIngredientModel {
+  final String name;
+  final double? quantity;
+  final String? unit;
+  @JsonKey(name: 'product_id')
+  final String? productId;
+
+  const RecipeIngredientModel({
+    required this.name,
+    this.quantity,
+    this.unit,
+    this.productId,
+  });
+
+  factory RecipeIngredientModel.fromJson(Map<String, dynamic> json) =>
+      _$RecipeIngredientModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecipeIngredientModelToJson(this);
+
+  RecipeIngredient toEntity() {
+    return RecipeIngredient(
+      name: name,
+      quantity: quantity,
+      unit: unit,
+      productId: productId,
+    );
+  }
+
+  factory RecipeIngredientModel.fromEntity(RecipeIngredient entity) {
+    return RecipeIngredientModel(
+      name: entity.name,
+      quantity: entity.quantity,
+      unit: entity.unit,
+      productId: entity.productId,
     );
   }
 }

@@ -26,6 +26,8 @@ class FarmerProfileModel {
   @JsonKey(name: 'cover_image')
   final String? coverImage;
   final String address;
+  final String? city;
+  final String? state;
   final double latitude;
   final double longitude;
   @JsonKey(name: 'phone_number')
@@ -41,6 +43,8 @@ class FarmerProfileModel {
     this.profileImage,
     this.coverImage,
     required this.address,
+    this.city,
+    this.state,
     required this.latitude,
     required this.longitude,
     this.phoneNumber,
@@ -61,6 +65,8 @@ class FarmerProfileModel {
       profileImage: profileImage,
       coverImage: coverImage,
       address: address,
+      city: city,
+      state: state,
       latitude: latitude,
       longitude: longitude,
       phoneNumber: phoneNumber,

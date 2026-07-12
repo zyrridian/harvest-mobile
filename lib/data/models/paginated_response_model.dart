@@ -5,11 +5,11 @@ part 'paginated_response_model.g.dart';
 
 @JsonSerializable()
 class PaginationModel {
-  @JsonKey(name: 'current_page')
+  @JsonKey(name: 'page')
   final int currentPage;
   @JsonKey(name: 'total_pages')
   final int totalPages;
-  @JsonKey(name: 'total_items')
+  @JsonKey(name: 'total')
   final int totalItems;
   @JsonKey(name: 'items_per_page')
   final int? itemsPerPage;

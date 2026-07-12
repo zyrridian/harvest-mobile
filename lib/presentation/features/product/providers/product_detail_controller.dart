@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/data/datasources/remote/product_remote_datasource.dart';
-import 'package:harvest_app/data/datasources/local/product_local_datasource.dart';
-import 'package:harvest_app/data/repositories/product_repository_impl.dart';
-import 'package:harvest_app/domain/repositories/product_repository.dart';
-import 'package:harvest_app/domain/usecases/product/get_product_detail.dart';
-import 'package:harvest_app/domain/usecases/product/check_favorite_status.dart';
+import 'package:harvest_app/features/catalog/data/datasources/remote/product_remote_datasource.dart';
+import 'package:harvest_app/features/catalog/data/datasources/local/product_local_datasource.dart';
+import 'package:harvest_app/features/catalog/data/repositories/product_repository_impl.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/product_repository.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/get_product_detail.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/check_favorite_status.dart';
 import 'product_detail_state.dart';
 
 part 'product_detail_controller.g.dart';
@@ -52,7 +52,7 @@ class ProductDetailController extends _$ProductDetailController {
           (failure) {}, 
           (status) => isFavorite = status.isFavorited,
         );
-        state = ProductDetailState.data(product, isFavorite, product.minimumOrder, product.isInCart);
+        state = ProductDetailState.data(product, isFavorite, 1, false);
       },
     );
   }
@@ -72,7 +72,7 @@ class ProductDetailController extends _$ProductDetailController {
   void incrementQuantity() {
     final currentState = state;
     if (currentState is ProductDetailData) {
-      if (currentState.quantity < currentState.product.maximumOrder) {
+      if (currentState.quantity < currentState.product.stockQuantity) {
         state = currentState.copyWith(quantity: currentState.quantity + 1);
       }
     }
@@ -81,7 +81,7 @@ class ProductDetailController extends _$ProductDetailController {
   void decrementQuantity() {
     final currentState = state;
     if (currentState is ProductDetailData) {
-      if (currentState.quantity > currentState.product.minimumOrder) {
+      if (currentState.quantity > 1) {
         state = currentState.copyWith(quantity: currentState.quantity - 1);
       }
     }

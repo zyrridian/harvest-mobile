@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/error/exceptions.dart';
 import '../../models/product_model.dart';
-import '../../models/review_model.dart';
+import '../../../features/catalog/data/models/product/review_model.dart';
 import '../../models/paginated_response_model.dart';
 
 abstract class FarmerProductsDataSource {

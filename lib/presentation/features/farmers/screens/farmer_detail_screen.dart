@@ -4,9 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/farmer.dart';
-import '../../../../domain/entities/product.dart';
-import '../../../../domain/entities/review.dart';
-import '../../../../domain/entities/community_post.dart';
+import '../../../../features/catalog/domain/entities/product.dart';
+import '../../../../features/community/domain/entities/review.dart';
+import '../../../../features/community/domain/entities/community_post.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../farmer_detail/providers/farmer_detail_controller.dart';
 import '../../../providers/messaging_providers.dart';
@@ -477,7 +477,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        s,
+                        s ?? '',
                         style: GoogleFonts.inter(
                             color: kDarkGreen, fontWeight: FontWeight.w500),
                       ),

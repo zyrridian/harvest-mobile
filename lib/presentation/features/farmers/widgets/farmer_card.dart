@@ -96,8 +96,8 @@ class FarmerCard extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 28,
                         backgroundColor: kPillGrey,
-                        backgroundImage:
-                            CachedNetworkImageProvider(farmer.profileImage ?? ''),
+                        backgroundImage: CachedNetworkImageProvider(
+                            farmer.profileImage ?? ''),
                       ),
                     ),
                   ),
@@ -182,7 +182,7 @@ class FarmerCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            tag,
+                            tag ?? '',
                             style: GoogleFonts.inter(
                                 color: kDarkGreen,
                                 fontSize: 11,

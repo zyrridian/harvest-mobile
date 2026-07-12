@@ -6,7 +6,7 @@ import '../../../../data/repositories/farmer_products_repository_impl.dart';
 import '../../../../domain/repositories/farmer_products_repository.dart';
 import '../../../../domain/usecases/products/get_farmer_products.dart';
 import '../../../../domain/usecases/products/get_farmer_reviews.dart';
-import '../../community/providers/community_providers.dart' hide dioProvider; // To reuse the community repository provider
+import 'package:harvest_app/features/community/presentation/providers/community_controller.dart' hide dioProvider; // To reuse the community repository provider
 import 'farmer_detail_state.dart';
 
 part 'farmer_detail_controller.g.dart';

@@ -25,7 +25,7 @@ class FarmerModel {
   @JsonKey(name: 'total_products')
   final int totalProducts;
   @JsonKey(defaultValue: [])
-  final List<String> specialties;
+  final List<String?> specialties;
   @JsonKey(name: 'is_verified')
   final bool isVerified;
   @JsonKey(name: 'has_map_feature')

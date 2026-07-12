@@ -3,11 +3,49 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 
+class PremiumFadeSlideTransitionsBuilder extends PageTransitionsBuilder {
+  const PremiumFadeSlideTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curvedAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+    );
+
+    return FadeTransition(
+      opacity: curvedAnimation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.0, 0.05), // Subtle upward slide
+          end: Offset.zero,
+        ).animate(curvedAnimation),
+        child: child,
+      ),
+    );
+  }
+}
+
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.android: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.iOS: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.linux: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.macOS: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.windows: PremiumFadeSlideTransitionsBuilder(),
+        },
+      ),
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         primary: AppColors.primary,
@@ -41,7 +79,7 @@ class AppTheme {
       ),
 
       // Text Theme
-      textTheme: GoogleFonts.interTextTheme(const TextTheme(
+      textTheme: GoogleFonts.poppinsTextTheme(const TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         displayMedium: AppTextStyles.displayMedium,
         displaySmall: AppTextStyles.displaySmall,
@@ -143,6 +181,18 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
+
+      // Dialog Theme
+      dialogTheme: const DialogTheme(
+        backgroundColor: AppColors.white,
+        surfaceTintColor: Colors.transparent,
+      ),
+
+      // Bottom Sheet Theme
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.white,
+        surfaceTintColor: Colors.transparent,
+      ),
     );
   }
 
@@ -150,6 +200,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.android: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.iOS: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.linux: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.macOS: PremiumFadeSlideTransitionsBuilder(),
+          TargetPlatform.windows: PremiumFadeSlideTransitionsBuilder(),
+        },
+      ),
       colorScheme: ColorScheme.dark(
         primary: AppColors.primaryLight,
         onPrimary: AppColors.textPrimary,

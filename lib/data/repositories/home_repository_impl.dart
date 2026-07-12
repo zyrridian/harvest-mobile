@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/data/datasources/local/home_local_datasource.dart';
-import 'package:harvest_app/data/datasources/remote/home_remote_datasource.dart';
+import 'package:harvest_app/features/storefront/data/datasources/local/home_local_datasource.dart';
+import 'package:harvest_app/features/storefront/data/datasources/remote/home_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/home.dart';
 import 'package:harvest_app/domain/repositories/home_repository.dart';
 
@@ -16,18 +16,10 @@ class HomeRepositoryImpl implements HomeRepository {
   });
 
   @override
-  Future<Either<Failure, Home>> getHomeData({
-    double? latitude,
-    double? longitude,
-    double? radius,
-  }) async {
+  Future<Either<Failure, Home>> getHomeData() async {
     try {
       // Always try to fetch fresh data from remote first
-      final remoteHome = await remoteDataSource.getHomeData(
-        latitude: latitude,
-        longitude: longitude,
-        radius: radius,
-      );
+      final remoteHome = await remoteDataSource.getHomeData();
 
       // Save to local storage for offline fallback
       await localDataSource.saveHomeData(remoteHome);

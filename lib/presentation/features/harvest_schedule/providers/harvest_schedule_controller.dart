@@ -1,20 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
-import 'package:harvest_app/data/datasources/remote/harvest_schedule_remote_datasource.dart';
+import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/harvest_schedule_repository_impl.dart';
 import 'package:harvest_app/domain/repositories/harvest_schedule_repository.dart';
 import 'package:harvest_app/domain/usecases/harvest_schedule/get_harvest_schedule_usecase.dart';
 import 'package:harvest_app/domain/usecases/harvest_schedule/pay_deposit_usecase.dart';
 import 'package:harvest_app/domain/usecases/harvest_schedule/arrange_pickup_usecase.dart';
+import 'package:harvest_app/domain/usecases/harvest_schedule/get_schedule_dashboard_usecase.dart';
 import 'harvest_schedule_state.dart';
 
 part 'harvest_schedule_controller.g.dart';
 
 // Dependency Injection Providers
 final harvestScheduleRemoteDataSourceProvider = Provider<HarvestScheduleRemoteDataSource>((ref) {
-  return HarvestScheduleRemoteDataSourceImpl(Dio());
+  return HarvestScheduleRemoteDataSourceImpl(ref.watch(dioProvider));
 });
 
 final harvestScheduleRepositoryProvider = Provider<HarvestScheduleRepository>((ref) {
@@ -33,6 +35,10 @@ final arrangePickupUseCaseProvider = Provider<ArrangePickupUseCase>((ref) {
   return ArrangePickupUseCase(ref.watch(harvestScheduleRepositoryProvider));
 });
 
+final getScheduleDashboardUseCaseProvider = Provider<GetScheduleDashboardUseCase>((ref) {
+  return GetScheduleDashboardUseCase(ref.watch(harvestScheduleRepositoryProvider));
+});
+
 @riverpod
 class HarvestScheduleController extends _$HarvestScheduleController {
   @override
@@ -49,23 +55,29 @@ class HarvestScheduleController extends _$HarvestScheduleController {
       state = const HarvestScheduleState.loading();
     }
 
-    final usecase = ref.read(getHarvestScheduleUseCaseProvider);
-    final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-    final result = await usecase.call(month: monthStr);
+    try {
+      final dashboardUseCase = ref.read(getScheduleDashboardUseCaseProvider);
+      
+      final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+      
+      final dashboardResult = await dashboardUseCase.call(month: monthStr);
 
-    result.fold(
-      (failure) {
-        state = HarvestScheduleState.error(failure.message);
-      },
-      (entity) {
-        state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(
-          entity,
-          baseDate: date,
-          selectedDate: selectedDate ?? date,
-          isMonthView: isMonthView ?? oldData?.isMonthView ?? false,
-        ));
-      },
-    );
+      dashboardResult.fold(
+        (failure) {
+          state = HarvestScheduleState.error(failure.message);
+        },
+        (entity) {
+          state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(
+            entity,
+            baseDate: date,
+            selectedDate: selectedDate ?? date,
+            isMonthView: isMonthView ?? oldData?.isMonthView ?? false,
+          ));
+        },
+      );
+    } catch (e) {
+      state = HarvestScheduleState.error(e.toString());
+    }
   }
 
   void toggleViewMode() {

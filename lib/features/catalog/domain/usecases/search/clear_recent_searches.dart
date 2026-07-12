@@ -1,0 +1,13 @@
+import 'package:dartz/dartz.dart';
+import 'package:harvest_app/core/error/failures.dart';
+import 'package:harvest_app/features/catalog/domain/repositories/search_repository.dart';
+
+class ClearRecentSearches {
+  final SearchRepository repository;
+
+  ClearRecentSearches(this.repository);
+
+  Future<Either<Failure, void>> call() async {
+    return await repository.clearRecentSearches();
+  }
+}

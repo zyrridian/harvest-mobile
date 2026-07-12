@@ -1,32 +1,45 @@
 import '../../domain/entities/user_profile.dart';
-import '../datasources/user_profile_local_datasource.dart';
+import '../../features/users/data/datasources/local/user_profile_local_datasource.dart';
+import '../../features/users/data/datasources/remote/user_profile_remote_datasource.dart';
 import '../models/user_profile_model.dart';
 
 class UserProfileRepository {
   final UserProfileLocalDataSource _localDataSource;
+  final UserProfileRemoteDataSource _remoteDataSource;
 
-  UserProfileRepository(this._localDataSource);
+  UserProfileRepository(this._localDataSource, this._remoteDataSource);
 
   Future<UserProfile> getUserProfile() async {
-    final model = await _localDataSource.getUserProfile();
-    return _toEntity(model);
+    try {
+      final model = await _remoteDataSource.getUserProfile();
+      await _localDataSource.cacheUserProfile(model);
+      return _toEntity(model);
+    } catch (e) {
+      final localModel = await _localDataSource.getUserProfile();
+      if (localModel != null) {
+        return _toEntity(localModel);
+      }
+      rethrow;
+    }
   }
 
   Future<UserProfile> updateUserProfile({
     required String name,
-    String? phone,
+    String? phoneNumber,
     String? bio,
   }) async {
-    final model = await _localDataSource.updateUserProfile(
+    final model = await _remoteDataSource.updateProfile(
       name: name,
-      phone: phone,
+      phoneNumber: phoneNumber,
       bio: bio,
     );
+    await _localDataSource.cacheUserProfile(model);
     return _toEntity(model);
   }
 
   Future<UserProfile> updateProfileImage(String imageUrl) async {
-    final model = await _localDataSource.updateProfileImage(imageUrl);
+    final model = await _remoteDataSource.updateProfile(avatarUrl: imageUrl);
+    await _localDataSource.cacheUserProfile(model);
     return _toEntity(model);
   }
 
@@ -55,8 +68,8 @@ class UserProfileRepository {
       id: model.id,
       name: model.name,
       email: model.email,
-      phone: model.phone,
-      profileImageUrl: model.profileImageUrl,
+      phoneNumber: model.phoneNumber,
+      avatarUrl: model.avatarUrl,
       bio: model.bio,
       createdAt: DateTime.parse(model.createdAt),
       updatedAt: DateTime.parse(model.updatedAt),

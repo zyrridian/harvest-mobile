@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest_app/domain/entities/nearby_farmer.dart';
 import 'package:harvest_app/presentation/features/nearby_farmer/providers/nearby_farmer_controller.dart';
 import 'package:harvest_app/presentation/features/nearby_farmer/providers/nearby_farmer_state.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';

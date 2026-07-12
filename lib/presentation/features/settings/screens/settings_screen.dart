@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/presentation/features/auth/providers/auth_controller.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../../../core/config/theme/app_colors.dart';
 import '../providers/settings_providers.dart';

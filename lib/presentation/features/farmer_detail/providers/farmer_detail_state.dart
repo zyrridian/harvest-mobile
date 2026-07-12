@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../domain/entities/product.dart';
-import '../../../../domain/entities/community_post.dart';
-import '../../../../domain/entities/review.dart';
+import '../../../../features/catalog/domain/entities/product.dart';
+import '../../../../features/community/domain/entities/community_post.dart';
+import '../../../../features/community/domain/entities/review.dart';
 
 part 'farmer_detail_state.freezed.dart';
 

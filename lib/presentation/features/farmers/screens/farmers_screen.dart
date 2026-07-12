@@ -115,7 +115,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.map_outlined, color: kDarkGreen),
-                    onPressed: () => context.push(AppRouter.farmersMap),
+                    onPressed: () => context.push(AppRouter.explore),
                     tooltip: 'Map View',
                   ),
                 ),
