@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/domain/entities/delivery_settings.dart';
@@ -44,18 +43,16 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
       final state = ref.read(farmerSettingsControllerProvider);
       state.maybeWhen(
         data: (_, settings) {
-          if (settings != null) {
-            setState(() {
-              _farmerDeliveryEnabled = settings.farmerDeliveryEnabled;
-              _cashOnDeliveryEnabled = settings.cashOnDeliveryEnabled;
-              _baseFeeController.text = settings.baseFee.toStringAsFixed(0);
-              _perKmRateController.text = settings.perKmRate.toStringAsFixed(0);
-              _maxRadiusKmController.text = settings.maxRadiusKm.toStringAsFixed(0);
-              _minOrderForFreeController.text = settings.minOrderForFree.toStringAsFixed(0);
-              _notesController.text = settings.notes ?? '';
-            });
-          }
-        },
+          setState(() {
+            _farmerDeliveryEnabled = settings.farmerDeliveryEnabled;
+            _cashOnDeliveryEnabled = settings.cashOnDeliveryEnabled;
+            _baseFeeController.text = settings.baseFee.toStringAsFixed(0);
+            _perKmRateController.text = settings.perKmRate.toStringAsFixed(0);
+            _maxRadiusKmController.text = settings.maxRadiusKm.toStringAsFixed(0);
+            _minOrderForFreeController.text = settings.minOrderForFree.toStringAsFixed(0);
+            _notesController.text = settings.notes ?? '';
+          });
+                },
         orElse: () {},
       );
     });
@@ -108,7 +105,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
       appBar: AppBar(
         title: Text(
           'Delivery Settings',
-          style: GoogleFonts.inter(color: kDarkGreen, fontWeight: FontWeight.bold),
+          style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -131,7 +128,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
               if (_farmerDeliveryEnabled) ...[
                 Text(
                   'Pricing & Rules',
-                  style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -197,7 +194,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                         )
                       : Text(
                           'Save Settings',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -229,11 +226,11 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
         contentPadding: EdgeInsets.zero,
         title: Text(
           title,
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: kDarkGreen),
+          style: TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
         ),
         subtitle: Text(
           subtitle,
-          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
         value: value,
         activeColor: kAccentOrange,
@@ -255,7 +252,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -268,7 +265,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13),
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
             filled: true,
             fillColor: Colors.white,
             prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.grey.shade500) : null,

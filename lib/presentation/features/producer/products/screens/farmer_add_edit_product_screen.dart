@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
@@ -10,27 +9,30 @@ import 'package:harvest_app/presentation/features/producer/products/providers/fa
 import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
 import 'package:harvest_app/presentation/features/producer/products/providers/unit_providers.dart';
 import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
+import 'package:harvest_app/presentation/shared_widgets/image_picker_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
-const kBgColor = Color(0xFFF7F9F8);
+const kBgColor = Colors.white;
 const kDarkGreen = Color(0xFF1A2F25);
 const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
 const kCardBg = Colors.white;
+const kInputBg = Color(0xFFF5F5F5);
 const kTextGrey = Color(0xFF6E7A75);
 const kBorderColor = Color(0xFFE5E7EB);
 
-class AddProductScreen extends ConsumerStatefulWidget {
+class FarmerAddEditProductScreen extends ConsumerStatefulWidget {
   final String? productId;
-  const AddProductScreen({super.key, this.productId});
+  const FarmerAddEditProductScreen({super.key, this.productId});
 
   @override
-  ConsumerState<AddProductScreen> createState() => _AddProductScreenState();
+  ConsumerState<FarmerAddEditProductScreen> createState() =>
+      _AddProductScreenState();
 }
 
-class _AddProductScreenState extends ConsumerState<AddProductScreen> {
+class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   bool _isLoading = false;
   FarmerProductDetail? _product;
 
@@ -88,40 +90,40 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   Future<void> _loadProductDetails() async {
     setState(() => _isLoading = true);
-    final result = await ref.read(getFarmerProductDetailUseCaseProvider).call(widget.productId!);
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
-        setState(() => _isLoading = false);
-      },
-      (product) {
-        _product = product;
-        _nameController.text = product.name;
-        _descController.text = product.description;
-        _longDescController.text = product.longDescription;
-        _priceController.text = product.price.toString();
-        _selectedUnit = product.unit;
-        _stockController.text = product.stock.toString();
-        _minOrderController.text = product.minimumOrder.toString();
-        _maxOrderController.text = product.maximumOrder.toString();
-        _targetAmountController.text = product.targetAmount?.toString() ?? '';
-        _selectedCategory = product.categoryId;
-        _isOrganic = product.isOrganic;
-        _isAvailable = product.isAvailable;
-        _isHarvest = product.isHarvest;
-        _harvestDate = product.harvestDate;
-        _images = product.images.map((e) => e.url).toList();
-        _tags = List.from(product.tags);
-        _specifications = List.from(product.specifications);
+    final result = await ref
+        .read(getFarmerProductDetailUseCaseProvider)
+        .call(widget.productId!);
+    result.fold((failure) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(failure.message)));
+      setState(() => _isLoading = false);
+    }, (product) {
+      _product = product;
+      _nameController.text = product.name;
+      _descController.text = product.description;
+      _longDescController.text = product.longDescription;
+      _priceController.text = product.price.toString();
+      _selectedUnit = product.unit;
+      _stockController.text = product.stock.toString();
+      _minOrderController.text = product.minimumOrder.toString();
+      _maxOrderController.text = product.maximumOrder.toString();
+      _targetAmountController.text = product.targetAmount?.toString() ?? '';
+      _selectedCategory = product.categoryId;
+      _isOrganic = product.isOrganic;
+      _isAvailable = product.isAvailable;
+      _isHarvest = product.isHarvest;
+      _harvestDate = product.harvestDate;
+      _images = product.images.map((e) => e.url).toList();
+      _tags = List.from(product.tags);
+      _specifications = List.from(product.specifications);
 
-        setState(() => _isLoading = false);
-      }
-    );
+      setState(() => _isLoading = false);
+    });
   }
 
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
     final request = ProductRequest(
       name: _nameController.text,
@@ -138,37 +140,42 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       targetAmount: double.tryParse(_targetAmountController.text),
       harvestDate: _harvestDate,
       categoryId: _selectedCategory,
-      images: _images.asMap().entries.map((e) => ProductImageEntity(url: e.value, isPrimary: e.key == 0)).toList(),
+      images: _images
+          .asMap()
+          .entries
+          .map((e) => ProductImageEntity(url: e.value, isPrimary: e.key == 0))
+          .toList(),
       tags: _tags,
       specifications: _specifications,
     );
 
     if (widget.productId == null) {
-      final result = await ref.read(createFarmerProductUseCaseProvider).call(request);
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
-          setState(() => _isLoading = false);
-        },
-        (product) {
-          ref.read(farmerProductsControllerProvider.notifier).refresh();
-          context.pop();
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added successfully')));
-        }
-      );
+      final result =
+          await ref.read(createFarmerProductUseCaseProvider).call(request);
+      result.fold((failure) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failure.message)));
+        setState(() => _isLoading = false);
+      }, (product) {
+        ref.read(farmerProductsControllerProvider.notifier).refresh();
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product added successfully')));
+      });
     } else {
-      final result = await ref.read(updateFarmerProductUseCaseProvider).call(widget.productId!, request);
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
-          setState(() => _isLoading = false);
-        },
-        (product) {
-          ref.read(farmerProductsControllerProvider.notifier).refresh();
-          context.pop();
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product updated successfully')));
-        }
-      );
+      final result = await ref
+          .read(updateFarmerProductUseCaseProvider)
+          .call(widget.productId!, request);
+      result.fold((failure) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failure.message)));
+        setState(() => _isLoading = false);
+      }, (product) {
+        ref.read(farmerProductsControllerProvider.notifier).refresh();
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product updated successfully')));
+      });
     }
   }
 
@@ -185,15 +192,21 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const Icon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          isEditing ? 'Edit Product' : 'Add New Product',
-          style: GoogleFonts.inter(
-            color: kDarkGreen,
-            fontWeight: FontWeight.bold,
-          ),
+          widget.productId == null ? 'Add Product' : 'Edit Product',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: kDarkGreen,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                  ) ??
+              TextStyle(
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
         ),
       ),
       body: SafeArea(
@@ -209,11 +222,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       _buildImagesInput(),
                       const SizedBox(height: 24),
                       _buildLabel('Product Name'),
-                      _buildTextField(_nameController, 'e.g., Organic Tomatoes'),
+                      _buildTextField(
+                          _nameController, 'e.g., Organic Tomatoes'),
                       const SizedBox(height: 20),
                       _buildLabel('Category'),
                       categoriesAsyncValue.when(
-                        data: (categories) => _buildCategoryDropdown(categories),
+                        data: (categories) =>
+                            _buildCategoryDropdown(categories),
                         loading: () => const CircularProgressIndicator(),
                         error: (e, s) => Text('Error loading categories: $e'),
                       ),
@@ -225,7 +240,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildLabel('Price (Rp)'),
-                                _buildTextField(_priceController, '0.00', isNumber: true),
+                                _buildTextField(_priceController, '0.00',
+                                    isNumber: true),
                               ],
                             ),
                           ),
@@ -237,8 +253,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                                 _buildLabel('Unit (e.g., kg, bunch)'),
                                 unitsAsyncValue.when(
                                   data: (units) => _buildUnitDropdown(units),
-                                  loading: () => const CircularProgressIndicator(),
-                                  error: (e, s) => Text('Error loading units: $e'),
+                                  loading: () =>
+                                      const CircularProgressIndicator(),
+                                  error: (e, s) =>
+                                      Text('Error loading units: $e'),
                                 ),
                               ],
                             ),
@@ -246,21 +264,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildLabel('Stock'),
-                                _buildTextField(_stockController, '0', isNumber: true),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(child: const SizedBox()), // Placeholder for alignment
-                        ],
-                      ),
+                      _buildLabel('Stock (Available Quantity)'),
+                      _buildTextField(_stockController, 'e.g., 50',
+                          isNumber: true),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -269,7 +275,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildLabel('Min Order'),
-                                _buildTextField(_minOrderController, '1', isNumber: true),
+                                _buildTextField(_minOrderController, '1',
+                                    isNumber: true),
                               ],
                             ),
                           ),
@@ -279,7 +286,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildLabel('Max Order'),
-                                _buildTextField(_maxOrderController, '10', isNumber: true),
+                                _buildTextField(_maxOrderController, '10',
+                                    isNumber: true),
                               ],
                             ),
                           ),
@@ -287,11 +295,14 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       ),
                       const SizedBox(height: 20),
                       _buildLabel('Description'),
-                      _buildTextField(_descController, 'Briefly describe your product...', maxLines: 2),
+                      _buildTextField(
+                          _descController, 'Briefly describe your product...',
+                          maxLines: 2),
                       const SizedBox(height: 20),
                       _buildLabel('Long Description'),
-                      _buildTextField(_longDescController, 'Provide a detailed description...', maxLines: 4),
-
+                      _buildTextField(_longDescController,
+                          'Provide a detailed description...',
+                          maxLines: 4),
                       const SizedBox(height: 20),
                       SwitchListTile(
                         title: const Text('Is Organic'),
@@ -306,7 +317,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                         activeColor: kDarkGreen,
                       ),
                       SwitchListTile(
-                        title: const Text('Enable Harvest Mode (Pre-order with deposit)'),
+                        title: const Text(
+                            'Enable Harvest Mode (Pre-order with deposit)'),
                         value: _isHarvest,
                         onChanged: (val) => setState(() => _isHarvest = val),
                         activeColor: kDarkGreen,
@@ -314,12 +326,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       if (_isHarvest) ...[
                         const SizedBox(height: 16),
                         _buildLabel('Target Harvest Amount (pack) *'),
-                        _buildTextField(_targetAmountController, 'e.g., 500', isNumber: true),
+                        _buildTextField(_targetAmountController, 'e.g., 500',
+                            isNumber: true),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                           child: Text(
                             'Orders will be capped at this amount. Customers pay 20% deposit.',
-                            style: GoogleFonts.inter(color: kTextGrey, fontSize: 12),
+                            style: TextStyle(color: kTextGrey, fontSize: 12),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -344,7 +357,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                           ),
                           child: Text(
                             isEditing ? 'Update Product' : 'Save Product',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -386,8 +399,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              _harvestDate != null ? DateFormat('yyyy-MM-dd').format(_harvestDate!) : 'Select Date',
-              style: GoogleFonts.inter(color: _harvestDate != null ? kDarkGreen : kTextGrey.withOpacity(0.5)),
+              _harvestDate != null
+                  ? DateFormat('yyyy-MM-dd').format(_harvestDate!)
+                  : 'Select Date',
+              style: TextStyle(
+                  color: _harvestDate != null
+                      ? kDarkGreen
+                      : kTextGrey.withOpacity(0.5)),
             ),
             const Icon(PhosphorIconsRegular.calendar, color: kDarkGreen),
           ],
@@ -401,121 +419,109 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel('Product Images'),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _imageUrlController,
-                decoration: InputDecoration(
-                  hintText: 'Enter image URL',
-                  hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
-                  filled: true,
-                  fillColor: kCardBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kBorderColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kBorderColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kDarkGreen, width: 2),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            InkWell(
-              onTap: () {
-                if (_imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    _images.add(_imageUrlController.text);
-                    _imageUrlController.clear();
-                  });
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: kDarkGreen,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
         if (_images.isEmpty)
-          Container(
-            width: double.infinity,
-            height: 120,
-            decoration: BoxDecoration(
-              color: kCardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: kBorderColor, style: BorderStyle.solid),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(PhosphorIconsRegular.image, color: kTextGrey, size: 32),
-                const SizedBox(height: 8),
-                Text(
-                  'Add product images by entering URLs above',
-                  style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
-                ),
-              ],
+          InkWell(
+            onTap: () {
+              ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                setState(() {
+                  _images.add(path);
+                });
+              });
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: double.infinity,
+              height: 120,
+              decoration: BoxDecoration(
+                color: kInputBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: kInputBg), // No harsh border
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(PhosphorIconsRegular.camera,
+                      color: kDarkGreen, size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to add product images',
+                    style: TextStyle(color: kTextGrey, fontSize: 13),
+                  ),
+                ],
+              ),
             ),
           )
         else
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: _images.asMap().entries.map((entry) {
-              final index = entry.key;
-              final url = entry.value;
-              return Stack(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: kBorderColor),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: AppCachedImage(
-                        imageUrl: url,
-                        fit: BoxFit.cover,
+            children: [
+              ..._images.asMap().entries.map((entry) {
+                final index = entry.key;
+                final url = entry.value;
+                return Stack(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: kBorderColor),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _images.removeAt(index);
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AppCachedImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
                         ),
-                        child: const Icon(Icons.close, color: Colors.white, size: 14),
                       ),
                     ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _images.removeAt(index);
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close,
+                              color: Colors.red, size: 14),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              InkWell(
+                onTap: () {
+                  ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                    setState(() {
+                      _images.add(path);
+                    });
+                  });
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: kInputBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kInputBg),
                   ),
-                ],
-              );
-            }).toList(),
+                  child: const Center(
+                    child: Icon(PhosphorIconsRegular.plus, color: kDarkGreen),
+                  ),
+                ),
+              ),
+            ],
           ),
       ],
     );
@@ -526,34 +532,38 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel('Tags'),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _tagController,
-                decoration: InputDecoration(
-                  hintText: 'Add a tag (e.g., fresh, local)',
-                  hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
-                  filled: true,
-                  fillColor: kCardBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kBorderColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kBorderColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: kDarkGreen, width: 2),
-                  ),
-                ),
-              ),
+        TextFormField(
+          controller: _tagController,
+          onFieldSubmitted: (value) {
+            if (value.isNotEmpty) {
+              setState(() {
+                _tags.add(value);
+                _tagController.clear();
+              });
+            }
+          },
+          decoration: InputDecoration(
+            hintText: 'Add a tag (e.g., fresh, local) and press enter',
+            hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
+            filled: true,
+            fillColor: kInputBg,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
-            const SizedBox(width: 8),
-            ElevatedButton(
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kDarkGreen, width: 2),
+            ),
+            suffixIcon: IconButton(
+              icon: const Icon(PhosphorIconsRegular.plusCircle,
+                  color: kDarkGreen),
               onPressed: () {
                 if (_tagController.text.isNotEmpty) {
                   setState(() {
@@ -562,15 +572,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                   });
                 }
               },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(0, 56),
-                backgroundColor: kDarkGreen,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Add', style: TextStyle(color: Colors.white)),
             ),
-          ],
+          ),
         ),
         if (_tags.isNotEmpty)
           Padding(
@@ -581,9 +584,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               children: _tags.asMap().entries.map((entry) {
                 return Chip(
                   label: Text(entry.value),
-                  labelStyle: GoogleFonts.inter(color: kDarkGreen, fontSize: 13),
+                  labelStyle: TextStyle(color: kDarkGreen, fontSize: 13),
                   backgroundColor: kPrimaryGreen.withOpacity(0.1),
-                  deleteIcon: const Icon(Icons.close, size: 16, color: kDarkGreen),
+                  deleteIcon:
+                      const Icon(Icons.close, size: 16, color: kDarkGreen),
                   onDeleted: () {
                     setState(() {
                       _tags.removeAt(entry.key);
@@ -607,16 +611,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       children: [
         _buildLabel('Specifications'),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: TextFormField(
                 controller: _specKeyController,
                 decoration: InputDecoration(
                   hintText: 'Attribute (e.g., Weight)',
-                  hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
                   filled: true,
                   fillColor: kCardBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: kBorderColor),
@@ -638,10 +644,11 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                 controller: _specValueController,
                 decoration: InputDecoration(
                   hintText: 'Value (e.g., 500g)',
-                  hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
                   filled: true,
                   fillColor: kCardBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: kBorderColor),
@@ -658,26 +665,30 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: () {
-                if (_specKeyController.text.isNotEmpty && _specValueController.text.isNotEmpty) {
-                  setState(() {
-                    _specifications.add(ProductSpecificationEntity(
-                      key: _specKeyController.text,
-                      value: _specValueController.text,
-                    ));
-                    _specKeyController.clear();
-                    _specValueController.clear();
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(0, 56),
-                backgroundColor: kDarkGreen,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                color: kDarkGreen,
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('Add', style: TextStyle(color: Colors.white)),
+              child: IconButton(
+                icon:
+                    const Icon(PhosphorIconsRegular.plus, color: Colors.white),
+                onPressed: () {
+                  if (_specKeyController.text.isNotEmpty &&
+                      _specValueController.text.isNotEmpty) {
+                    setState(() {
+                      _specifications.add(ProductSpecificationEntity(
+                        key: _specKeyController.text,
+                        value: _specValueController.text,
+                      ));
+                      _specKeyController.clear();
+                      _specValueController.clear();
+                    });
+                  }
+                },
+              ),
             ),
           ],
         ),
@@ -686,23 +697,25 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             padding: const EdgeInsets.only(top: 12.0),
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: kBorderColor),
+                border: Border.all(color: kInputBg), // Match others
                 borderRadius: BorderRadius.circular(12),
-                color: kCardBg,
+                color: kInputBg,
               ),
               child: Column(
                 children: _specifications.asMap().entries.map((entry) {
                   return ListTile(
                     title: Text(
                       entry.value.key,
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                     subtitle: Text(
                       entry.value.value,
-                      style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+                      style: TextStyle(color: kTextGrey, fontSize: 13),
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      icon: const Icon(PhosphorIconsRegular.trash,
+                          color: Colors.red),
                       onPressed: () {
                         setState(() {
                           _specifications.removeAt(entry.key);
@@ -723,7 +736,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         text,
-        style: GoogleFonts.inter(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: kDarkGreen,
@@ -732,10 +745,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, {bool isNumber = false, int maxLines = 1, bool requiredField = true}) {
+  Widget _buildTextField(TextEditingController controller, String hint,
+      {bool isNumber = false, int maxLines = 1, bool requiredField = true}) {
     return TextFormField(
       controller: controller,
-      keyboardType: isNumber ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+      keyboardType: isNumber
+          ? const TextInputType.numberWithOptions(decimal: true)
+          : TextInputType.text,
       maxLines: maxLines,
       validator: (value) {
         if (requiredField && (value == null || value.isEmpty)) {
@@ -745,17 +761,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       },
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
+        hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
         filled: true,
-        fillColor: kCardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: kInputBg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -769,8 +786,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     if (categories.isEmpty) {
       return const Text('No categories available');
     }
-    
-    if (_selectedCategory != null && !categories.any((c) => c.id == _selectedCategory)) {
+
+    if (_selectedCategory != null &&
+        !categories.any((c) => c.id == _selectedCategory)) {
       _selectedCategory = null;
     }
 
@@ -779,15 +797,16 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       isExpanded: true,
       decoration: InputDecoration(
         filled: true,
-        fillColor: kCardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: kInputBg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -799,7 +818,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           value: category.id,
           child: Text(
             category.name,
-            style: GoogleFonts.inter(color: kDarkGreen),
+            style: TextStyle(color: kDarkGreen),
           ),
         );
       }).toList(),
@@ -818,7 +837,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     if (units.isEmpty) {
       return const Text('No units available');
     }
-    
+
     if (_selectedUnit != null && !units.any((u) => u.value == _selectedUnit)) {
       _selectedUnit = null;
     }
@@ -828,15 +847,16 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       isExpanded: true,
       decoration: InputDecoration(
         filled: true,
-        fillColor: kCardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: kInputBg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBorderColor),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -848,7 +868,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           value: unit.value,
           child: Text(
             unit.label,
-            style: GoogleFonts.inter(color: kDarkGreen),
+            style: TextStyle(color: kDarkGreen),
           ),
         );
       }).toList(),

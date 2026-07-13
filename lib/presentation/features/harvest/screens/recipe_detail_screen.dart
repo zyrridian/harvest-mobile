@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared_widgets/app_cached_image.dart';
 
 // Constants
@@ -115,7 +114,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 children: [
                   Text(
                     widget.recipeName,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen),
@@ -128,13 +127,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                       const SizedBox(width: 4),
                       Text(
                         '${widget.rating} (${reviews.length} reviews)',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.w600, color: kDarkGreen),
                       ),
                       const Spacer(),
                       Text(
                         '${widget.calories} kcal',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.bold, color: kAccentOrange),
                       ),
                     ],
@@ -174,7 +173,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 labelColor: Colors.white,
                 unselectedLabelColor: kTextGrey,
                 dividerColor: Colors.transparent,
-                labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                labelStyle: TextStyle(fontWeight: FontWeight.bold),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 tabs: const [
@@ -195,7 +194,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                 _buildInstructionsTab(),
                 Center(
                     child: Text("Reviews coming soon",
-                        style: GoogleFonts.inter())),
+                        style: TextStyle())),
               ],
             ),
           ),
@@ -212,7 +211,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               onPressed: () {},
               icon: const Icon(Icons.shopping_basket_outlined),
               label: Text('Add Ingredients to Cart',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
@@ -251,7 +250,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Text(label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontWeight: FontWeight.bold, color: color, fontSize: 12)),
         ],
       ),
@@ -278,7 +277,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               Expanded(
                   child: Text(widget.ingredients[index],
                       style:
-                          GoogleFonts.inter(fontSize: 15, color: kDarkGreen))),
+                          TextStyle(fontSize: 15, color: kDarkGreen))),
             ],
           ),
         );
@@ -301,7 +300,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                   BoxDecoration(color: kDarkGreen, shape: BoxShape.circle),
               child: Center(
                   child: Text('${index + 1}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
             ),
             const SizedBox(width: 16),
@@ -309,7 +308,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Text(widget.instructions[index],
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                         fontSize: 15, height: 1.6, color: kDarkGreen)),
               ),
             ),

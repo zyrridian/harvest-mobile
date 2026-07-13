@@ -8,7 +8,6 @@ import 'package:harvest_app/features/users/data/datasources/remote/address_remot
 import 'package:harvest_app/features/users/data/datasources/local/address_local_datasource.dart';
 import 'package:harvest_app/features/users/data/repositories/address_repository_impl.dart';
 import 'package:harvest_app/features/users/domain/repositories/address_repository.dart';
-import 'package:harvest_app/features/users/domain/usecases/get_addresses_usecase.dart';
 import 'package:harvest_app/features/users/domain/usecases/set_primary_address_usecase.dart';
 import 'package:harvest_app/features/users/domain/usecases/update_address_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

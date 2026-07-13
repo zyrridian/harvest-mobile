@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/data/models/preorder/preorder_model.dart';
-import 'package:harvest_app/data/models/preorder/preorder_response_model.dart';
 import 'package:harvest_app/data/models/preorder/campaign_model.dart';
 import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 

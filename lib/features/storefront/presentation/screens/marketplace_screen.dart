@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
-import 'package:harvest_app/features/storefront/presentation/providers/marketplace_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

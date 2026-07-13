@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../features/storefront/presentation/screens/home_screen.dart';
 import '../../../../features/community/presentation/screens/community_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -165,7 +164,7 @@ class _NavItem extends StatelessWidget {
               const SizedBox(height: 3),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight:
                       isActive ? FontWeight.w700 : FontWeight.w500,

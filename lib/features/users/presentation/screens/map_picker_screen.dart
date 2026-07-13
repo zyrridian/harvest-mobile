@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
@@ -40,7 +39,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         ),
         title: Text(
           'Pick Location',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -109,7 +108,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     ),
                     child: Text(
                       'Confirm Location',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

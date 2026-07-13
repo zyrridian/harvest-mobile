@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../../domain/entities/farmer.dart';
 import '../providers/farmers_controller.dart';
 import '../providers/farmers_state.dart';
 import '../widgets/farmer_card.dart';
@@ -98,7 +96,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
             toolbarHeight: 70,
             title: Text(
               'Farmers Directory',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 24,
                 color: kDarkGreen,
@@ -144,11 +142,11 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                           Expanded(
                             child: TextField(
                               controller: _searchController,
-                              style: GoogleFonts.inter(color: kDarkGreen),
+                              style: TextStyle(color: kDarkGreen),
                               decoration: InputDecoration(
                                 hintText: 'Search local farmers...',
                                 hintStyle:
-                                    GoogleFonts.inter(color: Colors.grey[500]),
+                                    TextStyle(color: Colors.grey[500]),
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -253,7 +251,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
                 ref.read(farmersControllerProvider.notifier).clearFilters(),
             child: Text(
               'Clear all',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   color: kTextGrey, fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ),
@@ -304,7 +302,7 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: TextStyle(
                 color: kDarkGreen, fontWeight: FontWeight.w500, fontSize: 13),
           ),
           const SizedBox(width: 6),
@@ -323,8 +321,9 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
       loading: () => const SliverFillRemaining(
           child: Center(child: CircularProgressIndicator(color: kDarkGreen))),
       loaded: (farmers) {
-        if (farmers.isEmpty)
+        if (farmers.isEmpty) {
           return SliverFillRemaining(child: _buildEmptyState());
+        }
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           sliver: SliverList(
@@ -360,12 +359,12 @@ class _FarmersScreenState extends ConsumerState<FarmersScreen> {
           ),
           const SizedBox(height: 16),
           Text('No farmers found',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen)),
           Text('Try adjusting your filters.',
-              style: GoogleFonts.inter(color: kTextGrey)),
+              style: TextStyle(color: kTextGrey)),
         ],
       ),
     );

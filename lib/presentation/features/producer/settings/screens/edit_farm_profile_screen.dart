@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/farmer_settings_controller.dart';
@@ -117,7 +116,7 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
       appBar: AppBar(
         title: Text(
           'Edit Farm Profile',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: 
 FontWeight.bold,
@@ -209,7 +208,7 @@ FontWeight.bold,
                         )
                       : Text(
                           'Save Changes',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -237,7 +236,7 @@ FontWeight.bold,
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.w600,
             fontSize: 14,

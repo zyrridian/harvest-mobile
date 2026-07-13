@@ -6,7 +6,6 @@ import 'package:harvest_app/domain/usecases/producer/get_drop_points_usecase.dar
 import 'package:harvest_app/domain/usecases/producer/create_drop_point_usecase.dart';
 import 'package:harvest_app/domain/usecases/producer/update_drop_point_usecase.dart';
 import 'package:harvest_app/domain/usecases/producer/delete_drop_point_usecase.dart';
-import 'package:harvest_app/domain/repositories/producer_repository.dart';
 
 part 'drop_points_controller.g.dart';
 

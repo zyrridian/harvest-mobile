@@ -259,7 +259,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );

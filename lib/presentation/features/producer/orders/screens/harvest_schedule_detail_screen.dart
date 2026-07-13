@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
@@ -36,7 +35,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
         ),
         title: Text(
           'Schedule Details',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -83,7 +82,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
           const SizedBox(height: 12),
           Text(
             _isPickupArranged ? 'Pickup Arranged' : 'Awaiting Confirmation',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _isPickupArranged ? Colors.green[800] : kAccentOrange,
@@ -92,7 +91,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
           const SizedBox(height: 4),
           Text(
             'Order #HAR-550',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               color: kTextGrey,
             ),
@@ -108,7 +107,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
       children: [
         Text(
           'Buyer Information',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -135,7 +134,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
                   children: [
                     Text(
                       'Fresh Market Inc.',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -144,7 +143,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
                     const SizedBox(height: 4),
                     Text(
                       'Wholesale Buyer',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
                         color: kTextGrey,
                       ),
@@ -172,7 +171,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
       children: [
         Text(
           'Agreed Harvest & Pickup',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -219,7 +218,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
         const SizedBox(width: 12),
         Text(
           title,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 14,
             color: kTextGrey,
           ),
@@ -227,7 +226,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: kDarkGreen,
@@ -243,7 +242,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
       children: [
         Text(
           'Payment Summary',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -262,8 +261,8 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total Amount', style: GoogleFonts.inter(color: kTextGrey)),
-                  Text('\$450.00', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: kDarkGreen)),
+                  Text('Total Amount', style: TextStyle(color: kTextGrey)),
+                  Text('\$450.00', style: TextStyle(fontWeight: FontWeight.w600, color: kDarkGreen)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -272,15 +271,15 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
                 children: [
                   Row(
                     children: [
-                      Text('Deposit Paid ', style: GoogleFonts.inter(color: kTextGrey)),
+                      Text('Deposit Paid ', style: TextStyle(color: kTextGrey)),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                        child: Text('PAID', style: GoogleFonts.inter(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                        child: Text('PAID', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
-                  Text('\$90.00', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.green)),
+                  Text('\$90.00', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green)),
                 ],
               ),
               const Padding(
@@ -290,8 +289,8 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Balance Due at Pickup', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: kDarkGreen)),
-                  Text('\$360.00', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16, color: kAccentOrange)),
+                  Text('Balance Due at Pickup', style: TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen)),
+                  Text('\$360.00', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: kAccentOrange)),
                 ],
               ),
             ],
@@ -321,7 +320,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
               const SizedBox(width: 8),
               Text(
                 'Show Pickup QR',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -353,7 +352,7 @@ class _HarvestScheduleDetailScreenState extends ConsumerState<HarvestScheduleDet
         ),
         child: Text(
           'Confirm Pickup Arranged',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.white,

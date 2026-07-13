@@ -21,11 +21,13 @@ class ProductUnit extends Equatable {
 
 final allUnitsProvider = FutureProvider<List<ProductUnit>>((ref) async {
   final dio = ref.watch(dioProvider);
-  final response = await dio.get('/units');
-  
+  final response = await dio.get('/catalog/units');
+
   if (response.statusCode == 200) {
     final data = response.data['data'] as List;
-    return data.map((e) => ProductUnit.fromJson(e as Map<String, dynamic>)).toList();
+    return data
+        .map((e) => ProductUnit.fromJson(e as Map<String, dynamic>))
+        .toList();
   } else {
     throw Exception('Failed to load units');
   }

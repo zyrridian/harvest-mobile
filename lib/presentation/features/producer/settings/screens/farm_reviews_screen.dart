@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/farm_reviews_controller.dart';
@@ -26,7 +25,7 @@ class FarmReviewsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'My Farm Reviews',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -41,7 +40,7 @@ class FarmReviewsScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error.toString(), style: GoogleFonts.inter(color: Colors.red)),
+              Text(error.toString(), style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(farmReviewsControllerProvider.notifier).refresh(),
@@ -63,7 +62,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 Text(
                   'Customer Reviews',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -96,7 +95,7 @@ class FarmReviewsScreen extends ConsumerWidget {
             children: [
               Text(
                 summary.averageRating.toStringAsFixed(1),
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -117,7 +116,7 @@ class FarmReviewsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 '${summary.totalReviews} reviews',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: kTextGrey,
                   fontSize: 12,
                 ),
@@ -137,7 +136,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         '$rating',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kDarkGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -162,7 +161,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                         width: 24,
                         child: Text(
                           count.toString(),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: kTextGrey,
                             fontSize: 12,
                           ),
@@ -191,7 +190,7 @@ class FarmReviewsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 'No reviews yet',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: kTextGrey,
                   fontSize: 16,
                 ),
@@ -238,14 +237,14 @@ class FarmReviewsScreen extends ConsumerWidget {
                       children: [
                         Text(
                           review.user.name,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
                         ),
                         Text(
                           DateFormat.yMMMd().format(review.createdAt),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: kTextGrey,
                             fontSize: 12,
                           ),
@@ -280,7 +279,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                       const SizedBox(width: 4),
                       Text(
                         'Verified Purchase',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kPrimaryGreen,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -291,7 +290,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                 ),
               Text(
                 review.title,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
                 ),
@@ -299,7 +298,7 @@ class FarmReviewsScreen extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 review.comment,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: kDarkGreen.withOpacity(0.8),
                   height: 1.5,
                 ),
@@ -334,7 +333,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         review.product.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kDarkGreen,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -354,7 +353,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${review.helpfulCount} people found this helpful',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: kTextGrey,
                         fontSize: 12,
                       ),

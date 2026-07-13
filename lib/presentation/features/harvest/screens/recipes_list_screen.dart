@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:harvest_app/presentation/features/harvest/screens/recipe_detail_screen.dart';
 
@@ -76,7 +75,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
         ),
         title: Text(
           'Fresh Recipes',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -123,7 +122,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                 Center(
                   child: Text(
                     'Difficulty:',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
                       fontSize: 13,
@@ -152,7 +151,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                         ),
                         child: Text(
                           difficulty,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: isSelected ? kDarkGreen : kTextGrey,
                             fontWeight: isSelected
                                 ? FontWeight.bold
@@ -206,7 +205,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: FontWeight.w600,
             fontSize: 13,
@@ -284,7 +283,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                         const SizedBox(width: 4),
                         Text(
                           recipe.rating.toString(),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -303,7 +302,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                 children: [
                   Text(
                     recipe.name,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                       color: kDarkGreen,
@@ -324,7 +323,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                           const SizedBox(width: 4),
                           Text(
                             recipe.time,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 11, color: kTextGrey),
                           ),
                         ],
@@ -339,7 +338,7 @@ class _RecipesListScreenState extends ConsumerState<RecipesListScreen> {
                         ),
                         child: Text(
                           recipe.difficulty,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: _getDifficultyColor(recipe.difficulty),

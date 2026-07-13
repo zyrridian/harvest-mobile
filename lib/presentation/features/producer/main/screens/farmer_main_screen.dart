@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:harvest_app/presentation/providers/messaging_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../dashboard/screens/farmer_dashboard_screen.dart';
-import '../../products/screens/product_management_screen.dart';
+import '../../products/screens/farmer_product_screen.dart';
 import '../../orders/screens/order_tracking_screen.dart';
 import '../../settings/screens/farm_configuration_screen.dart';
 import '../../../../../features/community/presentation/screens/conversations_list_screen.dart';
@@ -37,7 +36,7 @@ class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
 
     final screens = [
       const FarmerDashboardScreen(),
-      const ProductManagementScreen(),
+      const FarmerProductScreen(),
       const OrderTrackingScreen(),
       const ConversationsListScreen(),
       const FarmConfigurationScreen(),
@@ -72,7 +71,7 @@ class _FarmerBottomNav extends ConsumerWidget {
     final providerParams = (filter: 'all', search: null, page: 1, limit: 20);
 
     final conversationsAsync = ref.watch(conversationsProvider(providerParams));
-    
+
     final data = conversationsAsync.valueOrNull;
     final stats = data?['data']?['stats'] as Map<String, dynamic>?;
     final int unreadCount = stats?['unread_conversations'] as int? ?? 0;
@@ -165,7 +164,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = currentIndex == index;
-    const activeColor = Color(0xFF2D4A3E); // Slightly different green for farmers
+    const activeColor = Color(0xFF1A2F25); // Matching main app theme
     const inactiveColor = Color(0xFF9CA3AF);
 
     return Expanded(
@@ -207,7 +206,7 @@ class _NavItem extends StatelessWidget {
               const SizedBox(height: 3),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   color: isActive ? activeColor : inactiveColor,

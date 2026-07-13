@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../features/auth/presentation/providers/auth_controller.dart';
@@ -28,7 +27,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Profile',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -43,7 +42,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              Text(error, style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(farmerSettingsControllerProvider.notifier).refresh(),
@@ -65,7 +64,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 Text(
                   'Farm Configuration',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -100,7 +99,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Farm Location',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: kDarkGreen,
@@ -108,7 +107,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                 ),
                 Text(
                   'Edit',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kAccentOrange,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -155,7 +154,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     profile.address,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: kTextGrey,
                       fontSize: 14,
                     ),
@@ -231,7 +230,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
             ),
             title: Text(
               'Log Out',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
               ),
@@ -267,14 +266,14 @@ class FarmConfigurationScreen extends ConsumerWidget {
       ),
       title: Text(
         title,
-        style: GoogleFonts.inter(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           color: kDarkGreen,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.inter(
+        style: TextStyle(
           color: kTextGrey,
           fontSize: 12,
         ),

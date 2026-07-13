@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:harvest_app/presentation/features/harvest/screens/article_detail_screen.dart';
 
@@ -68,7 +67,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
         ),
         title: Text(
           'Latest Articles',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -110,7 +109,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       category,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: isSelected ? Colors.white : kTextGrey,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -199,7 +198,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                     ),
                     child: Text(
                       article.category,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: kAccentOrange,
@@ -211,7 +210,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                   // Title
                   Text(
                     article.title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -224,7 +223,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                   // Excerpt
                   Text(
                     article.excerpt,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 13,
                       color: kTextGrey,
                       height: 1.5,
@@ -242,7 +241,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                       Text(
                         '${article.readTime} min read',
                         style:
-                            GoogleFonts.inter(fontSize: 12, color: kTextGrey),
+                            TextStyle(fontSize: 12, color: kTextGrey),
                       ),
                       const SizedBox(width: 16),
                       const Icon(Icons.person_outline,
@@ -251,7 +250,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                       Expanded(
                         child: Text(
                           article.author,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                               fontSize: 12, color: kTextGrey),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

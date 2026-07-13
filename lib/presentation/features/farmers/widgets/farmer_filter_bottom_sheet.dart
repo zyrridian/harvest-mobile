@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/config/theme/app_colors.dart';
 
 // --- DESIGN CONSTANTS ---
 const kDarkGreen = Color(0xFF1A2F25);
@@ -72,7 +70,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
               children: [
                 Text(
                   'Filters',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: kDarkGreen,
@@ -90,7 +88,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                   },
                   child: Text(
                     'Reset',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                         color: kTextGrey, fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -186,7 +184,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
                   ),
                   child: Text(
                     'Apply Filters',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
@@ -201,7 +199,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
     );
   }
@@ -222,7 +220,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: FontWeight.w600,
           ),
@@ -240,7 +238,7 @@ class _FarmerFilterBottomSheetState extends State<FarmerFilterBottomSheet> {
         child: Row(
           children: [
             Text(title,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                     color: isSelected ? kDarkGreen : kTextGrey,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal)),

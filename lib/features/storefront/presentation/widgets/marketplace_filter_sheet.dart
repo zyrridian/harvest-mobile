@@ -9,10 +9,10 @@ class MarketplaceFilterSheet extends StatefulWidget {
   final ValueChanged<ProductFilterParams> onApply;
 
   const MarketplaceFilterSheet({
-    Key? key,
+    super.key,
     required this.initialParams,
     required this.onApply,
-  }) : super(key: key);
+  });
 
   @override
   State<MarketplaceFilterSheet> createState() => _MarketplaceFilterSheetState();

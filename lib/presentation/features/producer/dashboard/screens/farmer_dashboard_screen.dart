@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -33,7 +32,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              Text(error, style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(farmerDashboardControllerProvider.notifier).refresh(),
@@ -90,14 +89,14 @@ class FarmerDashboardScreen extends ConsumerWidget {
         children: [
           Text(
             'Good Morning,',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               color: kTextGrey,
               fontSize: 14,
             ),
           ),
           Text(
             'Green Valley Farm',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               color: kDarkGreen,
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -174,7 +173,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 'This Month Revenue',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: Colors.white70,
                   fontSize: 16,
                 ),
@@ -195,7 +194,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${isPositive ? '+' : ''}${trendValue.toStringAsFixed(1)}%',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -209,7 +208,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             '\$${stats.thisMonthRevenue.toStringAsFixed(2)}',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 36,
               fontWeight: FontWeight.bold,
@@ -246,7 +245,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
       children: [
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -254,7 +253,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
         ),
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: Colors.white70,
             fontSize: 12,
           ),
@@ -269,7 +268,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: kDarkGreen,
@@ -277,7 +276,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
         ),
         Text(
           actionLabel,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: kAccentOrange,
@@ -319,7 +318,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Active Drop Point',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     color: kTextGrey,
                     fontWeight: FontWeight.w500,
@@ -328,7 +327,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Main Street Market',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -337,7 +336,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 2),
                 Text(
                   '2.5 km away • Until 5:00 PM',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 12,
                     color: kTextGrey,
                   ),
@@ -363,7 +362,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             ),
             child: Text(
               'Update',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ),
         ],
@@ -387,7 +386,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(
               'All caught up!',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: kDarkGreen,
@@ -395,7 +394,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             ),
             Text(
               'No pending orders at the moment.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
             ),
           ],
         ),
@@ -453,7 +452,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               children: [
                 Text(
                   customer,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: kDarkGreen,
@@ -462,7 +461,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   items,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     color: kTextGrey,
                   ),
@@ -478,7 +477,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 time,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: isReady ? kDarkGreen : kAccentOrange,
@@ -487,7 +486,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 status,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 12,
                   color: kTextGrey,
                 ),
@@ -547,7 +546,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           width: 70,
           child: Text(
             time,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
               color: isActive ? kDarkGreen : kTextGrey,
               fontSize: 13,
@@ -593,7 +592,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: kDarkGreen,
@@ -602,7 +601,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 13,
                     color: kTextGrey,
                   ),

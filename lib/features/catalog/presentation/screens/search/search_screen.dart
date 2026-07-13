@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 // import '../../../../core/config/theme/app_colors.dart'; // Using local constants for demo
 import '../../providers/search/search_controller.dart';
 import 'widgets/product_card.dart';
@@ -188,7 +187,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           horizontal: 24, vertical: 8),
                       child: Text(
                         'Found ${products.length} products',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
                           fontSize: 14,
@@ -229,10 +228,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              style: GoogleFonts.inter(color: kDarkGreen),
+              style: TextStyle(color: kDarkGreen),
               decoration: InputDecoration(
                 hintText: 'Search fresh products...',
-                hintStyle: GoogleFonts.inter(color: Colors.grey[500]),
+                hintStyle: TextStyle(color: Colors.grey[500]),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
@@ -263,7 +262,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             children: [
               Text(
                 'Recent Searches',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: kDarkGreen,
@@ -277,7 +276,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 },
                 child: Text(
                   'Clear all',
-                  style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+                  style: TextStyle(color: kTextGrey, fontSize: 13),
                 ),
               ),
             ],
@@ -309,7 +308,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ref.watch(showAllRecentProvider)
                               ? 'Show less'
                               : 'See more',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: kAccentOrange,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
@@ -354,7 +353,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               const SizedBox(width: 6),
               Text(
                 search.query,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
@@ -397,7 +396,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   isExpanded: true,
                   icon: const Icon(Icons.keyboard_arrow_down_rounded,
                       color: kDarkGreen),
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                       color: kDarkGreen, fontWeight: FontWeight.w500),
                   items: [
                     _buildDropdownItem('relevance', 'Relevance'),
@@ -520,7 +519,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 24),
             Text(
               'Discover Freshness',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -529,7 +528,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 8),
             Text(
               'Search for vegetables, fruits, or daily essentials.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
               textAlign: TextAlign.center,
             ),
           ],
@@ -555,7 +554,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 24),
             Text(
               'No products found',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -564,7 +563,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 8),
             Text(
               'Try adjusting your search or filters to find what you need.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
               textAlign: TextAlign.center,
             ),
           ],
@@ -583,13 +582,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 16),
             Text(
               'Oops!',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 24, fontWeight: FontWeight.bold, color: kDarkGreen),
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

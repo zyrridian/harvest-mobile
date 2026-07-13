@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
@@ -25,7 +24,7 @@ class DropPointsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Manage Drop Points',
-          style: GoogleFonts.inter(color: kDarkGreen, fontWeight: FontWeight.bold),
+          style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -44,7 +43,7 @@ class DropPointsScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error.toString(), style: GoogleFonts.inter(color: Colors.red)),
+              Text(error.toString(), style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(dropPointsControllerProvider.notifier).fetchDropPoints(),
@@ -63,12 +62,12 @@ class DropPointsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     'No Drop Points yet',
-                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Add a location where customers can pick up their orders.',
-                    style: GoogleFonts.inter(color: Colors.grey.shade600),
+                    style: TextStyle(color: Colors.grey.shade600),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -135,7 +134,7 @@ class DropPointsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         point.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
@@ -150,7 +149,7 @@ class DropPointsScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         point.isActive ? 'Active' : 'Inactive',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: point.isActive ? Colors.green : Colors.red,
@@ -167,7 +166,7 @@ class DropPointsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         point.address,
-                        style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700),
+                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -182,7 +181,7 @@ class DropPointsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         point.operatingHours,
-                        style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700),
+                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -204,7 +203,7 @@ class DropPointsScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           tag,
-                          style: GoogleFonts.inter(fontSize: 12, color: kDarkGreen, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 12, color: kDarkGreen, fontWeight: FontWeight.w500),
                         ),
                       );
                     }).toList(),
@@ -238,7 +237,7 @@ class DropPointsScreen extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(PhosphorIconsRegular.trash, size: 18, color: Colors.red),
-                      label: Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                      label: Text('Delete', style: TextStyle(color: Colors.red)),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(100, 44),
                         side: const BorderSide(color: Colors.red),

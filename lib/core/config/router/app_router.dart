@@ -13,8 +13,7 @@ import '../../../presentation/features/splash/screens/splash_screen.dart';
 import '../../../presentation/features/welcome/screens/welcome_screen.dart';
 import '../../../presentation/features/main/screens/main_screen.dart';
 import '../../../presentation/features/producer/main/screens/farmer_main_screen.dart';
-import '../../../presentation/features/producer/dashboard/screens/farmer_dashboard_screen.dart';
-import '../../../presentation/features/producer/products/screens/add_product_screen.dart';
+import '../../../presentation/features/producer/products/screens/farmer_add_edit_product_screen.dart';
 import '../../../presentation/features/producer/orders/screens/harvest_schedule_detail_screen.dart';
 import '../../../features/explore/presentation/screens/explore_screen.dart';
 import '../../../presentation/features/farmers/screens/farmer_detail_screen.dart';
@@ -74,7 +73,8 @@ class AppRouter {
   static const String farmers = '/farmers'; // farmers list
   static const String products = '/products'; // products list
   static const String preorder = '/preorder'; // preorder list
-  static const String preorderReservations = '/preorder-reservations'; // preorder reservations
+  static const String preorderReservations =
+      '/preorder-reservations'; // preorder reservations
   static const String preorderDetail = '/preorder/:slug'; // preorder detail
   static const String harvestSchedule = '/harvest-schedule'; // harvest schedule
   static const String nearbyFarmers = '/nearby-farmers'; // nearby farmers
@@ -188,7 +188,8 @@ class AppRouter {
         name: 'addProduct',
         builder: (context, state) {
           final extra = state.extra;
-          return AddProductScreen(productId: extra is String ? extra : null);
+          return FarmerAddEditProductScreen(
+              productId: extra is String ? extra : null);
         },
       ),
       GoRoute(
@@ -273,7 +274,8 @@ class AppRouter {
         builder: (context, state) {
           final category = state.extra as MarketplaceCategory?;
           final categoryId = state.pathParameters['id'] ?? '';
-          return CategoryProductsScreen(categoryId: categoryId, category: category);
+          return CategoryProductsScreen(
+              categoryId: categoryId, category: category);
         },
       ),
       GoRoute(

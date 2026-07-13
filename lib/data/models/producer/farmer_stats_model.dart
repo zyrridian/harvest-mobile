@@ -1,7 +1,6 @@
 import 'package:harvest_app/domain/entities/farmer_order.dart';
 import 'package:json_annotation/json_annotation.dart';
 import '../../../../domain/entities/farmer_stats.dart';
-import 'farmer_order_model.dart';
 
 part 'farmer_stats_model.g.dart';
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest_app/domain/entities/nearby_farmer.dart';
 import 'package:harvest_app/presentation/features/nearby_farmer/providers/nearby_farmer_controller.dart';
-import 'package:harvest_app/presentation/features/nearby_farmer/providers/nearby_farmer_state.dart';
 import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -136,11 +134,11 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             child: TextField(
                               onChanged: (val) =>
                                   controller.updateSearchQuery(val),
-                              style: GoogleFonts.inter(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                               cursorColor: kDarkGreen,
                               decoration: InputDecoration(
                                 hintText: 'Search area or farmer name...',
-                                hintStyle: GoogleFonts.inter(
+                                hintStyle: TextStyle(
                                     color: Colors.grey, fontSize: 13),
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
@@ -177,7 +175,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                           : Colors.black87),
                                   const SizedBox(width: 4),
                                   Text('Open now',
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                           fontSize: 12,
                                           color: isOpenNowFilter
                                               ? kHighlightGreen
@@ -393,7 +391,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                       children: [
                                         Text(
                                           '${farmers.length} farmers near you · within 3 km',
-                                          style: GoogleFonts.inter(
+                                          style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.black87,
                                             fontWeight: FontWeight.w600,
@@ -481,9 +479,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                       if (scrolled != _isScrolled) {
                                         WidgetsBinding.instance
                                             .addPostFrameCallback((_) {
-                                          if (mounted)
+                                          if (mounted) {
                                             setState(
                                                 () => _isScrolled = scrolled);
+                                          }
                                         });
                                       }
                                     }
@@ -532,7 +531,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 10, color: Colors.black87),
+          style: TextStyle(fontSize: 10, color: Colors.black87),
         ),
       ],
     );
@@ -582,7 +581,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     children: [
                       Text(
                         farmer.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen),
@@ -590,7 +589,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${farmer.category} · ${farmer.subCategory}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 12, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 8),
@@ -611,7 +610,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             ),
                             child: Text(
                               tag,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: tag == 'Organic'
@@ -632,14 +631,14 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                   children: [
                     Text(
                       '${farmer.distance}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: kHighlightGreen),
                     ),
                     Text(
                       'km away',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 10, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
@@ -649,7 +648,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                         const SizedBox(width: 4),
                         Text(
                           '${farmer.rating} (${farmer.reviewCount})',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                               fontSize: 11, color: Colors.grey[700]),
                         ),
                       ],
@@ -681,16 +680,16 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                           shape: BoxShape.circle)),
                                   const SizedBox(width: 4),
                                   Text(p.name,
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                           fontSize: 11,
                                           color: Colors.grey[800])),
                                   const SizedBox(width: 8),
                                 ],
                               ))
-                          .toList(),
+                          ,
                       if (farmer.extraProductsCount > 0)
                         Text('+${farmer.extraProductsCount} more',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 9,
                                 color: Colors.grey[600],
                                 height: 1.1)),
@@ -723,7 +722,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                 size: 14, color: Colors.black87),
                             const SizedBox(width: 4),
                             Text('Chat',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87)),
@@ -765,7 +764,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                         ),
                         child: Text(
                           'Visit',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -792,7 +791,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 const SizedBox(width: 6),
                 Text(
                   farmer.statusText,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                       fontSize: 11,
                       color:
                           farmer.isOpen ? kHighlightGreen : Colors.grey[700]),
@@ -800,7 +799,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 if (farmer.statusSubText.isNotEmpty)
                   Text(
                     ' · ${farmer.statusSubText}',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                         fontSize: 11, color: Colors.grey[700]),
                   ),
               ],

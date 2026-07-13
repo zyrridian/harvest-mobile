@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/domain/entities/home.dart';
-import 'package:harvest_app/features/catalog/domain/entities/category.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/home_controller.dart';
@@ -14,9 +11,6 @@ import 'package:harvest_app/features/storefront/presentation/widgets/promo_carou
 import 'package:harvest_app/features/storefront/presentation/widgets/quick_action_grid.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/sales/presentation/screens/orders/orders_list_screen.dart';
-import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
-import 'package:intl/intl.dart';
-import 'package:harvest_app/domain/entities/farmer.dart';
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
 const kBgColor = Color(0xFFFFFFFF);
@@ -113,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(width: 10),
                       Text(
                         'Harvest',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
                           color: kDarkGreen,
@@ -165,7 +159,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Expanded(
                         child: Text(
                           'Search fresh products, farmers...',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 14,
                           ),
@@ -379,7 +373,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Expanded(
                           child: Text(
                             update.farmerName,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
@@ -388,7 +382,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         Text(
                           update.timeAgo,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey[500],
                           ),
@@ -398,7 +392,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 12),
                     Text(
                       update.content,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
                         color: Colors.black87,
                         height: 1.4,
@@ -429,7 +423,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 4),
               Text(
                 'Items you frequently buy, ready for 1-click reorder',
-                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 13, color: Colors.grey[500]),
               ),
             ],
           ),
@@ -475,7 +469,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       children: [
                         Text(
                           item.name,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: kDarkGreen,
@@ -484,7 +478,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const SizedBox(height: 2),
                         Text(
                           item.quantityLabel,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[500],
                           ),
@@ -492,7 +486,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const SizedBox(height: 6),
                         Text(
                           '${item.currency} ${item.price.toInt()}',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: kFreshGreen,
@@ -515,7 +509,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const SizedBox(width: 6),
                         Text(
                           'Reorder',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
@@ -568,7 +562,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 Text(
                   activeOrder.status,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: kAccentOrange,
@@ -577,7 +571,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   activeOrder.productName,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
@@ -587,7 +581,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 Text(
                   'from ${activeOrder.farmerName}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],
                   ),
@@ -634,7 +628,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Expanded(
                 child: Text(
                   'Broadcast a Bulk Request',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -646,7 +640,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 12),
           Text(
             'Can\'t find what you need? Request specific goods in bulk directly from our farmers network.',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 13,
               color: Colors.white70,
               height: 1.4,
@@ -663,7 +657,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             child: Text(
               'Request Goods Now',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -731,7 +725,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       children: [
         Text(
           title,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -748,7 +742,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               child: Text(
                 'See all',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: kDarkGreen,
@@ -810,7 +804,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   //         const SizedBox(height: 6),
   //         Text(
   //           category.name,
-  //           style: GoogleFonts.inter(
+  //           style: TextStyle(
   //             fontSize: 11,
   //             fontWeight: FontWeight.w600,
   //             color: kDarkGreen,
@@ -876,7 +870,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Text(
                             '🌱 Farmers Near You',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                               color: kDarkGreen,
@@ -884,7 +878,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           Text(
                             'Tap to open full map',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 11, color: Colors.grey[500]),
                           ),
                         ],
@@ -898,7 +892,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         child: Text(
                           'Explore',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -1021,7 +1015,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //             const SizedBox(height: 6),
 //             Text(
 //               farmer.name,
-//               style: GoogleFonts.inter(
+//               style: TextStyle(
 //                 fontWeight: FontWeight.w600,
 //                 fontSize: 11,
 //                 color: kDarkGreen,
@@ -1033,7 +1027,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //             const SizedBox(height: 2),
 //             Text(
 //               '${farmer.distanceKm?.toStringAsFixed(1) ?? '?'} km',
-//               style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500]),
+//               style: TextStyle(fontSize: 10, color: Colors.grey[500]),
 //             ),
 //           ],
 //         ),
@@ -1112,7 +1106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                                   : daysUntil == 1
 //                                       ? 'Tomorrow'
 //                                       : '$daysUntil days'),
-//                           style: GoogleFonts.inter(
+//                           style: TextStyle(
 //                               fontSize: 10,
 //                               fontWeight: FontWeight.bold,
 //                               color: Colors.white),
@@ -1141,7 +1135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                 children: [
 //                   Text(
 //                     harvest.name,
-//                     style: GoogleFonts.inter(
+//                     style: TextStyle(
 //                         fontWeight: FontWeight.w700,
 //                         fontSize: 14,
 //                         color: kDarkGreen),
@@ -1151,7 +1145,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                   const SizedBox(height: 2),
 //                   Text(
 //                     harvest.farmer?.name ?? 'Unknown Farmer',
-//                     style: GoogleFonts.inter(
+//                     style: TextStyle(
 //                         fontSize: 11, color: Colors.grey[500]),
 //                     maxLines: 1,
 //                     overflow: TextOverflow.ellipsis,
@@ -1163,12 +1157,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                     children: [
 //                       Text(
 //                         '${preOrderPct.toStringAsFixed(0)}% booked',
-//                         style: GoogleFonts.inter(
+//                         style: TextStyle(
 //                             fontSize: 10, color: Colors.grey[500]),
 //                       ),
 //                       Text(
 //                         '$availableQty ${harvest.unit ?? 'kg'} left',
-//                         style: GoogleFonts.inter(
+//                         style: TextStyle(
 //                           fontSize: 10,
 //                           fontWeight: FontWeight.w600,
 //                           color:
@@ -1199,7 +1193,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                           symbol: 'Rp ',
 //                           decimalDigits: 0,
 //                         ).format(harvest.price ?? 0),
-//                         style: GoogleFonts.inter(
+//                         style: TextStyle(
 //                           fontWeight: FontWeight.bold,
 //                           fontSize: 13,
 //                           color: kDarkGreen,
@@ -1214,7 +1208,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                         ),
 //                         child: Text(
 //                           'Pre-Order',
-//                           style: GoogleFonts.inter(
+//                           style: TextStyle(
 //                             fontSize: 10,
 //                             fontWeight: FontWeight.bold,
 //                             color: Colors.white,
@@ -1292,7 +1286,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                       ),
 //                       child: Text(
 //                         'FRESH',
-//                         style: GoogleFonts.inter(
+//                         style: TextStyle(
 //                           fontSize: 8,
 //                           fontWeight: FontWeight.w800,
 //                           color: Colors.white,
@@ -1310,7 +1304,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                 children: [
 //                   Text(
 //                     product.name,
-//                     style: GoogleFonts.inter(
+//                     style: TextStyle(
 //                       fontWeight: FontWeight.w700,
 //                       fontSize: 13,
 //                       color: kDarkGreen,
@@ -1321,7 +1315,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                   const SizedBox(height: 2),
 //                   Text(
 //                     product.seller,
-//                     style: GoogleFonts.inter(
+//                     style: TextStyle(
 //                         fontSize: 11, color: Colors.grey[500]),
 //                     maxLines: 1,
 //                     overflow: TextOverflow.ellipsis,
@@ -1336,7 +1330,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                           symbol: 'Rp ',
 //                           decimalDigits: 0,
 //                         ).format(product.price),
-//                         style: GoogleFonts.inter(
+//                         style: TextStyle(
 //                           fontWeight: FontWeight.bold,
 //                           fontSize: 13,
 //                           color: kDarkGreen,
@@ -1350,7 +1344,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 //                             const SizedBox(width: 2),
 //                             Text(
 //                               product.rating!.toStringAsFixed(1),
-//                               style: GoogleFonts.inter(
+//                               style: TextStyle(
 //                                 fontSize: 11,
 //                                 fontWeight: FontWeight.w600,
 //                                 color: kAccentOrange,

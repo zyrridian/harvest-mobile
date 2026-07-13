@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:intl/intl.dart';
 
@@ -83,12 +82,12 @@ class RecipeDetailScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   recipe.author.name,
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                 ),
               ),
               Text(
                 DateFormat('MMM d, yyyy').format(recipe.createdAt),
-                style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
               ),
             ],
           ),
@@ -97,7 +96,7 @@ class RecipeDetailScreen extends ConsumerWidget {
           // Title
           Text(
             recipe.title,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               height: 1.2,
@@ -109,7 +108,7 @@ class RecipeDetailScreen extends ConsumerWidget {
           if (recipe.description.isNotEmpty) ...[
             Text(
               recipe.description,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 15,
                 color: Colors.grey.shade700,
                 height: 1.5,
@@ -135,11 +134,11 @@ class RecipeDetailScreen extends ConsumerWidget {
           // Ingredients
           Text(
             'Ingredients',
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           if (recipe.ingredients.isEmpty)
-            Text('No ingredients listed.', style: GoogleFonts.inter(color: Colors.grey.shade600))
+            Text('No ingredients listed.', style: TextStyle(color: Colors.grey.shade600))
           else
             ...recipe.ingredients.map((ingredient) => Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
@@ -157,13 +156,13 @@ class RecipeDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       ingredient.name,
-                      style: GoogleFonts.inter(fontSize: 16, color: Colors.black87),
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
                     ),
                   ),
                   if (ingredient.quantity != null)
                     Text(
                       '${ingredient.quantity} ${ingredient.unit ?? ''}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: Colors.grey.shade700,
@@ -180,11 +179,11 @@ class RecipeDetailScreen extends ConsumerWidget {
           // Instructions
           Text(
             'Instructions',
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           if (recipe.instructions.isEmpty)
-            Text('No instructions listed.', style: GoogleFonts.inter(color: Colors.grey.shade600))
+            Text('No instructions listed.', style: TextStyle(color: Colors.grey.shade600))
           else
             ...recipe.instructions.asMap().entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
@@ -201,7 +200,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                     child: Center(
                       child: Text(
                         '${entry.key + 1}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF166534),
                           fontSize: 12,
@@ -213,7 +212,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       entry.value,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 16,
                         height: 1.5,
                         color: Colors.black87,
@@ -242,12 +241,12 @@ class RecipeDetailScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
           ),
         ],
       ),

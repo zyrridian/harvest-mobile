@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // --- DESIGN CONSTANTS ---
 const kDarkGreen = Color(0xFF1A2F25);
@@ -67,7 +66,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   children: [
                     Text(
                       'Filters',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: kDarkGreen,
@@ -83,7 +82,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       },
                       child: Text(
                         'Reset',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kTextGrey,
                           fontWeight: FontWeight.w500,
                         ),
@@ -116,7 +115,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         ),
                         valueIndicatorColor: kDarkGreen,
                         valueIndicatorTextStyle:
-                            GoogleFonts.inter(color: Colors.white),
+                            TextStyle(color: Colors.white),
                       ),
                       child: RangeSlider(
                         values: _priceRange,
@@ -141,12 +140,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         children: [
                           Text(
                             '\$${_priceRange.start.toStringAsFixed(0)}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kDarkGreen),
                           ),
                           Text(
                             '\$${_priceRange.end.toStringAsFixed(0)}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kDarkGreen),
                           ),
                         ],
@@ -245,7 +244,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                       child: Text(
                         'Apply Filters',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -266,7 +265,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: kDarkGreen,
@@ -294,7 +293,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             fontSize: 14,

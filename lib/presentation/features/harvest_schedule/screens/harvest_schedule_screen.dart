@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/presentation/features/harvest_schedule/providers/harvest_schedule_controller.dart';
 import 'package:harvest_app/presentation/features/harvest_schedule/providers/harvest_schedule_state.dart';
@@ -39,7 +38,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
         ),
         title: Text(
           'Harvest Schedule',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kTextGreen,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -104,7 +103,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           children: [
                             Text(
                               DateFormat('MMMM yyyy').format(data.baseDate),
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: kTextGreen),
@@ -122,7 +121,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                     ),
                                     child: Text(
                                       'Today',
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black87),
@@ -170,7 +169,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                       child: Center(
                                         child: Text(
                                           day,
-                                          style: GoogleFonts.inter(
+                                          style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.grey[600],
@@ -232,7 +231,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'Upcoming harvests',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kTextGreen,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -252,7 +251,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 'Filter',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: kTextGreen),
@@ -282,7 +281,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           children: [
                             Text(
                               entry.key,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey[600],
@@ -299,7 +298,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text('NOW',
-                                    style: GoogleFonts.inter(
+                                    style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold)),
@@ -343,7 +342,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'Nothing else this week — explore more harvests',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 12, color: Colors.grey[600]),
                             textAlign: TextAlign.center,
                           ),
@@ -358,7 +357,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               'Browse pre-orders',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: kTextGreen,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
@@ -401,7 +400,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
           if (showDayStr) ...[
             Text(
               DateFormat('E').format(date).toUpperCase(),
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
                 color: dayTextColor,
@@ -420,7 +419,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 date.day.toString(),
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
                   color: dateTextColor,
@@ -485,7 +484,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Filter & Sort',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: kTextGreen,
@@ -505,7 +504,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Sort By',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: kTextGreen,
@@ -519,7 +518,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             return ChoiceChip(
                               label: Text(
                                 sortOption,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: isSelected ? Colors.white : Colors.black87,
                                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                 ),
@@ -544,7 +543,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         const SizedBox(height: 24),
                         Text(
                           'Status',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: kTextGreen,
@@ -564,7 +563,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             return FilterChip(
                               label: Text(
                                 status,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   color: isSelected ? kHighlightGreen : Colors.black87,
                                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                 ),
@@ -597,7 +596,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Distance',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: kTextGreen,
@@ -605,7 +604,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             Text(
                               'Up to ${maxDistance.toInt()} km',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: kHighlightGreen,
@@ -656,7 +655,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               'Reset',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -680,7 +679,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               'Show Results',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -776,7 +775,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
           children: [
             Text(
               value,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: textColor,
                 fontSize: 32,
                 height: 1,
@@ -787,7 +786,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(
               label.toUpperCase(),
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: labelColor,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -803,10 +802,12 @@ class HarvestScheduleScreen extends ConsumerWidget {
   Widget _buildHarvestCard(
       BuildContext context, WidgetRef ref, HarvestScheduleItemEntity item) {
     Color leftBorderColor = kHighlightGreen;
-    if (item.badges.contains('Pending confirmation'))
+    if (item.badges.contains('Pending confirmation')) {
       leftBorderColor = const Color(0xFFD4833D);
-    if (item.badges.contains('Just reserved'))
+    }
+    if (item.badges.contains('Just reserved')) {
       leftBorderColor = const Color(0xFF3B82F6);
+    }
 
     final formatter =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
@@ -849,7 +850,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 item.title,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     color: kTextGreen),
@@ -857,7 +858,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               const SizedBox(height: 2),
                               Text(
                                 '${item.farmerName} · ${item.distance} km',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 11, color: Colors.grey[600]),
                               ),
                               const SizedBox(height: 8),
@@ -884,7 +885,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                     ),
                                     child: Text(
                                       badge,
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w600,
                                           color: badgeText),
@@ -895,7 +896,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               const SizedBox(height: 8),
                               Text(
                                 item.descriptionText,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 11, color: Colors.grey[700]),
                               ),
                             ],
@@ -906,7 +907,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           children: [
                             Text(
                               item.statusText,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: item.statusText == 'Now'
@@ -918,7 +919,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             ),
                             Text(
                               item.statusText == 'Now' ? 'ready' : 'days left',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                   fontSize: 10, color: Colors.grey[600]),
                             ),
                             const SizedBox(height: 8),
@@ -926,7 +927,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               formatter
                                   .format(item.price)
                                   .replaceAll(',00', ''),
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: kTextGreen),
@@ -975,7 +976,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                           item.actionButton1
                                               .replaceAll('\\n', ' ')
                                               .replaceAll('\n', ' '),
-                                          style: GoogleFonts.inter(
+                                          style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.black87),
@@ -1028,7 +1029,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                       item.actionButton2
                                           .replaceAll('\\n', ' ')
                                           .replaceAll('\n', ' '),
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black87),

@@ -14,10 +14,10 @@ class CategoryProductsScreen extends ConsumerStatefulWidget {
   final MarketplaceCategory? category;
 
   const CategoryProductsScreen({
-    Key? key,
+    super.key,
     required this.categoryId,
     this.category,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<CategoryProductsScreen> createState() =>

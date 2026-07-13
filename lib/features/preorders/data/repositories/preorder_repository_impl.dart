@@ -6,7 +6,6 @@ import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart
 import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/preorder.dart';
-import 'package:harvest_app/data/models/preorder/campaign_model.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
 
 class PreorderRepositoryImpl implements PreorderRepository {

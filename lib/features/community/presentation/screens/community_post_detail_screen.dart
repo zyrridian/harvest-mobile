@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
@@ -8,7 +7,6 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/community_comment.dart';
 import '../providers/community_controller.dart';
 import '../providers/post_detail_controller.dart';
-import '../providers/community_controller.dart';
 
 class CommunityPostDetailScreen extends ConsumerStatefulWidget {
   final CommunityPost post;
@@ -274,12 +272,12 @@ class _CommunityPostDetailScreenState
                   children: [
                     Text(
                       currentPost.user.name,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontWeight: FontWeight.w500, fontSize: 15),
                     ),
                     Text(
                       _formatDate(currentPost.createdAt),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 12, color: Colors.grey.shade500),
                     ),
                   ],
@@ -331,12 +329,12 @@ class _CommunityPostDetailScreenState
 
           Text(
             currentPost.title,
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             currentPost.content,
-            style: GoogleFonts.inter(fontSize: 16, height: 1.5),
+            style: TextStyle(fontSize: 16, height: 1.5),
           ),
 
           if (currentPost.images.isNotEmpty) ...[
@@ -350,7 +348,7 @@ class _CommunityPostDetailScreenState
                             width: double.infinity, fit: BoxFit.cover),
                       ),
                     ))
-                .toList(),
+                ,
           ],
 
           if (currentPost.tags.isNotEmpty) ...[
@@ -360,7 +358,7 @@ class _CommunityPostDetailScreenState
               children: currentPost.tags
                   .map((t) => Text(
                         '#${t.tag}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             color: const Color(0xFF166534),
                             fontWeight: FontWeight.w500),
                       ))
@@ -461,17 +459,17 @@ class _CommunityPostDetailScreenState
                     children: [
                       Text(
                         comment.user.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 13),
                       ),
                       if (isReply && comment.replyToUser != null) ...[
                         Text(' replied to ',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 13, color: Colors.grey.shade600)),
                         Flexible(
                           child: Text(
                             '@${comment.replyToUser!.name}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13,
                                 color: const Color(0xFF166534)),
@@ -482,7 +480,7 @@ class _CommunityPostDetailScreenState
                       const SizedBox(width: 8),
                       Text(
                         _formatDate(comment.createdAt),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 12, color: Colors.grey.shade500),
                       ),
                     ],
@@ -490,7 +488,7 @@ class _CommunityPostDetailScreenState
                   const SizedBox(height: 4),
                   Text(
                     comment.content,
-                    style: GoogleFonts.inter(fontSize: 14, height: 1.4),
+                    style: TextStyle(fontSize: 14, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -522,7 +520,7 @@ class _CommunityPostDetailScreenState
                               const SizedBox(width: 4),
                               Text(
                                 '${comment.likesCount}',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 13,
                                   color: comment.isLikedByUser
                                       ? Colors.red
@@ -542,7 +540,7 @@ class _CommunityPostDetailScreenState
                                 size: 16, color: Colors.grey.shade500),
                             const SizedBox(width: 4),
                             Text('Reply',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 13, color: Colors.grey.shade600)),
                           ],
                         ),
@@ -612,10 +610,10 @@ class _CommunityPostDetailScreenState
               child: Row(
                 children: [
                   Text('Replying to ',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 12, color: Colors.grey.shade600)),
                   Text('@$_replyToUserName',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   GestureDetector(
@@ -639,7 +637,7 @@ class _CommunityPostDetailScreenState
                   controller: _commentController,
                   decoration: InputDecoration(
                     hintText: 'Write a comment...',
-                    hintStyle: GoogleFonts.inter(
+                    hintStyle: TextStyle(
                         color: Colors.grey.shade500, fontSize: 14),
                     filled: true,
                     fillColor: Colors.grey.shade100,

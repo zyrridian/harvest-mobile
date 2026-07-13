@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
@@ -249,6 +250,15 @@ class AppCachedImage extends StatelessWidget {
       } catch (e) {
         image = customErrorWidget?.call(context, imageUrl, e) ?? _buildErrorWidget(context, imageUrl, e);
       }
+    } else if (!imageUrl.startsWith('http')) {
+      // Handle local file paths
+      image = Image.file(
+        File(imageUrl),
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => customErrorWidget?.call(context, imageUrl, error) ?? _buildErrorWidget(context, imageUrl, error),
+      );
     } else {
       image = CachedNetworkImage(
         imageUrl: imageUrl,

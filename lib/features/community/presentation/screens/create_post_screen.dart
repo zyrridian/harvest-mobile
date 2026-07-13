@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
@@ -129,7 +128,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         ),
         title: Text(
           'New Post',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -168,7 +167,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               ),
               child: RichText(
                 text: TextSpan(
-                  style: GoogleFonts.inter(color: const Color(0xFF1B5E20), fontSize: 14, height: 1.5),
+                  style: TextStyle(color: const Color(0xFF1B5E20), fontSize: 14, height: 1.5),
                   children: const [
                     TextSpan(text: 'Tip: ', style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: 'The community is a shared space for both farmers and consumers. If you run a farm, your posts will automatically be tagged with your farm\'s badge!'),
@@ -182,10 +181,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
                 controller: _titleController,
-                style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                 decoration: InputDecoration(
                   hintText: 'Post title',
-                  hintStyle: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.grey.shade400),
+                  hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.grey.shade400),
                   border: InputBorder.none,
                 ),
               ),
@@ -199,10 +198,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               child: TextField(
                 controller: _contentController,
                 maxLines: 8,
-                style: GoogleFonts.inter(fontSize: 16),
+                style: TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   hintText: 'Share your thoughts, tips, or experiences...',
-                  hintStyle: GoogleFonts.inter(fontSize: 16, color: Colors.grey.shade400),
+                  hintStyle: TextStyle(fontSize: 16, color: Colors.grey.shade400),
                   border: InputBorder.none,
                 ),
               ),
@@ -220,9 +219,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     children: [
                       const Icon(Icons.tag, size: 20, color: Colors.black87),
                       const SizedBox(width: 8),
-                      Text('Tags', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                      Text('Tags', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                       const SizedBox(width: 8),
-                      Text('(up to 5)', style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade500)),
+                      Text('(up to 5)', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -243,7 +242,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       controller: _tagController,
                       decoration: InputDecoration(
                         hintText: 'Add a tag and press Enter',
-                        hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -272,7 +271,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     children: [
                       const Icon(Icons.image_outlined, size: 20, color: Colors.black87),
                       const SizedBox(width: 8),
-                      Text('Images', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                      Text('Images', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -339,7 +338,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                 )
                               : Text(
                                   '+ Add Image',
-                                  style: GoogleFonts.inter(color: Colors.blueGrey.shade400, fontWeight: FontWeight.w500),
+                                  style: TextStyle(color: Colors.blueGrey.shade400, fontWeight: FontWeight.w500),
                                 ),
                           ),
                         ),

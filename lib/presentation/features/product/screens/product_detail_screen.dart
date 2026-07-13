@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../features/catalog/domain/entities/product_detail.dart';
 import '../../../../features/sales/presentation/providers/cart/cart_controller.dart';
 import '../providers/product_detail_controller.dart';
-import '../providers/product_detail_state.dart';
 
 extension ProductDetailUIExtensions on ProductDetail {
   bool get isInStock => stockQuantity > 0;

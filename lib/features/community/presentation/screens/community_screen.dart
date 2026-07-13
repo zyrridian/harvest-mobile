@@ -249,7 +249,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             icon: const Icon(Icons.add, color: Colors.white),
             label: Text(
               'Create Post',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -408,7 +408,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 children: [
                   Text(
                     recipe.title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -423,7 +423,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${recipe.prepTimeMinutes + recipe.cookTimeMinutes}m',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
                           fontWeight: FontWeight.w500,
@@ -449,7 +449,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       Expanded(
                         child: Text(
                           recipe.author.name,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Colors.black87,
                           ),
@@ -594,7 +594,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     children: [
                       Text(
                         post.user.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                           color: Colors.black87,
@@ -602,7 +602,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       ),
                       Text(
                         _formatDate(post.createdAt),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade500,
                         ),
@@ -657,7 +657,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             // Title
             Text(
               post.title,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -668,7 +668,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             // Content
             Text(
               post.content,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 15,
                 color: Colors.black87,
                 height: 1.5,
@@ -712,7 +712,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 children: post.tags
                     .map((t) => Text(
                           '#${t.tag}',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -748,7 +748,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       const SizedBox(width: 6),
                       Text(
                         '${post.likesCount}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: post.isLikedByUser
                               ? const Color(0xFFDC2626)
                               : Colors.grey.shade600,
@@ -767,7 +767,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     const SizedBox(width: 6),
                     Text(
                       '${post.commentsCount}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -866,7 +866,7 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                           const SizedBox(height: 2),
                           Text(
                             widget.title,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
                               color: Colors.black87,
@@ -875,7 +875,7 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                           const SizedBox(height: 4),
                           Text(
                             widget.subtitle,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 13.5,
                               color: Colors.grey.shade600,
                               height: 1.3,

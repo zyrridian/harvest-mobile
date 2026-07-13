@@ -3,7 +3,6 @@ import 'package:harvest_app/presentation/features/producer/dashboard/providers/f
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/delivery_settings.dart';
 import 'package:harvest_app/domain/usecases/producer/update_delivery_settings_usecase.dart';
-import 'package:harvest_app/domain/repositories/producer_repository.dart';
 import 'package:harvest_app/presentation/features/producer/settings/providers/farmer_settings_controller.dart';
 
 part 'delivery_settings_controller.g.dart';

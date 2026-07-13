@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // Constants
 const kBgColor = Color(0xFFFAFAF8);
@@ -29,7 +28,7 @@ class SubscriptionsScreen extends ConsumerWidget {
               titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
               title: Text(
                 'My Subscriptions',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: kDarkGreen,
                   fontWeight: FontWeight.w700,
                   fontSize: 24, // Smaller for collapsed state
@@ -78,12 +77,12 @@ class SubscriptionsScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Eco Warrior',
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold)),
                               Text('Level 5 • 2,340 points',
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
                                       color: Colors.white70, fontSize: 13)),
                             ],
                           ),
@@ -106,7 +105,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text('660 points to next level',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                               color: Colors.white54, fontSize: 11)),
                     ),
                   ],
@@ -145,7 +144,7 @@ class SubscriptionsScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 'Active Plans',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen),
@@ -173,7 +172,7 @@ class SubscriptionsScreen extends ConsumerWidget {
         backgroundColor: kDarkGreen,
         icon: const Icon(Icons.add),
         label: Text('New Plan',
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -193,12 +192,12 @@ class SubscriptionsScreen extends ConsumerWidget {
             Icon(icon, color: kDarkGreen, size: 24),
             const SizedBox(height: 8),
             Text(value,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: kDarkGreen)),
             Text(label,
-                style: GoogleFonts.inter(fontSize: 11, color: kTextGrey)),
+                style: TextStyle(fontSize: 11, color: kTextGrey)),
           ],
         ),
       ),
@@ -246,7 +245,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         index == 0 ? 'Green Valley Farm' : 'Organic Paradise',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: kDarkGreen),
@@ -255,7 +254,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                         index == 0
                             ? 'Weekly • Next: Mon, Oct 14'
                             : 'Bi-weekly • Next: Wed, Oct 16',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 12,
                             color: kAccentOrange,
                             fontWeight: FontWeight.w500),
@@ -284,10 +283,10 @@ class SubscriptionsScreen extends ConsumerWidget {
                   children: [
                     Text('3 items',
                         style:
-                            GoogleFonts.inter(color: kTextGrey, fontSize: 12)),
+                            TextStyle(color: kTextGrey, fontSize: 12)),
                     const SizedBox(height: 4),
                     Text('Rp 69.000',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: kDarkGreen)),

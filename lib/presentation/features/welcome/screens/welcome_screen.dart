@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/core/services/storage_service.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 

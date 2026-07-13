@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/farmer.dart';
 
 // Constants
@@ -76,7 +75,7 @@ class FarmerCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Verified',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: kDarkGreen),
@@ -118,7 +117,7 @@ class FarmerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           farmer.name,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
@@ -141,7 +140,7 @@ class FarmerCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               farmer.rating.toStringAsFixed(1),
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                   color: const Color(0xFF92400E)),
@@ -162,7 +161,7 @@ class FarmerCard extends StatelessWidget {
                       Text(
                         '${farmer.city} • ${farmer.distanceLabel}',
                         style:
-                            GoogleFonts.inter(color: kTextGrey, fontSize: 12),
+                            TextStyle(color: kTextGrey, fontSize: 12),
                       ),
                     ],
                   ),
@@ -183,7 +182,7 @@ class FarmerCard extends StatelessWidget {
                           ),
                           child: Text(
                             tag ?? '',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 color: kDarkGreen,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500),

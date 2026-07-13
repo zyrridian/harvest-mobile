@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../../core/config/router/app_router.dart';
@@ -84,7 +83,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
       appBar: AppBar(
         title: Text(
           'Orders & Schedules',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -104,7 +103,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 unselectedLabelColor: kTextGrey,
                 indicatorColor: kAccentOrange,
                 indicatorWeight: 3,
-                labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                labelStyle: TextStyle(fontWeight: FontWeight.w600),
                 tabs: _tabs.map((t) => Tab(text: t)).toList(),
               ),
             ],
@@ -117,7 +116,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error, style: GoogleFonts.inter(color: Colors.red)),
+              Text(error, style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
@@ -187,7 +186,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         },
         backgroundColor: kAccentOrange,
         icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
-        label: Text('Route Plan', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: Text('Route Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -214,7 +213,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 child: Center(
                   child: Text(
                     'Standard Orders',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: _orderType == 'standard' ? FontWeight.bold : FontWeight.w500,
                       color: _orderType == 'standard' ? kDarkGreen : kTextGrey,
                     ),
@@ -235,7 +234,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 child: Center(
                   child: Text(
                     'Pre-orders',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: _orderType == 'pre_orders' ? FontWeight.bold : FontWeight.w500,
                       color: _orderType == 'pre_orders' ? kDarkGreen : kTextGrey,
                     ),
@@ -254,7 +253,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
       return Center(
         child: Text(
           'No orders found',
-          style: GoogleFonts.inter(color: kTextGrey),
+          style: TextStyle(color: kTextGrey),
         ),
       );
     }
@@ -366,7 +365,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
               children: [
                 Text(
                   data.orderNumber,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kTextGrey,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -380,7 +379,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                   ),
                   child: Text(
                     statusDisplay,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: isReady ? Colors.green : kAccentOrange,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -415,7 +414,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     children: [
                       Text(
                         data.buyerName,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: kDarkGreen,
@@ -424,7 +423,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                       const SizedBox(height: 4),
                       Text(
                         data.items.map((i) => '${i.quantity}x ${i.productName}').join(', '),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 13,
                           color: kTextGrey,
                         ),
@@ -436,7 +435,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 ),
                 Text(
                   NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(data.totalAmount),
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                     color: kDarkGreen,
@@ -456,7 +455,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     const SizedBox(width: 4),
                     Text(
                       _formatDate(data.deliveryDate),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
                         color: kTextGrey,
                       ),
@@ -466,7 +465,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 if (isHarvestSchedule)
                   Text(
                     'View Details',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: kAccentOrange,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -475,7 +474,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 else
                   Text(
                     'Update Status',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       color: kDarkGreen,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

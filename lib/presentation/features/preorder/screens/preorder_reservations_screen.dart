@@ -237,8 +237,9 @@ class _PreOrderReservationsScreenState
 
     int currentStep = 1;
     if (reservation.daysToHarvest < 5) currentStep = 2;
-    if (reservation.status == 'Confirmed' && reservation.daysToHarvest == 0)
+    if (reservation.status == 'Confirmed' && reservation.daysToHarvest == 0) {
       currentStep = 3;
+    }
 
     final isUrl = reservation.imageUrl.startsWith('http');
 

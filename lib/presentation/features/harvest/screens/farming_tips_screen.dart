@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared_widgets/app_cached_image.dart';
 // import '../../../../core/config/theme/app_colors.dart';
 
@@ -122,7 +121,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
         ),
         title: Text(
           'Farming Tips',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w700,
             color: kDarkGreen,
@@ -208,7 +207,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: isSelected ? Colors.white : kTextGrey,
             fontWeight: FontWeight.w600,
             fontSize: 13,
@@ -263,7 +262,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                     ),
                     child: Text(
                       tip.category,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: kDarkGreen,
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
@@ -310,7 +309,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                 children: [
                   Text(
                     tip.title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -321,7 +320,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                   const SizedBox(height: 8),
                   Text(
                     tip.excerpt,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 14,
                       color: kTextGrey,
                       height: 1.5,
@@ -343,7 +342,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                       const SizedBox(width: 8),
                       Text(
                         tip.author,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: kTextGrey),
@@ -370,7 +369,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
       children: [
         Icon(icon, size: 14, color: kTextGrey),
         const SizedBox(width: 4),
-        Text(value, style: GoogleFonts.inter(fontSize: 12, color: kTextGrey)),
+        Text(value, style: TextStyle(fontSize: 12, color: kTextGrey)),
       ],
     );
   }
@@ -419,7 +418,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                     // Title & Meta
                     Text(
                       tip.title,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
@@ -437,7 +436,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                           ),
                           child: Text(
                             tip.category,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                                 color: kDarkGreen),
@@ -446,7 +445,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                         const Spacer(),
                         Text(
                           _formatDate(tip.publishDate),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                               color: kTextGrey, fontSize: 13),
                         ),
                       ],
@@ -493,7 +492,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
         Icon(icon, color: kDarkGreen, size: 20),
         const SizedBox(width: 8),
         Text(label,
-            style: GoogleFonts.inter(
+            style: TextStyle(
                 fontWeight: FontWeight.w600, color: kDarkGreen)),
       ],
     );
@@ -514,7 +513,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
 
         widgets.add(Text(
           title,
-          style: GoogleFonts.inter(
+          style: TextStyle(
               fontSize: 18, fontWeight: FontWeight.bold, color: kDarkGreen),
         ));
         widgets.add(const SizedBox(height: 8));
@@ -535,7 +534,7 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
                     Expanded(
                       child: Text(
                         line.replaceFirst('•', '').trim(),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 15, height: 1.6, color: kTextGrey),
                       ),
                     ),
@@ -546,14 +545,14 @@ Starting a home vegetable garden is easier than you think. Follow these steps fo
           }
         } else {
           widgets.add(Text(rest,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 15, height: 1.6, color: kTextGrey)));
         }
         widgets.add(const SizedBox(height: 24));
       } else {
         // Regular Paragraph
         widgets.add(Text(section,
-            style: GoogleFonts.inter(
+            style: TextStyle(
                 fontSize: 15, height: 1.6, color: kTextGrey)));
         widgets.add(const SizedBox(height: 24));
       }

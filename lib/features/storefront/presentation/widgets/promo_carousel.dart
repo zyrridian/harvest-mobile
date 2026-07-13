@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _kDarkGreen = Color(0xFF1A2F25);
 const _kTerra = Color(0xFFE86A33);
@@ -176,7 +175,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                         ),
                         child: Text(
                           promo.badge,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -187,7 +186,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                       const SizedBox(height: 8),
                       Text(
                         promo.title,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -197,7 +196,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                       const SizedBox(height: 4),
                       Text(
                         promo.subtitle,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withOpacity(0.85),
                         ),

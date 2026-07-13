@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -44,7 +43,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
       appBar: AppBar(
         title: Text(
           'Route Plan',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -71,7 +70,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                 icon: const Icon(PhosphorIconsRegular.magicWand, color: kAccentOrange, size: 20),
                 label: Text(
                   'Regenerate',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kAccentOrange,
                     fontWeight: FontWeight.w600,
                   ),
@@ -93,7 +92,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(error, style: GoogleFonts.inter(color: Colors.red)),
+                    Text(error, style: TextStyle(color: Colors.red)),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => routePlanController.refresh(),
@@ -126,7 +125,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
         children: [
           Text(
             DateFormat('EEEE, MMM d, yyyy').format(_selectedDate),
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: kDarkGreen,
@@ -175,7 +174,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
           const SizedBox(height: 16),
           Text(
             'No route plan for this date',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -184,7 +183,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
           const SizedBox(height: 8),
           Text(
             'Generate a new route plan based on pending orders.',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               color: kTextGrey,
             ),
@@ -198,7 +197,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
               if (deliveryOrders.isEmpty) {
                 return Text(
                   'No pending deliveries for today.',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kAccentOrange,
                     fontWeight: FontWeight.w500,
                   ),
@@ -217,7 +216,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                 },
                 icon: const Icon(PhosphorIconsRegular.magicWand, color: Colors.white),
                 label: Text('Generate Route Plan',
-                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kAccentOrange,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -298,7 +297,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
           child: Text(
             'All stops require manual navigation.\nMap preview unavailable.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: kTextGrey),
+            style: TextStyle(color: kTextGrey),
           ),
         ),
       );
@@ -355,7 +354,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -363,7 +362,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
         ),
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: kTextGrey,
             fontSize: 12,
           ),
@@ -401,7 +400,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   '${stop.stopOrder}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: kDarkGreen,
                     fontWeight: FontWeight.bold,
                   ),
@@ -414,7 +413,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                   children: [
                     Text(
                       stop.recipientName,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kDarkGreen,
@@ -423,7 +422,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                     if (stop.orderNumber != null)
                       Text(
                         'Order: ${stop.orderNumber}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: kTextGrey,
                         ),
@@ -437,7 +436,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                         Expanded(
                           child: Text(
                             stop.addressLabel,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 13,
                               color: kTextGrey,
                             ),
@@ -450,7 +449,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
                           'Requires Manual Navigation',
-                          style: GoogleFonts.inter(fontSize: 11, color: Colors.red),
+                          style: TextStyle(fontSize: 11, color: Colors.red),
                         ),
                       ),
                   ],
@@ -464,7 +463,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
                 ),
                 child: Text(
                   stop.status.toUpperCase(),
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     color: isDelivered ? Colors.green : (isFailed ? Colors.red : kAccentOrange),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -531,7 +530,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
             icon: const Icon(PhosphorIconsRegular.playCircle, color: Colors.white),
             label: Text(
               'Start Route',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -559,7 +558,7 @@ class _RoutePlanScreenState extends ConsumerState<RoutePlanScreen> {
             icon: const Icon(PhosphorIconsRegular.checkCircle, color: Colors.white),
             label: Text(
               'Complete Route',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
