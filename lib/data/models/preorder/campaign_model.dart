@@ -21,11 +21,24 @@ class PreorderCampaignModel extends PreorderCampaign {
     super.distance,
     super.location,
     super.images,
+    super.reservations,
   });
 
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
     final imagesList = json['images'] != null ? List<String>.from(json['images']) : null;
     final primaryImage = imagesList != null && imagesList.isNotEmpty ? imagesList.first : null;
+    
+    List<PreorderReservationInfo>? reservationsList;
+    if (json['reservations'] != null) {
+      reservationsList = (json['reservations'] as List).map((res) {
+        return PreorderReservationInfo(
+          id: res['id'] ?? '',
+          userId: res['userId'] ?? res['user_id'] ?? 'Unknown User',
+          quantity: res['quantity'] ?? 0,
+          status: res['status'] ?? 'PENDING',
+        );
+      }).toList();
+    }
 
     return PreorderCampaignModel(
       id: json['id'] ?? json['campaignId'] ?? '',
@@ -53,6 +66,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
       location: json['location'],
       images: imagesList,
+      reservations: reservationsList,
     );
   }
 

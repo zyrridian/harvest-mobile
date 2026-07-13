@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 
@@ -254,8 +256,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(error.toString(),
-                        style: TextStyle(color: Colors.red)),
+                    Text(error.toString(), style: TextStyle(color: Colors.red)),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => ref
@@ -461,8 +462,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(error.toString(),
-                        style: TextStyle(color: Colors.red)),
+                    Text(error.toString(), style: TextStyle(color: Colors.red)),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => ref
@@ -553,12 +553,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CreatePreorderCampaignScreen(campaign: campaign),
-            ),
-          );
+          _showReservationsBottomSheet(context, campaign);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -611,8 +606,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                 ),
                               ),
                               Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(color: Colors.grey[300]!),
@@ -654,8 +649,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                         children: [
                           Text(
                             'Target Quantity',
-                            style:
-                                TextStyle(fontSize: 12, color: kTextGrey),
+                            style: TextStyle(fontSize: 12, color: kTextGrey),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -672,8 +666,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                         children: [
                           Text(
                             'Reservations',
-                            style:
-                                TextStyle(fontSize: 12, color: kTextGrey),
+                            style: TextStyle(fontSize: 12, color: kTextGrey),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -708,21 +701,97 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                         const SizedBox(width: 4),
                         Text(
                           'Est. Harvest: ${DateFormat('MMM dd').format(campaign.estimatedHarvestDate)}',
-                          style:
-                              TextStyle(fontSize: 12, color: kTextGrey),
+                          style: TextStyle(fontSize: 12, color: kTextGrey),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(PhosphorIconsRegular.pencilSimple, size: 14, color: kAccentOrange),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Edit',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: kAccentOrange,
+                        if (campaign.status == 'ACTIVE') ...[
+                          GestureDetector(
+                            onTap: () async {
+                              final params = CreatePreorderCampaignParams(
+                                title: campaign.productName ?? '',
+                                description: campaign.description ?? '',
+                                unit: campaign.unit ?? '',
+                                pricePerUnit: campaign.price ?? 0,
+                                targetQuantity: campaign.targetQuantity,
+                                estimatedHarvestDate:
+                                    campaign.estimatedHarvestDate,
+                                minimumOrderQuantity: 1,
+                                depositPercentage:
+                                    campaign.depositAmount.toInt(),
+                                status: 'READY_FOR_PICKUP',
+                                images: campaign.images ??
+                                    (campaign.productImage != null
+                                        ? [campaign.productImage!]
+                                        : []),
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('Marking as Ready for Pickup...')),
+                              );
+
+                              final success = await ref
+                                  .read(preOrderControllerProvider.notifier)
+                                  .updateCampaign(campaign.id, params);
+
+                              if (success && mounted) {
+                                ref
+                                    .read(farmerCampaignsControllerProvider
+                                        .notifier)
+                                    .refresh();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Campaign marked as Ready for Pickup!')),
+                                );
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                Icon(PhosphorIconsRegular.checkCircle,
+                                    size: 14, color: kDarkGreen),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Mark Ready',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: kDarkGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                        ],
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CreatePreorderCampaignScreen(
+                                    campaign: campaign),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Icon(PhosphorIconsRegular.pencilSimple,
+                                  size: 14, color: kAccentOrange),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Edit',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: kAccentOrange,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -732,6 +801,153 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showReservationsBottomSheet(BuildContext context, PreorderCampaign campaign) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Reservations for ${campaign.productName ?? 'Campaign'}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: kDarkGreen),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: kBorderColor),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Target Quantity',
+                        style: TextStyle(fontSize: 13, color: kTextGrey),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${campaign.targetQuantity}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text(
+                        'Total Reserved',
+                        style: TextStyle(fontSize: 13, color: kTextGrey),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${campaign.currentReservations}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: kBorderColor),
+            Expanded(
+              child: (campaign.reservations == null || campaign.reservations!.isEmpty)
+                  ? const Center(
+                      child: Text(
+                        'No reservations yet.',
+                        style: TextStyle(color: kTextGrey, fontSize: 15),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.all(24),
+                      itemCount: campaign.reservations!.length,
+                      separatorBuilder: (context, index) => const Divider(color: kBorderColor),
+                      itemBuilder: (context, index) {
+                        final res = campaign.reservations![index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    res.userId,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: kDarkGreen,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Status: ${res.status}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: kTextGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${res.quantity} ${campaign.unit ?? 'items'}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: kAccentOrange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );

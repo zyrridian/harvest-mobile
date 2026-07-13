@@ -119,7 +119,7 @@ class _CreatePreorderCampaignScreenState
         minimumOrderQuantity:
             int.tryParse(_minimumOrderQuantityController.text) ?? 1,
         depositPercentage: int.tryParse(_depositPercentageController.text) ?? 0,
-        status: "ACTIVE",
+        status: widget.campaign?.status ?? "ACTIVE",
         images: finalImages,
       );
 

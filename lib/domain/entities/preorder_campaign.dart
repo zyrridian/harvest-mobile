@@ -20,6 +20,7 @@ class PreorderCampaign extends Equatable {
   final double? distance;
   final String? location;
   final List<String>? images;
+  final List<PreorderReservationInfo>? reservations;
 
   const PreorderCampaign({
     required this.id,
@@ -41,6 +42,7 @@ class PreorderCampaign extends Equatable {
     this.distance,
     this.location,
     this.images,
+    this.reservations,
   });
 
   @override
@@ -64,5 +66,23 @@ class PreorderCampaign extends Equatable {
         distance,
         location,
         images,
+        reservations,
       ];
+}
+
+class PreorderReservationInfo extends Equatable {
+  final String id;
+  final String userId;
+  final int quantity;
+  final String status;
+
+  const PreorderReservationInfo({
+    required this.id,
+    required this.userId,
+    required this.quantity,
+    required this.status,
+  });
+
+  @override
+  List<Object?> get props => [id, userId, quantity, status];
 }
