@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/config/router/app_router.dart';
@@ -958,7 +959,42 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                               color: kTextGrey,
                                             ),
                                           ),
-                                        if (res.addressId != null)
+                                        if (res.fullAddress != null)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 4.0),
+                                            child: InkWell(
+                                              onTap: () async {
+                                                if (res.latitude != null && res.longitude != null) {
+                                                  final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${res.latitude},${res.longitude}');
+                                                  if (await canLaunchUrl(url)) {
+                                                    await launchUrl(url);
+                                                  }
+                                                }
+                                              },
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  if (res.latitude != null)
+                                                    const Icon(PhosphorIconsRegular.mapPin, size: 14, color: kAccentOrange),
+                                                  if (res.latitude != null)
+                                                    const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      res.fullAddress!,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: res.latitude != null ? kDarkGreen : kTextGrey,
+                                                        decoration: res.latitude != null ? TextDecoration.underline : null,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        else if (res.addressId != null)
                                           Text(
                                             'Address ID: ${res.addressId!.length > 8 ? res.addressId!.substring(0, 8) : res.addressId}...',
                                             style: const TextStyle(

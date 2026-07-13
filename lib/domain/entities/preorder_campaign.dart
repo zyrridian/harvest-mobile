@@ -81,6 +81,9 @@ class PreorderReservationInfo extends Equatable {
   final String? paymentMethod;
   final String? deliveryMethod;
   final String? addressId;
+  final String? fullAddress;
+  final double? latitude;
+  final double? longitude;
 
   const PreorderReservationInfo({
     required this.id,
@@ -93,6 +96,9 @@ class PreorderReservationInfo extends Equatable {
     this.paymentMethod,
     this.deliveryMethod,
     this.addressId,
+    this.fullAddress,
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -107,5 +113,8 @@ class PreorderReservationInfo extends Equatable {
         paymentMethod,
         deliveryMethod,
         addressId,
+        fullAddress,
+        latitude,
+        longitude,
       ];
 }

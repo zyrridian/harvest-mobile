@@ -47,6 +47,9 @@ class PreorderCampaignModel extends PreorderCampaign {
           paymentMethod: res['paymentMethod'],
           deliveryMethod: res['deliveryMethod'],
           addressId: res['addressId'],
+          fullAddress: res['address']?['fullAddress'] ?? res['address']?['full_address'],
+          latitude: res['address']?['latitude'] != null ? (res['address']['latitude'] as num).toDouble() : null,
+          longitude: res['address']?['longitude'] != null ? (res['address']['longitude'] as num).toDouble() : null,
         );
       }).toList();
     }
