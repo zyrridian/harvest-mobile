@@ -36,6 +36,7 @@ class OrderItemModel {
         unitPrice: unitPrice,
         discount: discount,
         subtotal: subtotal,
+        imageUrl: product['image'] as String?,
       );
 }
 

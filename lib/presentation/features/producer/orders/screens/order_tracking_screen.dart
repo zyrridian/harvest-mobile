@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../../core/config/router/app_router.dart';
 import '../../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_orders_controller.dart';
@@ -111,7 +112,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         ),
       ),
       body: ordersState.maybeWhen(
-        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () => _buildShimmerList(),
         error: (error) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -272,6 +273,68 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
     );
   }
 
+  Widget _buildShimmerList() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
+        itemCount: 5,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: kBorderColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 80, height: 14, color: Colors.white),
+                    Container(width: 60, height: 20, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const CircleAvatar(radius: 20, backgroundColor: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 120, height: 16, color: Colors.white),
+                          const SizedBox(height: 4),
+                          Container(width: 150, height: 14, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    Container(width: 60, height: 16, color: Colors.white),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 100, height: 14, color: Colors.white),
+                    Container(width: 80, height: 14, color: Colors.white),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildOrderCard(FarmerOrder data) {
     final isHarvestSchedule = data.deliveryMethod == 'harvest_schedule';
     final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed' || data.status.toLowerCase() == 'paid';
@@ -294,13 +357,6 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
           color: kCardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: kBorderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,10 +392,21 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
             const SizedBox(height: 12),
             Row(
               children: [
-                const CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Color(0xFFF0F5F2),
-                  child: Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF0F5F2),
+                    shape: BoxShape.circle,
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: data.items.isNotEmpty && data.items.first.productImage != null
+                      ? Image.network(
+                          data.items.first.productImage!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
+                        )
+                      : const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

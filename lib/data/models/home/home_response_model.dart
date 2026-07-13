@@ -6,12 +6,12 @@ part 'home_response_model.g.dart';
 /// Model for home API response wrapper
 @JsonSerializable()
 class HomeApiResponse {
-  final String status;
+  final bool success;
   final HomeModel? data;
   final String? message;
 
   HomeApiResponse({
-    required this.status,
+    required this.success,
     this.data,
     this.message,
   });
@@ -21,5 +21,5 @@ class HomeApiResponse {
 
   Map<String, dynamic> toJson() => _$HomeApiResponseToJson(this);
 
-  bool get isSuccess => status == 'success';
+  bool get isSuccess => success;
 }

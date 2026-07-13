@@ -60,9 +60,15 @@ class CartController extends _$CartController {
     return const CartState.loading();
   }
 
+  int _refreshCounter = 0;
+
   Future<void> fetchCart() async {
+    _refreshCounter++;
+    final currentCounter = _refreshCounter;
     state = const CartState.loading();
     final result = await ref.read(getCartUsecaseProvider).call();
+    if (currentCounter != _refreshCounter) return;
+    
     result.fold(
       (failure) => state = CartState.error(failure.message),
       (cart) => state = CartState.data(cart),
@@ -70,7 +76,11 @@ class CartController extends _$CartController {
   }
 
   Future<void> refresh() async {
+    _refreshCounter++;
+    final currentCounter = _refreshCounter;
     final result = await ref.read(getCartUsecaseProvider).call();
+    if (currentCounter != _refreshCounter) return;
+    
     result.fold(
       (failure) {}, // Fail silently on refresh to keep existing data visible
       (cart) => state = CartState.data(cart),
@@ -78,6 +88,7 @@ class CartController extends _$CartController {
   }
 
   Future<void> updateQuantity(String cartItemId, int newQty) async {
+    _refreshCounter++;
     state.maybeWhen(
       data: (cart) {
         // Optimistic update
@@ -109,7 +120,27 @@ class CartController extends _$CartController {
     );
   }
 
+  Future<void> addItem(String productId, int quantity, {String? notes}) async {
+    _refreshCounter++;
+    final currentCounter = _refreshCounter;
+    // Don't set state to loading since it interrupts user flow, just call API
+    
+    final result = await ref.read(addCartItemUsecaseProvider).call(
+      productId: productId,
+      quantity: quantity,
+      notes: notes,
+    );
+    
+    if (currentCounter != _refreshCounter) return;
+    
+    result.fold(
+      (failure) {}, // Could handle error if needed
+      (_) => refresh(), // Sync the cart state from the backend
+    );
+  }
+
   Future<void> removeItem(String cartItemId) async {
+    _refreshCounter++;
     state.maybeWhen(
       data: (cart) {
         // Optimistic update
@@ -134,6 +165,7 @@ class CartController extends _$CartController {
   }
 
   Future<void> clearCart() async {
+    _refreshCounter++;
     state.maybeWhen(
       data: (cart) {
         // Optimistic update

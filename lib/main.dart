@@ -54,7 +54,7 @@ class MainApp extends ConsumerWidget {
       builder: (context, child) {
         return FlutterNetworkDebugger(
           navigatorKey: navigatorKey,
-          isDebug: kDebugMode,
+          isDebug: kDebugMode, //false,
           child: child ?? const SizedBox(),
         );
       },

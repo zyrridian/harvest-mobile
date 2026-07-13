@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/domain/entities/address.dart';
@@ -11,9 +14,10 @@ import 'package:harvest_app/features/users/presentation/providers/address_contro
 import 'package:harvest_app/features/users/presentation/providers/address_state.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -29,7 +33,7 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _notesController = TextEditingController();
   String _deliveryMethod = 'home_delivery';
-  String _paymentMethod = 'bank_transfer';
+  String _paymentMethod = 'online_payment';
   Address? _selectedAddress;
 
   @override
@@ -66,21 +70,26 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       appBar: AppBar(
         backgroundColor: kBgColor,
         elevation: 0,
-        centerTitle: false,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
         ),
+        titleSpacing: 0,
         title: Text(
           'Checkout',
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: kDarkGreen,
-            letterSpacing: -0.5,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
         ),
+        centerTitle: true,
       ),
       body: cartState.when(
         initial: () => const SizedBox.shrink(),
@@ -118,7 +127,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         value: 'home_delivery',
                         groupValue: _deliveryMethod,
                         title: 'Home Delivery',
-                        icon: Icons.local_shipping_outlined,
+                        icon: PhosphorIconsRegular.truck,
                         onTap: () =>
                             setState(() => _deliveryMethod = 'home_delivery'),
                       ),
@@ -129,7 +138,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         value: 'self_pickup',
                         groupValue: _deliveryMethod,
                         title: 'Self Pickup',
-                        icon: Icons.storefront_outlined,
+                        icon: PhosphorIconsRegular.storefront,
                         onTap: () =>
                             setState(() => _deliveryMethod = 'self_pickup'),
                       ),
@@ -154,35 +163,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   value: 'cod',
                   groupValue: _paymentMethod,
                   title: 'Cash on Delivery (COD)',
-                  icon: Icons.money_outlined,
+                  icon: PhosphorIconsRegular.money,
                   onTap: () => setState(() => _paymentMethod = 'cod'),
                   isWide: true,
                 ),
                 const SizedBox(height: 12),
                 _buildSelectableCard(
-                  value: 'bank_transfer',
+                  value: 'online_payment',
                   groupValue: _paymentMethod,
-                  title: 'Bank Transfer',
-                  icon: Icons.account_balance_outlined,
-                  onTap: () => setState(() => _paymentMethod = 'bank_transfer'),
-                  isWide: true,
-                ),
-                const SizedBox(height: 12),
-                _buildSelectableCard(
-                  value: 'e_wallet',
-                  groupValue: _paymentMethod,
-                  title: 'E-Wallet',
-                  icon: Icons.account_balance_wallet_outlined,
-                  onTap: () => setState(() => _paymentMethod = 'e_wallet'),
-                  isWide: true,
-                ),
-                const SizedBox(height: 12),
-                _buildSelectableCard(
-                  value: 'credit_card',
-                  groupValue: _paymentMethod,
-                  title: 'Credit Card',
-                  icon: Icons.credit_card_outlined,
-                  onTap: () => setState(() => _paymentMethod = 'credit_card'),
+                  title: 'Online Payment (Midtrans)',
+                  icon: PhosphorIconsRegular.creditCard,
+                  onTap: () => setState(() => _paymentMethod = 'online_payment'),
                   isWide: true,
                 ),
 
@@ -200,11 +191,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: TextField(
                     controller: _notesController,
                     maxLines: 3,
-                    style: GoogleFonts.inter(color: kDarkGreen),
+                    style: TextStyle(color: kDarkGreen),
                     decoration: InputDecoration(
                       hintText:
                           'Any special instructions? (e.g. Leave at door)',
-                      hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                      hintStyle: TextStyle(color: Colors.grey[400]),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
                     ),
@@ -220,20 +211,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: kPillGrey),
-                    boxShadow: [
-                      BoxShadow(
-                        color: kDarkGreen.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: kDarkGreen.withOpacity(0.05),
+                    //     blurRadius: 10,
+                    //     offset: const Offset(0, 4),
+                    //   ),
+                    // ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Order Summary',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
@@ -241,14 +232,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildSummaryRow(
-                          'Subtotal', 'Rp ${cart.summary.subtotal}'),
+                          'Subtotal', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.subtotal)),
                       _buildSummaryRow(
-                          'Discount', '- Rp ${cart.summary.totalDiscount}',
+                          'Discount', '- ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.totalDiscount)}',
                           isDiscount: true),
                       _buildSummaryRow(
-                          'Delivery', 'Rp ${cart.summary.totalDeliveryFee}'),
+                          'Delivery', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.totalDeliveryFee)),
                       _buildSummaryRow(
-                          'Service Fee', 'Rp ${cart.summary.serviceFee}'),
+                          'Service Fee', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.serviceFee)),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         child: Divider(color: kPillGrey),
@@ -258,15 +249,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         children: [
                           Text(
                             'Grand Total',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
                             ),
                           ),
                           Text(
-                            'Rp ${cart.summary.grandTotal}',
-                            style: GoogleFonts.inter(
+                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.grandTotal),
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: kAccentOrange,
@@ -303,7 +294,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
               child: Text(
                 'Place Order',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -320,7 +311,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: kDarkGreen,
@@ -339,14 +330,34 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: kPillGrey),
             ),
-            child: Row(
+            child: Column(
               children: [
-                const Icon(Icons.location_off_outlined, color: kTextGrey),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'No saved addresses found. Please add an address in your profile.',
-                    style: GoogleFonts.inter(color: kTextGrey),
+                Row(
+                  children: [
+                    const PhosphorIcon(PhosphorIconsRegular.mapPinLine, color: kTextGrey),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'No saved addresses found. Please add an address in your profile.',
+                        style: TextStyle(color: kTextGrey),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(AppRouter.addresses),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.plus, size: 18),
+                    label: const Text('Add Address'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: kDarkGreen,
+                      side: const BorderSide(color: kDarkGreen),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -370,11 +381,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, color: kAccentOrange, size: 20),
+                      PhosphorIcon(PhosphorIconsRegular.mapPin, color: kAccentOrange, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         address.label.toUpperCase(),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: kDarkGreen,
                           fontSize: 12,
@@ -390,7 +401,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                           child: Text(
                             'Primary',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               color: kDarkGreen,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -404,7 +415,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     onTap: () => _showAddressSelectionSheet(addresses),
                     child: Text(
                       'Change',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         color: kAccentOrange,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -416,7 +427,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               const SizedBox(height: 12),
               Text(
                 address.recipientName,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
                   fontSize: 15,
@@ -425,12 +436,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               const SizedBox(height: 4),
               Text(
                 address.phone,
-                style: GoogleFonts.inter(color: kTextGrey, fontSize: 13),
+                style: TextStyle(color: kTextGrey, fontSize: 13),
               ),
               const SizedBox(height: 8),
               Text(
                 '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
-                style: GoogleFonts.inter(color: kDarkGreen, fontSize: 13, height: 1.4),
+                style: TextStyle(color: kDarkGreen, fontSize: 13, height: 1.4),
               ),
             ],
           ),
@@ -464,7 +475,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
             Text(
               'Select Delivery Address',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -493,7 +504,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected ? kDarkGreen : kPillGrey,
-                          width: isSelected ? 2 : 1,
+                          width: 1,
                         ),
                       ),
                       child: Column(
@@ -504,20 +515,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             children: [
                               Text(
                                 address.label.toUpperCase(),
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: isSelected ? kDarkGreen : kTextGrey,
                                   fontSize: 12,
                                 ),
                               ),
                               if (isSelected)
-                                const Icon(Icons.check_circle, color: kDarkGreen, size: 20),
+                                const PhosphorIcon(PhosphorIconsFill.checkCircle, color: kDarkGreen, size: 20),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             address.recipientName,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: kDarkGreen,
                               fontSize: 14,
@@ -526,7 +537,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           const SizedBox(height: 4),
                           Text(
                             '${address.fullAddress}, ${address.district}, ${address.city}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               color: kTextGrey,
                               fontSize: 12,
                             ),
@@ -538,6 +549,27 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     ),
                   );
                 },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.push(AppRouter.addresses);
+                  },
+                  icon: const PhosphorIcon(PhosphorIconsRegular.plus, size: 18),
+                  label: const Text('Add New Address'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: kDarkGreen,
+                    side: const BorderSide(color: kDarkGreen),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -558,19 +590,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: 50,
+              height: 50,
               color: kPillGrey,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                item.name.isNotEmpty ? item.name[0] : '?',
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold, color: kDarkGreen),
-              ),
+              child: _buildProductImage(item.imageUrl, item.name),
             ),
           ),
           const SizedBox(width: 12),
@@ -580,19 +606,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               children: [
                 Text(
                   item.name,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                       fontWeight: FontWeight.w600, color: kDarkGreen),
                 ),
                 Text(
-                  '${item.quantity} x Rp ${item.subtotal ~/ item.quantity}',
-                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
+                  '${item.quantity} x ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal ~/ item.quantity)}',
+                  style: TextStyle(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),
           ),
           Text(
-            'Rp ${item.subtotal}',
-            style: GoogleFonts.inter(
+            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal),
+            style: TextStyle(
                 fontWeight: FontWeight.bold, color: kDarkGreen),
           ),
         ],
@@ -619,7 +645,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? kDarkGreen : kPillGrey,
-            width: isSelected ? 2 : 1,
+            width: 1,
           ),
         ),
         child: Row(
@@ -634,15 +660,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             SizedBox(width: isWide ? 16 : 8),
             Text(
               title,
-              style: GoogleFonts.inter(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
                 color: isSelected ? kDarkGreen : kTextGrey,
               ),
             ),
             if (isWide) ...[
               const Spacer(),
               if (isSelected)
-                const Icon(Icons.check_circle, color: kDarkGreen, size: 20),
+                const PhosphorIcon(PhosphorIconsFill.checkCircle, color: kDarkGreen, size: 20),
             ]
           ],
         ),
@@ -657,10 +683,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.inter(color: kTextGrey)),
+          Text(label, style: TextStyle(color: kTextGrey)),
           Text(
             value,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isDiscount ? kAccentOrange : kDarkGreen,
             ),
@@ -738,10 +764,46 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               : 'ORD-000000';
 
           if (context.mounted) {
-            context.go('${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber');
+            context.go('${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber&paymentMethod=$_paymentMethod');
           }
         }
       },
+    );
+  }
+
+  Widget _buildProductImage(String? imageUrl, String name) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return _buildFallbackImage(name);
+    }
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',').last;
+        return Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildFallbackImage(name),
+        );
+      } catch (e) {
+        return _buildFallbackImage(name);
+      }
+    }
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _buildFallbackImage(name),
+    );
+  }
+
+  Widget _buildFallbackImage(String name) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0] : '?',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: kDarkGreen.withOpacity(0.4),
+        ),
+      ),
     );
   }
 }

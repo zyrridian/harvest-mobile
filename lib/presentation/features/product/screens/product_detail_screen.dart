@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../features/catalog/domain/entities/product_detail.dart';
+import '../../../../features/sales/presentation/providers/cart/cart_controller.dart';
 import '../providers/product_detail_controller.dart';
 import '../providers/product_detail_state.dart';
 
@@ -16,9 +19,10 @@ extension ProductDetailUIExtensions on ProductDetail {
 }
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 const kFreshGreen = Color(0xFF10B981);
@@ -54,22 +58,51 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       backgroundColor: kBgColor,
       body: state.when(
         initial: () => const SizedBox.shrink(),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: kDarkGreen),
+        loading: () => Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(height: 350, color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 32, width: 250, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Container(height: 20, width: 150, color: Colors.white),
+                    const SizedBox(height: 24),
+                    Container(height: 80, width: double.infinity, color: Colors.white, margin: const EdgeInsets.only(bottom: 16)),
+                    Container(height: 80, width: double.infinity, color: Colors.white),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        data: (product, isFavorite, quantity, isInCart) => _buildProductDetail(context, product),
+        data: (product, isFavorite, quantity, isInCart) =>
+            _buildProductDetail(context, product),
         error: (message) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const Icon(PhosphorIconsRegular.warningCircle,
+                  size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text('Error: $message'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(productDetailControllerProvider(widget.slug).notifier).refresh(),
+                onPressed: () => ref
+                    .read(productDetailControllerProvider(widget.slug).notifier)
+                    .refresh(),
                 style: ElevatedButton.styleFrom(backgroundColor: kDarkGreen),
-                child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                child: Text('Retry',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Colors.white)),
               ),
             ],
           ),
@@ -83,47 +116,54 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildProductDetail(BuildContext context, ProductDetail product) {
-    return CustomScrollView(
-      slivers: [
-        _buildAppBar(context, product),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                _buildProductHeader(context, product),
-                const SizedBox(height: 16),
-                _buildPriceSection(context, product),
-                if (product.isHarvest) ...[
+    return RefreshIndicator(
+      onRefresh: () => ref
+          .read(productDetailControllerProvider(widget.slug).notifier)
+          .refresh(),
+      color: kDarkGreen,
+      child: CustomScrollView(
+        slivers: [
+          _buildAppBar(context, product),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   const SizedBox(height: 16),
-                  _buildPreOrderSection(context, product),
+                  _buildProductHeader(context, product),
+                  const SizedBox(height: 16),
+                  _buildPriceSection(context, product),
+                  if (product.isHarvest) ...[
+                    const SizedBox(height: 16),
+                    _buildPreOrderSection(context, product),
+                  ],
+                  const SizedBox(height: 16),
+                  _buildLabels(context, product),
+                  const SizedBox(height: 16),
+                  _buildSellerInfo(context, product),
+                  const SizedBox(height: 16),
+                  _buildDescription(context, product),
+                  const SizedBox(height: 16),
+                  _buildRatingReviews(context, product),
+                  const SizedBox(height: 100), // Space for bottom bar
                 ],
-                const SizedBox(height: 16),
-                _buildLabels(context, product),
-                const SizedBox(height: 16),
-                _buildSellerInfo(context, product),
-                const SizedBox(height: 16),
-                _buildDescription(context, product),
-                const SizedBox(height: 16),
-                _buildRatingReviews(context, product),
-                const SizedBox(height: 100), // Space for bottom bar
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // NEW: Pre-Order Section Widget
   Widget _buildPreOrderSection(BuildContext context, ProductDetail product) {
-    final daysUntil = product.harvestDate != null 
+    final daysUntil = product.harvestDate != null
         ? product.harvestDate!.difference(DateTime.now()).inDays
         : 0;
     final target = product.targetAmount ?? 0;
-    final progress = target > 0 ? (product.currentBooked / target).clamp(0.0, 1.0) : 0.0;
+    final progress =
+        target > 0 ? (product.currentBooked / target).clamp(0.0, 1.0) : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -136,8 +176,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: kPreOrderBlue.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.transparent),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,10 +189,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: kPreOrderBlue.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: const Icon(
-                  Icons.event_available,
+                  PhosphorIconsRegular.calendarCheck,
                   color: kPreOrderBlue,
                   size: 24,
                 ),
@@ -164,19 +204,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   children: [
                     Text(
                       'Harvest Pre-Order',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: kDarkGreen,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: kDarkGreen,
+                          ),
                     ),
                     if (product.harvestDate != null)
                       Text(
                         'Harvest on ${DateFormat('EEEE, MMM d').format(product.harvestDate!)}',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: kTextGrey,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 13,
+                              color: kTextGrey,
+                            ),
                       ),
                   ],
                 ),
@@ -192,7 +232,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.schedule, size: 14, color: Colors.white),
+                      const Icon(PhosphorIconsRegular.clock,
+                          size: 14, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
                         daysUntil <= 0
@@ -200,11 +241,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             : daysUntil == 1
                                 ? 'Tomorrow'
                                 : '$daysUntil days',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                       ),
                     ],
                   ),
@@ -222,20 +263,20 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 children: [
                   Text(
                     '${product.currentBooked.toStringAsFixed(0)} ${product.unit} booked',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: kTextGrey,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          color: kTextGrey,
+                        ),
                   ),
                   Text(
-                    target > 0 ? '${target.toStringAsFixed(0)} ${product.unit} target' : 'Available',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: progress >= 0.9
-                          ? kAccentOrange
-                          : kDarkGreen,
-                    ),
+                    target > 0
+                        ? '${target.toStringAsFixed(0)} ${product.unit} target'
+                        : 'Available',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: progress >= 0.9 ? kAccentOrange : kDarkGreen,
+                        ),
                   ),
                 ],
               ),
@@ -247,9 +288,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   minHeight: 8,
                   backgroundColor: kPillGrey,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    progress >= 0.7
-                        ? kAccentOrange
-                        : kPreOrderBlue,
+                    progress >= 0.7 ? kAccentOrange : kPreOrderBlue,
                   ),
                 ),
               ),
@@ -271,7 +310,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         child: CircleAvatar(
           backgroundColor: Colors.white.withOpacity(0.9),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: kDarkGreen, size: 20),
+            icon: const Icon(PhosphorIconsRegular.caretLeft,
+                color: kDarkGreen, size: 20),
             onPressed: () => Navigator.pop(context),
             padding: EdgeInsets.zero,
           ),
@@ -280,24 +320,42 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
+          child: Consumer(
+            builder: (context, ref, child) {
+              final state =
+                  ref.watch(productDetailControllerProvider(widget.slug));
+              final isFavorite = state.maybeWhen(
+                data: (_, fav, __, ___) => fav,
+                orElse: () => false,
+              );
+              return CircleAvatar(
+                backgroundColor: Colors.white.withOpacity(0.9),
+                child: IconButton(
+                  icon: Icon(
+                      isFavorite
+                          ? PhosphorIconsFill.heart
+                          : PhosphorIconsRegular.heart,
+                      size: 20),
+                  color: isFavorite ? Colors.red : kDarkGreen,
+                  onPressed: () => ref
+                      .read(
+                          productDetailControllerProvider(widget.slug).notifier)
+                      .toggleFavorite(),
+                  padding: EdgeInsets.zero,
+                ),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
           child: CircleAvatar(
             backgroundColor: Colors.white.withOpacity(0.9),
-            child: Consumer(
-              builder: (context, ref, child) {
-                final state = ref.watch(productDetailControllerProvider(widget.slug));
-                final isFavorite = state.maybeWhen(
-                  data: (_, fav, __, ___) => fav,
-                  orElse: () => false,
-                );
-                return IconButton(
-                  icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      size: 20),
-                  color: isFavorite ? kAccentOrange : kDarkGreen,
-                  onPressed: () => ref.read(productDetailControllerProvider(widget.slug).notifier).toggleFavorite(),
-                  padding: EdgeInsets.zero,
-                );
-              },
+            child: IconButton(
+              icon: const Icon(PhosphorIconsRegular.shareNetwork,
+                  color: kDarkGreen, size: 20),
+              onPressed: () => _shareProduct(product),
+              padding: EdgeInsets.zero,
             ),
           ),
         ),
@@ -306,8 +364,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           child: CircleAvatar(
             backgroundColor: Colors.white.withOpacity(0.9),
             child: IconButton(
-              icon: const Icon(Icons.share, color: kDarkGreen, size: 20),
-              onPressed: () => _shareProduct(product),
+              icon: const Icon(PhosphorIconsRegular.shoppingCart,
+                  color: kDarkGreen, size: 20),
+              onPressed: () => context.push('/cart'),
               padding: EdgeInsets.zero,
             ),
           ),
@@ -328,7 +387,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image, size: 64),
+                      child: const Icon(PhosphorIconsRegular.imageBroken,
+                          size: 64),
                     );
                   },
                 );
@@ -366,15 +426,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: kAccentOrange,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
                     '-${((product.savings / product.price) * 100).toStringAsFixed(0)}%',
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                   ),
                 ),
               ),
@@ -390,35 +450,41 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           product.name,
-          style: GoogleFonts.inter(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: kDarkGreen,
-            height: 1.2,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: kDarkGreen,
+                height: 1.2,
+              ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+            const Icon(PhosphorIconsFill.star, color: Colors.amber, size: 20),
             const SizedBox(width: 4),
             Text(
               product.rating.toStringAsFixed(1),
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                color: kDarkGreen,
-                fontSize: 14,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen,
+                    fontSize: 14,
+                  ),
             ),
             const SizedBox(width: 4),
             Text(
               '${product.reviewCount} Reviews',
-              style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: kTextGrey, fontSize: 14),
             ),
             const Spacer(),
             Text(
               '${NumberFormat('#,###').format(product.reviewCount * 3)} sold',
-              style: GoogleFonts.inter(color: kTextGrey, fontSize: 14),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: kTextGrey, fontSize: 14),
             ),
           ],
         ),
@@ -444,11 +510,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               NumberFormat.currency(
                       locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                   .format(product.price),
-              style: GoogleFonts.inter(
-                decoration: TextDecoration.lineThrough,
-                color: kTextGrey,
-                fontSize: 14,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    decoration: TextDecoration.lineThrough,
+                    color: kTextGrey,
+                    fontSize: 14,
+                  ),
             ),
             const SizedBox(height: 4),
           ],
@@ -459,16 +525,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 NumberFormat.currency(
                         locale: 'id', symbol: 'Rp ', decimalDigits: 0)
                     .format(product.finalPrice),
-                style: GoogleFonts.inter(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: kDarkGreen,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
               ),
               const SizedBox(width: 8),
               Text(
                 '/ ${product.unit}',
-                style: GoogleFonts.inter(color: kTextGrey, fontSize: 16),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: kTextGrey, fontSize: 16),
               ),
             ],
           ),
@@ -476,10 +545,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             const SizedBox(height: 4),
             Text(
               'Save ${NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(product.savings)}',
-              style: GoogleFonts.inter(
-                color: const Color(0xFF10B981),
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: kFreshGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ],
         ],
@@ -511,16 +580,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: kAccentOrange.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: kAccentOrange.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.transparent),
       ),
       child: Text(
         label,
-        style: GoogleFonts.inter(
-          color: kAccentOrange,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: kAccentOrange,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
       ),
     );
   }
@@ -536,7 +605,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: kPillGrey),
         boxShadow: [
           BoxShadow(
@@ -550,10 +619,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundImage: profileImage != null
-                ? NetworkImage(profileImage)
+            backgroundImage:
+                profileImage != null ? NetworkImage(profileImage) : null,
+            child: profileImage == null
+                ? Text(sellerName.isNotEmpty ? sellerName[0] : '?')
                 : null,
-            child: profileImage == null ? Text(sellerName.isNotEmpty ? sellerName[0] : '?') : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -565,20 +635,27 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     Expanded(
                       child: Text(sellerName,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: kDarkGreen)),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: kDarkGreen)),
                     ),
                     if (isVerified) ...[
                       const SizedBox(width: 4),
-                      const Icon(Icons.verified, size: 16, color: Colors.blue),
+                      const Icon(PhosphorIconsFill.checkCircle,
+                          size: 16, color: Colors.blue),
                     ],
                   ],
                 ),
                 Text(
                   'Local Farmer',
-                  style: GoogleFonts.inter(fontSize: 12, color: kTextGrey),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 12, color: kTextGrey),
                 ),
               ],
             ),
@@ -589,12 +666,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               foregroundColor: kDarkGreen,
               side: const BorderSide(color: kPillGrey),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+                  borderRadius: BorderRadius.circular(24)),
               padding: const EdgeInsets.symmetric(horizontal: 20),
               minimumSize: const Size(80, 36),
             ),
             child: Text('Visit',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -607,31 +687,25 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text(
           'Description',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: kDarkGreen,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: kDarkGreen,
+              ),
         ),
         const SizedBox(height: 12),
         Text(
           product.description,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: kTextGrey,
-            height: 1.6,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+                color: kTextGrey,
+                height: 1.6,
+              ),
         ),
-        
       ],
     );
   }
 
-  
-  
-  
-  
-  
   Widget _buildRatingReviews(BuildContext context, ProductDetail product) {
     if (product.reviewCount == 0) return const SizedBox.shrink();
 
@@ -645,16 +719,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Text(
                 'Ratings & Reviews',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: kDarkGreen,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
               ),
               TextButton(
                 onPressed: () => _viewAllReviews(product),
                 child: Text('View All',
-                    style: GoogleFonts.inter(color: kAccentOrange)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: kAccentOrange)),
               ),
             ],
           ),
@@ -663,7 +740,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Text(
                 product.rating.toStringAsFixed(1),
-                style: GoogleFonts.inter(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen),
@@ -678,8 +755,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         5,
                         (index) => Icon(
                           index < product.rating.floor()
-                              ? Icons.star
-                              : Icons.star_border,
+                              ? PhosphorIconsFill.star
+                              : PhosphorIconsRegular.star,
                           color: kAccentOrange,
                           size: 20,
                         ),
@@ -687,7 +764,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text('Based on ${product.reviewCount} reviews',
-                        style: GoogleFonts.inter(color: kTextGrey)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: kTextGrey)),
                   ],
                 ),
               ),
@@ -726,25 +806,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         Container(
           decoration: BoxDecoration(
             border: Border.all(color: kPillGrey),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(30),
           ),
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.remove, size: 20),
+                icon: const Icon(PhosphorIconsRegular.minus, size: 20),
                 color: kDarkGreen,
                 onPressed: () => _decrementQuantity(product),
               ),
               Consumer(
                 builder: (context, ref, child) {
-                  final state = ref.watch(productDetailControllerProvider(widget.slug));
+                  final state =
+                      ref.watch(productDetailControllerProvider(widget.slug));
                   final quantity = state.maybeWhen(
                     data: (_, __, q, ___) => q,
                     orElse: () => 1,
                   );
                   return Text(
                     '$quantity',
-                    style: GoogleFonts.inter(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kDarkGreen),
@@ -752,7 +833,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.add, size: 20),
+                icon: const Icon(PhosphorIconsRegular.plus, size: 20),
                 color: kDarkGreen,
                 onPressed: () => _incrementQuantity(product),
               ),
@@ -772,9 +853,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             minimumSize: const Size(54, 54),
             padding: EdgeInsets.zero,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          child: const Icon(Icons.shopping_cart_outlined,
+          child: const Icon(PhosphorIconsRegular.shoppingCart,
               color: Colors.white, size: 22),
         ),
 
@@ -785,15 +866,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           child: ElevatedButton(
             onPressed: product.isInStock ? () => _buyNow(product) : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: kDarkGreen,
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(30)),
             ),
             child: Text(product.isHarvest ? 'Pre-Order Now' : 'Buy Now',
-                style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ),
       ],
@@ -801,11 +885,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   void _incrementQuantity(ProductDetail product) {
-    ref.read(productDetailControllerProvider(widget.slug).notifier).incrementQuantity();
+    ref
+        .read(productDetailControllerProvider(widget.slug).notifier)
+        .incrementQuantity();
   }
 
   void _decrementQuantity(ProductDetail product) {
-    ref.read(productDetailControllerProvider(widget.slug).notifier).decrementQuantity();
+    ref
+        .read(productDetailControllerProvider(widget.slug).notifier)
+        .decrementQuantity();
   }
 
   void _addToCart(ProductDetail product) {
@@ -816,12 +904,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
     _showSnackBar('Added $quantity ${product.unit} to cart');
     ref.read(productDetailControllerProvider(widget.slug).notifier).addToCart();
+    
+    // Add to actual global cart
+    ref.read(cartControllerProvider.notifier).addItem(product.id, quantity);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        Navigator.pushNamed(context, '/cart');
-      }
-    });
+    // Do not navigate to cart immediately, user can click cart icon instead
   }
 
   void _buyNow(ProductDetail product) {
@@ -832,9 +919,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
     _showSnackBar('Proceeding to checkout with $quantity ${product.unit}');
 
+    // Add to actual global cart
+    ref.read(cartControllerProvider.notifier).addItem(product.id, quantity);
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        Navigator.pushNamed(context, '/checkout');
+        context.push('/checkout');
       }
     });
   }
@@ -844,7 +934,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   void _viewSellerProfile(String sellerId) {
-    _showSnackBar('View seller profile: $sellerId');
+    context.push('/farmer-detail', extra: sellerId);
   }
 
   void _viewAllReviews(ProductDetail product) {

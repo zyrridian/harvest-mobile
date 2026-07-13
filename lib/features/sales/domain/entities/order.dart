@@ -8,6 +8,7 @@ class OrderItem extends Equatable {
   final num unitPrice;
   final num discount;
   final num subtotal;
+  final String? imageUrl;
 
   const OrderItem({
     required this.orderItemId,
@@ -17,6 +18,7 @@ class OrderItem extends Equatable {
     required this.unitPrice,
     required this.discount,
     required this.subtotal,
+    this.imageUrl,
   });
 
   @override

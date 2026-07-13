@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../core/config/router/app_router.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -14,15 +16,26 @@ class OrderSuccessScreen extends StatelessWidget {
   static const routeName = '/order-success';
   final String orderId;
   final String orderNumber;
+  final String paymentMethod;
 
   const OrderSuccessScreen({
     super.key,
     required this.orderId,
     required this.orderNumber,
+    required this.paymentMethod,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isOnline = paymentMethod == 'online_payment';
+    final title = isOnline ? 'Awaiting Payment' : 'Order Placed!';
+    final description = isOnline
+        ? 'Please complete your payment to proceed.\nYou can find the payment link in your order details.'
+        : 'Thank you for your order!\nWe\'ll notify you when it\'s on the way.';
+    final iconColor = kDarkGreen;
+    final iconBgColor = kPillGrey;
+    final iconData = isOnline ? PhosphorIconsRegular.clock : PhosphorIconsRegular.checkCircle;
+
     return Scaffold(
       backgroundColor: kBgColor,
       body: SafeArea(
@@ -38,13 +51,13 @@ class OrderSuccessScreen extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: kDarkGreen.withOpacity(0.1),
+                  color: iconBgColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: kDarkGreen,
-                  size: 80,
+                child: PhosphorIcon(
+                  iconData,
+                  color: iconColor,
+                  size: 64,
                 ),
               ),
 
@@ -52,8 +65,8 @@ class OrderSuccessScreen extends StatelessWidget {
 
               // Success Title
               Text(
-                'Order Placed!',
-                style: GoogleFonts.inter(
+                title,
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   color: kDarkGreen,
@@ -74,7 +87,7 @@ class OrderSuccessScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'Order #$orderNumber',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: kDarkGreen,
@@ -86,8 +99,8 @@ class OrderSuccessScreen extends StatelessWidget {
 
               // Description
               Text(
-                'Thank you for your order!\nWe\'ll notify you when it\'s on the way.',
-                style: GoogleFonts.inter(
+                description,
+                style: TextStyle(
                   fontSize: 16,
                   color: kTextGrey,
                   height: 1.5,
@@ -115,7 +128,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'View Order Details',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -134,14 +147,14 @@ class OrderSuccessScreen extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: kDarkGreen,
-                    side: const BorderSide(color: kDarkGreen, width: 2),
+                    side: const BorderSide(color: kDarkGreen, width: 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: Text(
                     'Continue Shopping',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -157,7 +170,7 @@ class OrderSuccessScreen extends StatelessWidget {
                 },
                 child: Text(
                   'View All Orders',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 14,
                     color: kTextGrey,
                     decoration: TextDecoration.underline,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
 import '../../../../../core/config/router/app_router.dart';
 
@@ -107,8 +108,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
             ],
           );
         },
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () => _buildShimmerList(),
         error: (e, st) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -178,14 +178,94 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: orders.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, idx) {
-        final order = orders[idx];
-        return _buildOrderCard(order);
-      },
+    return RefreshIndicator(
+      onRefresh: () async => ref.refresh(ordersProvider(const {'role': 'buyer'})),
+      color: kDarkGreen,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(24),
+        itemCount: orders.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, idx) {
+          final order = orders[idx];
+          return _buildOrderCard(order);
+        },
+      ),
+    );
+  }
+
+  Widget _buildShimmerList() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(24),
+        itemCount: 5,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, idx) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: kPillGrey),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 100, height: 20, color: Colors.white),
+                    Container(width: 80, height: 20, color: Colors.white),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 150, height: 16, color: Colors.white),
+                          const SizedBox(height: 4),
+                          Container(width: 100, height: 14, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 80, height: 12, color: Colors.white),
+                        const SizedBox(height: 4),
+                        Container(width: 100, height: 20, color: Colors.white),
+                      ],
+                    ),
+                    Container(width: 40, height: 40, color: Colors.white),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -200,13 +280,6 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: kPillGrey),
-          boxShadow: [
-            BoxShadow(
-              color: kDarkGreen.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,15 +311,24 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     color: kPillGrey,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Center(
-                    child: Text(
-                      order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: kDarkGreen,
-                      ),
-                    ),
-                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: order.seller.profilePicture != null && order.seller.profilePicture!.isNotEmpty
+                      ? Image.network(
+                          order.seller.profilePicture!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Text(
+                              order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

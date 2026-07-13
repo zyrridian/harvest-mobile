@@ -42,11 +42,11 @@ class ProfileScreen extends ConsumerWidget {
         title: Text(
           context.l10n.profile,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: kDarkGreen,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            letterSpacing: -0.5,
-          ),
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
         ),
       ),
       body: profileState.when(
@@ -58,7 +58,8 @@ class ProfileScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const PhosphorIcon(PhosphorIconsRegular.warningCircle, size: 48, color: kTextGrey),
+              const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                  size: 48, color: kTextGrey),
               const SizedBox(height: 16),
               Text(
                 error,
@@ -119,85 +120,11 @@ class ProfileScreen extends ConsumerWidget {
                       fontSize: 14,
                     ),
                   ),
-
                 ],
               ),
             ),
 
             const SizedBox(height: 24),
-
-            // 2. PREMIUM SUBSCRIPTION CARD
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF2D4A3E),
-                    Color(0xFF1A2F25)
-                  ], // Dark Green Gradient
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: kDarkGreen.withOpacity(0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => context.push(AppRouter.subscriptionIntro),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const PhosphorIcon(PhosphorIconsRegular.crown,
-                              color: Color(0xFFFFD700), size: 28),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                context.l10n.harvestPremium,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                context.l10n.premiumDescription,
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const PhosphorIcon(PhosphorIconsRegular.caretRight,
-                            color: Colors.white54, size: 16),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
 
             // 3. SETTINGS SECTION
             _buildSectionHeader(context.l10n.accountSettings),
@@ -243,17 +170,17 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.notifications,
                     onTap: () => context.push(AppRouter.notifications),
                   ),
-                  _buildDivider(),
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.shieldCheck,
-                    title: context.l10n.security,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SecurityScreen(),
-                      ),
-                    ),
-                  ),
+                  // _buildDivider(),
+                  // _buildModernMenuItem(
+                  //   icon: PhosphorIconsRegular.shieldCheck,
+                  //   title: context.l10n.security,
+                  //   onTap: () => Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => const SecurityScreen(),
+                  //     ),
+                  //   ),
+                  // ),
                   _buildDivider(),
                   _buildModernMenuItem(
                     icon: PhosphorIconsRegular.globe,
@@ -407,7 +334,8 @@ class ProfileScreen extends ConsumerWidget {
                     style: TextStyle(color: kTextGrey, fontSize: 13),
                   ),
                 ),
-              PhosphorIcon(PhosphorIconsRegular.caretRight, color: kPillGrey, size: 20),
+              PhosphorIcon(PhosphorIconsRegular.caretRight,
+                  color: kPillGrey, size: 20),
             ],
           ),
         ),
@@ -435,8 +363,8 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(context.l10n.cancel,
-                style: TextStyle(color: kTextGrey)),
+            child:
+                Text(context.l10n.cancel, style: TextStyle(color: kTextGrey)),
           ),
           TextButton(
             onPressed: () async {

@@ -159,55 +159,65 @@ class MarketplaceScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(
-                                  0xFF28482A), // Dark green background
-                              borderRadius: BorderRadius.circular(20),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF2D4A3E), Color(0xFF1A2F25)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF1A2F25).withOpacity(0.15),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(24),
                             child: Stack(
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'FLASH HARVEST',
                                       style: TextStyle(
-                                        color: const Color(0xFF8CD867),
+                                        color: Color(0xFF8CD867),
                                         fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 1.5,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       data.flashHarvest!.title,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       '${data.flashHarvest!.subtitle} · ${data.flashHarvest!.distance}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 12,
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 20),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 8),
+                                          horizontal: 20, vertical: 10),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1E3A20),
-                                        borderRadius: BorderRadius.circular(8),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'Order now',
                                         style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1A2F25),
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -217,13 +227,25 @@ class MarketplaceScreen extends ConsumerWidget {
                                 Positioned(
                                   right: 0,
                                   top: 10,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: _buildImage(
-                                      data.flashHarvest!.imageUrl,
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: _buildImage(
+                                        data.flashHarvest!.imageUrl,
+                                        width: 88,
+                                        height: 88,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -384,73 +406,56 @@ class MarketplaceScreen extends ConsumerWidget {
                     bottom: 24,
                     left: 16,
                     right: 16,
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF28482A),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
+                    child: Material(
+                      color: const Color(0xFF2D4A3E),
+                      borderRadius: BorderRadius.circular(30),
+                      elevation: 8,
+                      shadowColor: const Color(0xFF1A2F25).withOpacity(0.4),
+                      child: InkWell(
+                        onTap: () => context.push('/cart'),
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Row(
+                            children: [
+                              Text(
                                 '${data.cartItemCount} items',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            ),
-                          ),
-                          const Expanded(
-                            child: Center(
-                              child: Text(
-                                'View cart',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                              const Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'View cart',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16.0),
-                            child: Text(
-                              NumberFormat.currency(
-                                      locale: 'id_ID',
-                                      symbol: 'Rp ',
-                                      decimalDigits: 0)
-                                  .format(data.cartTotal)
-                                  .replaceAll(',00', '')
-                                  .replaceFirst('Rp ', 'Rp\n'),
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: const Color(
-                                    0xFFD4A373), // A golden-like color based on the design
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2,
+                              Text(
+                                NumberFormat.currency(
+                                        locale: 'id_ID',
+                                        symbol: 'Rp ',
+                                        decimalDigits: 0)
+                                    .format(data.cartTotal)
+                                    .replaceAll(',00', ''),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  color: Color(0xFF8CD867),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -525,25 +530,32 @@ class MarketplaceScreen extends ConsumerWidget {
       baseColor: Colors.grey[200]!,
       highlightColor: Colors.grey[100]!,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
           // Banner
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              height: 120,
+              height: 160,
               decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                  color: Colors.white, borderRadius: BorderRadius.circular(24)),
             ),
           ),
           const SizedBox(height: 24),
+          // Categories Label
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(width: 120, height: 14, color: Colors.white),
+          ),
+          const SizedBox(height: 16),
           // Categories
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(
-                  4,
+                  5,
                   (index) => Column(
                         children: [
                           Container(
@@ -558,6 +570,23 @@ class MarketplaceScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          // Header "All Products"
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(width: 140, height: 24, color: Colors.white),
+                Container(
+                    width: 90,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8))),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           // Products Grid
           Expanded(
             child: CustomScrollView(
@@ -587,23 +616,56 @@ class MarketplaceScreen extends ConsumerWidget {
           return Shimmer.fromColors(
             baseColor: Colors.grey[200]!,
             highlightColor: Colors.grey[100]!,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[200]!),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 140,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Container(width: 100, height: 16, color: Colors.white),
-                const SizedBox(height: 4),
-                Container(width: 60, height: 14, color: Colors.white),
-                const SizedBox(height: 8),
-                Container(width: 80, height: 18, color: Colors.white),
-              ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 60, height: 12, color: Colors.white),
+                          const SizedBox(height: 8),
+                          Container(
+                              width: double.infinity,
+                              height: 14,
+                              color: Colors.white),
+                          const SizedBox(height: 4),
+                          Container(width: 80, height: 12, color: Colors.white),
+                          const Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                  width: 70, height: 16, color: Colors.white),
+                              Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

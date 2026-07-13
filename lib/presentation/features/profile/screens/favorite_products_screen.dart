@@ -23,22 +23,24 @@ class FavoriteProductsScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Favorite Products',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: kDarkGreen,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: state.when(
         initial: () => const SizedBox(),
-        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (err) => Center(child: Text('Error: $err')),
         data: (data) {
           if (data.favorites.isEmpty) {
@@ -55,7 +57,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 0.65, 
+                childAspectRatio: 0.65,
               ),
               itemCount: data.favorites.length,
               itemBuilder: (context, index) {
@@ -68,14 +70,16 @@ class FavoriteProductsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProductCard(FavoriteProduct product, BuildContext context, WidgetRef ref) {
+  Widget _buildProductCard(
+      FavoriteProduct product, BuildContext context, WidgetRef ref) {
     Color bgColor = Colors.grey[100]!;
     if (product.name.contains('Bayam')) bgColor = const Color(0xFFE8F3E8);
     if (product.name.contains('Strawberry')) bgColor = const Color(0xFFFDE8F1);
     if (product.name.contains('Ikan')) bgColor = const Color(0xFFE3F2FD);
     if (product.name.contains('Wortel')) bgColor = const Color(0xFFFFF3E0);
 
-    final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final formatter =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return GestureDetector(
       onTap: () {
@@ -97,17 +101,24 @@ class FavoriteProductsScreen extends ConsumerWidget {
                   Container(
                     decoration: BoxDecoration(
                       color: bgColor,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Image.network(
                         product.imageUrl,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(width: double.infinity, height: double.infinity, color: Colors.grey[200], child: const PhosphorIcon(PhosphorIconsRegular.imageBroken, color: Colors.grey)),
+                        errorBuilder: (context, error, stackTrace) => Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.grey[200],
+                            child: const PhosphorIcon(
+                                PhosphorIconsRegular.imageBroken,
+                                color: Colors.grey)),
                       ),
                     ),
                   ),
@@ -116,7 +127,8 @@ class FavoriteProductsScreen extends ConsumerWidget {
                       top: 8,
                       left: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFF28482A),
                           borderRadius: BorderRadius.circular(8),
@@ -136,10 +148,13 @@ class FavoriteProductsScreen extends ConsumerWidget {
                     right: 8,
                     child: GestureDetector(
                       onTap: () {
-                        ref.read(favoriteProductsControllerProvider.notifier).removeFavorite(product.id);
+                        ref
+                            .read(favoriteProductsControllerProvider.notifier)
+                            .removeFavorite(product.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${product.name} removed from favorites'),
+                            content:
+                                Text('${product.name} removed from favorites'),
                             duration: const Duration(seconds: 1),
                           ),
                         );
@@ -153,7 +168,7 @@ class FavoriteProductsScreen extends ConsumerWidget {
                         ),
                         child: const PhosphorIcon(
                           PhosphorIconsFill.heart,
-                          size: 16, 
+                          size: 16,
                           color: Colors.red,
                         ),
                       ),
@@ -170,7 +185,8 @@ class FavoriteProductsScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const PhosphorIcon(PhosphorIconsFill.star, size: 12, color: Colors.orange),
+                      const PhosphorIcon(PhosphorIconsFill.star,
+                          size: 12, color: Colors.orange),
                       const SizedBox(width: 4),
                       Text(
                         '${product.rating}',
@@ -181,7 +197,10 @@ class FavoriteProductsScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     product.name,
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black87),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -201,7 +220,9 @@ class FavoriteProductsScreen extends ConsumerWidget {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: formatter.format(product.price).replaceAll(',00', ''),
+                                text: formatter
+                                    .format(product.price)
+                                    .replaceAll(',00', ''),
                                 style: TextStyle(
                                   color: const Color(0xFF28482A),
                                   fontWeight: FontWeight.bold,

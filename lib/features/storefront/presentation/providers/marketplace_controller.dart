@@ -71,6 +71,23 @@ final getProductsUseCaseProvider = Provider<GetProductsUseCase>((ref) {
 class MarketplaceController extends _$MarketplaceController {
   @override
   MarketplaceState build() {
+    ref.listen(cartControllerProvider, (previous, next) {
+      next.maybeWhen(
+        data: (cart) {
+          state.maybeWhen(
+            data: (data) {
+              state = MarketplaceState.data(data.copyWith(
+                cartItemCount: cart.summary.totalItems,
+                cartTotal: cart.summary.subtotal.toDouble(),
+              ));
+            },
+            orElse: () {},
+          );
+        },
+        orElse: () {},
+      );
+    });
+    
     Future.microtask(() => _fetchData());
     return const MarketplaceState.loading();
   }
@@ -189,6 +206,9 @@ class MarketplaceController extends _$MarketplaceController {
             // Error handling: optionally revert the state or show an error message
           },
           (cartData) {
+            // Refresh cart state to update the CartScreen with new items
+            ref.read(cartControllerProvider.notifier).refresh();
+            
             // Update state with actual data from backend if needed
             state = state.maybeMap(
               data: (curr) => MarketplaceState.data(curr.data.copyWith(

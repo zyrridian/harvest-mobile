@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/catalog/data/datasources/remote/product_remote_datasource.dart';
@@ -7,6 +8,8 @@ import 'package:harvest_app/features/catalog/data/repositories/product_repositor
 import 'package:harvest_app/features/catalog/domain/repositories/product_repository.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/get_product_detail.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/check_favorite_status.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_usecase.dart';
 import 'product_detail_state.dart';
 
 part 'product_detail_controller.g.dart';
@@ -28,6 +31,16 @@ GetProductDetail getProductDetailUseCase(Ref ref) {
 @riverpod
 CheckFavoriteStatus checkFavoriteStatusUseCase(Ref ref) {
   return CheckFavoriteStatus(ref.watch(productRepositoryProvider));
+}
+
+@riverpod
+AddFavoriteUseCase addFavoriteUseCase(Ref ref) {
+  return AddFavoriteUseCase(ref.watch(productRepositoryProvider));
+}
+
+@riverpod
+RemoveFavoriteUseCase removeFavoriteUseCase(Ref ref) {
+  return RemoveFavoriteUseCase(ref.watch(productRepositoryProvider));
 }
 
 @riverpod
@@ -65,7 +78,20 @@ class ProductDetailController extends _$ProductDetailController {
     final currentState = state;
     if (currentState is ProductDetailData) {
       final newFavoriteStatus = !currentState.isFavorite;
+      // Optimistic update
       state = currentState.copyWith(isFavorite: newFavoriteStatus);
+      
+      final result = newFavoriteStatus 
+          ? await ref.read(addFavoriteUseCaseProvider).call(currentState.product.id)
+          : await ref.read(removeFavoriteUseCaseProvider).call(currentState.product.id);
+          
+      result.fold(
+        (failure) {
+          // Revert if failed
+          state = currentState.copyWith(isFavorite: currentState.isFavorite);
+        },
+        (_) {},
+      );
     }
   }
 

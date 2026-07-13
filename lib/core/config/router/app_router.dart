@@ -331,9 +331,12 @@ class AppRouter {
               state.uri.queryParameters['orderId'] ?? 'ord_1234567890abcdef';
           final orderNumber =
               state.uri.queryParameters['orderNumber'] ?? 'ORD-000000';
+          final paymentMethod =
+              state.uri.queryParameters['paymentMethod'] ?? 'cod';
           return OrderSuccessScreen(
             orderId: orderId,
             orderNumber: orderNumber,
+            paymentMethod: paymentMethod,
           );
         },
       ),

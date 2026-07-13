@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/address_controller.dart';
 import '../providers/address_state.dart';
 import 'add_edit_address_screen.dart';
@@ -9,7 +11,8 @@ import 'add_edit_address_screen.dart';
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -25,16 +28,25 @@ class AddressesScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: kBgColor,
         elevation: 0,
-        centerTitle: false,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+        ),
+        titleSpacing: 0,
         title: Text(
           'My Addresses',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: kDarkGreen,
+            color: AppColors.primary,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
         ),
+        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -73,11 +85,11 @@ class AddressesScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF9E6),
+                color: kCream,
                 shape: BoxShape.circle,
               ),
-              child: const PhosphorIcon(PhosphorIconsRegular.mapPin,
-                  size: 48, color: Color(0xFFD97706)),
+              child: const PhosphorIcon(PhosphorIconsRegular.mapPinLine,
+                  size: 48, color: kDarkGreen),
             ),
             const SizedBox(height: 16),
             Text(
@@ -101,7 +113,9 @@ class AddressesScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
                 foregroundColor: Colors.white,
-                shape: const StadiumBorder(),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
@@ -126,19 +140,19 @@ class AddressesScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, Address address) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: address.isPrimary ? kCream.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: address.isPrimary ? kDarkGreen : kPillGrey,
-          width: address.isPrimary ? 1.5 : 1,
+          width: address.isPrimary ? 2.0 : 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: kDarkGreen.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: kDarkGreen.withOpacity(0.05),
+        //     blurRadius: 10,
+        //     offset: const Offset(0, 4),
+        //   ),
+        // ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -174,16 +188,23 @@ class AddressesScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: kDarkGreen.withOpacity(0.1),
+                          color: kDarkGreen,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          'Primary',
-                          style: TextStyle(
-                            color: kDarkGreen,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
+                        child: Row(
+                          children: [
+                            const PhosphorIcon(PhosphorIconsFill.checkCircle,
+                                color: Colors.white, size: 12),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Primary',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     const Spacer(),
@@ -226,19 +247,19 @@ class AddressesScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFF9E6),
+                                color: kCream,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
                                   const PhosphorIcon(PhosphorIconsRegular.info,
-                                      size: 16, color: Color(0xFFD97706)),
+                                      size: 16, color: kDarkGreen),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       address.notes!,
                                       style: TextStyle(
-                                        color: const Color(0xFF92400E),
+                                        color: kDarkGreen,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),

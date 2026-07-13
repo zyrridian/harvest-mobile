@@ -8,7 +8,7 @@ part of 'home_response_model.dart';
 
 HomeApiResponse _$HomeApiResponseFromJson(Map<String, dynamic> json) =>
     HomeApiResponse(
-      status: json['status'] as String,
+      success: json['success'] as bool,
       data: json['data'] == null
           ? null
           : HomeModel.fromJson(json['data'] as Map<String, dynamic>),
@@ -17,7 +17,7 @@ HomeApiResponse _$HomeApiResponseFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$HomeApiResponseToJson(HomeApiResponse instance) =>
     <String, dynamic>{
-      'status': instance.status,
+      'success': instance.success,
       'data': instance.data,
       'message': instance.message,
     };
