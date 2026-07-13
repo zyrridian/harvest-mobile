@@ -20,4 +20,5 @@ abstract class PreOrderRepository {
   Future<Either<Failure, Map<String, dynamic>>> payDeposit(String id, String paymentMethod);
   Future<Either<Failure, Map<String, dynamic>>> arrangePickup(String id, DateTime pickupTime);
   Future<Either<Failure, Map<String, dynamic>>> cancelReservation(String id);
+  Future<Either<Failure, Map<String, dynamic>>> fulfillCampaign(String id);
 }

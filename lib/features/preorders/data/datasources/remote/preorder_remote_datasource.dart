@@ -17,6 +17,7 @@ abstract class PreOrderRemoteDataSource {
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
   Future<Map<String, dynamic>> completeReservation(String id);
+  Future<Map<String, dynamic>> fulfillCampaign(String id);
 }
 
 class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
@@ -220,6 +221,19 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       throw ServerException('Failed to complete reservation');
     } catch (e) {
       throw ServerException('Failed to complete reservation: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fulfillCampaign(String id) async {
+    try {
+      final response = await dio.post('/preorders/campaigns/$id/fulfill');
+      if (response.data['status'] == 'success') {
+        return response.data;
+      }
+      throw ServerException('Failed to fulfill campaign');
+    } catch (e) {
+      throw ServerException('Failed to fulfill campaign: $e');
     }
   }
 }

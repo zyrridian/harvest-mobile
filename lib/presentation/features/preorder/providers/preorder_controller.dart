@@ -267,4 +267,13 @@ class PreOrderController extends _$PreOrderController {
       (_) => true,
     );
   }
+
+  Future<bool> fulfillCampaign(String id) async {
+    final repository = ref.read(preOrderRepositoryProvider);
+    final result = await repository.fulfillCampaign(id);
+    return result.fold(
+      (failure) => false,
+      (_) => true,
+    );
+  }
 }

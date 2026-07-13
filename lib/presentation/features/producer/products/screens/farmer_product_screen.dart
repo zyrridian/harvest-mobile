@@ -897,6 +897,80 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
               ),
             ),
             const Divider(height: 1, color: kBorderColor),
+            if (campaign.status != 'COMPLETED')
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Start Fulfillment?'),
+                          content: const Text(
+                              'This will convert all paid reservations into Orders in your Order Tracking screen, allowing you to plan routes and manage logistics.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Confirm', style: TextStyle(color: kDarkGreen)),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Starting fulfillment...')),
+                        );
+                        final success = await ref
+                            .read(preOrderControllerProvider.notifier)
+                            .fulfillCampaign(campaign.id);
+                        
+                        if (!context.mounted) return;
+                        if (success) {
+                          ref.read(farmerCampaignsControllerProvider.notifier).refresh();
+                          Navigator.pop(context); // Close sheet
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Fulfillment started! Check your Orders tab.'),
+                              backgroundColor: kDarkGreen,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to start fulfillment.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kDarkGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Start Fulfillment',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             Expanded(
               child: (campaign.reservations == null ||
                       campaign.reservations!.isEmpty)
@@ -1050,67 +1124,6 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                   ),
                                 ],
                               ),
-                              if (res.status != 'COMPLETED' &&
-                                  res.status != 'CANCELLED')
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12.0),
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: InkWell(
-                                      onTap: () async {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Marking as completed...')),
-                                        );
-                                        final success = await ref
-                                            .read(preOrderControllerProvider
-                                                .notifier)
-                                            .completeReservation(res.id);
-
-                                        if (success && mounted) {
-                                          ref
-                                              .read(
-                                                  farmerCampaignsControllerProvider
-                                                      .notifier)
-                                              .refresh();
-                                          Navigator.pop(context); // Close sheet
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    'Reservation marked as completed!')),
-                                          );
-                                        } else if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    'Failed to complete reservation.')),
-                                          );
-                                        }
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          color: kDarkGreen,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: const Text(
-                                          'Mark Delivered',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
                         );
