@@ -4,10 +4,10 @@ import '../../../core/error/failures.dart';
 import '../../entities/uploaded_file.dart';
 import '../../repositories/utility_repository.dart';
 
-class UploadFile {
+class UploadFileUseCase {
   final UtilityRepository repository;
 
-  UploadFile(this.repository);
+  UploadFileUseCase(this.repository);
 
   Future<Either<Failure, UploadedFile>> call(File file) async {
     return await repository.uploadFile(file);

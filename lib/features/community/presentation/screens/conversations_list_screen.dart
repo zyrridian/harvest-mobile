@@ -297,7 +297,7 @@ class _ConversationTile extends ConsumerWidget {
           ] else if (lastMessage != null) ...[
             const SizedBox(height: 4),
             Text(
-              lastMessage.preview,
+              lastMessage.type == 'image' ? '[Image]' : lastMessage.preview,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

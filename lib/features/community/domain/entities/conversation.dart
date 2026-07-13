@@ -44,14 +44,14 @@ class ConversationOrder extends Equatable {
   final String orderId;
   final String orderNumber;
   final String status;
-  final int totalAmount;
+  final int? totalAmount;
   final int? itemsCount;
 
   const ConversationOrder({
     required this.orderId,
     required this.orderNumber,
     required this.status,
-    required this.totalAmount,
+    this.totalAmount,
     this.itemsCount,
   });
 

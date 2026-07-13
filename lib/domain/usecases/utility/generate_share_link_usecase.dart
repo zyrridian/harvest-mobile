@@ -3,10 +3,10 @@ import '../../../core/error/failures.dart';
 import '../../entities/share_content.dart';
 import '../../repositories/utility_repository.dart';
 
-class GenerateShareLink {
+class GenerateShareLinkUseCase {
   final UtilityRepository repository;
 
-  GenerateShareLink(this.repository);
+  GenerateShareLinkUseCase(this.repository);
 
   Future<Either<Failure, ShareContent>> call({
     required String type,

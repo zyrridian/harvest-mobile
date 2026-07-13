@@ -67,8 +67,8 @@ typedef ConversationsFilter = ({
 });
 
 // Conversations list provider
-final conversationsProvider =
-    FutureProvider.family<Map<String, dynamic>, ConversationsFilter>(
+final conversationsProvider = FutureProvider.family
+    .autoDispose<Map<String, dynamic>, ConversationsFilter>(
         (ref, params) async {
   final usecase = ref.read(getConversationsUsecaseProvider);
   final result = await usecase(
