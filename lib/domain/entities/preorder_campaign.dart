@@ -73,16 +73,39 @@ class PreorderCampaign extends Equatable {
 class PreorderReservationInfo extends Equatable {
   final String id;
   final String userId;
+  final String buyerName;
   final int quantity;
   final String status;
+  final double? totalPrice;
+  final double? depositAmount;
+  final String? paymentMethod;
+  final String? deliveryMethod;
+  final String? addressId;
 
   const PreorderReservationInfo({
     required this.id,
     required this.userId,
+    required this.buyerName,
     required this.quantity,
     required this.status,
+    this.totalPrice,
+    this.depositAmount,
+    this.paymentMethod,
+    this.deliveryMethod,
+    this.addressId,
   });
 
   @override
-  List<Object?> get props => [id, userId, quantity, status];
+  List<Object?> get props => [
+        id,
+        userId,
+        buyerName,
+        quantity,
+        status,
+        totalPrice,
+        depositAmount,
+        paymentMethod,
+        deliveryMethod,
+        addressId,
+      ];
 }

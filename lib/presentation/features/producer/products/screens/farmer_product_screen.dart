@@ -912,34 +912,95 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100]!,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      res.buyerName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: kDarkGreen,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Status: ${res.status.replaceAll('_', ' ')}',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: kTextGrey,
+                                      ),
+                                    ),
+                                    if (res.deliveryMethod != null)
+                                      Text(
+                                        'Delivery: ${res.deliveryMethod}',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: kTextGrey,
+                                        ),
+                                      ),
+                                    if (res.addressId != null)
+                                      Text(
+                                        'Address ID: ${res.addressId!.length > 8 ? res.addressId!.substring(0, 8) : res.addressId}...',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: kTextGrey,
+                                        ),
+                                      ),
+                                    if (res.paymentMethod != null)
+                                      Text(
+                                        'Payment: ${res.paymentMethod}',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: kTextGrey,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    res.userId,
+                                    '${res.quantity} ${campaign.unit ?? 'items'}',
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: kDarkGreen,
+                                      fontWeight: FontWeight.w700,
+                                      color: kAccentOrange,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Status: ${res.status}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: kTextGrey,
+                                  if (res.totalPrice != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Text(
+                                        'Rp ${res.totalPrice?.toInt()}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: kDarkGreen,
+                                          fontSize: 13,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  if (res.depositAmount != null && res.depositAmount! > 0)
+                                    Text(
+                                      'Dep: Rp ${res.depositAmount?.toInt()}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: kTextGrey,
+                                      ),
+                                    ),
                                 ],
-                              ),
-                              Text(
-                                '${res.quantity} ${campaign.unit ?? 'items'}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: kAccentOrange,
-                                ),
                               ),
                             ],
                           ),

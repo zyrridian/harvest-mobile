@@ -31,11 +31,22 @@ class PreorderCampaignModel extends PreorderCampaign {
     List<PreorderReservationInfo>? reservationsList;
     if (json['reservations'] != null) {
       reservationsList = (json['reservations'] as List).map((res) {
+        String displayName = res['userId'] ?? res['user_id'] ?? 'Unknown User';
+        if (res['user'] != null && res['user']['name'] != null) {
+          displayName = res['user']['name'];
+        }
+        
         return PreorderReservationInfo(
           id: res['id'] ?? '',
-          userId: res['userId'] ?? res['user_id'] ?? 'Unknown User',
+          userId: res['userId'] ?? res['user_id'] ?? '',
+          buyerName: displayName,
           quantity: res['quantity'] ?? 0,
           status: res['status'] ?? 'PENDING',
+          totalPrice: res['totalPrice'] != null ? (res['totalPrice'] as num).toDouble() : null,
+          depositAmount: res['depositAmount'] != null ? (res['depositAmount'] as num).toDouble() : null,
+          paymentMethod: res['paymentMethod'],
+          deliveryMethod: res['deliveryMethod'],
+          addressId: res['addressId'],
         );
       }).toList();
     }
