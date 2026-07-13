@@ -19,6 +19,7 @@ class PreorderCampaign extends Equatable {
   final bool? hasReserved;
   final double? distance;
   final String? location;
+  final List<String>? images;
 
   const PreorderCampaign({
     required this.id,
@@ -39,6 +40,7 @@ class PreorderCampaign extends Equatable {
     this.hasReserved,
     this.distance,
     this.location,
+    this.images,
   });
 
   @override
@@ -61,5 +63,6 @@ class PreorderCampaign extends Equatable {
         hasReserved,
         distance,
         location,
+        images,
       ];
 }

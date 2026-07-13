@@ -20,14 +20,18 @@ class PreorderCampaignModel extends PreorderCampaign {
     super.hasReserved,
     super.distance,
     super.location,
+    super.images,
   });
 
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
+    final imagesList = json['images'] != null ? List<String>.from(json['images']) : null;
+    final primaryImage = imagesList != null && imagesList.isNotEmpty ? imagesList.first : null;
+
     return PreorderCampaignModel(
       id: json['id'] ?? json['campaignId'] ?? '',
       productId: json['productId'] ?? json['farmerId'] ?? (json['product']?['id']) ?? '',
       productName: json['title'] ?? json['productName'] ?? json['product']?['name'],
-      productImage: json['productImage'] ?? json['product']?['image'],
+      productImage: json['productImage'] ?? json['product']?['image'] ?? primaryImage,
       farmerName: json['farmerName'],
       targetQuantity: json['targetQuantity'] ?? 0,
       currentReservations: json['currentBookedQuantity'] ?? json['currentReservations'] ?? 0,
@@ -48,6 +52,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       hasReserved: json['hasReserved'],
       distance: json['distance'] != null ? (json['distance'] as num).toDouble() : null,
       location: json['location'],
+      images: imagesList,
     );
   }
 
@@ -68,6 +73,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       'hasReserved': hasReserved,
       'distance': distance,
       'location': location,
+      if (images != null) 'images': images,
     };
   }
 }

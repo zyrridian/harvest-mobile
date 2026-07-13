@@ -15,6 +15,7 @@ abstract class PreorderRepository {
   });
 
   Future<Either<Failure, PreorderCampaign>> createCampaign(CreatePreorderCampaignParams params);
+  Future<Either<Failure, PreorderCampaign>> updateCampaign(String id, CreatePreorderCampaignParams params);
   Future<Either<Failure, List<PreorderCampaign>>> getMyCampaigns();
   Future<Either<Failure, List<PreOrderReservation>>> getMyReservations();
   Future<Either<Failure, Map<String, dynamic>>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);

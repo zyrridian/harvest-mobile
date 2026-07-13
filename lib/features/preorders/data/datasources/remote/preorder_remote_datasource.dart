@@ -8,6 +8,7 @@ abstract class PreOrderRemoteDataSource {
   // New endpoints
   Future<PreorderCampaignModel> getCampaignDetail(String id);
   Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> updateCampaign(String id, CreatePreorderCampaignParams params);
   Future<List<PreorderCampaignModel>> getActiveCampaigns();
   Future<List<PreorderCampaignModel>> getMyCampaigns();
   Future<List<PreOrderReservationModel>> getMyReservations();
@@ -79,6 +80,22 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       throw ServerException('Failed to create campaign');
     } catch (e) {
       throw ServerException('Failed to create campaign: $e');
+    }
+  }
+
+  @override
+  Future<PreorderCampaignModel> updateCampaign(String id, CreatePreorderCampaignParams params) async {
+    try {
+      final response = await dio.put(
+        '/preorders/campaigns/$id',
+        data: params.toJson(),
+      );
+      if (response.data['status'] == 'success') {
+        return PreorderCampaignModel.fromJson(response.data['data']);
+      }
+      throw ServerException('Failed to update campaign');
+    } catch (e) {
+      throw ServerException('Failed to update campaign: $e');
     }
   }
 

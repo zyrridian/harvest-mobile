@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
 import 'package:harvest_app/presentation/features/producer/products/providers/farmer_campaigns_controller.dart';
 import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/presentation/shared_widgets/app_cached_image.dart';
+import 'package:harvest_app/presentation/shared_widgets/image_picker_bottom_sheet.dart';
+import 'package:harvest_app/presentation/providers/utility_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Colors.white;
@@ -11,7 +16,8 @@ const kDarkGreen = Color(0xFF1A2F25);
 const kTextGrey = Color(0xFF6E7A75);
 
 class CreatePreorderCampaignScreen extends ConsumerStatefulWidget {
-  const CreatePreorderCampaignScreen({super.key});
+  final PreorderCampaign? campaign;
+  const CreatePreorderCampaignScreen({super.key, this.campaign});
 
   @override
   ConsumerState<CreatePreorderCampaignScreen> createState() =>
@@ -30,6 +36,29 @@ class _CreatePreorderCampaignScreenState
   final _depositPercentageController = TextEditingController();
 
   DateTime? _estimatedHarvestDate;
+  List<String> _images = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.campaign != null) {
+      final c = widget.campaign!;
+      _titleController.text = c.productName ?? '';
+      _descriptionController.text = c.description ?? '';
+      _unitController.text = c.unit ?? '';
+      _pricePerUnitController.text = c.price?.toString() ?? '';
+      _targetQuantityController.text = c.targetQuantity.toString();
+      _minimumOrderQuantityController.text = '1'; // Default as minimum order qty might not be directly in campaign
+      _depositPercentageController.text = c.depositAmount.toString();
+      _estimatedHarvestDate = c.estimatedHarvestDate;
+      if (c.images != null && c.images!.isNotEmpty) {
+        _images = List.from(c.images!);
+      } else if (c.productImage != null) {
+        _images = [c.productImage!];
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -45,6 +74,41 @@ class _CreatePreorderCampaignScreenState
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate() && _estimatedHarvestDate != null) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // 1. Upload local images first
+      List<String> finalImages = [];
+      for (final imagePath in _images) {
+        if (!imagePath.startsWith('http')) {
+          // It's a local file, we need to upload it
+          final uploadUseCase = ref.read(uploadFileUseCaseProvider);
+          final result = await uploadUseCase(File(imagePath));
+          
+          final uploadFailed = result.fold(
+            (failure) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to upload image: ${failure.message}')),
+                );
+                setState(() => _isLoading = false);
+              }
+              return true;
+            },
+            (uploadedFile) {
+              finalImages.add(uploadedFile.url);
+              return false;
+            },
+          );
+
+          if (uploadFailed) return; // Stop submission if upload fails
+        } else {
+          // Already uploaded
+          finalImages.add(imagePath);
+        }
+      }
+
       final params = CreatePreorderCampaignParams(
         title: _titleController.text,
         description: _descriptionController.text,
@@ -56,26 +120,36 @@ class _CreatePreorderCampaignScreenState
             int.tryParse(_minimumOrderQuantityController.text) ?? 1,
         depositPercentage: int.tryParse(_depositPercentageController.text) ?? 0,
         status: "ACTIVE",
+        images: finalImages,
       );
 
-      // We will call the controller here
-      final success = await ref
-          .read(preOrderControllerProvider.notifier)
-          .createCampaign(params);
+      final isEditing = widget.campaign != null;
+      bool success = false;
+      
+      if (isEditing) {
+        success = await ref
+            .read(preOrderControllerProvider.notifier)
+            .updateCampaign(widget.campaign!.id, params);
+      } else {
+        success = await ref
+            .read(preOrderControllerProvider.notifier)
+            .createCampaign(params);
+      }
 
       if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
         if (success) {
-          // Refresh the farmer campaigns list to show the new campaign
           ref.read(farmerCampaignsControllerProvider.notifier).refresh();
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Campaign created successfully!')),
+            SnackBar(content: Text(isEditing ? 'Campaign updated successfully!' : 'Campaign created successfully!')),
           );
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Failed to create campaign. Please try again.')),
+            SnackBar(content: Text(isEditing ? 'Failed to update campaign. Please try again.' : 'Failed to create campaign. Please try again.')),
           );
         }
       }
@@ -153,13 +227,126 @@ class _CreatePreorderCampaignScreenState
     );
   }
 
+  Widget _buildImagesInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Campaign Images'),
+        if (_images.isEmpty)
+          InkWell(
+            onTap: () {
+              ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                setState(() {
+                  _images.add(path);
+                });
+              });
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: double.infinity,
+              height: 120,
+              decoration: BoxDecoration(
+                color: kInputBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: kInputBg), // No harsh border
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(PhosphorIconsRegular.camera,
+                      color: kDarkGreen, size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to add campaign images',
+                    style: TextStyle(color: kTextGrey, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              ..._images.asMap().entries.map((entry) {
+                final index = entry.key;
+                final url = entry.value;
+                return Stack(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AppCachedImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _images.removeAt(index);
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close,
+                              color: Colors.red, size: 14),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              InkWell(
+                onTap: () {
+                  ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                    setState(() {
+                      _images.add(path);
+                    });
+                  });
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: kInputBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kInputBg),
+                  ),
+                  child: const Center(
+                    child: Icon(PhosphorIconsRegular.plus, color: kDarkGreen),
+                  ),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
         title: Text(
-          'New Pre Order Campaign',
+          widget.campaign == null ? 'New Pre Order Campaign' : 'Edit Pre Order Campaign',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: kDarkGreen,
                     fontWeight: FontWeight.w700,
@@ -180,13 +367,17 @@ class _CreatePreorderCampaignScreenState
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: kDarkGreen))
+        : SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildImagesInput(),
+              const SizedBox(height: 20),
               _buildLabel('Title'),
               _buildTextField(_titleController, 'e.g. Fresh Organic Tomatoes'),
               const SizedBox(height: 20),

@@ -86,6 +86,22 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
+  Future<Either<Failure, PreorderCampaign>> updateCampaign(String id, CreatePreorderCampaignParams params) async {
+    try {
+      final result = await remoteDataSource.updateCampaign(id, params);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
   Future<Either<Failure, List<PreorderCampaign>>> getMyCampaigns() async {
     try {
       final result = await remoteDataSource.getMyCampaigns();

@@ -545,132 +545,192 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
         ? campaign.currentReservations / campaign.targetQuantity
         : 0.0;
 
+    final imageUrl = (campaign.images != null && campaign.images!.isNotEmpty)
+        ? campaign.images!.first
+        : campaign.productImage;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      campaign.productName ?? 'Unknown Product',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: kDarkGreen,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CreatePreorderCampaignScreen(campaign: campaign),
+            ),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!, width: 1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (imageUrl != null)
+                      Container(
+                        width: 60,
+                        height: 60,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: AppCachedImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      (campaign.status ?? 'Unknown').toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: kDarkGreen,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  campaign.productName ?? 'Unknown Product',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: kDarkGreen,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.grey[300]!),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  (campaign.status ?? 'Unknown').toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: kDarkGreen,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (campaign.price != null && campaign.unit != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Text(
+                                'Rp ${campaign.price} / ${campaign.unit}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: kTextGrey,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Target Quantity',
+                            style:
+                                TextStyle(fontSize: 12, color: kTextGrey),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${campaign.targetQuantity}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, color: kDarkGreen),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Reservations',
+                            style:
+                                TextStyle(fontSize: 12, color: kTextGrey),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${campaign.currentReservations}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, color: kDarkGreen),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                LinearProgressIndicator(
+                  value: progress.clamp(0.0, 1.0),
+                  backgroundColor: kBorderColor,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      progress >= 1.0 ? kDarkGreen : kAccentOrange),
+                  minHeight: 4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1, color: kBorderColor),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
+                        const Icon(PhosphorIconsRegular.calendar,
+                            size: 14, color: kTextGrey),
+                        const SizedBox(width: 4),
                         Text(
-                          'Target Quantity',
+                          'Est. Harvest: ${DateFormat('MMM dd').format(campaign.estimatedHarvestDate)}',
                           style:
                               TextStyle(fontSize: 12, color: kTextGrey),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${campaign.targetQuantity}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, color: kDarkGreen),
-                        ),
                       ],
                     ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
+                        Icon(PhosphorIconsRegular.pencilSimple, size: 14, color: kAccentOrange),
+                        const SizedBox(width: 4),
                         Text(
-                          'Reservations',
-                          style:
-                              TextStyle(fontSize: 12, color: kTextGrey),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${campaign.currentReservations}',
+                          'Edit',
                           style: TextStyle(
-                              fontWeight: FontWeight.w600, color: kDarkGreen),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: kAccentOrange,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              LinearProgressIndicator(
-                value: progress.clamp(0.0, 1.0),
-                backgroundColor: kBorderColor,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                    progress >= 1.0 ? kDarkGreen : kAccentOrange),
-                minHeight: 4,
-                borderRadius: BorderRadius.circular(2),
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1, color: kBorderColor),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(PhosphorIconsRegular.calendar,
-                          size: 14, color: kTextGrey),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Est. Harvest: ${DateFormat('MMM dd').format(campaign.estimatedHarvestDate)}',
-                        style:
-                            TextStyle(fontSize: 12, color: kTextGrey),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    'Manage',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: kAccentOrange,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -10,6 +10,7 @@ class CreatePreorderCampaignParams extends Equatable {
   final int minimumOrderQuantity;
   final int depositPercentage;
   final String status;
+  final List<String>? images;
 
   const CreatePreorderCampaignParams({
     required this.title,
@@ -21,6 +22,7 @@ class CreatePreorderCampaignParams extends Equatable {
     required this.minimumOrderQuantity,
     required this.depositPercentage,
     this.status = 'ACTIVE',
+    this.images,
   });
 
   Map<String, dynamic> toJson() {
@@ -34,6 +36,7 @@ class CreatePreorderCampaignParams extends Equatable {
       "minimumOrderQuantity": minimumOrderQuantity,
       "depositPercentage": depositPercentage,
       "status": status,
+      if (images != null) "images": images,
     };
   }
 
@@ -48,5 +51,6 @@ class CreatePreorderCampaignParams extends Equatable {
         minimumOrderQuantity,
         depositPercentage,
         status,
+        images,
       ];
 }
