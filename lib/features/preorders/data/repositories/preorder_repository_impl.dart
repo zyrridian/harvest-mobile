@@ -197,4 +197,20 @@ class PreorderRepositoryImpl implements PreorderRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> completeReservation(String id) async {
+    try {
+      final result = await remoteDataSource.completeReservation(id);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
 }

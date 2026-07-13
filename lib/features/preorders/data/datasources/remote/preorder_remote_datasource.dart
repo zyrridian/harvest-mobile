@@ -16,6 +16,7 @@ abstract class PreOrderRemoteDataSource {
   Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod);
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
+  Future<Map<String, dynamic>> completeReservation(String id);
 }
 
 class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
@@ -206,6 +207,19 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       throw ServerException('Failed to cancel reservation');
     } catch (e) {
       throw ServerException('Failed to cancel reservation: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> completeReservation(String id) async {
+    try {
+      final response = await dio.patch('/preorders/reservations/$id/complete');
+      if (response.data['status'] == 'success') {
+        return response.data['data'];
+      }
+      throw ServerException('Failed to complete reservation');
+    } catch (e) {
+      throw ServerException('Failed to complete reservation: $e');
     }
   }
 }

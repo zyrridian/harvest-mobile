@@ -806,7 +806,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
     );
   }
 
-  void _showReservationsBottomSheet(BuildContext context, PreorderCampaign campaign) {
+  void _showReservationsBottomSheet(
+      BuildContext context, PreorderCampaign campaign) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -896,7 +897,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
             ),
             const Divider(height: 1, color: kBorderColor),
             Expanded(
-              child: (campaign.reservations == null || campaign.reservations!.isEmpty)
+              child: (campaign.reservations == null ||
+                      campaign.reservations!.isEmpty)
                   ? const Center(
                       child: Text(
                         'No reservations yet.',
@@ -906,102 +908,173 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                   : ListView.separated(
                       padding: const EdgeInsets.all(24),
                       itemCount: campaign.reservations!.length,
-                      separatorBuilder: (context, index) => const Divider(color: kBorderColor),
+                      separatorBuilder: (context, index) =>
+                          const Divider(color: kBorderColor),
                       itemBuilder: (context, index) {
                         final res = campaign.reservations![index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100]!,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      res.buyerName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: kDarkGreen,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Status: ${res.status.replaceAll('_', ' ')}',
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: kTextGrey,
-                                      ),
-                                    ),
-                                    if (res.deliveryMethod != null)
-                                      Text(
-                                        'Delivery: ${res.deliveryMethod}',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: kTextGrey,
-                                        ),
-                                      ),
-                                    if (res.addressId != null)
-                                      Text(
-                                        'Address ID: ${res.addressId!.length > 8 ? res.addressId!.substring(0, 8) : res.addressId}...',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: kTextGrey,
-                                        ),
-                                      ),
-                                    if (res.paymentMethod != null)
-                                      Text(
-                                        'Payment: ${res.paymentMethod}',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: kTextGrey,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '${res.quantity} ${campaign.unit ?? 'items'}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: kAccentOrange,
-                                      fontSize: 16,
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100]!,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(PhosphorIconsRegular.user,
+                                        color: kDarkGreen, size: 20),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          res.buyerName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: kDarkGreen,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Status: ${res.status.replaceAll('_', ' ')}',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: kTextGrey,
+                                          ),
+                                        ),
+                                        if (res.deliveryMethod != null)
+                                          Text(
+                                            'Delivery: ${res.deliveryMethod}',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: kTextGrey,
+                                            ),
+                                          ),
+                                        if (res.addressId != null)
+                                          Text(
+                                            'Address ID: ${res.addressId!.length > 8 ? res.addressId!.substring(0, 8) : res.addressId}...',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: kTextGrey,
+                                            ),
+                                          ),
+                                        if (res.paymentMethod != null)
+                                          Text(
+                                            'Payment: ${res.paymentMethod}',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: kTextGrey,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
-                                  if (res.totalPrice != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 4.0),
-                                      child: Text(
-                                        'Rp ${res.totalPrice?.toInt()}',
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '${res.quantity} ${campaign.unit ?? 'items'}',
                                         style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
+                                          color: kAccentOrange,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      if (res.totalPrice != null)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            'Rp ${res.totalPrice?.toInt()}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: kDarkGreen,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      if (res.depositAmount != null &&
+                                          res.depositAmount! > 0)
+                                        Text(
+                                          'Dep: Rp ${res.depositAmount?.toInt()}',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: kTextGrey,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if (res.status != 'COMPLETED' &&
+                                  res.status != 'CANCELLED')
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: InkWell(
+                                      onTap: () async {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Marking as completed...')),
+                                        );
+                                        final success = await ref
+                                            .read(preOrderControllerProvider
+                                                .notifier)
+                                            .completeReservation(res.id);
+
+                                        if (success && mounted) {
+                                          ref
+                                              .read(
+                                                  farmerCampaignsControllerProvider
+                                                      .notifier)
+                                              .refresh();
+                                          Navigator.pop(context); // Close sheet
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Reservation marked as completed!')),
+                                          );
+                                        } else if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Failed to complete reservation.')),
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
+                                        decoration: BoxDecoration(
                                           color: kDarkGreen,
-                                          fontSize: 13,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Text(
+                                          'Mark Delivered',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  if (res.depositAmount != null && res.depositAmount! > 0)
-                                    Text(
-                                      'Dep: Rp ${res.depositAmount?.toInt()}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: kTextGrey,
-                                      ),
-                                    ),
-                                ],
-                              ),
+                                  ),
+                                ),
                             ],
                           ),
                         );
