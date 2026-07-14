@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../../../domain/entities/farmer_stats.dart';
 import '../../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_dashboard_controller.dart';
 
-const kBgColor = Color(0xFFF7F9F8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
@@ -82,61 +83,70 @@ class FarmerDashboardScreen extends ConsumerWidget {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: kBgColor,
+      surfaceTintColor: kBgColor,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Good Morning,',
-            style: TextStyle(
-              color: kTextGrey,
-              fontSize: 14,
+      toolbarHeight: 72,
+      centerTitle: false,
+      titleSpacing: 24.0,
+      title: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'Good Morning,',
+              style: TextStyle(
+                color: kTextGrey,
+                fontSize: 14,
+              ),
             ),
-          ),
-          Text(
-            'Green Valley Farm',
-            style: TextStyle(
-              color: kDarkGreen,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            Text(
+              'Green Valley Farm',
+              style: TextStyle(
+                color: kDarkGreen,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
-        IconButton(
-          onPressed: () {
-            context.push(AppRouter.community);
-          },
-          icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
-        ),
-        IconButton(
-          onPressed: () {},
-          icon: Stack(
+        Padding(
+          padding: const EdgeInsets.only(top: 8, right: 16),
+          child: Row(
             children: [
-              const Icon(PhosphorIconsRegular.bell, color: kDarkGreen),
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: kAccentOrange,
-                    shape: BoxShape.circle,
-                  ),
+              IconButton(
+                onPressed: () {
+                  context.push(AppRouter.community);
+                },
+                icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
+              ),
+              IconButton(
+                onPressed: () => context.push(AppRouter.notifications),
+                icon: Stack(
+                  children: [
+                    const Icon(PhosphorIconsRegular.bell, color: kDarkGreen),
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: kAccentOrange,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 12),
-        const CircleAvatar(
-          radius: 18,
-          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
-        ),
-        const SizedBox(width: 20),
       ],
     );
   }
@@ -207,7 +217,8 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '\$${stats.thisMonthRevenue.toStringAsFixed(2)}',
+            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                .format(stats.thisMonthRevenue),
             style: TextStyle(
               color: Colors.white,
               fontSize: 36,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../providers/notification_providers.dart';
 import '../../../../domain/entities/notification.dart';
@@ -49,6 +50,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         elevation: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () => context.pop(),
+        ),
         title: Text(
           'Notifications',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
