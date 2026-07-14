@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/farm_reviews_controller.dart';
 import 'package:harvest_app/domain/entities/farm_review.dart';
 
-const kBgColor = Color(0xFFF7F9F8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
-const kCardBg = Colors.white;
+const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
-const kBorderColor = Color(0xFFE5E7EB);
 
 class FarmReviewsScreen extends ConsumerWidget {
   const FarmReviewsScreen({super.key});
@@ -23,19 +22,28 @@ class FarmReviewsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () => context.pop(),
+        ),
+        iconTheme: const IconThemeData(color: kDarkGreen),
         title: Text(
           'My Farm Reviews',
-          style: TextStyle(
-            color: kDarkGreen,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: kDarkGreen),
       ),
       body: reviewsState.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (error, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -43,7 +51,8 @@ class FarmReviewsScreen extends ConsumerWidget {
               Text(error.toString(), style: TextStyle(color: Colors.red)),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(farmReviewsControllerProvider.notifier).refresh(),
+                onPressed: () =>
+                    ref.read(farmReviewsControllerProvider.notifier).refresh(),
                 child: const Text('Retry'),
               ),
             ],
@@ -51,7 +60,8 @@ class FarmReviewsScreen extends ConsumerWidget {
         ),
         data: (response) => RefreshIndicator(
           color: kDarkGreen,
-          onRefresh: () => ref.read(farmReviewsControllerProvider.notifier).refresh(),
+          onRefresh: () =>
+              ref.read(farmReviewsControllerProvider.notifier).refresh(),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(20),
@@ -83,9 +93,9 @@ class FarmReviewsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: kCardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorderColor),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kPillGrey),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +114,7 @@ class FarmReviewsScreen extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(5, (index) {
-                  return Icon(
+                  return PhosphorIcon(
                     index < summary.averageRating.round()
                         ? PhosphorIconsFill.star
                         : PhosphorIconsRegular.star,
@@ -128,8 +138,11 @@ class FarmReviewsScreen extends ConsumerWidget {
           Expanded(
             child: Column(
               children: [5, 4, 3, 2, 1].map((rating) {
-                final count = summary.ratingDistribution[rating.toString()] ?? 0;
-                final percentage = summary.totalReviews > 0 ? count / summary.totalReviews : 0.0;
+                final count =
+                    summary.ratingDistribution[rating.toString()] ?? 0;
+                final percentage = summary.totalReviews > 0
+                    ? count / summary.totalReviews
+                    : 0.0;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
@@ -143,14 +156,15 @@ class FarmReviewsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(PhosphorIconsFill.star, color: kAccentOrange, size: 10),
+                      const PhosphorIcon(PhosphorIconsFill.star,
+                          color: kAccentOrange, size: 10),
                       const SizedBox(width: 8),
                       Expanded(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: percentage,
-                            backgroundColor: kBorderColor,
+                            backgroundColor: kPillGrey,
                             color: kAccentOrange,
                             minHeight: 6,
                           ),
@@ -186,7 +200,8 @@ class FarmReviewsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(40.0),
           child: Column(
             children: [
-              const Icon(PhosphorIconsRegular.chatTeardropText, size: 48, color: kTextGrey),
+              const PhosphorIcon(PhosphorIconsRegular.chatTeardropText,
+                  size: 48, color: kTextGrey),
               const SizedBox(height: 16),
               Text(
                 'No reviews yet',
@@ -211,9 +226,9 @@ class FarmReviewsScreen extends ConsumerWidget {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: kCardBg,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kBorderColor),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: kPillGrey),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,12 +237,13 @@ class FarmReviewsScreen extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: kBorderColor,
+                    backgroundColor: kPillGrey,
                     backgroundImage: review.user.avatarUrl != null
                         ? NetworkImage(review.user.avatarUrl!)
                         : null,
                     child: review.user.avatarUrl == null
-                        ? const Icon(PhosphorIconsRegular.user, color: kTextGrey)
+                        ? const PhosphorIcon(PhosphorIconsRegular.user,
+                            color: kTextGrey)
                         : null,
                   ),
                   const SizedBox(width: 12),
@@ -254,8 +270,10 @@ class FarmReviewsScreen extends ConsumerWidget {
                   ),
                   Row(
                     children: List.generate(5, (i) {
-                      return Icon(
-                        i < review.rating ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
+                      return PhosphorIcon(
+                        i < review.rating
+                            ? PhosphorIconsFill.star
+                            : PhosphorIconsRegular.star,
                         color: kAccentOrange,
                         size: 14,
                       );
@@ -267,20 +285,22 @@ class FarmReviewsScreen extends ConsumerWidget {
               if (review.isVerifiedPurchase)
                 Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: kPrimaryGreen.withOpacity(0.1),
+                    color: kDarkGreen.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(PhosphorIconsFill.checkCircle, color: kPrimaryGreen, size: 12),
+                      const PhosphorIcon(PhosphorIconsFill.checkCircle,
+                          color: kDarkGreen, size: 12),
                       const SizedBox(width: 4),
                       Text(
                         'Verified Purchase',
                         style: TextStyle(
-                          color: kPrimaryGreen,
+                          color: kDarkGreen,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -316,7 +336,7 @@ class FarmReviewsScreen extends ConsumerWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: kBorderColor,
+                        color: kPillGrey,
                         borderRadius: BorderRadius.circular(4),
                         image: review.product.image != null
                             ? DecorationImage(
@@ -326,7 +346,8 @@ class FarmReviewsScreen extends ConsumerWidget {
                             : null,
                       ),
                       child: review.product.image == null
-                          ? const Icon(PhosphorIconsRegular.package, color: kTextGrey)
+                          ? const PhosphorIcon(PhosphorIconsRegular.package,
+                              color: kTextGrey)
                           : null,
                     ),
                     const SizedBox(width: 12),
@@ -349,7 +370,8 @@ class FarmReviewsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(PhosphorIconsRegular.thumbsUp, color: kTextGrey, size: 14),
+                    const PhosphorIcon(PhosphorIconsRegular.thumbsUp,
+                        color: kTextGrey, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       '${review.helpfulCount} people found this helpful',

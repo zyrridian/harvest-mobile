@@ -6,22 +6,24 @@ import 'package:harvest_app/domain/entities/delivery_settings.dart';
 import '../providers/farmer_settings_controller.dart';
 import '../providers/delivery_settings_controller.dart';
 
-const kBgColor = Color(0xFFF7F9F8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
-const kBorderColor = Color(0xFFE5E7EB);
+const kPillGrey = Color(0xFFF0F2F0);
+const kTextGrey = Color(0xFF6E7A75);
 
 class DeliverySettingsScreen extends ConsumerStatefulWidget {
   const DeliverySettingsScreen({super.key});
 
   @override
-  ConsumerState<DeliverySettingsScreen> createState() => _DeliverySettingsScreenState();
+  ConsumerState<DeliverySettingsScreen> createState() =>
+      _DeliverySettingsScreenState();
 }
 
-class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen> {
+class _DeliverySettingsScreenState
+    extends ConsumerState<DeliverySettingsScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   bool _farmerDeliveryEnabled = false;
   bool _cashOnDeliveryEnabled = false;
   late TextEditingController _baseFeeController;
@@ -48,11 +50,13 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
             _cashOnDeliveryEnabled = settings.cashOnDeliveryEnabled;
             _baseFeeController.text = settings.baseFee.toStringAsFixed(0);
             _perKmRateController.text = settings.perKmRate.toStringAsFixed(0);
-            _maxRadiusKmController.text = settings.maxRadiusKm.toStringAsFixed(0);
-            _minOrderForFreeController.text = settings.minOrderForFree.toStringAsFixed(0);
+            _maxRadiusKmController.text =
+                settings.maxRadiusKm.toStringAsFixed(0);
+            _minOrderForFreeController.text =
+                settings.minOrderForFree.toStringAsFixed(0);
             _notesController.text = settings.notes ?? '';
           });
-                },
+        },
         orElse: () {},
       );
     });
@@ -75,12 +79,18 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
         baseFee: double.tryParse(_baseFeeController.text.trim()) ?? 0,
         perKmRate: double.tryParse(_perKmRateController.text.trim()) ?? 0,
         maxRadiusKm: double.tryParse(_maxRadiusKmController.text.trim()) ?? 0,
-        minOrderForFree: double.tryParse(_minOrderForFreeController.text.trim()) ?? 0,
+        minOrderForFree:
+            double.tryParse(_minOrderForFreeController.text.trim()) ?? 0,
         cashOnDeliveryEnabled: _cashOnDeliveryEnabled,
-        notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+        notes: _notesController.text.trim().isNotEmpty
+            ? _notesController.text.trim()
+            : null,
       );
 
-      ref.read(deliverySettingsControllerProvider.notifier).updateSettings(newSettings).then((_) {
+      ref
+          .read(deliverySettingsControllerProvider.notifier)
+          .updateSettings(newSettings)
+          .then((_) {
         final state = ref.read(deliverySettingsControllerProvider);
         if (!state.hasError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -103,13 +113,24 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
+        backgroundColor: kBgColor,
+        elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () => context.pop(),
+        ),
+        iconTheme: const IconThemeData(color: kDarkGreen),
         title: Text(
           'Delivery Settings',
-          style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: kDarkGreen),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -122,13 +143,17 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                 title: 'Enable Farmer Delivery',
                 subtitle: 'Allow customers to request delivery from your farm.',
                 value: _farmerDeliveryEnabled,
-                onChanged: (val) => setState(() => _farmerDeliveryEnabled = val),
+                onChanged: (val) =>
+                    setState(() => _farmerDeliveryEnabled = val),
               ),
               const SizedBox(height: 24),
               if (_farmerDeliveryEnabled) ...[
                 Text(
                   'Pricing & Rules',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kDarkGreen),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen),
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -163,7 +188,8 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                   title: 'Cash on Delivery (COD)',
                   subtitle: 'Accept cash payment upon delivery.',
                   value: _cashOnDeliveryEnabled,
-                  onChanged: (val) => setState(() => _cashOnDeliveryEnabled = val),
+                  onChanged: (val) =>
+                      setState(() => _cashOnDeliveryEnabled = val),
                 ),
                 const SizedBox(height: 24),
                 _buildTextField(
@@ -171,7 +197,8 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                   label: 'Delivery Notes (Optional)',
                   icon: PhosphorIconsRegular.note,
                   maxLines: 3,
-                  hint: 'e.g., Deliveries happen on Tuesday and Friday mornings.',
+                  hint:
+                      'e.g., Deliveries happen on Tuesday and Friday mornings.',
                 ),
                 const SizedBox(height: 32),
               ],
@@ -180,7 +207,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                 child: ElevatedButton(
                   onPressed: saveState.isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimaryGreen,
+                    backgroundColor: kDarkGreen,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -190,7 +217,8 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
                         )
                       : Text(
                           'Save Settings',
@@ -219,7 +247,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kBorderColor),
+        border: Border.all(color: kPillGrey),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SwitchListTile(
@@ -230,7 +258,7 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: kTextGrey),
         ),
         value: value,
         activeColor: kAccentOrange,
@@ -265,22 +293,24 @@ class _DeliverySettingsScreenState extends ConsumerState<DeliverySettingsScreen>
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+            hintStyle: TextStyle(color: kTextGrey, fontSize: 13),
             filled: true,
             fillColor: Colors.white,
-            prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.grey.shade500) : null,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            prefixIcon:
+                maxLines == 1 ? PhosphorIcon(icon, color: kTextGrey) : null,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kBorderColor),
+              borderSide: const BorderSide(color: kPillGrey),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kBorderColor),
+              borderSide: const BorderSide(color: kPillGrey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kPrimaryGreen),
+              borderSide: const BorderSide(color: kDarkGreen),
             ),
           ),
         ),

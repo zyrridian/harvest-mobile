@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
@@ -11,6 +12,7 @@ import 'create_post_screen.dart';
 import 'create_recipe_screen.dart';
 import 'community_post_detail_screen.dart';
 import 'recipe_detail_screen.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/presentation/shared_widgets/pill_tab_bar.dart';
@@ -220,9 +222,36 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       authenticated: (user) => user.id,
       orElse: () => null,
     );
+    final isProducer = authState.maybeWhen(
+      authenticated: (user) => user.userType == UserType.farmer,
+      orElse: () => false,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: isProducer
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: false,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: const Icon(PhosphorIconsRegular.caretLeft,
+                    color: kDarkGreen),
+                onPressed: () => context.pop(),
+              ),
+              iconTheme: const IconThemeData(color: kDarkGreen),
+              title: Text(
+                'Community',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: kDarkGreen,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      letterSpacing: -0.5,
+                    ),
+              ),
+            )
+          : null,
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -244,12 +273,39 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             ),
           FloatingActionButton.extended(
             heroTag: 'create_post_fab',
-            backgroundColor: AppColors.primary,
-            onPressed: _openCreatePost,
-            icon: const Icon(Icons.add, color: Colors.white),
+            backgroundColor: isProducer ? AppColors.primary : kAccentOrange,
+            onPressed: () {
+              if (isProducer) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CreatePostScreen()),
+                ).then((result) {
+                  if (result == true) {
+                    ref
+                        .read(communityControllerProvider.notifier)
+                        .setFilter('All Posts');
+                  }
+                });
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CreateRecipeScreen()),
+                ).then((result) {
+                  if (result == true) {
+                    setState(() => _selectedFilter = 'Kitchen Recipes');
+                    ref.read(recipeControllerProvider.notifier).refresh();
+                  }
+                });
+              }
+            },
+            icon: Icon(
+                isProducer ? Icons.add : PhosphorIconsRegular.cookingPot,
+                color: Colors.white),
             label: Text(
-              'Create Post',
-              style: TextStyle(
+              isProducer ? 'Create Post' : 'Create Recipe',
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),

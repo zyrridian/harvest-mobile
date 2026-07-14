@@ -7,6 +7,8 @@ import '../../data/models/conversation_model.dart';
 import '../../../../presentation/providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
 import '../../../../core/utils/time_utils.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 
 class ConversationsListScreen extends ConsumerStatefulWidget {
   const ConversationsListScreen({super.key});
@@ -22,6 +24,12 @@ class _ConversationsListScreenState
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final isProducer = authState.maybeWhen(
+      authenticated: (user) => user.userType == UserType.farmer,
+      orElse: () => false,
+    );
+
     // Auto-refresh the list when socket events happen
     ref.listen(newMessageStreamProvider, (_, __) {
       ref.invalidate(conversationsProvider);
@@ -44,16 +52,19 @@ class _ConversationsListScreenState
         elevation: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: Color(0xFF1A2F25)),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(AppRouter.main);
-            }
-          },
-        ),
+        leading: isProducer
+            ? null
+            : IconButton(
+                icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                    color: Color(0xFF1A2F25)),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(AppRouter.main);
+                  }
+                },
+              ),
         title: Text(
           'Messages',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
