@@ -109,7 +109,12 @@ class PushNotificationService {
     try {
       Firebase.app();
     } catch (_) {
-      await Firebase.initializeApp();
+      try {
+        await Firebase.initializeApp();
+      } catch (e) {
+        debugPrint('[FCM] Firebase initialization failed (missing google-services.json?): $e');
+        return null;
+      }
     }
     try {
       final messaging = FirebaseMessaging.instance;
@@ -157,34 +162,36 @@ class PushNotificationService {
     _deviceId = await _getPersistentDeviceId();
     final fcmToken = await _getFcmToken();
 
-    // Must be called before runApp (registered in main.dart),
-    // but we call here in case library user forgets.
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    if (fcmToken != null) {
+      // Must be called before runApp (registered in main.dart),
+      // but we call here in case library user forgets.
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    // Foreground FCM messages
-    FirebaseMessaging.onMessage.listen((msg) {
-      debugPrint('[FCM FG] messageId=${msg.messageId}');
-      _showLocalNotificationFg(msg);
-    });
+      // Foreground FCM messages
+      FirebaseMessaging.onMessage.listen((msg) {
+        debugPrint('[FCM FG] messageId=${msg.messageId}');
+        _showLocalNotificationFg(msg);
+      });
 
-    // App opened from background notification tap
-    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
-      debugPrint('[FCM] Opened from background notification');
-      _notificationTapController.add(msg);
-    });
+      // App opened from background notification tap
+      FirebaseMessaging.onMessageOpenedApp.listen((msg) {
+        debugPrint('[FCM] Opened from background notification');
+        _notificationTapController.add(msg);
+      });
 
-    // App launched from terminated notification tap
-    final initialMsg = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMsg != null) {
-      debugPrint('[FCM] App launched from notification');
-      Future.delayed(
-        const Duration(milliseconds: 500),
-        () => _notificationTapController.add(initialMsg),
-      );
+      // App launched from terminated notification tap
+      final initialMsg = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMsg != null) {
+        debugPrint('[FCM] App launched from notification');
+        Future.delayed(
+          const Duration(milliseconds: 500),
+          () => _notificationTapController.add(initialMsg),
+        );
+      }
+
+      // Token auto-refresh
+      FirebaseMessaging.instance.onTokenRefresh.listen(_sendUpdatedPushToken);
     }
-
-    // Token auto-refresh
-    FirebaseMessaging.instance.onTokenRefresh.listen(_sendUpdatedPushToken);
 
     // Local notifications channel setup
     final plugin = FlutterLocalNotificationsPlugin();
@@ -471,11 +478,4 @@ void _initSocket(
     }
   });
 
-  // Reconnect watchdog every 15 s
-  Timer.periodic(const Duration(seconds: 15), (_) {
-    if (!socket.connected) {
-      debugPrint('[Socket] Reconnecting...');
-      socket.connect();
-    }
-  });
 }

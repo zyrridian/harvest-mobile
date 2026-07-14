@@ -11,7 +11,7 @@ import 'core/localization/app_localizations.dart';
 import 'core/providers/language_provider.dart';
 import 'features/auth/presentation/providers/push_notification_provider.dart';
 
-import 'package:godeye_push_notification/godeye_push_notification.dart';
+import 'package:harvest_app/core/services/godeye_push_notification.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

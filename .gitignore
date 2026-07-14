@@ -55,3 +55,4 @@ app.*.map.json
 key.properties
 
 env/
+google-services.json

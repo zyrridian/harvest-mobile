@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:godeye_push_notification/godeye_push_notification.dart';
+import 'package:harvest_app/core/services/godeye_push_notification.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:device_info_plus/device_info_plus.dart';
