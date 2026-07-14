@@ -68,6 +68,13 @@ class _FarmerBottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(newMessageStreamProvider, (_, __) {
+      ref.invalidate(conversationsProvider);
+    });
+    ref.listen(readAckStreamProvider, (_, __) {
+      ref.invalidate(conversationsProvider);
+    });
+
     final providerParams = (filter: 'all', search: null, page: 1, limit: 20);
 
     final conversationsAsync = ref.watch(conversationsProvider(providerParams));

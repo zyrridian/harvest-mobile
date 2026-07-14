@@ -58,6 +58,11 @@ dependencies:
   google_fonts: ^6.2.1
   url_launcher: ^6.3.2
   pretty_dio_logger: ^1.4.0
+
+  # Push Notification
+  device_info_plus: ^10.1.0
+  godeye_push_notification:
+    path: ./packages/godeye_push_notification
   socket_io_client: ^3.0.0
   phosphor_flutter: ^2.1.0
   flutter_svg: ^2.2.0

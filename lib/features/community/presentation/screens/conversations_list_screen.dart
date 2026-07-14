@@ -133,9 +133,11 @@ class _ConversationsListScreenState
                       PhosphorIcon(PhosphorIconsRegular.bellRinging,
                           color: Colors.blue[700], size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                        'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
-                        style: TextStyle(color: Colors.blue[900], fontSize: 13),
+                      Expanded(
+                        child: Text(
+                          'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
+                          style: TextStyle(color: Colors.blue[900], fontSize: 13),
+                        ),
                       ),
                     ],
                   ),

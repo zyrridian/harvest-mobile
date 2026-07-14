@@ -11,12 +11,13 @@ class ConversationParticipantModel {
   final String name;
   @JsonKey(name: 'profile_picture')
   final String? profilePicture;
-  @JsonKey(name: 'user_type')
+  @JsonKey(name: 'user_type', defaultValue: 'unknown')
   final String userType;
-  @JsonKey(name: 'is_online')
+  @JsonKey(name: 'is_online', defaultValue: false)
   final bool isOnline;
   @JsonKey(name: 'last_seen')
   final DateTime? lastSeen;
+  @JsonKey(defaultValue: false)
   final bool verified;
   @JsonKey(name: 'response_rate')
   final int? responseRate;
