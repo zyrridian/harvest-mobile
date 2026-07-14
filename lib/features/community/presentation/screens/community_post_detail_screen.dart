@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/domain/entities/farmer.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/community_comment.dart';
 import '../providers/community_controller.dart';
@@ -253,36 +256,63 @@ class _CommunityPostDetailScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Author
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey.shade100,
-                backgroundImage: currentPost.user.avatarUrl != null
-                    ? NetworkImage(currentPost.user.avatarUrl!)
-                    : null,
-                child: currentPost.user.avatarUrl == null
-                    ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
-                    : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      currentPost.user.name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 15),
-                    ),
-                    Text(
-                      _formatDate(currentPost.createdAt),
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.grey.shade500),
-                    ),
-                  ],
+          // Author
+          GestureDetector(
+            onTap: () {
+              if (currentPost.farmer != null) {
+                context.push(
+                  AppRouter.farmerDetail,
+                  extra: Farmer(
+                    id: currentPost.farmer!.id,
+                    userId: currentPost.userId,
+                    name: currentPost.farmer!.name,
+                    description: '',
+                    latitude: 0,
+                    longitude: 0,
+                    address: '',
+                    rating: 0,
+                    totalReviews: 0,
+                    totalProducts: 0,
+                    specialties: const [],
+                    isVerified: true,
+                    hasMapFeature: false,
+                    joinedDate: DateTime.now(),
+                    isOnline: false,
+                    profileImage: currentPost.farmer!.profileImage,
+                  ),
+                );
+              }
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.grey.shade100,
+                  backgroundImage: (currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) != null
+                      ? NetworkImage(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl!)
+                      : null,
+                  child: (currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) == null
+                      ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
+                      : null,
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentPost.farmer?.name ?? currentPost.user.name,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 15),
+                      ),
+                      Text(
+                        _formatDate(currentPost.createdAt),
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade500),
+                      ),
+                    ],
+                  ),
+                ),
               if (isMyPost)
                 PopupMenuButton<String>(
                   icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
@@ -325,7 +355,8 @@ class _CommunityPostDetailScreenState
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+        ),
+        const SizedBox(height: 16),
 
           Text(
             currentPost.title,

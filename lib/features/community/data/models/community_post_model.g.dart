@@ -74,7 +74,7 @@ CommunityFarmerModel _$CommunityFarmerModelFromJson(
     CommunityFarmerModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
+      profileImage: json['profileImage'] as String?,
     );
 
 Map<String, dynamic> _$CommunityFarmerModelToJson(
@@ -82,7 +82,7 @@ Map<String, dynamic> _$CommunityFarmerModelToJson(
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'avatarUrl': instance.avatarUrl,
+      'profileImage': instance.profileImage,
     };
 
 CommunityTagModel _$CommunityTagModelFromJson(Map<String, dynamic> json) =>

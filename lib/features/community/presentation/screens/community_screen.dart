@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
+import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
@@ -300,8 +304,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 });
               }
             },
-            icon: Icon(
-                isProducer ? Icons.add : PhosphorIconsRegular.cookingPot,
+            icon: Icon(isProducer ? Icons.add : PhosphorIconsRegular.cookingPot,
                 color: Colors.white),
             label: Text(
               isProducer ? 'Create Post' : 'Create Recipe',
@@ -369,7 +372,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        child:
+            Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -408,7 +412,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        child:
+            Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -533,13 +538,16 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // close dialog
               try {
-                await ref.read(communityControllerProvider.notifier).deletePost(post.id);
+                await ref
+                    .read(communityControllerProvider.notifier)
+                    .deletePost(post.id);
               } catch (e) {
                 // handle error silently
               }
@@ -577,7 +585,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
           ),
           TextButton(
             onPressed: () async {
@@ -586,7 +595,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               if (newTitle.isNotEmpty && newContent.isNotEmpty) {
                 Navigator.pop(context);
                 try {
-                  await ref.read(communityControllerProvider.notifier).editPost(post.id, newTitle, newContent);
+                  await ref
+                      .read(communityControllerProvider.notifier)
+                      .editPost(post.id, newTitle, newContent);
                 } catch (e) {
                   // error handled
                 }
@@ -598,8 +609,6 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       ),
     );
   }
-
-
 
   Widget _buildPostCard(CommunityPost post, String? currentUserId) {
     final isMyPost = post.userId == currentUserId;
@@ -631,82 +640,120 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.grey.shade100,
-                  backgroundImage: post.user.avatarUrl != null
-                      ? NetworkImage(post.user.avatarUrl!)
-                      : null,
-                  child: post.user.avatarUrl == null
-                      ? Icon(Icons.person_outline, color: Colors.grey.shade500)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.user.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        _formatDate(post.createdAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+            GestureDetector(
+              onTap: () {
+                if (post.farmer != null) {
+                  context.push(
+                    AppRouter.farmerDetail,
+                    extra: Farmer(
+                      id: post.farmer!.id,
+                      userId: post.userId,
+                      name: post.farmer!.name,
+                      description: '',
+                      latitude: 0,
+                      longitude: 0,
+                      address: '',
+                      rating: 0,
+                      totalReviews: 0,
+                      totalProducts: 0,
+                      specialties: const [],
+                      isVerified: true,
+                      hasMapFeature: false,
+                      joinedDate: DateTime.now(),
+                      isOnline: false,
+                      profileImage: post.farmer!.profileImage,
+                    ),
+                  );
+                }
+              },
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.grey.shade100,
+                    backgroundImage: (post.farmer?.profileImage ??
+                                post.user.avatarUrl) !=
+                            null
+                        ? NetworkImage(
+                            post.farmer?.profileImage ?? post.user.avatarUrl!)
+                        : null,
+                    child: (post.farmer?.profileImage ?? post.user.avatarUrl) ==
+                            null
+                        ? Icon(Icons.person_outline,
+                            color: Colors.grey.shade500)
+                        : null,
                   ),
-                ),
-                if (isMyPost)
-                  PopupMenuButton<String>(
-                    icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        _editPost(post);
-                      } else if (value == 'delete') {
-                        _deletePost(post);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: const [
-                            PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 20),
-                            SizedBox(width: 12),
-                            Text('Edit'),
-                          ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          post.farmer?.name ?? post.user.name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            PhosphorIcon(PhosphorIconsRegular.trash, size: 20, color: Colors.red),
-                            SizedBox(width: 12),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
-                          ],
+                        Text(
+                          _formatDate(post.createdAt),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                else
-                  IconButton(
-                    icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.transparent),
-                    onPressed: null,
+                      ],
+                    ),
                   ),
-              ],
+                  if (isMyPost)
+                    PopupMenuButton<String>(
+                      icon: PhosphorIcon(PhosphorIconsRegular.dotsThree,
+                          color: Colors.grey.shade600),
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _editPost(post);
+                        } else if (value == 'delete') {
+                          _deletePost(post);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: const [
+                              PhosphorIcon(PhosphorIconsRegular.pencilSimple,
+                                  size: 20),
+                              SizedBox(width: 12),
+                              Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: const [
+                              PhosphorIcon(PhosphorIconsRegular.trash,
+                                  size: 20, color: Colors.red),
+                              SizedBox(width: 12),
+                              Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    IconButton(
+                      icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree,
+                          color: Colors.transparent),
+                      onPressed: null,
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -954,7 +1001,8 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                       height: 16,
                       decoration: BoxDecoration(
                         color: widget.tapeColor,
-                        border: Border.all(color: widget.tapeColor!.withOpacity(0.5)),
+                        border: Border.all(
+                            color: widget.tapeColor!.withOpacity(0.5)),
                       ),
                     ),
                   ),
@@ -966,7 +1014,8 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                   child: Transform.rotate(
                     angle: 0.1, // 6 deg
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: widget.tagColor,
                         borderRadius: BorderRadius.circular(4),

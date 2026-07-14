@@ -72,16 +72,16 @@ class CommunityUser extends Equatable {
 class CommunityFarmer extends Equatable {
   final String id;
   final String name;
-  final String? avatarUrl;
+  final String? profileImage;
 
   const CommunityFarmer({
     required this.id,
     required this.name,
-    this.avatarUrl,
+    this.profileImage,
   });
 
   @override
-  List<Object?> get props => [id, name, avatarUrl];
+  List<Object?> get props => [id, name, profileImage];
 }
 
 class CommunityTag extends Equatable {

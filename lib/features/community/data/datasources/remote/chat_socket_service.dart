@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:flutter_network_debugger/flutter_network_debugger.dart';
 import '../../../../../core/constants/app_constants.dart';
 
 /// Payload emitted from the backend on `message:new`
@@ -111,6 +112,7 @@ class ChatSocketService {
           .build(),
     );
 
+    _socket!.monitor(id: 'chat_socket');
     _socket!.connect();
     _registerListeners();
   }
@@ -133,7 +135,7 @@ class ChatSocketService {
     String type = 'text',
     String? tempId,
   }) {
-    _socket?.emit('message:send', {
+    _socket?.emitTracked('message:send', {
       'conversation_id': conversationId,
       'content': content,
       'type': type,
@@ -143,17 +145,17 @@ class ChatSocketService {
 
   /// Marks all unread messages in a conversation as read.
   void emitMarkAsRead(String conversationId) {
-    _socket?.emit('message:read', {'conversation_id': conversationId});
+    _socket?.emitTracked('message:read', {'conversation_id': conversationId});
   }
 
   /// Emits a typing-started event.
   void emitTypingStart(String conversationId) {
-    _socket?.emit('typing:start', {'conversation_id': conversationId});
+    _socket?.emitTracked('typing:start', {'conversation_id': conversationId});
   }
 
   /// Emits a typing-stopped event.
   void emitTypingStop(String conversationId) {
-    _socket?.emit('typing:stop', {'conversation_id': conversationId});
+    _socket?.emitTracked('typing:stop', {'conversation_id': conversationId});
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────

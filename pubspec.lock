@@ -398,10 +398,11 @@ packages:
   flutter_network_debugger:
     dependency: "direct main"
     description:
-      name: flutter_network_debugger
-      sha256: "5a2d039f4caa76f9d8de1c12940c95aa0e47f7d8753246e20cd1d291c2f5ed77"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: dev
+      resolved-ref: fdaf9e585890047170e4299056d67e1119dcc4f3
+      url: "https://github.com/zyrridian/flutter-network-debugger.git"
+    source: git
     version: "0.1.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive

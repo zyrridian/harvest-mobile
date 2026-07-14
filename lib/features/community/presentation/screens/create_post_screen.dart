@@ -4,6 +4,13 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
 import '../../../../presentation/providers/utility_providers.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:go_router/go_router.dart';
+
+const kBgColor = Color(0xFFFFFFFF);
+const kDarkGreen = Color(0xFF1A2F25);
+const kAccentOrange = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
@@ -118,19 +125,21 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kBgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: kBgColor,
         elevation: 0,
+        centerTitle: false,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           'New Post',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: kDarkGreen,
+            fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
         ),
@@ -138,17 +147,17 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: _isLoading
-                ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
+                ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: kDarkGreen)))
                 : ElevatedButton(
                     onPressed: _submitPost,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF86A789),
+                      backgroundColor: kDarkGreen,
                       elevation: 0,
                       minimumSize: const Size(72, 36),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
-                    child: const Text('Post', style: TextStyle(color: Colors.white)),
+                    child: const Text('Post', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
           ),
         ],
@@ -162,12 +171,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(8),
+                color: kPillGrey,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: RichText(
                 text: TextSpan(
-                  style: TextStyle(color: const Color(0xFF1B5E20), fontSize: 14, height: 1.5),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: kDarkGreen, fontSize: 13, height: 1.5),
                   children: const [
                     TextSpan(text: 'Tip: ', style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: 'The community is a shared space for both farmers and consumers. If you run a farm, your posts will automatically be tagged with your farm\'s badge!'),
@@ -181,10 +190,18 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
                 controller: _titleController,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 22, 
+                  fontWeight: FontWeight.w700,
+                  color: kDarkGreen,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Post title',
-                  hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.grey.shade400),
+                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 22, 
+                    fontWeight: FontWeight.w700, 
+                    color: Colors.grey.shade400
+                  ),
                   border: InputBorder.none,
                 ),
               ),
