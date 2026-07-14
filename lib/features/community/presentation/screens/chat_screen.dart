@@ -183,23 +183,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           },
           (uploadedFile) {
             if (mounted) {
-              final sendUc = ref.read(sendMessageUsecaseProvider);
-              sendUc.call(
+              ref.read(sendSocketMessageProvider).call(
                 conversationId: widget.conversationId,
                 type: 'image',
                 content: uploadedFile.url,
-              ).then((res) {
-                if (mounted) {
-                  setState(() => _uploadingMessageIds.remove(tempImgId));
-                  res.fold((l) {}, (realMessage) {
-                    setState(() {
-                      final idx = _messages.indexWhere((m) => m.messageId == tempImgId);
-                      if (idx != -1) _messages[idx] = realMessage;
-                    });
-                  });
-                  ref.invalidate(conversationDetailProvider(widget.conversationId));
-                }
-              });
+                tempId: tempImgId,
+              );
             }
           }
         );
@@ -219,30 +208,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       setState(() => _messages.add(optimistic));
       _scrollToBottom();
 
-      final uc = ref.read(sendMessageUsecaseProvider);
-      uc.call(
+      ref.read(sendSocketMessageProvider).call(
         conversationId: widget.conversationId,
-        type: 'text',
         content: content,
-      ).then((res) {
-        res.fold(
-          (l) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to send message: ${l.message}')),
-              );
-            }
-          },
-          (realMessage) {
-            if (mounted) {
-              final idx = _messages.indexWhere((m) => m.messageId == tempId);
-              if (idx != -1) {
-                setState(() => _messages[idx] = realMessage);
-              }
-            }
-          },
-        );
-      });
+        type: 'text',
+        tempId: tempId,
+      );
     }
 
     // Stop typing indicator
