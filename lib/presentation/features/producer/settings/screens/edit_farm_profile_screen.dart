@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest_app/features/users/presentation/screens/map_picker_screen.dart';
+import 'package:harvest_app/features/system/presentation/providers/master_provider.dart';
 import 'package:harvest_app/presentation/shared_widgets/image_picker_bottom_sheet.dart';
 import '../providers/farmer_settings_controller.dart';
 import '../providers/edit_farm_profile_controller.dart';
@@ -32,8 +35,10 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
   late TextEditingController _stateController;
   late TextEditingController _phoneController;
   late TextEditingController _specialtiesController;
-  late TextEditingController _latitudeController;
-  late TextEditingController _longitudeController;
+  
+  double _latitude = 0.0;
+  double _longitude = 0.0;
+  int _provinceId = 0;
   
   String? _profileImagePath;
   String? _coverImagePath;
@@ -50,8 +55,6 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
     _stateController = TextEditingController();
     _phoneController = TextEditingController();
     _specialtiesController = TextEditingController();
-    _latitudeController = TextEditingController();
-    _longitudeController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final state = ref.read(farmerSettingsControllerProvider);
@@ -66,8 +69,8 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
             _stateController.text = profile.state ?? '';
             _phoneController.text = profile.phoneNumber ?? '';
             _specialtiesController.text = profile.specialties.join(', ');
-            _latitudeController.text = profile.latitude.toString();
-            _longitudeController.text = profile.longitude.toString();
+            _latitude = profile.latitude;
+            _longitude = profile.longitude;
             _profileImagePath = profile.profileImage;
             _coverImagePath = profile.coverImage;
           });
@@ -86,8 +89,6 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
     _stateController.dispose();
     _phoneController.dispose();
     _specialtiesController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
     super.dispose();
   }
 
@@ -108,8 +109,8 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
         phoneNumber: _phoneController.text.trim().isNotEmpty
             ? _phoneController.text.trim()
             : null,
-        latitude: double.tryParse(_latitudeController.text.trim()) ?? (_currentProfile?.latitude ?? 0.0),
-        longitude: double.tryParse(_longitudeController.text.trim()) ?? (_currentProfile?.longitude ?? 0.0),
+        latitude: _latitude,
+        longitude: _longitude,
         specialties: _specialtiesController.text
             .split(',')
             .map((e) => e.trim())
@@ -196,43 +197,99 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
                     val == null || val.isEmpty ? 'Required field' : null,
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _latitudeController,
-                      label: 'Latitude',
-                      icon: PhosphorIconsRegular.mapPin,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    ),
+              // Map Preview
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: kPillGrey),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        key: ValueKey('$_latitude-$_longitude'),
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(_latitude, _longitude),
+                          zoom: 15,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('preview'),
+                            position: LatLng(_latitude, _longitude),
+                          ),
+                        },
+                        zoomControlsEnabled: false,
+                        scrollGesturesEnabled: false,
+                        tiltGesturesEnabled: false,
+                        rotateGesturesEnabled: false,
+                        zoomGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        mapToolbarEnabled: false,
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _showLocationPicker,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PhosphorIcon(
+                                  PhosphorIconsRegular.pencilSimple,
+                                  size: 16,
+                                  color: kDarkGreen),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Change',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: kDarkGreen),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _longitudeController,
-                      label: 'Longitude',
-                      icon: PhosphorIconsRegular.mapPin,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    ),
-                  ),
-                ],
+                ),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: _buildTextField(
-                      controller: _cityController,
-                      label: 'City',
-                      icon: PhosphorIconsRegular.buildings,
+                      controller: _stateController,
+                      label: 'State/Province',
+                      icon: PhosphorIconsRegular.mapTrifold,
+                      readOnly: true,
+                      onTap: _showProvinceSelector,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _buildTextField(
-                      controller: _stateController,
-                      label: 'State',
-                      icon: PhosphorIconsRegular.mapTrifold,
+                      controller: _cityController,
+                      label: 'City',
+                      icon: PhosphorIconsRegular.buildings,
+                      readOnly: true,
+                      onTap: _showCitySelector,
                     ),
                   ),
                 ],
@@ -291,20 +348,22 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required IconData icon,
+    IconData? icon,
     int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
+    TextInputType? keyboardType,
     String? Function(String?)? validator,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: kDarkGreen,
-            fontWeight: FontWeight.w600,
+          style: const TextStyle(
             fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: kDarkGreen,
           ),
         ),
         const SizedBox(height: 8),
@@ -313,28 +372,40 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
           maxLines: maxLines,
           keyboardType: keyboardType,
           validator: validator,
+          readOnly: readOnly,
+          onTap: onTap,
+          style: const TextStyle(
+            fontSize: 15,
+            color: kDarkGreen,
+          ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
-            prefixIcon:
-                maxLines == 1 ? PhosphorIcon(icon, color: kTextGrey) : null,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            fillColor: kPillGrey,
+            prefixIcon: icon != null
+                ? PhosphorIcon(icon, color: kTextGrey, size: 22)
+                : null,
+            suffixIcon: readOnly
+                ? const PhosphorIcon(PhosphorIconsRegular.caretDown, color: kTextGrey, size: 20)
+                : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kPillGrey),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kPillGrey),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kDarkGreen),
+              borderSide: const BorderSide(color: kDarkGreen, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
             ),
           ),
         ),
@@ -454,4 +525,125 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
       ],
     );
   }
+
+  Future<void> _showLocationPicker() async {
+    final result = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: LatLng(_latitude, _longitude),
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location updated successfully')),
+      );
+    }
+  }
+
+  Future<void> _showProvinceSelector() async {
+    try {
+      final items = await ref.read(provincesProvider.future);
+      if (!mounted) return;
+      _showSelectionSheet(
+        'Select State',
+        items.map((p) => _SelectionItem(p.name, p.id)).toList(),
+        (item) {
+          setState(() {
+            _stateController.text = item.label;
+            _provinceId = item.id;
+            _cityController.clear();
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading states: $e')));
+      }
+    }
+  }
+
+  Future<void> _showCitySelector() async {
+    if (_provinceId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a state first')));
+      return;
+    }
+    try {
+      final items = await ref.read(citiesProvider(_provinceId).future);
+      if (!mounted) return;
+      _showSelectionSheet(
+        'Select City',
+        items.map((c) => _SelectionItem(c.name, c.id)).toList(),
+        (item) {
+          setState(() {
+            _cityController.text = item.label;
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading cities: $e')));
+      }
+    }
+  }
+
+  void _showSelectionSheet(String title, List<_SelectionItem> items,
+      Function(_SelectionItem) onSelect) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: kDarkGreen)),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return ListTile(
+                    title:
+                        Text(item.label, style: const TextStyle(color: kDarkGreen)),
+                    onTap: () {
+                      onSelect(item);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectionItem {
+  final String label;
+  final int id;
+  _SelectionItem(this.label, this.id);
 }

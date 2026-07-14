@@ -69,8 +69,8 @@ class FarmConfigurationScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             children: [
-              // 1. MAP / LOCATION HEADER CARD
-              _buildMapLocationSection(profile),
+              // 1. PROFILE HEADER CARD
+              _buildProfileSection(profile),
               const SizedBox(height: 24),
 
               // 2. SETTINGS SECTION
@@ -157,7 +157,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
 
   // --- WIDGET HELPERS ---
 
-  Widget _buildMapLocationSection(FarmerProfile profile) {
+  Widget _buildProfileSection(FarmerProfile profile) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -174,62 +174,98 @@ class FarmConfigurationScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Banner Image
+          Container(
+            height: 120,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              color: kPillGrey,
+              image: profile.coverImage != null
+                  ? DecorationImage(
+                      image: NetworkImage(profile.coverImage!),
+                      fit: BoxFit.cover,
+                    )
+                  : const DecorationImage(
+                      image: NetworkImage(
+                          'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'),
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+          // Profile Details
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text(
-                  'Farm Location',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: kDarkGreen,
+                // Profile Avatar overlapping banner
+                Transform.translate(
+                  offset: const Offset(0, -20),
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      color: kPillGrey,
+                      image: profile.profileImage != null
+                          ? DecorationImage(
+                              image: NetworkImage(profile.profileImage!),
+                              fit: BoxFit.cover,
+                            )
+                          : const DecorationImage(
+                              image: NetworkImage(
+                                  'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'),
+                              fit: BoxFit.cover,
+                            ),
+                    ),
                   ),
                 ),
-                Text(
-                  'Edit',
-                  style: TextStyle(
-                    color: kAccentOrange,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: kDarkGreen,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        if (profile.isVerified)
+                          Row(
+                            children: [
+                              const PhosphorIcon(PhosphorIconsFill.sealCheck,
+                                  color: Color(0xFF3B82F6), size: 14),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Verified Farmer',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF3B82F6),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          // Mock Map Area
-          Container(
-            height: 140,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(
-                    'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: const PhosphorIcon(PhosphorIconsFill.mapPin,
-                    color: kAccentOrange, size: 28),
-              ),
-            ),
-          ),
+          // Location Text
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Row(
               children: [
                 const PhosphorIcon(PhosphorIconsRegular.navigationArrow,
@@ -237,7 +273,9 @@ class FarmConfigurationScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    profile.address,
+                    [profile.city, profile.state]
+                        .where((e) => e != null && e.isNotEmpty)
+                        .join(', '),
                     style: const TextStyle(
                       color: kTextGrey,
                       fontSize: 14,
