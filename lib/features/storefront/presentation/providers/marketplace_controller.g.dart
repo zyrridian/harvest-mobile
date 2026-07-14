@@ -7,7 +7,7 @@ part of 'marketplace_controller.dart';
 // **************************************************************************
 
 String _$marketplaceControllerHash() =>
-    r'00b4d3bfcaa30566fa36b9a0ddfc61f364fe45bc';
+    r'cd80ce743764b68d944da4fc1c27ae24854eae6e';
 
 /// See also [MarketplaceController].
 @ProviderFor(MarketplaceController)

@@ -29,5 +29,6 @@ abstract class ProducerRepository {
   Future<Either<Failure, void>> deleteProduct(String id);
   Future<Either<Failure, void>> toggleProductAvailability(String id, bool isAvailable);
   Future<Either<Failure, List<FarmerOrder>>> getOrders({int page = 1, int limit = 20, String status = 'all'});
+  Future<Either<Failure, void>> updateOrderStatus(String orderId, String status);
   Future<Either<Failure, Map<String, dynamic>>> getPreorderDashboard({String? status});
 }

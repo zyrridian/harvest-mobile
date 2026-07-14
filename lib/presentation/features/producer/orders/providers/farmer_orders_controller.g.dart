@@ -26,8 +26,28 @@ final getFarmerOrdersUseCaseProvider =
 // ignore: unused_element
 typedef GetFarmerOrdersUseCaseRef
     = AutoDisposeProviderRef<GetFarmerOrdersUseCase>;
+String _$updateOrderStatusUseCaseHash() =>
+    r'c0f8b6879a7fda7a1ab7c54070462d3f5cea64b0';
+
+/// See also [updateOrderStatusUseCase].
+@ProviderFor(updateOrderStatusUseCase)
+final updateOrderStatusUseCaseProvider =
+    AutoDisposeProvider<UpdateOrderStatusUseCase>.internal(
+  updateOrderStatusUseCase,
+  name: r'updateOrderStatusUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$updateOrderStatusUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateOrderStatusUseCaseRef
+    = AutoDisposeProviderRef<UpdateOrderStatusUseCase>;
 String _$farmerOrdersControllerHash() =>
-    r'308b3e3b5ca63375434b0cf155ce64f08aad98a8';
+    r'788e92c344379544e1cfc2d4988768648cb2f216';
 
 /// Copied from Dart SDK
 class _SystemHash {

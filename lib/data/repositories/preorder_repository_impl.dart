@@ -52,7 +52,8 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, PreorderCampaign>> createCampaign(CreatePreorderCampaignParams params) async {
+  Future<Either<Failure, PreorderCampaign>> createCampaign(
+      CreatePreorderCampaignParams params) async {
     try {
       final result = await remoteDataSource.createCampaign(params);
       return Right(result);
@@ -94,9 +95,11 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId) async {
+  Future<Either<Failure, Map<String, dynamic>>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId) async {
     try {
-      final result = await remoteDataSource.reserveSpot(id, quantity, deliveryMethod, addressId);
+      final result = await remoteDataSource.reserveSpot(
+          id, quantity, deliveryMethod, addressId);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
@@ -108,7 +111,8 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> payDeposit(String id, String paymentMethod) async {
+  Future<Either<Failure, Map<String, dynamic>>> payDeposit(
+      String id, String paymentMethod) async {
     try {
       final result = await remoteDataSource.payDeposit(id, paymentMethod);
       return Right(result);
@@ -122,7 +126,8 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> arrangePickup(String id, DateTime pickupTime) async {
+  Future<Either<Failure, Map<String, dynamic>>> arrangePickup(
+      String id, DateTime pickupTime) async {
     try {
       final result = await remoteDataSource.arrangePickup(id, pickupTime);
       return Right(result);
@@ -136,9 +141,25 @@ class PreOrderRepositoryImpl implements PreOrderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> cancelReservation(String id) async {
+  Future<Either<Failure, Map<String, dynamic>>> cancelReservation(
+      String id) async {
     try {
       final result = await remoteDataSource.cancelReservation(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> fulfillCampaign(
+      String id) async {
+    try {
+      final result = await remoteDataSource.fulfillCampaign(id);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));

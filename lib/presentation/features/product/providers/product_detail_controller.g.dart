@@ -63,8 +63,47 @@ final checkFavoriteStatusUseCaseProvider =
 // ignore: unused_element
 typedef CheckFavoriteStatusUseCaseRef
     = AutoDisposeProviderRef<CheckFavoriteStatus>;
+String _$addFavoriteUseCaseHash() =>
+    r'01a96e521697ed3598673b598a623dd074b84da0';
+
+/// See also [addFavoriteUseCase].
+@ProviderFor(addFavoriteUseCase)
+final addFavoriteUseCaseProvider =
+    AutoDisposeProvider<AddFavoriteUseCase>.internal(
+  addFavoriteUseCase,
+  name: r'addFavoriteUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$addFavoriteUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AddFavoriteUseCaseRef = AutoDisposeProviderRef<AddFavoriteUseCase>;
+String _$removeFavoriteUseCaseHash() =>
+    r'a5d02aac1261d93979f18827590319051785fd2a';
+
+/// See also [removeFavoriteUseCase].
+@ProviderFor(removeFavoriteUseCase)
+final removeFavoriteUseCaseProvider =
+    AutoDisposeProvider<RemoveFavoriteUseCase>.internal(
+  removeFavoriteUseCase,
+  name: r'removeFavoriteUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$removeFavoriteUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RemoveFavoriteUseCaseRef
+    = AutoDisposeProviderRef<RemoveFavoriteUseCase>;
 String _$productDetailControllerHash() =>
-    r'e981a546d38d84b3a9ca728c715e938478d5359d';
+    r'36f9bf5d172d87e9c0cd428175ce398a461d0a5e';
 
 /// Copied from Dart SDK
 class _SystemHash {

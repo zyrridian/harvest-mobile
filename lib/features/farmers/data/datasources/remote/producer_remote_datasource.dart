@@ -30,6 +30,7 @@ abstract class ProducerRemoteDataSource {
   Future<void> deleteProduct(String id);
   Future<void> toggleProductAvailability(String id, bool isAvailable);
   Future<List<FarmerOrderModel>> getOrders({int page = 1, int limit = 20, String status = 'all'});
+  Future<void> updateOrderStatus(String orderId, String status);
   Future<Map<String, dynamic>> getPreorderDashboard({String? status});
 }
 
@@ -364,6 +365,23 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
         return data.map((e) => FarmerOrderModel.fromJson(e)).toList();
       } else {
         throw ServerException('Failed to get orders', statusCode: response.statusCode);
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> updateOrderStatus(String orderId, String status) async {
+    try {
+      final response = await dio.patch(
+        '${AppConstants.producerOrdersEndpoint}/$orderId',
+        data: {'status': status},
+      );
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ServerException('Failed to update order status', statusCode: response.statusCode);
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

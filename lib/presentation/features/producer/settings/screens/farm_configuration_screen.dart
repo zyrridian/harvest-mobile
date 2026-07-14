@@ -7,13 +7,11 @@ import '../providers/farmer_settings_controller.dart';
 import '../../../../../domain/entities/farmer_profile.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-const kBgColor = Color(0xFFF7F9F8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
-const kCardBg = Colors.white;
+const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
-const kBorderColor = Color(0xFFE5E7EB);
 
 class FarmConfigurationScreen extends ConsumerWidget {
   const FarmConfigurationScreen({super.key});
@@ -25,56 +23,131 @@ class FarmConfigurationScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: TextStyle(
-            color: kDarkGreen,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
+        backgroundColor: kBgColor,
         elevation: 0,
         centerTitle: false,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Farm Settings',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: kDarkGreen,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
+        ),
       ),
       body: settingsState.maybeWhen(
-        loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: kDarkGreen),
+        ),
         error: (error) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(error, style: TextStyle(color: Colors.red)),
+              const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                  size: 48, color: kTextGrey),
+              const SizedBox(height: 16),
+              Text(
+                error.toString(),
+                style: const TextStyle(color: kTextGrey),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(farmerSettingsControllerProvider.notifier).refresh(),
+                onPressed: () => ref
+                    .read(farmerSettingsControllerProvider.notifier)
+                    .refresh(),
                 child: const Text('Retry'),
               ),
             ],
           ),
         ),
         data: (profile, deliverySettings) => RefreshIndicator(
-          onRefresh: () => ref.read(farmerSettingsControllerProvider.notifier).refresh(),
+          onRefresh: () =>
+              ref.read(farmerSettingsControllerProvider.notifier).refresh(),
           color: kDarkGreen,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildMapLocationSection(profile),
-                const SizedBox(height: 24),
-                Text(
-                  'Farm Configuration',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
+              // 1. MAP / LOCATION HEADER CARD
+              _buildMapLocationSection(profile),
+              const SizedBox(height: 24),
+
+              // 2. SETTINGS SECTION
+              _buildSectionHeader('Farm Configuration'),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: kPillGrey),
+                ),
+                child: Column(
+                  children: [
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.storefront,
+                      title: 'Edit Farm Profile',
+                      onTap: () => context.push(AppRouter.editFarmProfile),
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.star,
+                      title: 'My Farm Reviews',
+                      onTap: () => context.push(AppRouter.farmReviews),
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.wallet,
+                      title: 'Wallet & Earnings',
+                      onTap: () {},
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.mapTrifold,
+                      title: 'Manage Drop Points',
+                      onTap: () => context.push(AppRouter.dropPoints),
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.truck,
+                      title: 'Delivery Settings',
+                      onTap: () => context.push(AppRouter.deliverySettings),
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.gear,
+                      title: 'Account Settings',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // 3. LOGOUT BUTTON
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => _showLogoutDialog(context, ref),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFFFEE2E2), // Light Red
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    'Log Out',
+                    style: TextStyle(
+                      color: Color(0xFFDC2626), // Dark Red
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildSettingsList(context, ref, profile),
-                const SizedBox(height: 80),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 40),
+            ],
           ),
         ),
         orElse: () => const SizedBox.shrink(),
@@ -82,12 +155,21 @@ class FarmConfigurationScreen extends ConsumerWidget {
     );
   }
 
+  // --- WIDGET HELPERS ---
+
   Widget _buildMapLocationSection(FarmerProfile profile) {
     return Container(
       decoration: BoxDecoration(
-        color: kCardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorderColor),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: kPillGrey),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +179,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Farm Location',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -118,7 +200,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
           ),
           // Mock Map Area
           Container(
-            height: 180,
+            height: 140,
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -141,7 +223,8 @@ class FarmConfigurationScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                child: const Icon(PhosphorIconsFill.mapPin, color: kAccentOrange, size: 32),
+                child: const PhosphorIcon(PhosphorIconsFill.mapPin,
+                    color: kAccentOrange, size: 28),
               ),
             ),
           ),
@@ -149,12 +232,13 @@ class FarmConfigurationScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(PhosphorIconsRegular.navigationArrow, color: kTextGrey, size: 20),
+                const PhosphorIcon(PhosphorIconsRegular.navigationArrow,
+                    color: kTextGrey, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     profile.address,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: kTextGrey,
                       fontSize: 14,
                     ),
@@ -170,116 +254,117 @@ class FarmConfigurationScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsList(BuildContext context, WidgetRef ref, FarmerProfile profile) {
-    return Container(
-      decoration: BoxDecoration(
-        color: kCardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorderColor),
-      ),
-      child: Column(
-        children: [
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.storefront,
-            title: 'Edit Farm Profile',
-            subtitle: profile.name,
-            onTap: () => context.push(AppRouter.editFarmProfile),
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.star,
-            title: 'My Farm Reviews',
-            subtitle: 'See what buyers are saying',
-            onTap: () => context.push(AppRouter.farmReviews),
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.wallet,
-            title: 'Wallet & Earnings',
-            subtitle: 'Manage your payouts and transactions',
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.mapTrifold,
-            title: 'Manage Drop Points',
-            subtitle: 'Set pickup locations for consumers',
-            onTap: () => context.push(AppRouter.dropPoints),
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.truck,
-            title: 'Delivery Settings',
-            subtitle: 'Configure wholesale delivery radius',
-            onTap: () => context.push(AppRouter.deliverySettings),
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          _buildSettingsTile(
-            icon: PhosphorIconsRegular.gear,
-            title: 'Account Settings',
-            subtitle: 'Password, notifications, and language',
-          ),
-          const Divider(height: 1, color: kBorderColor),
-          ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(PhosphorIconsRegular.signOut, color: Colors.red),
-            ),
-            title: Text(
-              'Log Out',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            trailing: const Icon(PhosphorIconsRegular.caretRight, color: kTextGrey, size: 16),
-            onTap: () async {
-              await ref.read(authControllerProvider.notifier).logout();
-              if (context.mounted) {
-                context.go(AppRouter.roleSelection);
-              }
-            },
-          ),
-        ],
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: kTextGrey,
+        ),
       ),
     );
   }
 
-  Widget _buildSettingsTile({
+  Widget _buildModernMenuItem({
     required IconData icon,
     required String title,
-    required String subtitle,
-    VoidCallback? onTap,
+    String? trailingText,
+    required VoidCallback onTap,
   }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: kBgColor,
-          borderRadius: BorderRadius.circular(8),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              PhosphorIcon(icon, color: kDarkGreen, size: 22),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: kDarkGreen,
+                  ),
+                ),
+              ),
+              if (trailingText != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    trailingText,
+                    style: const TextStyle(color: kTextGrey, fontSize: 13),
+                  ),
+                ),
+              const PhosphorIcon(PhosphorIconsRegular.caretRight,
+                  color: kPillGrey, size: 20),
+            ],
+          ),
         ),
-        child: Icon(icon, color: kDarkGreen),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: kDarkGreen,
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+        height: 1, thickness: 1, color: kPillGrey, indent: 58, endIndent: 20);
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Log Out',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Are you sure you want to log out?',
+          style: TextStyle(color: kTextGrey),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel', style: TextStyle(color: kTextGrey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop(); // Close dialog
+
+              // Show loading indicator
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (loadingContext) => const Center(
+                    child: CircularProgressIndicator(color: kDarkGreen),
+                  ),
+                );
+              }
+
+              // Actually logout the user
+              await ref.read(authControllerProvider.notifier).logout();
+
+              // Close loading dialog and navigate to login
+              if (context.mounted) {
+                Navigator.of(context).pop(); // Close loading
+                context.go(AppRouter.roleSelection);
+              }
+            },
+            child: const Text(
+              'Log Out',
+              style: TextStyle(
+                  color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          color: kTextGrey,
-          fontSize: 12,
-        ),
-      ),
-      trailing: const Icon(PhosphorIconsRegular.caretRight, color: kTextGrey, size: 16),
-      onTap: onTap,
     );
   }
 }
