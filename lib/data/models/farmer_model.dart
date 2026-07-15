@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/farmer.dart';
+import 'farmer_gallery_image_model.dart';
 
 part 'farmer_model.g.dart';
 
@@ -45,6 +46,10 @@ class FarmerModel {
   final double? responseRate;
   @JsonKey(name: 'followers_count')
   final int? followersCount;
+  @JsonKey(name: 'is_followed')
+  final bool? isFollowed;
+  @JsonKey(defaultValue: [])
+  final List<FarmerGalleryImageModel> gallery;
 
   FarmerModel({
     required this.id,
@@ -72,6 +77,8 @@ class FarmerModel {
     this.verificationBadge,
     this.responseRate,
     this.followersCount,
+    this.isFollowed,
+    this.gallery = const [],
   });
 
   factory FarmerModel.fromJson(Map<String, dynamic> json) =>
@@ -106,6 +113,8 @@ class FarmerModel {
       verificationBadge: verificationBadge,
       responseRate: responseRate,
       followersCount: followersCount,
+      isFollowed: isFollowed ?? false,
+      gallery: gallery.map((g) => g.toEntity()).toList(),
     );
   }
 
@@ -136,6 +145,8 @@ class FarmerModel {
       verificationBadge: entity.verificationBadge,
       responseRate: entity.responseRate,
       followersCount: entity.followersCount,
+      isFollowed: entity.isFollowed,
+      gallery: entity.gallery.map((g) => FarmerGalleryImageModel.fromEntity(g)).toList(),
     );
   }
 }

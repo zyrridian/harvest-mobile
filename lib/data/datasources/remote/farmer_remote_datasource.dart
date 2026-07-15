@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:harvest_app/data/models/farmer_gallery_image_model.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/error/exceptions.dart';
 import '../../models/farmer_model.dart';
@@ -30,6 +31,11 @@ abstract class FarmerRemoteDataSource {
     int? limit,
     int? page,
   });
+
+  Future<void> followFarmer(String id);
+  Future<void> unfollowFarmer(String id);
+  Future<FarmerGalleryImageModel> addGalleryImage(String imageUrl, {String? caption});
+  Future<void> deleteGalleryImage(String id);
 }
 
 class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
@@ -158,6 +164,77 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
         limit: limit,
         page: page,
       );
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> followFarmer(String id) async {
+    try {
+      final endpoint = AppConstants.farmerByIdEndpoint.replaceAll(':id', id) + '/follow';
+      final response = await dio.post(endpoint);
+      if (response.statusCode != 201 && response.statusCode != 200) {
+        throw ServerException('Failed to follow farmer');
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> unfollowFarmer(String id) async {
+    try {
+      final endpoint = AppConstants.farmerByIdEndpoint.replaceAll(':id', id) + '/follow';
+      final response = await dio.delete(endpoint);
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to unfollow farmer');
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerGalleryImageModel> addGalleryImage(String imageUrl, {String? caption}) async {
+    try {
+      final endpoint = '${AppConstants.farmersEndpoint}/me/gallery';
+      final data = {
+        'image_url': imageUrl,
+        if (caption != null) 'caption': caption,
+      };
+      final response = await dio.post(endpoint, data: data);
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = response.data;
+        final responseDataMap = responseData is Map<String, dynamic> && responseData.containsKey('data') 
+            ? responseData['data'] 
+            : responseData;
+        return FarmerGalleryImageModel.fromJson(responseDataMap as Map<String, dynamic>);
+      } else {
+        throw ServerException('Failed to add gallery image');
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteGalleryImage(String id) async {
+    try {
+      final endpoint = '${AppConstants.farmersEndpoint}/me/gallery/$id';
+      final response = await dio.delete(endpoint);
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to delete gallery image');
+      }
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {

@@ -40,7 +40,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -56,93 +56,104 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
     return Scaffold(
       backgroundColor: kBgColor,
-      body: NestedScrollView(
-        physics: const BouncingScrollPhysics(),
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            // 1. PARALLAX HEADER
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: FarmerProfileHeaderDelegate(
-                farmer: displayFarmer,
-                onBackPressed: () => context.pop(),
-                onSharePressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Share functionality coming soon',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Colors.white)),
-                    ),
-                  );
-                },
-                onMorePressed: () {
-                  // Show bottom sheet or menu
-                },
-              ),
-            ),
-
-            // 2. STATS & ACTIONS (Non-sticky content)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    _buildStatsRow(displayFarmer),
-                    const SizedBox(height: 24),
-                    _buildActionButtons(displayFarmer),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-
-            // 3. STICKY TAB BAR
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _StickyTabBarDelegate(
-                TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.grey[600],
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: kDarkGreen,
-                  ),
-                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  onTap: (index) {
-                    _tabController.index =
-                        index; // Instant switch without scrolling
-                  },
-                  tabs: const [
-                    Tab(text: 'Shop'),
-                    Tab(text: 'Feed'),
-                    Tab(text: 'Info'),
-                    Tab(text: 'Reviews'),
-                  ],
-                ),
-              ),
-            ),
-          ];
+      body: RefreshIndicator(
+        color: kDarkGreen,
+        onRefresh: () async {
+          await ref
+              .read(farmerDetailControllerProvider(widget.farmer.id).notifier)
+              .loadFarmerProfile();
         },
-        // 4. SCROLLABLE TAB CONTENT
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildProductsTab(state.products),
-            _buildCommunityTab(state.posts),
-            _buildAboutTab(displayFarmer),
-            _buildReviewsTab(state.reviews),
-          ],
+        child: NestedScrollView(
+          physics: const BouncingScrollPhysics(),
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              // 1. PARALLAX HEADER
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: FarmerProfileHeaderDelegate(
+                  farmer: displayFarmer,
+                  onBackPressed: () => context.pop(),
+                  onSharePressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Share functionality coming soon',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.white)),
+                      ),
+                    );
+                  },
+                  onMorePressed: () {
+                    // Show bottom sheet or menu
+                  },
+                ),
+              ),
+
+              // 2. STATS & ACTIONS (Non-sticky content)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildStatsRow(displayFarmer),
+                      const SizedBox(height: 24),
+                      _buildActionButtons(displayFarmer),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 3. STICKY TAB BAR
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _StickyTabBarDelegate(
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.grey[600],
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: kDarkGreen,
+                    ),
+                    labelStyle:
+                        Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    onTap: (index) {
+                      _tabController.index =
+                          index; // Instant switch without scrolling
+                    },
+                    tabs: const [
+                      Tab(text: 'Shop'),
+                      Tab(text: 'Feed'),
+                      Tab(text: 'Gallery'),
+                      Tab(text: 'Info'),
+                      Tab(text: 'Reviews'),
+                    ],
+                  ),
+                ),
+              ),
+            ];
+          },
+          // 4. SCROLLABLE TAB CONTENT
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildProductsTab(state.products),
+              _buildCommunityTab(state.posts),
+              _buildGalleryTab(displayFarmer),
+              _buildAboutTab(displayFarmer),
+              _buildReviewsTab(state.reviews),
+            ],
+          ),
         ),
       ),
     );
@@ -194,14 +205,45 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
   }
 
   Widget _buildActionButtons(Farmer displayFarmer) {
+    final isFollowed = displayFarmer.isFollowed;
     return Row(
       children: [
         Expanded(
           flex: 2,
           child: ElevatedButton.icon(
+            onPressed: () {
+              ref
+                  .read(
+                      farmerDetailControllerProvider(widget.farmer.id).notifier)
+                  .toggleFollow();
+            },
+            icon: PhosphorIcon(
+              isFollowed
+                  ? PhosphorIconsFill.checkCircle
+                  : PhosphorIconsRegular.userPlus,
+              size: 18,
+              color: isFollowed ? kDarkGreen : Colors.white,
+            ),
+            label: Text(isFollowed ? 'Following' : 'Follow',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isFollowed ? kDarkGreen : Colors.white,
+                    fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isFollowed ? kPillGrey : kDarkGreen,
+              foregroundColor: isFollowed ? kDarkGreen : Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 2,
+          child: OutlinedButton.icon(
             onPressed: () async {
-              // Start or get existing conversation with this farmer,
-              // then navigate to the chat screen.
               final startConversation =
                   ref.read(startConversationUsecaseProvider);
               final result = await startConversation(
@@ -242,24 +284,25 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
             icon: const PhosphorIcon(
               PhosphorIconsRegular.chatCircle,
               size: 18,
-              color: Colors.white,
+              color: kDarkGreen,
             ),
             label: Text('Message',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kDarkGreen,
-              foregroundColor: Colors.white,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: kDarkGreen, fontWeight: FontWeight.bold)),
+            style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              elevation: 0,
+              side: const BorderSide(color: kPillGrey, width: 1.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         Expanded(
+          flex: 1,
           child: OutlinedButton(
             onPressed: () {
               // Handle Directions Logic
@@ -487,6 +530,63 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           _buildContactRow(PhosphorIconsRegular.mapPin, displayFarmer.address),
         ],
       ),
+    );
+  }
+
+  Widget _buildGalleryTab(Farmer displayFarmer) {
+    if (displayFarmer.gallery.isEmpty) {
+      return Center(
+        child: Text('No gallery images available',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Colors.grey[600])),
+      );
+    }
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: displayFarmer.gallery.length,
+      itemBuilder: (context, index) {
+        final image = displayFarmer.gallery[index];
+        return GestureDetector(
+          onTap: () {
+            context.push(
+              '/image-viewer',
+              extra: {
+                'imageUrl': image.imageUrl,
+                'tag': 'gallery_${image.id}',
+              },
+            );
+          },
+          child: Hero(
+            tag: 'gallery_${image.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: image.imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: kPillGrey,
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                        color: kDarkGreen, strokeWidth: 2),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: kPillGrey,
+                  child: const Icon(Icons.error, color: Colors.red),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

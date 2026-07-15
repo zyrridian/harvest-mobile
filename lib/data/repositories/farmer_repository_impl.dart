@@ -4,6 +4,7 @@ import '../../core/error/failure.dart';
 import '../../domain/entities/farmer.dart';
 import '../../domain/entities/farmer_detail.dart';
 import '../../domain/entities/paginated_response.dart';
+import '../../domain/entities/farmer_gallery_image.dart';
 import '../../domain/repositories/farmer_repository.dart';
 import '../datasources/local/farmer_local_datasource.dart';
 import '../datasources/remote/farmer_remote_datasource.dart';
@@ -184,6 +185,78 @@ class FarmerRepositoryImpl implements FarmerRepository {
         // Ignore local cache error, handle the remote error below
       }
 
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> followFarmer(String id) async {
+    try {
+      await remoteDataSource.followFarmer(id);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unfollowFarmer(String id) async {
+    try {
+      await remoteDataSource.unfollowFarmer(id);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerGalleryImage>> addGalleryImage(String imageUrl, {String? caption}) async {
+    try {
+      final remoteModel = await remoteDataSource.addGalleryImage(imageUrl, caption: caption);
+      return Right(remoteModel.toEntity());
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteGalleryImage(String id) async {
+    try {
+      await remoteDataSource.deleteGalleryImage(id);
+      return const Right(null);
+    } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
       } else if (e is NetworkException) {

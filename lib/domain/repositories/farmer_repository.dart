@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/failure.dart';
 import '../entities/farmer.dart';
 import '../entities/farmer_detail.dart';
+import '../entities/farmer_gallery_image.dart';
 import '../entities/paginated_response.dart';
 
 abstract class FarmerRepository {
@@ -29,4 +30,9 @@ abstract class FarmerRepository {
     int? limit,
     int? page,
   });
+
+  Future<Either<Failure, void>> followFarmer(String id);
+  Future<Either<Failure, void>> unfollowFarmer(String id);
+  Future<Either<Failure, FarmerGalleryImage>> addGalleryImage(String imageUrl, {String? caption});
+  Future<Either<Failure, void>> deleteGalleryImage(String id);
 }

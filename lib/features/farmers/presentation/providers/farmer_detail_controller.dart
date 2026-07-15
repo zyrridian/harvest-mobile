@@ -11,6 +11,8 @@ import 'package:harvest_app/features/storefront/presentation/providers/marketpla
 import 'package:harvest_app/features/sales/presentation/providers/cart/cart_controller.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product.dart';
+import '../../../../domain/usecases/farmers/follow_farmer.dart';
+import '../../../../domain/usecases/farmers/unfollow_farmer.dart';
 import 'farmers_controller.dart';
 import 'farmer_detail_state.dart';
 
@@ -164,6 +166,44 @@ class FarmerDetailController extends _$FarmerDetailController {
           result.fold((failure) {
             // Revert on error
             state = state.copyWith(products: AsyncValue.data(products));
+          }, (_) {});
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  Future<void> toggleFollow() async {
+    state.farmerDetail.maybeWhen(
+      data: (detail) async {
+        final currentFarmer = detail;
+        final newIsFollowed = !currentFarmer.isFollowed;
+        final currentFollowersCount = currentFarmer.followersCount ?? 0;
+        final newFollowersCount = newIsFollowed ? currentFollowersCount + 1 : currentFollowersCount - 1;
+        
+        final updatedFarmer = currentFarmer.copyWith(
+          isFollowed: newIsFollowed,
+          followersCount: newFollowersCount,
+        );
+
+        // Optimistic UI update
+        state = state.copyWith(
+          farmerDetail: AsyncValue.data(updatedFarmer),
+        );
+
+        if (newIsFollowed) {
+          final useCase = ref.read(followFarmerUseCaseProvider);
+          final result = await useCase.call(currentFarmer.id);
+          result.fold((failure) {
+            // Revert on error
+            state = state.copyWith(farmerDetail: AsyncValue.data(currentFarmer));
+          }, (_) {});
+        } else {
+          final useCase = ref.read(unfollowFarmerUseCaseProvider);
+          final result = await useCase.call(currentFarmer.id);
+          result.fold((failure) {
+            // Revert on error
+            state = state.copyWith(farmerDetail: AsyncValue.data(currentFarmer));
           }, (_) {});
         }
       },

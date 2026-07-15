@@ -35,6 +35,12 @@ FarmerModel _$FarmerModelFromJson(Map<String, dynamic> json) => FarmerModel(
       verificationBadge: json['verification_badge'] as String?,
       responseRate: (json['response_rate'] as num?)?.toDouble(),
       followersCount: (json['followers_count'] as num?)?.toInt(),
+      isFollowed: json['is_followed'] as bool?,
+      gallery: (json['gallery'] as List<dynamic>?)
+              ?.map((e) =>
+                  FarmerGalleryImageModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$FarmerModelToJson(FarmerModel instance) =>
@@ -64,4 +70,6 @@ Map<String, dynamic> _$FarmerModelToJson(FarmerModel instance) =>
       'verification_badge': instance.verificationBadge,
       'response_rate': instance.responseRate,
       'followers_count': instance.followersCount,
+      'is_followed': instance.isFollowed,
+      'gallery': instance.gallery,
     };
