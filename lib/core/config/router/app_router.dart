@@ -28,12 +28,14 @@ import '../../../presentation/features/producer/settings/screens/edit_drop_point
 import '../../../presentation/features/notifications/screens/notifications_screen.dart';
 import '../../../features/users/presentation/screens/addresses_screen.dart';
 import '../../../features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:harvest_app/presentation/features/producer/settings/screens/manage_gallery_screen.dart';
 import '../../../features/sales/presentation/screens/cart/cart_screen.dart';
 import '../../../features/sales/presentation/screens/cart/checkout_screen.dart';
 import '../../../features/sales/presentation/screens/orders/orders_list_screen.dart';
 import '../../../features/sales/presentation/screens/orders/order_detail_screen.dart';
 import '../../../features/sales/presentation/screens/orders/order_success_screen.dart';
 import '../../../features/community/presentation/screens/chat_screen.dart';
+import '../../../features/community/presentation/screens/image_viewer_screen.dart';
 import '../../../features/storefront/presentation/screens/marketplace_screen.dart';
 import '../../../features/storefront/presentation/screens/category_products_screen.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
@@ -62,6 +64,7 @@ class AppRouter {
   static const String community = '/community';
   static const String farmerDashboard = '/farmer-dashboard';
   static const String editFarmProfile = '/edit-farm-profile';
+  static const String manageGallery = '/manage-gallery';
   static const String farmReviews = '/farm-reviews';
   static const String deliverySettings = '/delivery-settings';
   static const String dropPoints = '/drop-points';
@@ -92,6 +95,7 @@ class AppRouter {
   static const String orderSuccess = '/order-success';
   static const String conversations = '/conversations';
   static const String chat = '/chat';
+  static const String imageViewer = '/image-viewer';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -159,6 +163,11 @@ class AppRouter {
         path: editFarmProfile,
         name: 'editFarmProfile',
         builder: (context, state) => const EditFarmProfileScreen(),
+      ),
+      GoRoute(
+        path: manageGallery,
+        name: 'manageGallery',
+        builder: (context, state) => const ManageGalleryScreen(),
       ),
       GoRoute(
         path: farmReviews,
@@ -364,6 +373,18 @@ class AppRouter {
             conversationId: conversationId,
             farmerName: extra?['farmerName'] as String?,
             farmerAvatar: extra?['farmerAvatar'] as String?,
+          );
+        },
+      ),
+      GoRoute(
+        path: imageViewer,
+        name: 'imageViewer',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ImageViewerScreen(
+            heroTag: extra['heroTag'] as String? ?? 'default',
+            imageUrl: extra['imageUrl'] as String? ?? '',
+            isLocal: extra['isLocal'] as bool? ?? false,
           );
         },
       ),

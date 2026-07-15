@@ -234,6 +234,24 @@ class FarmerRepositoryImpl implements FarmerRepository {
   }
 
   @override
+  Future<Either<Failure, List<FarmerGalleryImage>>> getFarmerGallery() async {
+    try {
+      final remoteModels = await remoteDataSource.getFarmerGallery();
+      return Right(remoteModels.map((m) => m.toEntity()).toList());
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
   Future<Either<Failure, FarmerGalleryImage>> addGalleryImage(String imageUrl, {String? caption}) async {
     try {
       final remoteModel = await remoteDataSource.addGalleryImage(imageUrl, caption: caption);

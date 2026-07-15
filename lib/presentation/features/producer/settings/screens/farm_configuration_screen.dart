@@ -91,6 +91,12 @@ class FarmConfigurationScreen extends ConsumerWidget {
                     ),
                     _buildDivider(),
                     _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.image,
+                      title: 'Manage Gallery',
+                      onTap: () => context.push(AppRouter.manageGallery),
+                    ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
                       icon: PhosphorIconsRegular.star,
                       title: 'My Farm Reviews',
                       onTap: () => context.push(AppRouter.farmReviews),

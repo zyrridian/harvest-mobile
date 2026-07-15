@@ -34,6 +34,7 @@ abstract class FarmerRemoteDataSource {
 
   Future<void> followFarmer(String id);
   Future<void> unfollowFarmer(String id);
+  Future<List<FarmerGalleryImageModel>> getFarmerGallery();
   Future<FarmerGalleryImageModel> addGalleryImage(String imageUrl, {String? caption});
   Future<void> deleteGalleryImage(String id);
 }
@@ -193,6 +194,28 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       final response = await dio.delete(endpoint);
       if (response.statusCode != 200) {
         throw ServerException('Failed to unfollow farmer');
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<List<FarmerGalleryImageModel>> getFarmerGallery() async {
+    try {
+      final endpoint = '${AppConstants.farmersEndpoint}/me/gallery';
+      final response = await dio.get(endpoint);
+      
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        final List<dynamic> dataList = responseData is Map<String, dynamic> && responseData.containsKey('data') 
+            ? responseData['data'] 
+            : responseData;
+        return dataList.map((e) => FarmerGalleryImageModel.fromJson(e as Map<String, dynamic>)).toList();
+      } else {
+        throw ServerException('Failed to fetch gallery');
       }
     } on DioException catch (e) {
       throw _handleDioException(e);

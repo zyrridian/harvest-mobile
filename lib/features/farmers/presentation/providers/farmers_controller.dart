@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/domain/usecases/farmers/get_farmer_by_id.dart';
 import '../../../../core/providers/dio_provider.dart';
 import '../../../../data/datasources/local/database/app_database.dart';
 import '../../../../data/datasources/local/farmer_local_datasource.dart';
@@ -7,8 +8,8 @@ import '../../../../data/repositories/farmer_repository_impl.dart';
 import '../../../../domain/repositories/farmer_repository.dart';
 import '../../../../domain/usecases/farmers/get_farmers.dart';
 import '../../../../domain/usecases/farmers/get_nearby_farmers.dart';
-import '../../../../domain/usecases/farmers/get_farmer_by_id.dart';
 import '../../../../domain/usecases/farmers/get_farmer_detail_by_id.dart';
+import '../../../../domain/usecases/farmers/get_farmer_gallery.dart';
 import 'farmers_state.dart';
 
 // Database Provider
@@ -52,6 +53,11 @@ final getFarmerByIdUseCaseProvider = Provider<GetFarmerById>((ref) {
 
 final getFarmerDetailByIdUseCaseProvider = Provider<GetFarmerDetailById>((ref) {
   return GetFarmerDetailById(ref.watch(farmerRepositoryProvider));
+});
+
+final getFarmerGalleryUseCaseProvider =
+    Provider<GetFarmerGalleryUseCase>((ref) {
+  return GetFarmerGalleryUseCase(ref.watch(farmerRepositoryProvider));
 });
 
 // State Providers for filters

@@ -753,14 +753,12 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                             farmer.coverImage!.isNotEmpty)
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ImageViewerScreen(
-                                    heroTag: 'farmer_cover_${farmer.id}',
-                                    imageUrl: farmer.coverImage!,
-                                  ),
-                                ),
+                              context.push(
+                                AppRouter.imageViewer,
+                                extra: {
+                                  'heroTag': 'farmer_cover_${farmer.id}',
+                                  'imageUrl': farmer.coverImage!,
+                                },
                               );
                             },
                             child: Hero(
@@ -872,14 +870,12 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                         onTap: () {
                           if (farmer.profileImage != null &&
                               farmer.profileImage!.isNotEmpty) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ImageViewerScreen(
-                                  heroTag: 'farmer_profile_${farmer.id}',
-                                  imageUrl: farmer.profileImage!,
-                                ),
-                              ),
+                            context.push(
+                              AppRouter.imageViewer,
+                              extra: {
+                                'heroTag': 'farmer_profile_${farmer.id}',
+                                'imageUrl': farmer.profileImage!,
+                              },
                             );
                           }
                         },

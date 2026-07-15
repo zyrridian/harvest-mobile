@@ -33,6 +33,7 @@ abstract class FarmerRepository {
 
   Future<Either<Failure, void>> followFarmer(String id);
   Future<Either<Failure, void>> unfollowFarmer(String id);
+  Future<Either<Failure, List<FarmerGalleryImage>>> getFarmerGallery();
   Future<Either<Failure, FarmerGalleryImage>> addGalleryImage(String imageUrl, {String? caption});
   Future<Either<Failure, void>> deleteGalleryImage(String id);
 }
