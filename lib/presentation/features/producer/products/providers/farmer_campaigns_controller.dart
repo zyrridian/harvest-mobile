@@ -1,6 +1,6 @@
 import 'package:harvest_app/domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/domain/usecases/preorder/get_my_campaigns_usecase.dart';
-import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
+import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'farmer_campaigns_controller.g.dart';

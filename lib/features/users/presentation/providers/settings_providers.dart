@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../features/users/data/datasources/remote/settings_remote_datasource.dart';
+import '../../data/datasources/remote/settings_remote_datasource.dart';
 import '../../../../data/repositories/settings_repository_impl.dart';
 import '../../../../domain/entities/app_settings.dart';
 import '../../../../domain/usecases/settings/get_app_settings.dart';

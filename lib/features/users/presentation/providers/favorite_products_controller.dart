@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/get_favorites_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_by_id_usecase.dart';
-import 'package:harvest_app/presentation/features/product/providers/product_detail_controller.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/product/product_detail_controller.dart';
 import 'favorite_products_state.dart';
 
 part 'favorite_products_controller.g.dart';

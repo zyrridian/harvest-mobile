@@ -3,7 +3,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../features/storefront/presentation/screens/home_screen.dart';
 import '../../../../features/community/presentation/screens/community_screen.dart';
-import '../../profile/screens/profile_screen.dart';
+import '../../../../features/users/presentation/screens/profile_screen.dart';
 import '../../../../features/explore/presentation/screens/explore_screen.dart';
 
 // Provider to manage which tab is active

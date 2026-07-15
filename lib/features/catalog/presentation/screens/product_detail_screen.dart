@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../features/catalog/domain/entities/product_detail.dart';
-import '../../../../features/sales/presentation/providers/cart/cart_controller.dart';
-import '../providers/product_detail_controller.dart';
+import '../../domain/entities/product_detail.dart';
+import '../../../sales/presentation/providers/cart/cart_controller.dart';
+import '../providers/product/product_detail_controller.dart';
 
 extension ProductDetailUIExtensions on ProductDetail {
   bool get isInStock => stockQuantity > 0;

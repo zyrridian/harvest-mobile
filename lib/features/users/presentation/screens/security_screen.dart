@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/presentation/features/profile/providers/profile_controller.dart';
+import 'package:harvest_app/features/users/presentation/providers/profile_controller.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);

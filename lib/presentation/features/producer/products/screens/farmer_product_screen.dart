@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
-import 'package:harvest_app/presentation/features/preorder/providers/preorder_controller.dart';
+import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';

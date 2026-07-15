@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../domain/entities/farmer.dart';
-import '../../../../features/catalog/domain/entities/product.dart';
-import '../../../../features/community/domain/entities/review.dart';
-import '../../../../features/community/domain/entities/community_post.dart';
+import '../../../catalog/domain/entities/product.dart';
+import '../../../community/domain/entities/review.dart';
+import '../../../community/domain/entities/community_post.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../farmer_detail/providers/farmer_detail_controller.dart';
-import '../../../providers/messaging_providers.dart';
+import '../providers/farmer_detail_controller.dart';
+import '../../../../presentation/providers/messaging_providers.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
 const kBgColor = Color(0xFFFAFAF8);
