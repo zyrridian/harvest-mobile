@@ -9,7 +9,7 @@ class ProductModel {
   final String name;
   final String description;
   final String category;
-  final double price;
+  final double? price;
   final String unit;
   @JsonKey(name: 'image_url')
   final String imageUrl;
@@ -19,11 +19,11 @@ class ProductModel {
   final bool isOrganic;
   @JsonKey(name: 'is_available')
   final bool isAvailable;
-  final int stock;
+  final int? stock;
   final double? discount;
-  final double rating;
+  final double? rating;
   @JsonKey(name: 'review_count')
-  final int reviewCount;
+  final int? reviewCount;
   @JsonKey(name: 'farmer_id')
   final String? farmerId;
   @JsonKey(name: 'farmer_name')
@@ -40,16 +40,16 @@ class ProductModel {
     required this.name,
     required this.description,
     required this.category,
-    required this.price,
+    this.price,
     required this.unit,
     required this.imageUrl,
     this.images = const [],
     this.isOrganic = false,
     this.isAvailable = true,
-    required this.stock,
+    this.stock,
     this.discount,
-    required this.rating,
-    required this.reviewCount,
+    this.rating,
+    this.reviewCount,
     this.farmerId,
     this.farmerName,
     this.harvestDate,
@@ -68,16 +68,16 @@ class ProductModel {
       name: name,
       description: description,
       category: category,
-      price: price,
+      price: price ?? 0.0,
       unit: unit,
       imageUrl: imageUrl,
       images: images,
       isOrganic: isOrganic,
       isAvailable: isAvailable,
-      stock: stock,
+      stock: stock ?? 0,
       discount: discount,
-      rating: rating,
-      reviewCount: reviewCount,
+      rating: rating ?? 0.0,
+      reviewCount: reviewCount ?? 0,
       farmerId: farmerId,
       farmerName: farmerName,
       harvestDate: harvestDate != null ? DateTime.parse(harvestDate!) : null,

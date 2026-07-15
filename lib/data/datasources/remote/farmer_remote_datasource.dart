@@ -3,6 +3,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/error/exceptions.dart';
 import '../../models/farmer_model.dart';
 import '../../models/paginated_response_model.dart';
+import '../../models/farmer_detail_model.dart';
 
 abstract class FarmerRemoteDataSource {
   Future<PaginatedResponseModel<FarmerModel>> getFarmers({
@@ -19,6 +20,8 @@ abstract class FarmerRemoteDataSource {
   });
 
   Future<FarmerModel> getFarmerById(String id);
+
+  Future<FarmerDetailModel> getFarmerDetailById(String id);
 
   Future<PaginatedResponseModel<FarmerModel>> getNearbyFarmers({
     required double latitude,
@@ -102,6 +105,32 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
       } else {
         throw ServerException(
           'Failed to fetch farmer',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerDetailModel> getFarmerDetailById(String id) async {
+    try {
+      final endpoint = AppConstants.farmerByIdEndpoint.replaceAll(':id', id);
+      final response = await dio.get(endpoint);
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        final data = responseData is Map<String, dynamic> &&
+                responseData.containsKey('data')
+            ? responseData['data']
+            : responseData;
+        return FarmerDetailModel.fromJson(data as Map<String, dynamic>);
+      } else {
+        throw ServerException(
+          'Failed to fetch farmer details',
           statusCode: response.statusCode,
         );
       }

@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../domain/entities/farmer.dart';
 import '../../../catalog/domain/entities/product.dart';
+import '../../../../presentation/shared_widgets/product_card.dart';
+import '../../../../presentation/shared_widgets/community_post_card.dart';
 import '../../../community/domain/entities/review.dart';
 import '../../../community/domain/entities/community_post.dart';
+import '../../../community/presentation/screens/image_viewer_screen.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../providers/farmer_detail_controller.dart';
 import '../../../../presentation/providers/messaging_providers.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
+const kTextGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
-const kTextGrey = Color(0xFF6E7A75);
 
 class FarmerDetailScreen extends ConsumerStatefulWidget {
   final Farmer farmer;
@@ -48,96 +52,105 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(farmerDetailControllerProvider(widget.farmer.id));
+    final displayFarmer = state.farmerDetail.value ?? widget.farmer;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
+      backgroundColor: kBgColor,
+      body: NestedScrollView(
         physics: const BouncingScrollPhysics(),
-        slivers: [
-          // 1. PARALLAX HEADER
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: FarmerProfileHeaderDelegate(
-              farmer: widget.farmer,
-              onBackPressed: () => context.pop(),
-              onSharePressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Share functionality coming soon')),
-                );
-              },
-              onMorePressed: () {
-                // Show bottom sheet or menu
-              },
-            ),
-          ),
-
-          // 2. STATS & ACTIONS (Non-sticky content)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  _buildStatsRow(),
-                  const SizedBox(height: 24),
-                  _buildActionButtons(),
-                  const SizedBox(height: 24),
-                ],
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            // 1. PARALLAX HEADER
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: FarmerProfileHeaderDelegate(
+                farmer: displayFarmer,
+                onBackPressed: () => context.pop(),
+                onSharePressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Share functionality coming soon',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: Colors.white)),
+                    ),
+                  );
+                },
+                onMorePressed: () {
+                  // Show bottom sheet or menu
+                },
               ),
             ),
-          ),
 
-          // 3. STICKY TAB BAR
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _StickyTabBarDelegate(
-              TabBar(
-                controller: _tabController,
-                labelColor: Colors.white,
-                unselectedLabelColor: kTextGrey,
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: kDarkGreen,
+            // 2. STATS & ACTIONS (Non-sticky content)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildStatsRow(displayFarmer),
+                    const SizedBox(height: 24),
+                    _buildActionButtons(displayFarmer),
+                    const SizedBox(height: 24),
+                  ],
                 ),
-                labelStyle: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                tabs: const [
-                  Tab(text: 'Shop'),
-                  Tab(text: 'Feed'),
-                  Tab(text: 'Info'),
-                  Tab(text: 'Reviews'),
-                ],
               ),
             ),
-          ),
 
-          // 4. SCROLLABLE TAB CONTENT
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildProductsTab(state.products),
-                _buildCommunityTab(state.posts),
-                _buildAboutTab(),
-                _buildReviewsTab(state.reviews),
-              ],
+            // 3. STICKY TAB BAR
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _StickyTabBarDelegate(
+                TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey[600],
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: kDarkGreen,
+                  ),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  onTap: (index) {
+                    _tabController.index =
+                        index; // Instant switch without scrolling
+                  },
+                  tabs: const [
+                    Tab(text: 'Shop'),
+                    Tab(text: 'Feed'),
+                    Tab(text: 'Info'),
+                    Tab(text: 'Reviews'),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ];
+        },
+        // 4. SCROLLABLE TAB CONTENT
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildProductsTab(state.products),
+            _buildCommunityTab(state.posts),
+            _buildAboutTab(displayFarmer),
+            _buildReviewsTab(state.reviews),
+          ],
+        ),
       ),
     );
   }
 
   // --- WIDGET HELPERS ---
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(Farmer displayFarmer) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -147,11 +160,12 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem('Products', '0'),
+          _buildStatItem('Products', displayFarmer.totalProducts.toString()),
           Container(width: 1, height: 30, color: Colors.grey[300]),
-          _buildStatItem('Rating', widget.farmer.rating.toStringAsFixed(1)),
+          _buildStatItem('Rating', displayFarmer.rating.toStringAsFixed(1)),
           Container(width: 1, height: 30, color: Colors.grey[300]),
-          _buildStatItem('Reviews', '0'),
+          _buildStatItem(
+              'Followers', displayFarmer.followersCount?.toString() ?? '0'),
         ],
       ),
     );
@@ -162,24 +176,24 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: kDarkGreen,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: kTextGreen,
+              ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: kTextGrey,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
         ),
       ],
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(Farmer displayFarmer) {
     return Row(
       children: [
         Expanded(
@@ -191,7 +205,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
               final startConversation =
                   ref.read(startConversationUsecaseProvider);
               final result = await startConversation(
-                recipientId: widget.farmer.userId,
+                recipientId: displayFarmer.userId,
                 type: 'general',
               );
               result.fold(
@@ -199,8 +213,11 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content:
-                            Text('Could not open chat: ${failure.message}'),
+                        content: Text('Could not open chat: ${failure.message}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.white)),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -214,20 +231,22 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       AppRouter.chat,
                       extra: {
                         'conversationId': convId,
-                        'farmerName': widget.farmer.name,
-                        'farmerAvatar': widget.farmer.profileImage,
+                        'farmerName': displayFarmer.name,
+                        'farmerAvatar': displayFarmer.profileImage,
                       },
                     );
                   }
                 },
               );
             },
-            icon: const Icon(
-              Icons.chat_bubble_outline,
+            icon: const PhosphorIcon(
+              PhosphorIconsRegular.chatCircle,
               size: 18,
               color: Colors.white,
             ),
-            label: const Text('Message'),
+            label: Text('Message',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: kDarkGreen,
               foregroundColor: Colors.white,
@@ -236,7 +255,6 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              textStyle: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -253,7 +271,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Icon(Icons.directions_outlined, color: kDarkGreen),
+            child: const PhosphorIcon(PhosphorIconsRegular.mapTrifold,
+                color: kDarkGreen),
           ),
         ),
       ],
@@ -266,15 +285,23 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     return productsState.when(
       loading: () =>
           const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(
+          child: Text('Error: $error',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.red))),
       data: (products) {
         if (products.isEmpty) {
           return Center(
               child: Text('No products available',
-                  style: TextStyle(color: kTextGrey)));
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey[600])));
         }
         return GridView.builder(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.70,
@@ -284,62 +311,36 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           itemCount: products.length,
           itemBuilder: (context, index) {
             final product = products[index];
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: kPillGrey,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20)),
-                        image: product.imageUrl.isNotEmpty &&
-                                product.imageUrl.startsWith('http')
-                            ? DecorationImage(
-                                image: CachedNetworkImageProvider(
-                                    product.imageUrl),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: product.imageUrl.isEmpty ||
-                              !product.imageUrl.startsWith('http')
-                          ? Center(
-                              child: Icon(Icons.shopping_bag_outlined,
-                                  size: 40, color: kDarkGreen.withOpacity(0.2)),
-                            )
-                          : null,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, color: kDarkGreen),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          'Rp ${product.price}',
-                          style: TextStyle(
-                              color: kAccentOrange,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            return ProductCard(
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              imageUrl: product.imageUrl,
+              unit: product.unit,
+              rating: product.rating,
+              soldCount:
+                  product.reviewCount, // Or sold count if available on product
+              isFresh: product.isOrganic,
+              isFavorite: product.isFavorite,
+              farmerName: null,
+              onTap: () {
+                context.push('/products/${product.id}');
+              },
+              onAddToCart: () {
+                ref
+                    .read(farmerDetailControllerProvider(widget.farmer.id)
+                        .notifier)
+                    .addToCart(product);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${product.name} added to cart')),
+                );
+              },
+              onFavoriteToggle: () {
+                ref
+                    .read(farmerDetailControllerProvider(widget.farmer.id)
+                        .notifier)
+                    .toggleFavorite(product);
+              },
             );
           },
         );
@@ -351,79 +352,68 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     return postsState.when(
       loading: () =>
           const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(
+          child: Text('Error: $error',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.red))),
       data: (posts) {
         if (posts.isEmpty) {
           return Center(
               child: Text('No posts yet',
-                  style: TextStyle(color: kTextGrey)));
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey[600])));
         }
         return ListView.separated(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(0),
           itemCount: posts.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 24),
+          separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final post = posts[index];
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundImage: widget.farmer.profileImage != null &&
-                                widget.farmer.profileImage!.startsWith('http')
-                            ? CachedNetworkImageProvider(
-                                widget.farmer.profileImage!)
-                            : null,
-                        onBackgroundImageError: (_, __) {},
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.farmer.name,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: kDarkGreen)),
-                          Text(post.createdAt.toString().split(' ')[0],
-                              style: TextStyle(
-                                  fontSize: 12, color: kTextGrey)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    post.content,
-                    style: TextStyle(color: kDarkGreen, height: 1.5),
-                  ),
-                  if (post.images.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: kPillGrey,
-                        borderRadius: BorderRadius.circular(12),
-                        image: post.images.first.startsWith('http')
-                            ? DecorationImage(
-                                image: CachedNetworkImageProvider(
-                                    post.images.first),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
+            final displayPost = post.farmer != null
+                ? post
+                : CommunityPost(
+                    id: post.id,
+                    userId: post.userId,
+                    farmerId: post.farmerId,
+                    title: post.title,
+                    content: post.content,
+                    likesCount: post.likesCount,
+                    commentsCount: post.commentsCount,
+                    createdAt: post.createdAt,
+                    updatedAt: post.updatedAt,
+                    user: post.user,
+                    farmer: CommunityFarmer(
+                      id: widget.farmer.id,
+                      name: widget.farmer.name,
+                      profileImage: widget.farmer.profileImage,
                     ),
-                  ],
-                ],
-              ),
+                    images: post.images,
+                    tags: post.tags,
+                    isLikedByUser: post.isLikedByUser,
+                  );
+
+            return CommunityPostCard(
+              post: displayPost,
+              profileImageUrl: displayPost.farmer?.profileImage,
+              currentUserId:
+                  null, // Since we don't have current user readily available here, or we could pass it if we have it
+              onTap: () {
+                context.push('/community/post/${displayPost.id}',
+                    extra: displayPost);
+              },
+              onProfileTap: () {},
+              onLikeToggle: () {
+                ref
+                    .read(farmerDetailControllerProvider(widget.farmer.id)
+                        .notifier)
+                    .toggleLike(post.id, post.isLikedByUser);
+              },
+              onEdit: () {},
+              onDelete: () {},
             );
           },
         );
@@ -431,7 +421,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     );
   }
 
-  Widget _buildAboutTab() {
+  Widget _buildAboutTab(Farmer displayFarmer) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -439,35 +429,35 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
         children: [
           Text(
             'About the Farmer',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: kTextGreen,
+                ),
           ),
           const SizedBox(height: 12),
           Text(
-            widget.farmer.description,
-            style: TextStyle(
-              color: kTextGrey,
-              height: 1.6,
-              fontSize: 15,
-            ),
+            displayFarmer.description,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                  height: 1.6,
+                  fontSize: 15,
+                ),
           ),
           const SizedBox(height: 32),
           Text(
             'Specialties',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: kTextGreen,
+                ),
           ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: widget.farmer.specialties
+            children: displayFarmer.specialties
                 .map((s) => Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
@@ -477,8 +467,8 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       ),
                       child: Text(
                         s ?? '',
-                        style: TextStyle(
-                            color: kDarkGreen, fontWeight: FontWeight.w500),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: kTextGreen, fontWeight: FontWeight.w500),
                       ),
                     ))
                 .toList(),
@@ -486,15 +476,15 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
           const SizedBox(height: 32),
           Text(
             'Contact Info',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: kTextGreen,
+                ),
           ),
           const SizedBox(height: 16),
           const SizedBox(height: 12),
-          _buildContactRow(Icons.location_on_outlined, widget.farmer.address),
+          _buildContactRow(PhosphorIconsRegular.mapPin, displayFarmer.address),
         ],
       ),
     );
@@ -503,12 +493,15 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
   Widget _buildContactRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: kAccentOrange),
+        PhosphorIcon(icon, size: 20, color: kAccentOrange),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(color: kDarkGreen, fontSize: 15),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: kTextGreen, fontSize: 15),
           ),
         ),
       ],
@@ -519,12 +512,20 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
     return reviewsState.when(
       loading: () =>
           const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(
+          child: Text('Error: $error',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.red))),
       data: (reviews) {
         if (reviews.isEmpty) {
           return Center(
               child: Text('No reviews yet',
-                  style: TextStyle(color: kTextGrey)));
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey[600])));
         }
         return ListView.separated(
           padding: const EdgeInsets.all(24),
@@ -554,16 +555,19 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(review.userName,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: kDarkGreen)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: kTextGreen)),
                         Row(
                           children: List.generate(
                               5,
-                              (i) => Icon(
+                              (i) => PhosphorIcon(
                                     i < review.rating
-                                        ? Icons.star_rounded
-                                        : Icons.star_border_rounded,
+                                        ? PhosphorIconsFill.star
+                                        : PhosphorIconsRegular.star,
                                     size: 14,
                                     color: Colors.amber,
                                   )),
@@ -572,14 +576,19 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                     ),
                     const Spacer(),
                     Text(review.createdAt.toString().split(' ')[0],
-                        style:
-                            TextStyle(fontSize: 12, color: kTextGrey)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontSize: 12, color: Colors.grey[600])),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   review.comment,
-                  style: TextStyle(color: kTextGrey, height: 1.4),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey[600], height: 1.4),
                 ),
               ],
             );
@@ -605,143 +614,231 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.onMorePressed,
   });
 
-  final bottomHeight = 160.0;
-  final profileRadius = 55.0;
+  final double bottomHeight = 160.0;
+  final double profileRadius = 55.0;
 
   @override
-  Widget build(context, shrinkOffset, overlapsContent) {
-    final imageTop = -shrinkOffset * 0.5;
-    final double opacity = (1 - (shrinkOffset / 150)).clamp(0, 1);
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    // Progress goes from 0.0 (fully expanded) to 1.0 (fully collapsed)
+    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final expandedOpacity =
+        (1.0 - progress * 1.5).clamp(0.0, 1.0); // Fades out slightly faster
+    final collapsedOpacity =
+        (progress * 2.0 - 1.0).clamp(0.0, 1.0); // Fades in during second half
 
     return Container(
-      color: Colors.white,
+      color: kBgColor, // Solid background for collapsed app bar
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.hardEdge,
+        fit: StackFit.expand,
         children: [
-          // Cover Image
-          Positioned(
-            top: imageTop,
-            left: 0,
-            right: 0,
-            height: maxExtent - bottomHeight + 60,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: farmer.coverImage ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(color: kPillGrey),
-                  errorWidget: (_, __, ___) => Container(color: kPillGrey),
-                ),
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black26, Colors.transparent],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Curved Body
-          Positioned(
-            top: maxExtent - bottomHeight - 20,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: Opacity(
-                  opacity: opacity,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            farmer.name,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: kDarkGreen,
+          // --- EXPANDED STATE ---
+          if (expandedOpacity > 0)
+            Opacity(
+              opacity: expandedOpacity,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Cover Image
+                  Positioned(
+                    top: -shrinkOffset * 0.5,
+                    left: 0,
+                    right: 0,
+                    height: maxExtent - bottomHeight + 60,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (farmer.coverImage != null &&
+                            farmer.coverImage!.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ImageViewerScreen(
+                                    heroTag: 'farmer_cover_${farmer.id}',
+                                    imageUrl: farmer.coverImage!,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Hero(
+                              tag: 'farmer_cover_${farmer.id}',
+                              child: CachedNetworkImage(
+                                imageUrl: farmer.coverImage!,
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) =>
+                                    Container(color: kPillGrey),
+                                errorWidget: (_, __, ___) =>
+                                    Container(color: kPillGrey),
+                              ),
+                            ),
+                          )
+                        else
+                          Container(color: kPillGrey),
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.black26, Colors.transparent],
                             ),
                           ),
-                          if (farmer.isVerified) ...[
-                            const SizedBox(width: 6),
-                            const Icon(Icons.verified,
-                                color: Colors.blue, size: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Curved Body
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: bottomHeight + 20,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: kBgColor,
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(30)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 60),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  farmer.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                        color: kTextGreen,
+                                      ),
+                                ),
+                                if (farmer.isVerified) ...[
+                                  const SizedBox(width: 6),
+                                  const PhosphorIcon(
+                                      PhosphorIconsFill.sealCheck,
+                                      color: Colors.blue,
+                                      size: 20),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                PhosphorIcon(PhosphorIconsRegular.mapPin,
+                                    size: 14, color: Colors.grey[600]),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${farmer.city} • ${farmer.distanceLabel}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                          color: Colors.grey[600],
+                                          fontSize: 13),
+                                ),
+                              ],
+                            ),
                           ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Avatar
+                  Positioned(
+                    bottom: bottomHeight + 20 - profileRadius,
+                    left: MediaQuery.of(context).size.width / 2 - profileRadius,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 4),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              offset: Offset(0, 5)),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 14, color: kTextGrey),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${farmer.city} • ${farmer.distanceLabel}',
-                            style: TextStyle(
-                                color: kTextGrey, fontSize: 13),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (farmer.profileImage != null &&
+                              farmer.profileImage!.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ImageViewerScreen(
+                                  heroTag: 'farmer_profile_${farmer.id}',
+                                  imageUrl: farmer.profileImage!,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Hero(
+                          tag: 'farmer_profile_${farmer.id}',
+                          child: CircleAvatar(
+                            radius: profileRadius,
+                            backgroundColor: kPillGrey,
+                            backgroundImage: CachedNetworkImageProvider(
+                                farmer.profileImage ?? ''),
+                            onBackgroundImageError: (_, __) {},
                           ),
-                        ],
+                        ),
                       ),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // --- COLLAPSED STATE (App Bar Title) ---
+          if (collapsedOpacity > 0)
+            Positioned(
+              top: MediaQuery.of(context).padding.top,
+              left: 60, // Leave room for back button
+              right: 60, // Leave room for actions
+              bottom: 0,
+              child: Center(
+                child: Opacity(
+                  opacity: collapsedOpacity,
+                  child: Text(
+                    farmer.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: kTextGreen,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Avatar
-          Positioned(
-            top: maxExtent - bottomHeight - 20 - profileRadius,
-            left: MediaQuery.of(context).size.width / 2 - profileRadius,
-            child: Transform.scale(
-              scale: (1 - shrinkOffset / 300).clamp(0.5, 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        offset: Offset(0, 5)),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: profileRadius,
-                  backgroundColor: kPillGrey,
-                  backgroundImage:
-                      CachedNetworkImageProvider(farmer.profileImage ?? ''),
-                  onBackgroundImageError: (_, __) {},
-                ),
-              ),
-            ),
-          ),
-
-          // Actions
+          // --- ACTIONS (Always visible) ---
           Positioned(
             top: MediaQuery.of(context).padding.top,
             left: 16,
             right: 16,
             child: Row(
               children: [
-                _buildGlassButton(Icons.arrow_back, onBackPressed),
+                _buildGlassButton(
+                    PhosphorIconsRegular.caretLeft, onBackPressed),
                 const Spacer(),
-                _buildGlassButton(Icons.share_outlined, onSharePressed),
+                _buildGlassButton(
+                    PhosphorIconsRegular.shareNetwork, onSharePressed),
                 const SizedBox(width: 8),
-                _buildGlassButton(Icons.more_vert, onMorePressed),
+                _buildGlassButton(
+                    PhosphorIconsRegular.dotsThreeVertical, onMorePressed),
               ],
             ),
           ),
@@ -756,12 +853,12 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             shape: BoxShape.circle,
             boxShadow: const [
               BoxShadow(color: Colors.black12, blurRadius: 8),
             ]),
-        child: Icon(icon, color: kDarkGreen, size: 20),
+        child: PhosphorIcon(icon, color: kDarkGreen, size: 20),
       ),
     );
   }
@@ -788,7 +885,7 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: Colors.white,
+      color: kBgColor,
       child: _tabBar,
     );
   }

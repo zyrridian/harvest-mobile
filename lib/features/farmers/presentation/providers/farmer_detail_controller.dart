@@ -7,6 +7,11 @@ import '../../../../domain/repositories/farmer_products_repository.dart';
 import '../../../../domain/usecases/products/get_farmer_products.dart';
 import '../../../../domain/usecases/products/get_farmer_reviews.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart' hide dioProvider; // To reuse the community repository provider
+import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
+import 'package:harvest_app/features/sales/presentation/providers/cart/cart_controller.dart';
+import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:harvest_app/features/catalog/domain/entities/product.dart';
+import 'farmers_controller.dart';
 import 'farmer_detail_state.dart';
 
 part 'farmer_detail_controller.g.dart';
@@ -39,47 +44,130 @@ class FarmerDetailController extends _$FarmerDetailController {
   }
 
   Future<void> _loadAll() async {
-    loadProducts();
-    loadPosts();
-    loadReviews();
+    loadFarmerProfile();
   }
 
-  Future<void> loadProducts() async {
-    state = state.copyWith(products: const AsyncValue.loading());
-    final useCase = ref.read(getFarmerProductsUseCaseProvider);
+  Future<void> loadFarmerProfile() async {
+    state = state.copyWith(
+      farmerDetail: const AsyncValue.loading(),
+      products: const AsyncValue.loading(),
+      posts: const AsyncValue.loading(),
+      reviews: const AsyncValue.loading(),
+    );
+    
+    final useCase = ref.read(getFarmerDetailByIdUseCaseProvider);
     final result = await useCase(farmerId);
 
     result.fold(
-      (failure) => state = state.copyWith(
-          products: AsyncValue.error(failure.message, StackTrace.current)),
-      (paginated) => state = state.copyWith(
-          products: AsyncValue.data(paginated.data)),
+      (failure) {
+        state = state.copyWith(
+          farmerDetail: AsyncValue.error(failure.message, StackTrace.current),
+          products: AsyncValue.error(failure.message, StackTrace.current),
+          posts: AsyncValue.error(failure.message, StackTrace.current),
+          reviews: AsyncValue.error(failure.message, StackTrace.current),
+        );
+      },
+      (detail) {
+        state = state.copyWith(
+          farmerDetail: AsyncValue.data(detail.farmer),
+          products: AsyncValue.data(detail.products),
+          posts: AsyncValue.data(detail.posts),
+          reviews: AsyncValue.data(detail.reviews),
+        );
+      },
     );
   }
 
-  Future<void> loadPosts() async {
-    state = state.copyWith(posts: const AsyncValue.loading());
-    final useCase = ref.read(getCommunityPostsUseCaseProvider);
-    final result = await useCase(page: 1, limit: 10, filter: 'farmers');
+  Future<void> toggleLike(String postId, bool isCurrentlyLiked) async {
+    state.posts.maybeWhen(
+      data: (posts) async {
+        // Optimistic update
+        final updatedPosts = posts.map((post) {
+          if (post.id == postId) {
+            return CommunityPost(
+              id: post.id,
+              userId: post.userId,
+              farmerId: post.farmerId,
+              title: post.title,
+              content: post.content,
+              likesCount: isCurrentlyLiked ? post.likesCount - 1 : post.likesCount + 1,
+              commentsCount: post.commentsCount,
+              createdAt: post.createdAt,
+              updatedAt: post.updatedAt,
+              user: post.user,
+              farmer: post.farmer,
+              images: post.images,
+              tags: post.tags,
+              isLikedByUser: !isCurrentlyLiked,
+            );
+          }
+          return post;
+        }).toList();
 
-    result.fold(
-      (failure) => state = state.copyWith(
-          posts: AsyncValue.error(failure.message, StackTrace.current)),
-      (paginated) => state = state.copyWith(
-          posts: AsyncValue.data(paginated.data)),
+        state = state.copyWith(posts: AsyncValue.data(updatedPosts));
+
+        final useCase = ref.read(togglePostLikeUseCaseProvider);
+        final result = await useCase.call(postId: postId, isCurrentlyLiked: isCurrentlyLiked);
+
+        result.fold(
+          (failure) {
+            // Revert on error
+            state = state.copyWith(posts: AsyncValue.data(posts));
+          },
+          (_) {},
+        );
+      },
+      orElse: () {},
     );
   }
 
-  Future<void> loadReviews() async {
-    state = state.copyWith(reviews: const AsyncValue.loading());
-    final useCase = ref.read(getFarmerReviewsUseCaseProvider);
-    final result = await useCase(farmerId);
+  Future<void> addToCart(Product product) async {
+    final useCase = ref.read(addToCartUseCaseProvider);
+    final result = await useCase.call(productId: product.id, quantity: 1);
 
     result.fold(
-      (failure) => state = state.copyWith(
-          reviews: AsyncValue.error(failure.message, StackTrace.current)),
-      (paginated) => state = state.copyWith(
-          reviews: AsyncValue.data(paginated.data)),
+      (failure) {
+        // Handle error if needed
+      },
+      (cartData) {
+        // Refresh cart state to update the global Cart UI
+        ref.read(cartControllerProvider.notifier).refresh();
+      },
+    );
+  }
+
+  Future<void> toggleFavorite(Product product) async {
+    state.products.maybeWhen(
+      data: (products) async {
+        // Optimistic UI update
+        final newIsFavorite = !product.isFavorite;
+
+        final updatedProducts = products.map((p) {
+          if (p.id == product.id) {
+            return p.copyWith(isFavorite: newIsFavorite);
+          }
+          return p;
+        }).toList();
+
+        state = state.copyWith(products: AsyncValue.data(updatedProducts));
+
+        if (newIsFavorite) {
+          final useCase = ref.read(addFavoriteUseCaseProvider);
+          final result = await useCase.call(product.id);
+          result.fold((failure) {
+            // Revert on error
+            state = state.copyWith(products: AsyncValue.data(products));
+          }, (_) {});
+        } else {
+          final useCase = ref.read(removeFavoriteUseCaseProvider);
+          final result = await useCase.call(product.id);
+          result.fold((failure) {
+            // Revert on error
+            state = state.copyWith(products: AsyncValue.data(products));
+          }, (_) {});
+        }
+      },
+      orElse: () {},
     );
   }
 }

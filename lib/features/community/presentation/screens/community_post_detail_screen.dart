@@ -167,6 +167,11 @@ class _CommunityPostDetailScreenState
   }
 
 
+  String? _getValidImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty || !url.startsWith('http')) return null;
+    return url;
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(postDetailControllerProvider(widget.post.id));
@@ -288,10 +293,10 @@ class _CommunityPostDetailScreenState
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: Colors.grey.shade100,
-                  backgroundImage: (currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) != null
-                      ? NetworkImage(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl!)
+                  backgroundImage: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) != null
+                      ? NetworkImage(_getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl)!)
                       : null,
-                  child: (currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) == null
+                  child: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) == null
                       ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
                       : null,
                 ),

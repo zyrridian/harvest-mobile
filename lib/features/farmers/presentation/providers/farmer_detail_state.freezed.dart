@@ -16,6 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$FarmerDetailState {
+  AsyncValue<Farmer> get farmerDetail => throw _privateConstructorUsedError;
   AsyncValue<List<Product>> get products => throw _privateConstructorUsedError;
   AsyncValue<List<CommunityPost>> get posts =>
       throw _privateConstructorUsedError;
@@ -35,7 +36,8 @@ abstract class $FarmerDetailStateCopyWith<$Res> {
       _$FarmerDetailStateCopyWithImpl<$Res, FarmerDetailState>;
   @useResult
   $Res call(
-      {AsyncValue<List<Product>> products,
+      {AsyncValue<Farmer> farmerDetail,
+      AsyncValue<List<Product>> products,
       AsyncValue<List<CommunityPost>> posts,
       AsyncValue<List<Review>> reviews});
 }
@@ -55,11 +57,16 @@ class _$FarmerDetailStateCopyWithImpl<$Res, $Val extends FarmerDetailState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? farmerDetail = null,
     Object? products = null,
     Object? posts = null,
     Object? reviews = null,
   }) {
     return _then(_value.copyWith(
+      farmerDetail: null == farmerDetail
+          ? _value.farmerDetail
+          : farmerDetail // ignore: cast_nullable_to_non_nullable
+              as AsyncValue<Farmer>,
       products: null == products
           ? _value.products
           : products // ignore: cast_nullable_to_non_nullable
@@ -85,7 +92,8 @@ abstract class _$$FarmerDetailStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {AsyncValue<List<Product>> products,
+      {AsyncValue<Farmer> farmerDetail,
+      AsyncValue<List<Product>> products,
       AsyncValue<List<CommunityPost>> posts,
       AsyncValue<List<Review>> reviews});
 }
@@ -103,11 +111,16 @@ class __$$FarmerDetailStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? farmerDetail = null,
     Object? products = null,
     Object? posts = null,
     Object? reviews = null,
   }) {
     return _then(_$FarmerDetailStateImpl(
+      farmerDetail: null == farmerDetail
+          ? _value.farmerDetail
+          : farmerDetail // ignore: cast_nullable_to_non_nullable
+              as AsyncValue<Farmer>,
       products: null == products
           ? _value.products
           : products // ignore: cast_nullable_to_non_nullable
@@ -128,10 +141,14 @@ class __$$FarmerDetailStateImplCopyWithImpl<$Res>
 
 class _$FarmerDetailStateImpl implements _FarmerDetailState {
   const _$FarmerDetailStateImpl(
-      {this.products = const AsyncValue.loading(),
+      {this.farmerDetail = const AsyncValue.loading(),
+      this.products = const AsyncValue.loading(),
       this.posts = const AsyncValue.loading(),
       this.reviews = const AsyncValue.loading()});
 
+  @override
+  @JsonKey()
+  final AsyncValue<Farmer> farmerDetail;
   @override
   @JsonKey()
   final AsyncValue<List<Product>> products;
@@ -144,7 +161,7 @@ class _$FarmerDetailStateImpl implements _FarmerDetailState {
 
   @override
   String toString() {
-    return 'FarmerDetailState(products: $products, posts: $posts, reviews: $reviews)';
+    return 'FarmerDetailState(farmerDetail: $farmerDetail, products: $products, posts: $posts, reviews: $reviews)';
   }
 
   @override
@@ -152,6 +169,8 @@ class _$FarmerDetailStateImpl implements _FarmerDetailState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$FarmerDetailStateImpl &&
+            (identical(other.farmerDetail, farmerDetail) ||
+                other.farmerDetail == farmerDetail) &&
             (identical(other.products, products) ||
                 other.products == products) &&
             (identical(other.posts, posts) || other.posts == posts) &&
@@ -159,7 +178,8 @@ class _$FarmerDetailStateImpl implements _FarmerDetailState {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, products, posts, reviews);
+  int get hashCode =>
+      Object.hash(runtimeType, farmerDetail, products, posts, reviews);
 
   /// Create a copy of FarmerDetailState
   /// with the given fields replaced by the non-null parameter values.
@@ -173,10 +193,13 @@ class _$FarmerDetailStateImpl implements _FarmerDetailState {
 
 abstract class _FarmerDetailState implements FarmerDetailState {
   const factory _FarmerDetailState(
-      {final AsyncValue<List<Product>> products,
+      {final AsyncValue<Farmer> farmerDetail,
+      final AsyncValue<List<Product>> products,
       final AsyncValue<List<CommunityPost>> posts,
       final AsyncValue<List<Review>> reviews}) = _$FarmerDetailStateImpl;
 
+  @override
+  AsyncValue<Farmer> get farmerDetail;
   @override
   AsyncValue<List<Product>> get products;
   @override

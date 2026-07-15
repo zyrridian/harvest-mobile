@@ -11,6 +11,7 @@ import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
+import 'package:harvest_app/presentation/shared_widgets/community_post_card.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
 import 'create_recipe_screen.dart';
@@ -119,6 +120,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       setState(() => _selectedTag = cleanTag);
       ref.read(communityControllerProvider.notifier).setTag(cleanTag);
     }
+  }
+
+  String? _getValidImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty || !url.startsWith('http')) return null;
+    return url;
   }
 
   Future<void> _openCreatePost() async {
@@ -611,9 +617,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   Widget _buildPostCard(CommunityPost post, String? currentUserId) {
-    final isMyPost = post.userId == currentUserId;
-
-    return GestureDetector(
+    return CommunityPostCard(
+      post: post,
+      currentUserId: currentUserId,
       onTap: () {
         Navigator.push(
           context,
@@ -621,268 +627,42 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               builder: (context) => CommunityPostDetailScreen(post: post)),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      onProfileTap: () {
+        if (post.farmer != null) {
+          context.push(
+            AppRouter.farmerDetail,
+            extra: Farmer(
+              id: post.farmer!.id,
+              userId: post.userId,
+              name: post.farmer!.name,
+              description: '',
+              latitude: 0,
+              longitude: 0,
+              address: '',
+              rating: 0,
+              totalReviews: 0,
+              totalProducts: 0,
+              specialties: const [],
+              isVerified: true,
+              hasMapFeature: false,
+              joinedDate: DateTime.now(),
+              isOnline: false,
+              profileImage: post.farmer!.profileImage,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            GestureDetector(
-              onTap: () {
-                if (post.farmer != null) {
-                  context.push(
-                    AppRouter.farmerDetail,
-                    extra: Farmer(
-                      id: post.farmer!.id,
-                      userId: post.userId,
-                      name: post.farmer!.name,
-                      description: '',
-                      latitude: 0,
-                      longitude: 0,
-                      address: '',
-                      rating: 0,
-                      totalReviews: 0,
-                      totalProducts: 0,
-                      specialties: const [],
-                      isVerified: true,
-                      hasMapFeature: false,
-                      joinedDate: DateTime.now(),
-                      isOnline: false,
-                      profileImage: post.farmer!.profileImage,
-                    ),
-                  );
-                }
-              },
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey.shade100,
-                    backgroundImage: (post.farmer?.profileImage ??
-                                post.user.avatarUrl) !=
-                            null
-                        ? NetworkImage(
-                            post.farmer?.profileImage ?? post.user.avatarUrl!)
-                        : null,
-                    child: (post.farmer?.profileImage ?? post.user.avatarUrl) ==
-                            null
-                        ? Icon(Icons.person_outline,
-                            color: Colors.grey.shade500)
-                        : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          post.farmer?.name ?? post.user.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Text(
-                          _formatDate(post.createdAt),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (isMyPost)
-                    PopupMenuButton<String>(
-                      icon: PhosphorIcon(PhosphorIconsRegular.dotsThree,
-                          color: Colors.grey.shade600),
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _editPost(post);
-                        } else if (value == 'delete') {
-                          _deletePost(post);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: const [
-                              PhosphorIcon(PhosphorIconsRegular.pencilSimple,
-                                  size: 20),
-                              SizedBox(width: 12),
-                              Text('Edit'),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: const [
-                              PhosphorIcon(PhosphorIconsRegular.trash,
-                                  size: 20, color: Colors.red),
-                              SizedBox(width: 12),
-                              Text('Delete',
-                                  style: TextStyle(color: Colors.red)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    IconButton(
-                      icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree,
-                          color: Colors.transparent),
-                      onPressed: null,
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Title
-            Text(
-              post.title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Content
-            Text(
-              post.content,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.black87,
-                height: 1.5,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // Images
-            if (post.images.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: post.images.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          post.images[index],
-                          width: 150,
-                          height: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 12),
-
-            // Tags
-            if (post.tags.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                children: post.tags
-                    .map((t) => Text(
-                          '#${t.tag}',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ))
-                    .toList(),
-              ),
-
-            const SizedBox(height: 16),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-
-            // Footer actions
-            Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    ref
-                        .read(communityControllerProvider.notifier)
-                        .toggleLike(post.id, post.isLikedByUser);
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        post.isLikedByUser
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        size: 20,
-                        color: post.isLikedByUser
-                            ? const Color(0xFFDC2626)
-                            : Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${post.likesCount}',
-                        style: TextStyle(
-                          color: post.isLikedByUser
-                              ? const Color(0xFFDC2626)
-                              : Colors.grey.shade600,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Row(
-                  children: [
-                    Icon(Icons.chat_bubble_outline,
-                        size: 20, color: Colors.grey.shade600),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${post.commentsCount}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
+      onLikeToggle: () {
+        ref
+            .read(communityControllerProvider.notifier)
+            .toggleLike(post.id, post.isLikedByUser);
+      },
+      onEdit: () {
+        _editPost(post);
+      },
+      onDelete: () {
+        _deletePost(post);
+      },
     );
   }
 }

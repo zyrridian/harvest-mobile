@@ -8,6 +8,7 @@ import '../../../../domain/repositories/farmer_repository.dart';
 import '../../../../domain/usecases/farmers/get_farmers.dart';
 import '../../../../domain/usecases/farmers/get_nearby_farmers.dart';
 import '../../../../domain/usecases/farmers/get_farmer_by_id.dart';
+import '../../../../domain/usecases/farmers/get_farmer_detail_by_id.dart';
 import 'farmers_state.dart';
 
 // Database Provider
@@ -47,6 +48,10 @@ final getNearbyFarmersUseCaseProvider = Provider<GetNearbyFarmers>((ref) {
 
 final getFarmerByIdUseCaseProvider = Provider<GetFarmerById>((ref) {
   return GetFarmerById(ref.watch(farmerRepositoryProvider));
+});
+
+final getFarmerDetailByIdUseCaseProvider = Provider<GetFarmerDetailById>((ref) {
+  return GetFarmerDetailById(ref.watch(farmerRepositoryProvider));
 });
 
 // State Providers for filters

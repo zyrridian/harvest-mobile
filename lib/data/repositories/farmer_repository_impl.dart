@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failure.dart';
 import '../../domain/entities/farmer.dart';
+import '../../domain/entities/farmer_detail.dart';
 import '../../domain/entities/paginated_response.dart';
 import '../../domain/repositories/farmer_repository.dart';
 import '../datasources/local/farmer_local_datasource.dart';
@@ -107,6 +108,24 @@ class FarmerRepositoryImpl implements FarmerRepository {
         // Ignore local cache error, handle the remote error below
       }
 
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerDetail>> getFarmerDetailById(String id) async {
+    try {
+      final remoteFarmerDetail = await remoteDataSource.getFarmerDetailById(id);
+      return Right(remoteFarmerDetail.toEntity());
+    } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
       } else if (e is NetworkException) {

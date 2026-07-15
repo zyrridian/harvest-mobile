@@ -45,6 +45,8 @@ class Product extends Equatable {
   final double? farmerLatitude;
   final double? farmerLongitude;
   final bool isWithinRadius; // Whether farmer is within user's preferred radius
+  
+  final bool isFavorite;
 
   const Product({
     required this.id,
@@ -84,7 +86,84 @@ class Product extends Equatable {
     this.farmerLatitude,
     this.farmerLongitude,
     this.isWithinRadius = false,
+    this.isFavorite = false,
   });
+
+  Product copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? category,
+    double? price,
+    String? unit,
+    String? imageUrl,
+    List<String>? images,
+    bool? isOrganic,
+    bool? isAvailable,
+    int? stock,
+    double? discount,
+    double? rating,
+    int? reviewCount,
+    String? farmerId,
+    String? farmerName,
+    String? farmerProfileImage,
+    double? farmerDistance,
+    DateTime? harvestDate,
+    List<String>? tags,
+    DateTime? createdAt,
+    ProductType? productType,
+    bool? isPerishable,
+    int? shelfLifeDays,
+    DateTime? bestBeforeDate,
+    FreshnessLevel? freshnessLevel,
+    bool? acceptsPreOrder,
+    DateTime? nextHarvestDate,
+    int? preOrderAvailableQty,
+    double? preOrderPrice,
+    String? harvestScheduleId,
+    double? farmerLatitude,
+    double? farmerLongitude,
+    bool? isWithinRadius,
+    bool? isFavorite,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      price: price ?? this.price,
+      unit: unit ?? this.unit,
+      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
+      isOrganic: isOrganic ?? this.isOrganic,
+      isAvailable: isAvailable ?? this.isAvailable,
+      stock: stock ?? this.stock,
+      discount: discount ?? this.discount,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      farmerId: farmerId ?? this.farmerId,
+      farmerName: farmerName ?? this.farmerName,
+      farmerProfileImage: farmerProfileImage ?? this.farmerProfileImage,
+      farmerDistance: farmerDistance ?? this.farmerDistance,
+      harvestDate: harvestDate ?? this.harvestDate,
+      tags: tags ?? this.tags,
+      createdAt: createdAt ?? this.createdAt,
+      productType: productType ?? this.productType,
+      isPerishable: isPerishable ?? this.isPerishable,
+      shelfLifeDays: shelfLifeDays ?? this.shelfLifeDays,
+      bestBeforeDate: bestBeforeDate ?? this.bestBeforeDate,
+      freshnessLevel: freshnessLevel ?? this.freshnessLevel,
+      acceptsPreOrder: acceptsPreOrder ?? this.acceptsPreOrder,
+      nextHarvestDate: nextHarvestDate ?? this.nextHarvestDate,
+      preOrderAvailableQty: preOrderAvailableQty ?? this.preOrderAvailableQty,
+      preOrderPrice: preOrderPrice ?? this.preOrderPrice,
+      harvestScheduleId: harvestScheduleId ?? this.harvestScheduleId,
+      farmerLatitude: farmerLatitude ?? this.farmerLatitude,
+      farmerLongitude: farmerLongitude ?? this.farmerLongitude,
+      isWithinRadius: isWithinRadius ?? this.isWithinRadius,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 
   double get finalPrice {
     if (discount != null && discount! > 0) {
@@ -171,5 +250,6 @@ class Product extends Equatable {
         farmerLatitude,
         farmerLongitude,
         isWithinRadius,
+        isFavorite,
       ];
 }

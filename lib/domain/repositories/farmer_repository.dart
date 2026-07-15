@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failure.dart';
 import '../entities/farmer.dart';
+import '../entities/farmer_detail.dart';
 import '../entities/paginated_response.dart';
 
 abstract class FarmerRepository {
@@ -18,6 +19,8 @@ abstract class FarmerRepository {
   });
 
   Future<Either<Failure, Farmer>> getFarmerById(String id);
+
+  Future<Either<Failure, FarmerDetail>> getFarmerDetailById(String id);
 
   Future<Either<Failure, PaginatedResponse<Farmer>>> getNearbyFarmers({
     required double latitude,
