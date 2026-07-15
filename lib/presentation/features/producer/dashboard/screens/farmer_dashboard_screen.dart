@@ -62,6 +62,8 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _buildActiveDropPointCard(context),
+                const SizedBox(height: 16),
+                _buildSourcingRequestsBanner(context),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Urgent Orders', 'View all'),
                 const SizedBox(height: 16),
@@ -377,6 +379,63 @@ class FarmerDashboardScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSourcingRequestsBanner(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push(AppRouter.farmerSourcingRequests),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: kAccentOrange,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: kAccentOrange.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(PhosphorIconsFill.speakerHigh, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Open Bulk Requests',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Find buyers looking for large quantities and place your bids.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+          ],
+        ),
       ),
     );
   }

@@ -597,74 +597,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildRequestGoodsBanner() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: kDarkGreen,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: kDarkGreen.withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () {
+        context.push(AppRouter.createSourcingRequest);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: kDarkGreen,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: kDarkGreen.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.campaign_rounded,
+                      color: Colors.white, size: 20),
                 ),
-                child: const Icon(Icons.campaign_rounded,
-                    color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Broadcast a Bulk Request',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Broadcast a Bulk Request',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Can\'t find what you need? Request specific goods in bulk directly from our farmers network.',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white70,
-              height: 1.4,
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            width: double.infinity,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              'Request Goods Now',
+            const SizedBox(height: 12),
+            const Text(
+              'Can\'t find what you need? Request specific goods in bulk directly from our farmers network.',
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: kDarkGreen,
+                fontSize: 13,
+                color: Colors.white70,
+                height: 1.4,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              width: double.infinity,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Text(
+                'Request Goods Now',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: kDarkGreen,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

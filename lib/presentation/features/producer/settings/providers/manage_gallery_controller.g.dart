@@ -7,7 +7,7 @@ part of 'manage_gallery_controller.dart';
 // **************************************************************************
 
 String _$manageGalleryControllerHash() =>
-    r'48233673aed5305780f528e6ee12033a8c6c89ce';
+    r'e5c55056317c0842391e37a3b97eca8fc690b551';
 
 /// See also [ManageGalleryController].
 @ProviderFor(ManageGalleryController)

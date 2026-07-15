@@ -37,6 +37,9 @@ import '../../../features/sales/presentation/screens/orders/order_success_screen
 import '../../../features/community/presentation/screens/chat_screen.dart';
 import '../../../features/community/presentation/screens/image_viewer_screen.dart';
 import '../../../features/storefront/presentation/screens/marketplace_screen.dart';
+import '../../../features/sourcing/presentation/screens/farmer_sourcing_requests_screen.dart';
+import '../../../features/sourcing/presentation/screens/buyer_sourcing_requests_screen.dart';
+import '../../../features/sourcing/presentation/screens/create_sourcing_request_screen.dart';
 import '../../../features/storefront/presentation/screens/category_products_screen.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../features/preorders/presentation/screens/preorder_screen.dart';
@@ -96,6 +99,9 @@ class AppRouter {
   static const String conversations = '/conversations';
   static const String chat = '/chat';
   static const String imageViewer = '/image-viewer';
+  static const String farmerSourcingRequests = '/farmer-sourcing-requests';
+  static const String buyerSourcingRequests = '/buyer-sourcing-requests';
+  static const String createSourcingRequest = '/create-sourcing-request';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -387,6 +393,18 @@ class AppRouter {
             isLocal: extra['isLocal'] as bool? ?? false,
           );
         },
+      ),
+      GoRoute(
+        path: farmerSourcingRequests,
+        builder: (context, state) => const FarmerSourcingRequestsScreen(),
+      ),
+      GoRoute(
+        path: buyerSourcingRequests,
+        builder: (context, state) => const BuyerSourcingRequestsScreen(),
+      ),
+      GoRoute(
+        path: createSourcingRequest,
+        builder: (context, state) => const CreateSourcingRequestScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
