@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/sourcing_offer.dart';
+import 'sourcing_request_model.dart';
 
 part 'sourcing_offer_model.freezed.dart';
 part 'sourcing_offer_model.g.dart';
@@ -39,6 +40,7 @@ class SourcingOfferModel with _$SourcingOfferModel {
     required String status,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     SourcingOfferFarmerModel? farmer,
+    SourcingRequestModel? request,
   }) = _SourcingOfferModel;
 
   factory SourcingOfferModel.fromJson(Map<String, dynamic> json) =>
@@ -54,6 +56,7 @@ extension SourcingOfferModelX on SourcingOfferModel {
       status: status,
       createdAt: createdAt,
       farmer: farmer?.toEntity(),
+      request: request?.toEntity(),
     );
   }
 }

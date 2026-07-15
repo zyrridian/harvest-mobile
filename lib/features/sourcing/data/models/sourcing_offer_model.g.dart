@@ -38,6 +38,10 @@ _$SourcingOfferModelImpl _$$SourcingOfferModelImplFromJson(
           ? null
           : SourcingOfferFarmerModel.fromJson(
               json['farmer'] as Map<String, dynamic>),
+      request: json['request'] == null
+          ? null
+          : SourcingRequestModel.fromJson(
+              json['request'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$SourcingOfferModelImplToJson(
@@ -49,4 +53,5 @@ Map<String, dynamic> _$$SourcingOfferModelImplToJson(
       'status': instance.status,
       'created_at': instance.createdAt.toIso8601String(),
       'farmer': instance.farmer,
+      'request': instance.request,
     };

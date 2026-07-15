@@ -276,6 +276,7 @@ mixin _$SourcingOfferModel {
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   SourcingOfferFarmerModel? get farmer => throw _privateConstructorUsedError;
+  SourcingRequestModel? get request => throw _privateConstructorUsedError;
 
   /// Serializes this SourcingOfferModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -299,9 +300,11 @@ abstract class $SourcingOfferModelCopyWith<$Res> {
       String? notes,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
-      SourcingOfferFarmerModel? farmer});
+      SourcingOfferFarmerModel? farmer,
+      SourcingRequestModel? request});
 
   $SourcingOfferFarmerModelCopyWith<$Res>? get farmer;
+  $SourcingRequestModelCopyWith<$Res>? get request;
 }
 
 /// @nodoc
@@ -325,6 +328,7 @@ class _$SourcingOfferModelCopyWithImpl<$Res, $Val extends SourcingOfferModel>
     Object? status = null,
     Object? createdAt = null,
     Object? farmer = freezed,
+    Object? request = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -351,6 +355,10 @@ class _$SourcingOfferModelCopyWithImpl<$Res, $Val extends SourcingOfferModel>
           ? _value.farmer
           : farmer // ignore: cast_nullable_to_non_nullable
               as SourcingOfferFarmerModel?,
+      request: freezed == request
+          ? _value.request
+          : request // ignore: cast_nullable_to_non_nullable
+              as SourcingRequestModel?,
     ) as $Val);
   }
 
@@ -365,6 +373,20 @@ class _$SourcingOfferModelCopyWithImpl<$Res, $Val extends SourcingOfferModel>
 
     return $SourcingOfferFarmerModelCopyWith<$Res>(_value.farmer!, (value) {
       return _then(_value.copyWith(farmer: value) as $Val);
+    });
+  }
+
+  /// Create a copy of SourcingOfferModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $SourcingRequestModelCopyWith<$Res>? get request {
+    if (_value.request == null) {
+      return null;
+    }
+
+    return $SourcingRequestModelCopyWith<$Res>(_value.request!, (value) {
+      return _then(_value.copyWith(request: value) as $Val);
     });
   }
 }
@@ -383,10 +405,13 @@ abstract class _$$SourcingOfferModelImplCopyWith<$Res>
       String? notes,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
-      SourcingOfferFarmerModel? farmer});
+      SourcingOfferFarmerModel? farmer,
+      SourcingRequestModel? request});
 
   @override
   $SourcingOfferFarmerModelCopyWith<$Res>? get farmer;
+  @override
+  $SourcingRequestModelCopyWith<$Res>? get request;
 }
 
 /// @nodoc
@@ -408,6 +433,7 @@ class __$$SourcingOfferModelImplCopyWithImpl<$Res>
     Object? status = null,
     Object? createdAt = null,
     Object? farmer = freezed,
+    Object? request = freezed,
   }) {
     return _then(_$SourcingOfferModelImpl(
       id: null == id
@@ -434,6 +460,10 @@ class __$$SourcingOfferModelImplCopyWithImpl<$Res>
           ? _value.farmer
           : farmer // ignore: cast_nullable_to_non_nullable
               as SourcingOfferFarmerModel?,
+      request: freezed == request
+          ? _value.request
+          : request // ignore: cast_nullable_to_non_nullable
+              as SourcingRequestModel?,
     ));
   }
 }
@@ -447,7 +477,8 @@ class _$SourcingOfferModelImpl implements _SourcingOfferModel {
       this.notes,
       required this.status,
       @JsonKey(name: 'created_at') required this.createdAt,
-      this.farmer});
+      this.farmer,
+      this.request});
 
   factory _$SourcingOfferModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$SourcingOfferModelImplFromJson(json);
@@ -465,10 +496,12 @@ class _$SourcingOfferModelImpl implements _SourcingOfferModel {
   final DateTime createdAt;
   @override
   final SourcingOfferFarmerModel? farmer;
+  @override
+  final SourcingRequestModel? request;
 
   @override
   String toString() {
-    return 'SourcingOfferModel(id: $id, price: $price, notes: $notes, status: $status, createdAt: $createdAt, farmer: $farmer)';
+    return 'SourcingOfferModel(id: $id, price: $price, notes: $notes, status: $status, createdAt: $createdAt, farmer: $farmer, request: $request)';
   }
 
   @override
@@ -482,13 +515,14 @@ class _$SourcingOfferModelImpl implements _SourcingOfferModel {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
-            (identical(other.farmer, farmer) || other.farmer == farmer));
+            (identical(other.farmer, farmer) || other.farmer == farmer) &&
+            (identical(other.request, request) || other.request == request));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, price, notes, status, createdAt, farmer);
+  int get hashCode => Object.hash(
+      runtimeType, id, price, notes, status, createdAt, farmer, request);
 
   /// Create a copy of SourcingOfferModel
   /// with the given fields replaced by the non-null parameter values.
@@ -514,7 +548,8 @@ abstract class _SourcingOfferModel implements SourcingOfferModel {
       final String? notes,
       required final String status,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
-      final SourcingOfferFarmerModel? farmer}) = _$SourcingOfferModelImpl;
+      final SourcingOfferFarmerModel? farmer,
+      final SourcingRequestModel? request}) = _$SourcingOfferModelImpl;
 
   factory _SourcingOfferModel.fromJson(Map<String, dynamic> json) =
       _$SourcingOfferModelImpl.fromJson;
@@ -532,6 +567,8 @@ abstract class _SourcingOfferModel implements SourcingOfferModel {
   DateTime get createdAt;
   @override
   SourcingOfferFarmerModel? get farmer;
+  @override
+  SourcingRequestModel? get request;
 
   /// Create a copy of SourcingOfferModel
   /// with the given fields replaced by the non-null parameter values.

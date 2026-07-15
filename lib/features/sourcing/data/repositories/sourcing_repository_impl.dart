@@ -123,4 +123,58 @@ class SourcingRepositoryImpl implements SourcingRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, PaginatedResponse<SourcingOffer>>> getMySourcingOffers({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final remoteResponse = await remoteDataSource.getMySourcingOffers(
+        page: page,
+        limit: limit,
+      );
+      return Right(remoteResponse.toEntity((model) => model.toEntity()));
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> acceptSourcingOffer(String offerId) async {
+    try {
+      final result = await remoteDataSource.acceptSourcingOffer(offerId);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> cancelSourcingRequest(String requestId) async {
+    try {
+      await remoteDataSource.cancelSourcingRequest(requestId);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
 }

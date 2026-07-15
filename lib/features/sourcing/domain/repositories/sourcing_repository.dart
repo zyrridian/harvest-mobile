@@ -29,4 +29,13 @@ abstract class SourcingRepository {
     required double price,
     String? notes,
   });
+
+  Future<Either<Failure, PaginatedResponse<SourcingOffer>>> getMySourcingOffers({
+    int page = 1,
+    int limit = 10,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> acceptSourcingOffer(String offerId);
+
+  Future<Either<Failure, void>> cancelSourcingRequest(String requestId);
 }

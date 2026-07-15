@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
+import 'package:harvest_app/features/sourcing/domain/entities/sourcing_request.dart';
 import '../../../main.dart';
 import 'package:harvest_app/features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../../features/auth/presentation/screens/login_screen.dart';
@@ -40,6 +41,8 @@ import '../../../features/storefront/presentation/screens/marketplace_screen.dar
 import '../../../features/sourcing/presentation/screens/farmer_sourcing_requests_screen.dart';
 import '../../../features/sourcing/presentation/screens/buyer_sourcing_requests_screen.dart';
 import '../../../features/sourcing/presentation/screens/create_sourcing_request_screen.dart';
+import '../../../features/sourcing/presentation/screens/farmer_sourcing_offers_screen.dart';
+import '../../../features/sourcing/presentation/screens/buyer_request_details_screen.dart';
 import '../../../features/storefront/presentation/screens/category_products_screen.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../features/preorders/presentation/screens/preorder_screen.dart';
@@ -102,6 +105,8 @@ class AppRouter {
   static const String farmerSourcingRequests = '/farmer-sourcing-requests';
   static const String buyerSourcingRequests = '/buyer-sourcing-requests';
   static const String createSourcingRequest = '/create-sourcing-request';
+  static const String farmerSourcingOffers = '/farmer-sourcing-offers';
+  static const String buyerRequestDetails = '/buyer-request-details';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -405,6 +410,17 @@ class AppRouter {
       GoRoute(
         path: createSourcingRequest,
         builder: (context, state) => const CreateSourcingRequestScreen(),
+      ),
+      GoRoute(
+        path: farmerSourcingOffers,
+        builder: (context, state) => const FarmerSourcingOffersScreen(),
+      ),
+      GoRoute(
+        path: buyerRequestDetails,
+        builder: (context, state) {
+          final req = state.extra as SourcingRequest;
+          return BuyerRequestDetailsScreen(request: req);
+        }
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

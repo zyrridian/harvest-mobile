@@ -64,7 +64,19 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 _buildActiveDropPointCard(context),
                 const SizedBox(height: 16),
                 _buildSourcingRequestsBanner(context),
-                const SizedBox(height: 32),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: () => context.push(AppRouter.farmerSourcingOffers),
+                    icon: const Icon(PhosphorIconsRegular.listChecks, color: kDarkGreen, size: 20),
+                    label: const Text(
+                      'View My Submitted Offers',
+                      style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 _buildSectionHeader('Urgent Orders', 'View all'),
                 const SizedBox(height: 16),
                 _buildUrgentOrders(stats.recentOrders),

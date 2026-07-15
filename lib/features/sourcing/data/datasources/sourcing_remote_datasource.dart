@@ -30,6 +30,15 @@ abstract class SourcingRemoteDataSource {
     required double price,
     String? notes,
   });
+
+  Future<PaginatedResponseModel<SourcingOfferModel>> getMySourcingOffers({
+    int page = 1,
+    int limit = 10,
+  });
+
+  Future<Map<String, dynamic>> acceptSourcingOffer(String offerId);
+
+  Future<void> cancelSourcingRequest(String requestId);
 }
 
 class SourcingRemoteDataSourceImpl implements SourcingRemoteDataSource {
@@ -164,6 +173,71 @@ class SourcingRemoteDataSourceImpl implements SourcingRemoteDataSource {
         return SourcingOfferModel.fromJson(response.data['data']);
       } else {
         throw ServerException('Failed to submit offer');
+      }
+    } on DioException catch (e) {
+      throw ServerException(
+          e.response?.data?['message'] ?? e.message,
+          statusCode: e.response?.statusCode);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<PaginatedResponseModel<SourcingOfferModel>> getMySourcingOffers({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/sourcing-offers/me',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      if (response.statusCode == 200) {
+        return PaginatedResponseModel.fromJson(
+          response.data,
+          (json) => SourcingOfferModel.fromJson(json as Map<String, dynamic>),
+        );
+      } else {
+        throw ServerException('Failed to fetch my sourcing offers');
+      }
+    } on DioException catch (e) {
+      throw ServerException(
+          e.response?.data?['message'] ?? e.message,
+          statusCode: e.response?.statusCode);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> acceptSourcingOffer(String offerId) async {
+    try {
+      final response = await dio.patch(
+        '/sourcing-offers/$offerId/accept',
+      );
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      } else {
+        throw ServerException('Failed to accept offer');
+      }
+    } on DioException catch (e) {
+      throw ServerException(
+          e.response?.data?['message'] ?? e.message,
+          statusCode: e.response?.statusCode);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> cancelSourcingRequest(String requestId) async {
+    try {
+      final response = await dio.patch(
+        '/sourcing-requests/$requestId/cancel',
+      );
+      if (response.statusCode != 200) {
+        throw ServerException('Failed to cancel request');
       }
     } on DioException catch (e) {
       throw ServerException(

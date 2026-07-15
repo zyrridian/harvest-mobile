@@ -14,6 +14,9 @@ import '../../domain/usecases/create_sourcing_request.dart';
 import '../../domain/usecases/get_my_sourcing_requests.dart';
 import '../../domain/usecases/get_sourcing_offers.dart';
 import '../../domain/usecases/submit_sourcing_offer.dart';
+import '../../domain/usecases/get_my_sourcing_offers_usecase.dart';
+import '../../domain/usecases/accept_sourcing_offer_usecase.dart';
+import '../../domain/usecases/cancel_sourcing_request_usecase.dart';
 
 // --- Dependency Injection ---
 
@@ -49,6 +52,18 @@ final submitSourcingOfferProvider = Provider<SubmitSourcingOffer>((ref) {
   return SubmitSourcingOffer(ref.watch(sourcingRepositoryProvider));
 });
 
+final getMySourcingOffersProvider = Provider<GetMySourcingOffersUseCase>((ref) {
+  return GetMySourcingOffersUseCase(ref.watch(sourcingRepositoryProvider));
+});
+
+final acceptSourcingOfferProvider = Provider<AcceptSourcingOfferUseCase>((ref) {
+  return AcceptSourcingOfferUseCase(ref.watch(sourcingRepositoryProvider));
+});
+
+final cancelSourcingRequestProvider = Provider<CancelSourcingRequestUseCase>((ref) {
+  return CancelSourcingRequestUseCase(ref.watch(sourcingRepositoryProvider));
+});
+
 // --- State Providers ---
 
 final openSourcingRequestsFutureProvider = FutureProvider.family<PaginatedResponse<SourcingRequest>, int>((ref, page) async {
@@ -72,6 +87,15 @@ final mySourcingRequestsFutureProvider = FutureProvider.family<PaginatedResponse
 final sourcingOffersFutureProvider = FutureProvider.family<List<SourcingOffer>, String>((ref, requestId) async {
   final usecase = ref.watch(getSourcingOffersProvider);
   final result = await usecase(requestId);
+  return result.fold(
+    (failure) => throw Exception(failure.message),
+    (data) => data,
+  );
+});
+
+final mySourcingOffersFutureProvider = FutureProvider.family<PaginatedResponse<SourcingOffer>, int>((ref, page) async {
+  final usecase = ref.watch(getMySourcingOffersProvider);
+  final result = await usecase(page: page);
   return result.fold(
     (failure) => throw Exception(failure.message),
     (data) => data,
@@ -129,6 +153,40 @@ class SourcingActionController extends StateNotifier<AsyncValue<void>> {
         state = const AsyncData(null);
         // Invalidate to refresh offers
         ref.invalidate(sourcingOffersFutureProvider);
+        ref.invalidate(openSourcingRequestsFutureProvider);
+      },
+    );
+  }
+
+  Future<String?> acceptOffer(String offerId) async {
+    state = const AsyncLoading();
+    final usecase = ref.read(acceptSourcingOfferProvider);
+    final result = await usecase(offerId);
+    
+    return result.fold(
+      (failure) {
+        state = AsyncError(failure.message, StackTrace.current);
+        return null;
+      },
+      (data) {
+        state = const AsyncData(null);
+        ref.invalidate(mySourcingRequestsFutureProvider);
+        ref.invalidate(sourcingOffersFutureProvider);
+        return data['conversation_id'] as String?;
+      },
+    );
+  }
+
+  Future<void> cancelRequest(String requestId) async {
+    state = const AsyncLoading();
+    final usecase = ref.read(cancelSourcingRequestProvider);
+    final result = await usecase(requestId);
+    
+    result.fold(
+      (failure) => state = AsyncError(failure.message, StackTrace.current),
+      (data) {
+        state = const AsyncData(null);
+        ref.invalidate(mySourcingRequestsFutureProvider);
         ref.invalidate(openSourcingRequestsFutureProvider);
       },
     );

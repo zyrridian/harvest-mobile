@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'sourcing_request.dart';
 
 class SourcingOfferFarmer extends Equatable {
   final String id;
@@ -26,6 +27,7 @@ class SourcingOffer extends Equatable {
   final String status;
   final DateTime createdAt;
   final SourcingOfferFarmer? farmer;
+  final SourcingRequest? request;
 
   const SourcingOffer({
     required this.id,
@@ -34,6 +36,7 @@ class SourcingOffer extends Equatable {
     required this.status,
     required this.createdAt,
     this.farmer,
+    this.request,
   });
 
   @override
@@ -44,5 +47,6 @@ class SourcingOffer extends Equatable {
         status,
         createdAt,
         farmer,
+        request,
       ];
 }
