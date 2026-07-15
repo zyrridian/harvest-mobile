@@ -22,11 +22,11 @@ if (mapsApiKey == null) {
 
 android {
     namespace = "com.example.harvest_app"
-    compileSdk = 36
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        coreLibraryDesugaringEnabled true
+        // coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -48,7 +48,7 @@ android {
         // manifestPlaceholders = [MAPS_API_KEY: mapsApiKey]
         // 2. Use += to ADD your key to the map
         manifestPlaceholders += [MAPS_API_KEY: mapsApiKey]
-        multiDexEnabled true
+        // multiDexEnabled true
     }
 
     buildTypes {

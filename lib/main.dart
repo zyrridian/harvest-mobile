@@ -9,9 +9,8 @@ import 'core/config/theme/app_theme.dart';
 import 'core/providers/db_provider.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/providers/language_provider.dart';
-import 'features/auth/presentation/providers/push_notification_provider.dart';
-
-import 'package:harvest_app/core/services/godeye_push_notification.dart';
+// import 'features/auth/presentation/providers/push_notification_provider.dart';
+// import 'package:harvest_app/core/services/godeye_push_notification.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -21,11 +20,11 @@ void main() async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
 
-  final pushService = PushNotificationService();
-  await pushService.initialize(
-    serverUrl: "https://marketplace.zyrridian.dev",
-    appId: "harvest-mobile",
-  );
+  // final pushService = PushNotificationService();
+  // await pushService.initialize(
+  //   serverUrl: "https://marketplace.zyrridian.dev",
+  //   appId: "harvest-mobile",
+  // );
 
   runApp(
     ProviderScope(
@@ -44,7 +43,7 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(languageProvider);
-    ref.watch(pushNotificationServiceProvider);
+    // ref.watch(pushNotificationServiceProvider);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
