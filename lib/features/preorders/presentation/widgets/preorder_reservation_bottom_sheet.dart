@@ -24,7 +24,7 @@ class PreorderReservationBottomSheet extends ConsumerStatefulWidget {
 
 class _PreorderReservationBottomSheetState
     extends ConsumerState<PreorderReservationBottomSheet> {
-  int _quantity = 1;
+  late int _quantity;
   String _deliveryMethod = 'delivery';
   String? _selectedAddressId;
   bool _isLoading = false;
@@ -33,12 +33,19 @@ class _PreorderReservationBottomSheetState
       NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   @override
+  void initState() {
+    super.initState();
+    _quantity = widget.campaign.minimumOrder ?? 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double price = widget.campaign.price ?? widget.campaign.depositAmount;
     final int remaining =
         (widget.campaign.targetQuantity - widget.campaign.currentReservations)
             .clamp(0, 99999);
     final addressState = ref.watch(addressControllerProvider);
+    final int minOrder = widget.campaign.minimumOrder ?? 1;
 
     return Container(
       padding: EdgeInsets.only(
@@ -71,6 +78,16 @@ class _PreorderReservationBottomSheetState
               )
             ],
           ),
+          if (minOrder > 1) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Minimum order is $minOrder ${widget.campaign.unit ?? 'kg'}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.orange[800],
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
           const SizedBox(height: 16),
           // Quantity selector
           Row(
@@ -85,7 +102,7 @@ class _PreorderReservationBottomSheetState
               Row(
                 children: [
                   IconButton(
-                    onPressed: _quantity > 1
+                    onPressed: _quantity > minOrder
                         ? () {
                             setState(() {
                               _quantity--;

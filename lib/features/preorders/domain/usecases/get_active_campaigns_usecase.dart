@@ -8,7 +8,7 @@ class GetActiveCampaignsUseCase {
 
   GetActiveCampaignsUseCase(this.repository);
 
-  Future<Either<Failure, List<PreorderCampaign>>> call() {
-    return repository.getActiveCampaigns();
+  Future<Either<Failure, List<PreorderCampaign>>> call({String? filter, double? latitude, double? longitude}) {
+    return repository.getActiveCampaigns(filter: filter, latitude: latitude, longitude: longitude);
   }
 }

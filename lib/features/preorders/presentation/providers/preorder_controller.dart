@@ -99,7 +99,7 @@ class PreOrderController extends _$PreOrderController {
     return const PreOrderState.loading();
   }
 
-  Future<void> _fetchData({bool showLoading = true}) async {
+  Future<void> _fetchData({bool showLoading = true, String? filter}) async {
     int currentTabIndex = 0;
     state.maybeWhen(
       data: (data) => currentTabIndex = data.selectedTabIndex,
@@ -112,7 +112,8 @@ class PreOrderController extends _$PreOrderController {
 
     try {
       final campaignUsecase = ref.read(getActiveCampaignsUseCaseProvider);
-      final campaignResult = await campaignUsecase.call();
+      // For a real app you might get latitude and longitude from a location provider.
+      final campaignResult = await campaignUsecase.call(filter: filter);
 
       campaignResult.fold(
         (failure) {
@@ -159,7 +160,12 @@ class PreOrderController extends _$PreOrderController {
     }
   }
 
+  Future<void> loadCampaigns({String? filter}) async {
+    await _fetchData(showLoading: true, filter: filter);
+  }
+
   Future<void> refresh() async {
+    // Determine the current filter from state if possible, or just reload without filter for now
     await _fetchData(showLoading: false);
   }
 

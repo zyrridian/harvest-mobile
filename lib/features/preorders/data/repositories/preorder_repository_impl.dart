@@ -18,9 +18,9 @@ class PreorderRepositoryImpl implements PreorderRepository {
   });
 
   @override
-  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns() async {
+  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns({String? filter, double? latitude, double? longitude}) async {
     try {
-      final campaigns = await remoteDataSource.getActiveCampaigns();
+      final campaigns = await remoteDataSource.getActiveCampaigns(filter: filter, latitude: latitude, longitude: longitude);
       return Right(campaigns);
     } catch (e) {
       if (e is ServerException) {

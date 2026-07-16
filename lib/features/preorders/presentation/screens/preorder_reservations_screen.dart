@@ -142,7 +142,10 @@ class _PreOrderReservationsScreenState
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'You saved 12kg of imperfect produce from going to waste!',
+                                      'You saved ${reservations.fold(0.0, (sum, res) {
+                                        final match = RegExp(r"([\d.]+)").firstMatch(res.quantityStr);
+                                        return sum + (match != null ? (double.tryParse(match.group(1) ?? '0') ?? 0) : 0);
+                                      }).toInt()}kg of imperfect produce from going to waste!',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium

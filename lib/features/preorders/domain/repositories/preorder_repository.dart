@@ -5,7 +5,7 @@ import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreorderRepository {
-  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns();
+  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns({String? filter, double? latitude, double? longitude});
   
   Future<Either<Failure, PreorderCampaign>> getCampaignDetail(String id);
 

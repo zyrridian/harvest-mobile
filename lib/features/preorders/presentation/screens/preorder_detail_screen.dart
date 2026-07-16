@@ -48,7 +48,8 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
               (campaign.targetQuantity - campaign.currentReservations)
                   .clamp(0, 99999);
           final int totalKg = campaign.targetQuantity;
-          final String imageUrl = (campaign.productImage != null && campaign.productImage!.isNotEmpty)
+          final String imageUrl = (campaign.productImage != null &&
+                  campaign.productImage!.isNotEmpty)
               ? campaign.productImage!
               : 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&q=80';
           final bool hasReserved = campaign.hasReserved ?? false;
@@ -97,7 +98,9 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                   color: kDarkGreen),
                               const SizedBox(width: 6),
                               Text(
-                                daysLeft > 0 ? 'Harvests in $daysLeft days' : 'Harvesting Now',
+                                daysLeft > 0
+                                    ? 'Harvests in $daysLeft days'
+                                    : 'Harvesting Now',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -151,9 +154,9 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      daysLeft > 0 
-                                          ? '3 kg reserved. Harvest is expected in $daysLeft days.'
-                                          : '3 kg reserved. Harvesting now.',
+                                      daysLeft > 0
+                                          ? '${campaign.userReservedQuantity ?? 0} kg reserved. Harvest is expected in $daysLeft days.'
+                                          : '${campaign.userReservedQuantity ?? 0} kg reserved. Harvesting now.',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
@@ -211,10 +214,10 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                           color: Color(0xFFD97706)),
                                     ),
                                     const SizedBox(width: 4),
-                                    const Expanded(
+                                    Expanded(
                                       child: Text(
-                                        '3.2 km from you · Harvested within hours of pickup',
-                                        style: TextStyle(
+                                        '${campaign.distance != null ? '${campaign.distance} km from you' : (campaign.location ?? 'Local farm')}', // · Harvested within hours of pickup',
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           color: Color(0xFFD97706),
@@ -317,7 +320,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'These premium tomatoes are grown in nutrient-rich volcanic soil just 3.2 km from your area. By pre-ordering, you lock in the freshest possible produce — picked and delivered within hours of harvest. No cold storage, no long supply chain.',
+                        campaign.description ?? '',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontSize: 14,
                               color: Colors.grey[600],
@@ -342,9 +345,11 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              image: const DecorationImage(
+                              image: DecorationImage(
                                 image: NetworkImage(
-                                    'https://images.unsplash.com/photo-1595878715977-2e8f8df18ea8?w=150&q=80'),
+                                  campaign.profileImage ??
+                                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(campaign.farmerName ?? 'Local Farmer')}&background=1A2F25&color=fff',
+                                ),
                                 fit: BoxFit.cover,
                               ),
                               border: Border.all(
@@ -357,7 +362,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Pak Joko',
+                                  campaign.farmerName ?? 'Local Farmer',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -367,17 +372,17 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                         color: kTextGreen,
                                       ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '3rd generation tomato grower · Bogor',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                ),
+                                // const SizedBox(height: 4),
+                                // Text(
+                                //   '3rd generation tomato grower · Bogor',
+                                //   style: Theme.of(context)
+                                //       .textTheme
+                                //       .bodyMedium
+                                //       ?.copyWith(
+                                //         fontSize: 12,
+                                //         color: Colors.grey[600],
+                                //       ),
+                                // ),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
@@ -387,7 +392,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                         color: kDarkGreen),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '142 successful harvests',
+                                      '${campaign.successfulHarvests ?? 0} successful harvests',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
@@ -415,52 +420,83 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                             ),
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 90,
-                            height: 32,
-                            child: Stack(
-                              children: List.generate(3, (index) {
-                                final images = [
-                                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80',
-                                  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
-                                  'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80',
-                                ];
-                                return Positioned(
-                                  left: index * 24.0,
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: NetworkImage(images[index]),
-                                        fit: BoxFit.cover,
+                      Builder(builder: (context) {
+                        final commRes = campaign.communityReservations ?? [];
+                        final imagesToDisplay = commRes
+                            .map((r) =>
+                                r.profileImage ??
+                                'https://ui-avatars.com/api/?name=${Uri.encodeComponent(r.name)}&background=1A2F25&color=fff')
+                            .take(3)
+                            .toList();
+
+                        String communityText = '';
+                        if (commRes.isEmpty) {
+                          communityText =
+                              'Be the first from your area to reserve this!';
+                        } else {
+                          final names =
+                              commRes.map((e) => e.name).take(2).toList();
+                          int othersCount =
+                              (campaign.totalPeopleReserved ?? 0) -
+                                  names.length;
+                          if (othersCount < 0) othersCount = 0;
+
+                          if (names.length == 1) {
+                            communityText =
+                                '${names[0]}${othersCount > 0 ? ' and $othersCount others' : ''} from your area reserved this.';
+                          } else {
+                            communityText =
+                                '${names[0]}, ${names[1]}${othersCount > 0 ? ', and $othersCount others' : ''} from your area reserved this.';
+                          }
+                        }
+
+                        return Row(
+                          children: [
+                            if (imagesToDisplay.isNotEmpty)
+                              SizedBox(
+                                width:
+                                    ((imagesToDisplay.length - 1) * 24.0 + 32),
+                                height: 32,
+                                child: Stack(
+                                  children: List.generate(
+                                      imagesToDisplay.length, (index) {
+                                    return Positioned(
+                                      left: index * 24.0,
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: NetworkImage(
+                                                imagesToDisplay[index]),
+                                            fit: BoxFit.cover,
+                                          ),
+                                          border: Border.all(
+                                              color: Colors.white, width: 2),
+                                        ),
                                       ),
-                                      border: Border.all(
-                                          color: Colors.white, width: 2),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            if (imagesToDisplay.isNotEmpty)
+                              const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                communityText,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
                                     ),
-                                  ),
-                                );
-                              }),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Budi, Sari, and 14 others from your area reserved this.',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        );
+                      }),
                       const SizedBox(
                           height:
                               120), // Padding to account for the bottom sheet
@@ -543,7 +579,8 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                             context: context,
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
-                            builder: (context) => PreorderReservationBottomSheet(
+                            builder: (context) =>
+                                PreorderReservationBottomSheet(
                               campaign: campaign,
                             ),
                           );
