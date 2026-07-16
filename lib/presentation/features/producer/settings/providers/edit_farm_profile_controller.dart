@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/usecases/producer/update_farm_profile_usecase.dart';
 import 'package:harvest_app/domain/entities/farm_profile_request.dart';
 import 'package:harvest_app/presentation/providers/utility_providers.dart';
-import '../../dashboard/providers/farmer_dashboard_controller.dart';
+import '../../../../../features/farmers/presentation/providers/farmer_dashboard_controller.dart';
 import 'farmer_settings_controller.dart';
 
 part 'edit_farm_profile_controller.g.dart';

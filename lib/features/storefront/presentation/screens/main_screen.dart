@@ -1,45 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:harvest_app/presentation/providers/messaging_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'home_screen.dart';
+import '../../../community/presentation/screens/community_screen.dart';
+import '../../../users/presentation/screens/profile_screen.dart';
+import '../../../explore/presentation/screens/explore_screen.dart';
 
-import '../../dashboard/screens/farmer_dashboard_screen.dart';
-import '../../products/screens/farmer_product_screen.dart';
-import '../../orders/screens/order_tracking_screen.dart';
-import '../../settings/screens/farm_configuration_screen.dart';
-import '../../../../../features/community/presentation/screens/conversations_list_screen.dart';
-import '../../../../../features/community/presentation/providers/chat_socket_providers.dart';
+// Provider to manage which tab is active
+final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
 
-// Provider to manage which tab is active for the farmer
-final farmerBottomNavIndexProvider = StateProvider<int>((ref) => 0);
-
-class FarmerMainScreen extends ConsumerStatefulWidget {
-  const FarmerMainScreen({super.key});
+class MainScreen extends ConsumerWidget {
+  const MainScreen({super.key});
 
   @override
-  ConsumerState<FarmerMainScreen> createState() => _FarmerMainScreenState();
-}
-
-class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Connect to chat socket globally so we receive typing/online events everywhere
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(connectChatSocketProvider).connect();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final currentIndex = ref.watch(farmerBottomNavIndexProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(bottomNavIndexProvider);
 
     final screens = [
-      const FarmerDashboardScreen(),
-      const FarmerProductScreen(),
-      const OrderTrackingScreen(),
-      const ConversationsListScreen(),
-      const FarmConfigurationScreen(),
+      const HomeScreen(),
+      const ExploreScreen(isTab: true), // Explore tab
+      const CommunityScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -47,9 +28,10 @@ class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
         index: currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: _FarmerBottomNav(
+      bottomNavigationBar: _HarvestBottomNav(
         currentIndex: currentIndex,
-        onTap: (i) => ref.read(farmerBottomNavIndexProvider.notifier).state = i,
+        onTap: (i) =>
+            ref.read(bottomNavIndexProvider.notifier).state = i,
       ),
     );
   }
@@ -57,32 +39,17 @@ class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
 
 // ─── Custom Bottom Navigation Bar ────────────────────────────────────────────
 
-class _FarmerBottomNav extends ConsumerWidget {
+class _HarvestBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const _FarmerBottomNav({
+  const _HarvestBottomNav({
     required this.currentIndex,
     required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(newMessageStreamProvider, (_, __) {
-      ref.invalidate(conversationsProvider);
-    });
-    ref.listen(readAckStreamProvider, (_, __) {
-      ref.invalidate(conversationsProvider);
-    });
-
-    final providerParams = (filter: 'all', search: null, page: 1, limit: 20);
-
-    final conversationsAsync = ref.watch(conversationsProvider(providerParams));
-
-    final data = conversationsAsync.valueOrNull;
-    final stats = data?['data']?['stats'] as Map<String, dynamic>?;
-    final int unreadCount = stats?['unread_conversations'] as int? ?? 0;
-
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -103,38 +70,29 @@ class _FarmerBottomNav extends ConsumerWidget {
               _NavItem(
                 index: 0,
                 currentIndex: currentIndex,
-                label: 'Dashboard',
-                activeIcon: PhosphorIconsFill.squaresFour,
-                inactiveIcon: PhosphorIconsRegular.squaresFour,
+                label: 'Home',
+                activeIcon: PhosphorIconsFill.house,
+                inactiveIcon: PhosphorIconsRegular.house,
                 onTap: onTap,
               ),
               _NavItem(
                 index: 1,
                 currentIndex: currentIndex,
-                label: 'Products',
-                activeIcon: PhosphorIconsFill.leaf,
-                inactiveIcon: PhosphorIconsRegular.leaf,
+                label: 'Explore',
+                activeIcon: PhosphorIconsFill.mapPin,
+                inactiveIcon: PhosphorIconsRegular.mapPin,
                 onTap: onTap,
               ),
               _NavItem(
                 index: 2,
                 currentIndex: currentIndex,
-                label: 'Orders',
-                activeIcon: PhosphorIconsFill.receipt,
-                inactiveIcon: PhosphorIconsRegular.receipt,
+                label: 'Community',
+                activeIcon: PhosphorIconsFill.users,
+                inactiveIcon: PhosphorIconsRegular.users,
                 onTap: onTap,
               ),
               _NavItem(
                 index: 3,
-                currentIndex: currentIndex,
-                label: 'Chat',
-                activeIcon: PhosphorIconsFill.chatCircleText,
-                inactiveIcon: PhosphorIconsRegular.chatCircleText,
-                onTap: onTap,
-                showBadge: unreadCount > 0,
-              ),
-              _NavItem(
-                index: 4,
                 currentIndex: currentIndex,
                 label: 'Profile',
                 activeIcon: PhosphorIconsFill.user,
@@ -156,7 +114,6 @@ class _NavItem extends StatelessWidget {
   final IconData activeIcon;
   final IconData inactiveIcon;
   final ValueChanged<int> onTap;
-  final bool showBadge;
 
   const _NavItem({
     required this.index,
@@ -165,13 +122,12 @@ class _NavItem extends StatelessWidget {
     required this.activeIcon,
     required this.inactiveIcon,
     required this.onTap,
-    this.showBadge = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final isActive = currentIndex == index;
-    const activeColor = Color(0xFF1A2F25); // Matching main app theme
+    const activeColor = Color(0xFF1A2F25);
     const inactiveColor = Color(0xFF9CA3AF);
 
     return Expanded(
@@ -199,15 +155,10 @@ class _NavItem extends StatelessWidget {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Badge(
-                  isLabelVisible: showBadge,
-                  backgroundColor: Colors.red,
-                  smallSize: 8,
-                  child: Icon(
-                    isActive ? activeIcon : inactiveIcon,
-                    color: isActive ? activeColor : inactiveColor,
-                    size: 22,
-                  ),
+                child: Icon(
+                  isActive ? activeIcon : inactiveIcon,
+                  color: isActive ? activeColor : inactiveColor,
+                  size: 22,
                 ),
               ),
               const SizedBox(height: 3),
@@ -215,7 +166,8 @@ class _NavItem extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight:
+                      isActive ? FontWeight.w700 : FontWeight.w500,
                   color: isActive ? activeColor : inactiveColor,
                 ),
                 child: Text(label),

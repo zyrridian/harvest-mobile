@@ -4,8 +4,8 @@ import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../../../domain/entities/farmer_stats.dart';
-import '../../../../../domain/entities/farmer_order.dart';
+import '../../../../domain/entities/farmer_stats.dart';
+import '../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_dashboard_controller.dart';
 
 const kBgColor = Color(0xFFFFFFFF);

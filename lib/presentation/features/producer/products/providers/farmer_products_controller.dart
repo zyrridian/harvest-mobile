@@ -6,7 +6,7 @@ import 'package:harvest_app/domain/usecases/producer/create_farmer_product_useca
 import 'package:harvest_app/domain/usecases/producer/update_farmer_product_usecase.dart';
 import 'package:harvest_app/domain/usecases/producer/delete_farmer_product_usecase.dart';
 import 'package:harvest_app/domain/usecases/producer/toggle_farmer_product_availability_usecase.dart';
-import '../../dashboard/providers/farmer_dashboard_controller.dart';
+import '../../../../../features/farmers/presentation/providers/farmer_dashboard_controller.dart';
 import 'farmer_products_state.dart';
 
 part 'farmer_products_controller.g.dart';

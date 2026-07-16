@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/presentation/features/producer/dashboard/providers/farmer_dashboard_controller.dart';
+import 'package:harvest_app/features/farmers/presentation/providers/farmer_dashboard_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/drop_point.dart';
 import 'package:harvest_app/domain/usecases/producer/get_drop_points_usecase.dart';

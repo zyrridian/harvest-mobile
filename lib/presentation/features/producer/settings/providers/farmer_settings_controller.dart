@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/usecases/producer/get_farmer_profile_usecase.dart';
 import 'package:harvest_app/domain/usecases/producer/get_delivery_settings_usecase.dart';
-import '../../dashboard/providers/farmer_dashboard_controller.dart';
+import '../../../../../features/farmers/presentation/providers/farmer_dashboard_controller.dart';
 import 'farmer_settings_state.dart';
 
 part 'farmer_settings_controller.g.dart';
