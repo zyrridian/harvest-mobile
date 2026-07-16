@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,7 +52,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
           final String imageUrl = (campaign.productImage != null &&
                   campaign.productImage!.isNotEmpty)
               ? campaign.productImage!
-              : 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&q=80';
+              : AppConstants.emptyImageUrl;
           final bool hasReserved = campaign.hasReserved ?? false;
 
           return CustomScrollView(
@@ -72,6 +73,25 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                   ),
                   onPressed: () => context.pop(),
                 ),
+                actions: [
+                  IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const PhosphorIcon(
+                          PhosphorIconsRegular.calendarPlus,
+                          color: kDarkGreen,
+                          size: 20),
+                    ),
+                    onPressed: () {
+                      // TODO: Implement add to schedule logic
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
                     fit: StackFit.expand,

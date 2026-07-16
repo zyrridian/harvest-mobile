@@ -22,8 +22,16 @@ class PreOrderScreen extends ConsumerStatefulWidget {
 class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
   final List<Map<String, dynamic>> _filters = [
     {'name': 'All', 'filterValue': 'all', 'icon': null},
-    {'name': 'Near you', 'filterValue': 'near you', 'icon': PhosphorIconsRegular.mapPin},
-    {'name': 'Closing soon', 'filterValue': 'closing soon', 'icon': PhosphorIconsRegular.fire},
+    {
+      'name': 'Near you',
+      'filterValue': 'near you',
+      'icon': PhosphorIconsRegular.mapPin
+    },
+    {
+      'name': 'Closing soon',
+      'filterValue': 'closing soon',
+      'icon': PhosphorIconsRegular.fire
+    },
   ];
   int _selectedFilterIndex = 0;
   bool _isSearchVisible = false;
@@ -36,7 +44,9 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
     });
 
     final filterValue = _filters[index]['filterValue'] as String;
-    await ref.read(preOrderControllerProvider.notifier).loadCampaigns(filter: filterValue);
+    await ref
+        .read(preOrderControllerProvider.notifier)
+        .loadCampaigns(filter: filterValue);
 
     if (mounted) {
       setState(() {

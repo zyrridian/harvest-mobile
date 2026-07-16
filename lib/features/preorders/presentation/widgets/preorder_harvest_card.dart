@@ -75,6 +75,27 @@ class PreOrderHarvestCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: () {
+                      // TODO: Implement add to schedule logic
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const PhosphorIcon(
+                        PhosphorIconsRegular.calendarPlus,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
