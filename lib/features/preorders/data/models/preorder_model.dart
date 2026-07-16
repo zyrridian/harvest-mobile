@@ -60,7 +60,7 @@ class PreOrderHarvestModel {
   final String title;
   @JsonKey(name: 'farmer_name')
   final String farmerName;
-  final String distance;
+  final String? distance;
   @JsonKey(name: 'image_url')
   final String imageUrl;
   final double price;
@@ -72,12 +72,14 @@ class PreOrderHarvestModel {
   @JsonKey(name: 'days_left')
   final int daysLeft;
   final String status;
+  @JsonKey(name: 'total_people_reserved')
+  final int totalPeopleReserved;
 
   PreOrderHarvestModel({
     required this.id,
     required this.title,
     required this.farmerName,
-    required this.distance,
+    this.distance,
     required this.imageUrl,
     required this.price,
     required this.unit,
@@ -85,6 +87,7 @@ class PreOrderHarvestModel {
     required this.totalQuantity,
     required this.daysLeft,
     required this.status,
+    required this.totalPeopleReserved,
   });
 
   factory PreOrderHarvestModel.fromJson(Map<String, dynamic> json) =>
@@ -105,6 +108,7 @@ class PreOrderHarvestModel {
       totalQuantity: totalQuantity,
       daysLeft: daysLeft,
       status: status,
+      totalPeopleReserved: totalPeopleReserved,
     );
   }
 
@@ -121,6 +125,7 @@ class PreOrderHarvestModel {
       totalQuantity: harvest.totalQuantity,
       daysLeft: harvest.daysLeft,
       status: harvest.status,
+      totalPeopleReserved: harvest.totalPeopleReserved,
     );
   }
 }

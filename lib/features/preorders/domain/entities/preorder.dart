@@ -4,7 +4,7 @@ class PreOrderHarvest extends Equatable {
   final String id;
   final String title;
   final String farmerName;
-  final String distance;
+  final String? distance;
   final String imageUrl;
   final double price;
   final String unit;
@@ -12,12 +12,13 @@ class PreOrderHarvest extends Equatable {
   final double totalQuantity;
   final int daysLeft;
   final String status;
+  final int totalPeopleReserved;
 
   const PreOrderHarvest({
     required this.id,
     required this.title,
     required this.farmerName,
-    required this.distance,
+    this.distance,
     required this.imageUrl,
     required this.price,
     required this.unit,
@@ -25,9 +26,11 @@ class PreOrderHarvest extends Equatable {
     required this.totalQuantity,
     required this.daysLeft,
     required this.status,
+    required this.totalPeopleReserved,
   });
 
-  double get progressPercentage => totalQuantity > 0 ? (bookedQuantity / totalQuantity) * 100 : 0;
+  double get progressPercentage =>
+      totalQuantity > 0 ? (bookedQuantity / totalQuantity) * 100 : 0;
   double get remainingQuantity => totalQuantity - bookedQuantity;
 
   @override
@@ -43,6 +46,7 @@ class PreOrderHarvest extends Equatable {
         totalQuantity,
         daysLeft,
         status,
+        totalPeopleReserved,
       ];
 }
 

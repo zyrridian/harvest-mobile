@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/presentation/widgets/preorder_reservation_bottom_sheet.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -96,7 +97,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                   color: kDarkGreen),
                               const SizedBox(width: 6),
                               Text(
-                                'Harvests in $daysLeft days',
+                                daysLeft > 0 ? 'Harvests in $daysLeft days' : 'Harvesting Now',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -150,7 +151,9 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '3 kg reserved. Harvest is expected in $daysLeft days.',
+                                      daysLeft > 0 
+                                          ? '3 kg reserved. Harvest is expected in $daysLeft days.'
+                                          : '3 kg reserved. Harvesting now.',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
@@ -536,7 +539,14 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Show reservation bottom sheet logic
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => PreorderReservationBottomSheet(
+                              campaign: campaign,
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:

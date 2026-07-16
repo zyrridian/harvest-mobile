@@ -45,6 +45,7 @@ PreOrderHarvestModel _$PreOrderHarvestModelFromJson(
       totalQuantity: (json['total_quantity'] as num).toDouble(),
       daysLeft: (json['days_left'] as num).toInt(),
       status: json['status'] as String,
+      totalPeopleReserved: (json['total_people_reserved'] as num).toInt(),
     );
 
 Map<String, dynamic> _$PreOrderHarvestModelToJson(

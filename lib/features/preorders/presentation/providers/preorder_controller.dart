@@ -116,14 +116,17 @@ class PreOrderController extends _$PreOrderController {
               id: c.id,
               title: c.productName ?? 'Unknown Product',
               farmerName: c.farmerName ?? 'Local Farmer',
-              distance: c.distance?.toString() ?? '2.5 km',
-              imageUrl: c.productImage ?? 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&q=80',
+              distance: c.distance?.toString() ?? 'Unknown Distance',
+              imageUrl: (c.productImage != null && c.productImage!.trim().isNotEmpty)
+                  ? c.productImage!
+                  : '',
               price: c.price ?? c.depositAmount,
               unit: c.unit ?? 'kg',
               bookedQuantity: c.currentReservations.toDouble(),
               totalQuantity: c.targetQuantity.toDouble(),
               daysLeft: daysLeft > 0 ? daysLeft : 0,
               status: c.status ?? 'Active',
+              totalPeopleReserved: c.totalPeopleReserved ?? 0,
             );
           }).toList();
 
@@ -184,6 +187,7 @@ class PreOrderController extends _$PreOrderController {
               totalQuantity: h.totalQuantity,
               daysLeft: h.daysLeft,
               status: h.status,
+              totalPeopleReserved: h.totalPeopleReserved,
             );
           }
           return h;

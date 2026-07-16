@@ -22,6 +22,7 @@ class PreorderCampaignModel extends PreorderCampaign {
     super.location,
     super.images,
     super.reservations,
+    super.totalPeopleReserved,
   });
 
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
@@ -81,6 +82,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       location: json['location'],
       images: imagesList,
       reservations: reservationsList,
+      totalPeopleReserved: json['totalPeopleReserved'],
     );
   }
 
@@ -102,6 +104,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       'distance': distance,
       'location': location,
       if (images != null) 'images': images,
+      if (totalPeopleReserved != null) 'totalPeopleReserved': totalPeopleReserved,
     };
   }
 }

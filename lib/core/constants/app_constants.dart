@@ -1,6 +1,7 @@
 class AppConstants {
   // Image Placeholders
   static const String placeholderImage = 'https://picsum.photos/400/400';
+  static const String emptyImageUrl = 'https://blocks.astratic.com/img/general-img-landscape.png';
 
   // API Configuration
   // TODO: Update this to your actual API URL
