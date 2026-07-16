@@ -14,6 +14,8 @@ import 'package:harvest_app/features/preorders/domain/usecases/reserve_preorder_
 import 'package:harvest_app/features/preorders/domain/usecases/get_active_campaigns_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/get_preorder_campaign_detail_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/get_my_reservations_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/delete_preorder_campaign_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/update_preorder_campaign_status_usecase.dart';
 import 'preorder_state.dart';
 
 part 'preorder_controller.g.dart';
@@ -70,6 +72,14 @@ final preorderDetailProvider = FutureProvider.family<PreorderCampaign, String>((
 
 final getMyReservationsUseCaseProvider = Provider<GetMyReservationsUseCase>((ref) {
   return GetMyReservationsUseCase(ref.watch(preOrderRepositoryProvider));
+});
+
+final deletePreorderCampaignUseCaseProvider = Provider<DeletePreorderCampaignUseCase>((ref) {
+  return DeletePreorderCampaignUseCase(ref.watch(preOrderRepositoryProvider));
+});
+
+final updatePreorderCampaignStatusUseCaseProvider = Provider<UpdatePreorderCampaignStatusUseCase>((ref) {
+  return UpdatePreorderCampaignStatusUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
 final myReservationsProvider = FutureProvider.autoDispose<List<PreOrderReservation>>((ref) async {
@@ -257,6 +267,24 @@ class PreOrderController extends _$PreOrderController {
   Future<bool> updateCampaign(String id, CreatePreorderCampaignParams params) async {
     final repository = ref.read(preOrderRepositoryProvider);
     final result = await repository.updateCampaign(id, params);
+    return result.fold(
+      (failure) => false,
+      (campaign) => true,
+    );
+  }
+
+  Future<bool> deleteCampaign(String id) async {
+    final usecase = ref.read(deletePreorderCampaignUseCaseProvider);
+    final result = await usecase.call(id);
+    return result.fold(
+      (failure) => false,
+      (_) => true,
+    );
+  }
+
+  Future<bool> updateCampaignStatus(String id, String status) async {
+    final usecase = ref.read(updatePreorderCampaignStatusUseCaseProvider);
+    final result = await usecase.call(id, status);
     return result.fold(
       (failure) => false,
       (campaign) => true,

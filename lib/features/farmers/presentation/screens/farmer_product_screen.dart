@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farmer_product.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
@@ -204,7 +205,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
         onPressed: () => _showAddOptions(context),
         backgroundColor: kDarkGreen,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child:
+            const PhosphorIcon(PhosphorIconsRegular.plus, color: Colors.white),
       ),
     );
   }
@@ -311,7 +313,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
             color: Colors.red,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: const PhosphorIcon(PhosphorIconsRegular.trash,
+              color: Colors.white),
         ),
         confirmDismiss: (direction) async {
           return await showDialog(
@@ -477,45 +480,51 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
             data: (campaigns) {
               if (campaigns.isEmpty) {
                 return SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(PhosphorIconsRegular.calendarBlank,
-                            size: 48, color: kTextGrey),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No pre-order campaigns yet',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: kDarkGreen,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(PhosphorIconsRegular.calendarBlank,
+                              size: 48, color: kTextGrey),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No pre-order campaigns yet',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kDarkGreen,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Create one to start selling before harvest',
-                          style: TextStyle(color: kTextGrey),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const CreatePreorderCampaignScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.add),
-                          label: const Text('New Campaign'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kAccentOrange,
-                            foregroundColor: Colors.white,
+                          const SizedBox(height: 8),
+                          Text(
+                            'Create one to start selling before harvest',
+                            style: TextStyle(color: kTextGrey),
                           ),
-                        )
-                      ],
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CreatePreorderCampaignScreen(),
+                                ),
+                              );
+                            },
+                            icon: const PhosphorIcon(
+                              PhosphorIconsRegular.plus,
+                              color: AppColors.white,
+                            ),
+                            label: const Text('New Campaign'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -605,20 +614,155 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  (campaign.status ?? 'Unknown').toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: kDarkGreen,
+                              PopupMenuButton<String>(
+                                onSelected: (String result) async {
+                                  if (result == 'delete') {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Delete Campaign'),
+                                        content: const Text(
+                                            'Are you sure you want to delete this campaign? This action cannot be undone.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: const Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: const Text('Delete',
+                                                style: TextStyle(
+                                                    color: Colors.red)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content:
+                                                Text('Deleting campaign...')),
+                                      );
+                                      final success = await ref
+                                          .read(preOrderControllerProvider
+                                              .notifier)
+                                          .deleteCampaign(campaign.id);
+                                      if (success && mounted) {
+                                        ref
+                                            .read(
+                                                farmerCampaignsControllerProvider
+                                                    .notifier)
+                                            .refresh();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content:
+                                                  Text('Campaign deleted')),
+                                        );
+                                      }
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Updating status to $result...')),
+                                    );
+                                    final success = await ref
+                                        .read(
+                                            preOrderControllerProvider.notifier)
+                                        .updateCampaignStatus(
+                                            campaign.id, result);
+                                    if (success && mounted) {
+                                      ref
+                                          .read(
+                                              farmerCampaignsControllerProvider
+                                                  .notifier)
+                                          .refresh();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Status updated to $result')),
+                                      );
+                                    }
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) =>
+                                    <PopupMenuEntry<String>>[
+                                  const PopupMenuItem<String>(
+                                    value: 'DRAFT',
+                                    child: Text('Draft'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'ACTIVE',
+                                    child: Text('Active'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'FULLY_BOOKED',
+                                    child: Text('Fully Booked'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'PLANTED',
+                                    child: Text('Planted'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'GROWING',
+                                    child: Text('Growing'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'HARVESTING',
+                                    child: Text('Harvesting'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'READY',
+                                    child: Text('Ready'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'COMPLETED',
+                                    child: Text('Completed'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'CANCELLED',
+                                    child: Text('Cancelled'),
+                                  ),
+                                  const PopupMenuDivider(),
+                                  const PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Text('Delete Campaign',
+                                        style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        (campaign.status ?? 'Unknown')
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: kDarkGreen,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const PhosphorIcon(
+                                          PhosphorIconsRegular.caretDown,
+                                          size: 14,
+                                          color: kDarkGreen),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -707,67 +851,6 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                     ),
                     Row(
                       children: [
-                        if (campaign.status == 'ACTIVE') ...[
-                          GestureDetector(
-                            onTap: () async {
-                              final params = CreatePreorderCampaignParams(
-                                title: campaign.productName ?? '',
-                                description: campaign.description ?? '',
-                                unit: campaign.unit ?? '',
-                                pricePerUnit: campaign.price ?? 0,
-                                targetQuantity: campaign.targetQuantity,
-                                estimatedHarvestDate:
-                                    campaign.estimatedHarvestDate,
-                                minimumOrderQuantity: 1,
-                                depositPercentage:
-                                    campaign.depositAmount.toInt(),
-                                status: 'READY_FOR_PICKUP',
-                                images: campaign.images ??
-                                    (campaign.productImage != null
-                                        ? [campaign.productImage!]
-                                        : []),
-                              );
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Marking as Ready for Pickup...')),
-                              );
-
-                              final success = await ref
-                                  .read(preOrderControllerProvider.notifier)
-                                  .updateCampaign(campaign.id, params);
-
-                              if (success && mounted) {
-                                ref
-                                    .read(farmerCampaignsControllerProvider
-                                        .notifier)
-                                    .refresh();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Campaign marked as Ready for Pickup!')),
-                                );
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Icon(PhosphorIconsRegular.checkCircle,
-                                    size: 14, color: kDarkGreen),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Mark Ready',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: kDarkGreen,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                        ],
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -845,7 +928,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: kDarkGreen),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.x,
+                        color: kDarkGreen),
                   ),
                 ],
               ),
@@ -898,7 +982,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
             const Divider(height: 1, color: kBorderColor),
             if (campaign.status != 'COMPLETED')
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -916,7 +1001,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Confirm', style: TextStyle(color: kDarkGreen)),
+                              child: const Text('Confirm',
+                                  style: TextStyle(color: kDarkGreen)),
                             ),
                           ],
                         ),
@@ -925,19 +1011,23 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                       if (confirm == true) {
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Starting fulfillment...')),
+                          const SnackBar(
+                              content: Text('Starting fulfillment...')),
                         );
                         final success = await ref
                             .read(preOrderControllerProvider.notifier)
                             .fulfillCampaign(campaign.id);
-                        
+
                         if (!context.mounted) return;
                         if (success) {
-                          ref.read(farmerCampaignsControllerProvider.notifier).refresh();
+                          ref
+                              .read(farmerCampaignsControllerProvider.notifier)
+                              .refresh();
                           Navigator.pop(context); // Close sheet
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Fulfillment started! Check your Orders tab.'),
+                              content: Text(
+                                  'Fulfillment started! Check your Orders tab.'),
                               backgroundColor: kDarkGreen,
                             ),
                           );
@@ -1034,21 +1124,29 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                           ),
                                         if (res.fullAddress != null)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 4.0),
+                                            padding:
+                                                const EdgeInsets.only(top: 4.0),
                                             child: InkWell(
                                               onTap: () async {
-                                                if (res.latitude != null && res.longitude != null) {
-                                                  final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${res.latitude},${res.longitude}');
+                                                if (res.latitude != null &&
+                                                    res.longitude != null) {
+                                                  final url = Uri.parse(
+                                                      'https://www.google.com/maps/search/?api=1&query=${res.latitude},${res.longitude}');
                                                   if (await canLaunchUrl(url)) {
                                                     await launchUrl(url);
                                                   }
                                                 }
                                               },
                                               child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   if (res.latitude != null)
-                                                    const Icon(PhosphorIconsRegular.mapPin, size: 14, color: kAccentOrange),
+                                                    const Icon(
+                                                        PhosphorIconsRegular
+                                                            .mapPin,
+                                                        size: 14,
+                                                        color: kAccentOrange),
                                                   if (res.latitude != null)
                                                     const SizedBox(width: 4),
                                                   Expanded(
@@ -1056,11 +1154,19 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                                                       res.fullAddress!,
                                                       style: TextStyle(
                                                         fontSize: 13,
-                                                        color: res.latitude != null ? kDarkGreen : kTextGrey,
-                                                        decoration: res.latitude != null ? TextDecoration.underline : null,
+                                                        color:
+                                                            res.latitude != null
+                                                                ? kDarkGreen
+                                                                : kTextGrey,
+                                                        decoration:
+                                                            res.latitude != null
+                                                                ? TextDecoration
+                                                                    .underline
+                                                                : null,
                                                       ),
                                                       maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ],

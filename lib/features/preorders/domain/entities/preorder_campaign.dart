@@ -22,6 +22,7 @@ class PreorderCampaign extends Equatable {
   final List<String>? images;
   final List<PreorderReservationInfo>? reservations;
   final int? totalPeopleReserved;
+  final String? category;
 
   const PreorderCampaign({
     required this.id,
@@ -45,6 +46,7 @@ class PreorderCampaign extends Equatable {
     this.images,
     this.reservations,
     this.totalPeopleReserved,
+    this.category,
   });
 
   @override
@@ -70,6 +72,7 @@ class PreorderCampaign extends Equatable {
         images,
         reservations,
         totalPeopleReserved,
+        category,
       ];
 }
 

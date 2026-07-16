@@ -8,6 +8,9 @@ import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
+import 'package:harvest_app/features/catalog/domain/entities/category.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
+import 'package:harvest_app/features/farmers/presentation/providers/unit_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Colors.white;
@@ -29,11 +32,13 @@ class _CreatePreorderCampaignScreenState
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _unitController = TextEditingController();
   final _pricePerUnitController = TextEditingController();
   final _targetQuantityController = TextEditingController();
   final _minimumOrderQuantityController = TextEditingController();
   final _depositPercentageController = TextEditingController();
+
+  String? _selectedCategory;
+  String? _selectedUnit;
 
   DateTime? _estimatedHarvestDate;
   List<String> _images = [];
@@ -46,7 +51,8 @@ class _CreatePreorderCampaignScreenState
       final c = widget.campaign!;
       _titleController.text = c.productName ?? '';
       _descriptionController.text = c.description ?? '';
-      _unitController.text = c.unit ?? '';
+      _selectedUnit = c.unit;
+      _selectedCategory = c.category;
       _pricePerUnitController.text = c.price?.toString() ?? '';
       _targetQuantityController.text = c.targetQuantity.toString();
       _minimumOrderQuantityController.text = '1'; // Default as minimum order qty might not be directly in campaign
@@ -64,7 +70,6 @@ class _CreatePreorderCampaignScreenState
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _unitController.dispose();
     _pricePerUnitController.dispose();
     _targetQuantityController.dispose();
     _minimumOrderQuantityController.dispose();
@@ -112,7 +117,7 @@ class _CreatePreorderCampaignScreenState
       final params = CreatePreorderCampaignParams(
         title: _titleController.text,
         description: _descriptionController.text,
-        unit: _unitController.text,
+        unit: _selectedUnit ?? '',
         pricePerUnit: double.tryParse(_pricePerUnitController.text) ?? 0,
         targetQuantity: int.tryParse(_targetQuantityController.text) ?? 0,
         estimatedHarvestDate: _estimatedHarvestDate!,
@@ -121,6 +126,7 @@ class _CreatePreorderCampaignScreenState
         depositPercentage: int.tryParse(_depositPercentageController.text) ?? 0,
         status: widget.campaign?.status ?? "ACTIVE",
         images: finalImages,
+        category: _selectedCategory,
       );
 
       final isEditing = widget.campaign != null;
@@ -340,8 +346,112 @@ class _CreatePreorderCampaignScreenState
     );
   }
 
+  Widget _buildCategoryDropdown(List<Category> categories) {
+    if (categories.isEmpty) {
+      return const Text('No categories available');
+    }
+
+    if (_selectedCategory != null &&
+        !categories.any((c) => c.name == _selectedCategory || c.id == _selectedCategory)) {
+      _selectedCategory = null;
+    }
+
+    return DropdownButtonFormField<String>(
+      value: _selectedCategory,
+      isExpanded: true,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: kInputBg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: kDarkGreen, width: 2),
+        ),
+      ),
+      items: categories.map((Category category) {
+        return DropdownMenuItem(
+          value: category.name,
+          child: Text(
+            category.name,
+            style: TextStyle(color: kDarkGreen),
+          ),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedCategory = newValue;
+          });
+        }
+      },
+      validator: (value) => value == null ? 'Please select a category' : null,
+    );
+  }
+
+  Widget _buildUnitDropdown(List<ProductUnit> units) {
+    if (units.isEmpty) {
+      return const Text('No units available');
+    }
+
+    if (_selectedUnit != null && !units.any((u) => u.value == _selectedUnit)) {
+      _selectedUnit = null;
+    }
+
+    return DropdownButtonFormField<String>(
+      value: _selectedUnit,
+      isExpanded: true,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: kInputBg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: kDarkGreen, width: 2),
+        ),
+      ),
+      items: units.map((ProductUnit unit) {
+        return DropdownMenuItem(
+          value: unit.value,
+          child: Text(
+            unit.label,
+            style: TextStyle(color: kDarkGreen),
+          ),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedUnit = newValue;
+          });
+        }
+      },
+      validator: (value) => value == null ? 'Please select a unit' : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final categoriesAsyncValue = ref.watch(allCategoriesProvider);
+    final unitsAsyncValue = ref.watch(allUnitsProvider);
+    
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
@@ -386,6 +496,13 @@ class _CreatePreorderCampaignScreenState
                   'e.g. Sweet and juicy tomatoes from our next harvest.',
                   maxLines: 3),
               const SizedBox(height: 20),
+              _buildLabel('Category'),
+              categoriesAsyncValue.when(
+                data: (categories) => _buildCategoryDropdown(categories),
+                loading: () => const CircularProgressIndicator(),
+                error: (e, s) => Text('Error loading categories: $e'),
+              ),
+              const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -394,7 +511,11 @@ class _CreatePreorderCampaignScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildLabel('Unit'),
-                        _buildTextField(_unitController, 'e.g. kg'),
+                        unitsAsyncValue.when(
+                          data: (units) => _buildUnitDropdown(units),
+                          loading: () => const CircularProgressIndicator(),
+                          error: (e, s) => Text('Error loading units: $e'),
+                        ),
                       ],
                     ),
                   ),

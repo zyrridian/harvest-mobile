@@ -43,7 +43,6 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
   final _stockController = TextEditingController();
   final _minOrderController = TextEditingController(text: '1');
   final _maxOrderController = TextEditingController(text: '10');
-  final _targetAmountController = TextEditingController();
 
   final _imageUrlController = TextEditingController();
   final _tagController = TextEditingController();
@@ -54,8 +53,6 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
   String? _selectedUnit;
   bool _isOrganic = false;
   bool _isAvailable = true;
-  bool _isHarvest = false;
-  DateTime? _harvestDate;
 
   List<String> _images = [];
   List<String> _tags = [];
@@ -80,7 +77,6 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
     _stockController.dispose();
     _minOrderController.dispose();
     _maxOrderController.dispose();
-    _targetAmountController.dispose();
     _imageUrlController.dispose();
     _tagController.dispose();
     _specKeyController.dispose();
@@ -107,12 +103,9 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
       _stockController.text = product.stock.toString();
       _minOrderController.text = product.minimumOrder.toString();
       _maxOrderController.text = product.maximumOrder.toString();
-      _targetAmountController.text = product.targetAmount?.toString() ?? '';
       _selectedCategory = product.categoryId;
       _isOrganic = product.isOrganic;
       _isAvailable = product.isAvailable;
-      _isHarvest = product.isHarvest;
-      _harvestDate = product.harvestDate;
       _images = product.images.map((e) => e.url).toList();
       _tags = List.from(product.tags);
       _specifications = List.from(product.specifications);
@@ -136,9 +129,9 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
       maximumOrder: int.tryParse(_maxOrderController.text) ?? 10,
       isOrganic: _isOrganic,
       isAvailable: _isAvailable,
-      isHarvest: _isHarvest,
-      targetAmount: double.tryParse(_targetAmountController.text),
-      harvestDate: _harvestDate,
+      isHarvest: false,
+      targetAmount: null,
+      harvestDate: null,
       categoryId: _selectedCategory,
       images: _images
           .asMap()
@@ -316,29 +309,6 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
                         onChanged: (val) => setState(() => _isAvailable = val),
                         activeColor: kDarkGreen,
                       ),
-                      SwitchListTile(
-                        title: const Text(
-                            'Enable Harvest Mode (Pre-order with deposit)'),
-                        value: _isHarvest,
-                        onChanged: (val) => setState(() => _isHarvest = val),
-                        activeColor: kDarkGreen,
-                      ),
-                      if (_isHarvest) ...[
-                        const SizedBox(height: 16),
-                        _buildLabel('Target Harvest Amount (pack) *'),
-                        _buildTextField(_targetAmountController, 'e.g., 500',
-                            isNumber: true),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          child: Text(
-                            'Orders will be capped at this amount. Customers pay 20% deposit.',
-                            style: TextStyle(color: kTextGrey, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildLabel('Harvest Date'),
-                        _buildDatePicker(),
-                      ],
                       const SizedBox(height: 20),
                       _buildTagsInput(),
                       const SizedBox(height: 20),
@@ -369,47 +339,6 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
                   ),
                 ),
               ),
-      ),
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: _harvestDate ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (date != null) {
-          setState(() {
-            _harvestDate = date;
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color: kCardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kBorderColor),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              _harvestDate != null
-                  ? DateFormat('yyyy-MM-dd').format(_harvestDate!)
-                  : 'Select Date',
-              style: TextStyle(
-                  color: _harvestDate != null
-                      ? kDarkGreen
-                      : kTextGrey.withOpacity(0.5)),
-            ),
-            const Icon(PhosphorIconsRegular.calendar, color: kDarkGreen),
-          ],
-        ),
       ),
     );
   }

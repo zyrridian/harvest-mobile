@@ -9,6 +9,8 @@ abstract class PreOrderRemoteDataSource {
   Future<PreorderCampaignModel> getCampaignDetail(String id);
   Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params);
   Future<PreorderCampaignModel> updateCampaign(String id, CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> updateCampaignStatus(String id, String status);
+  Future<void> deleteCampaign(String id);
   Future<List<PreorderCampaignModel>> getActiveCampaigns();
   Future<List<PreorderCampaignModel>> getMyCampaigns();
   Future<List<PreOrderReservationModel>> getMyReservations();
@@ -98,6 +100,35 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       throw ServerException('Failed to update campaign');
     } catch (e) {
       throw ServerException('Failed to update campaign: $e');
+    }
+  }
+
+  @override
+  Future<PreorderCampaignModel> updateCampaignStatus(String id, String status) async {
+    try {
+      final response = await dio.put(
+        '/preorders/campaigns/$id',
+        data: {'status': status},
+      );
+      if (response.data['status'] == 'success' || response.data['success'] == true) {
+        return PreorderCampaignModel.fromJson(response.data['data']);
+      }
+      throw ServerException('Failed to update campaign status');
+    } catch (e) {
+      throw ServerException('Failed to update campaign status: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteCampaign(String id) async {
+    try {
+      final response = await dio.delete('/preorders/campaigns/$id');
+      if (response.data['status'] == 'success' || response.data['success'] == true) {
+        return;
+      }
+      throw ServerException('Failed to delete campaign');
+    } catch (e) {
+      throw ServerException('Failed to delete campaign: $e');
     }
   }
 

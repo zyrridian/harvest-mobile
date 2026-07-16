@@ -11,6 +11,7 @@ class CreatePreorderCampaignParams extends Equatable {
   final int depositPercentage;
   final String status;
   final List<String>? images;
+  final String? category;
 
   const CreatePreorderCampaignParams({
     required this.title,
@@ -23,6 +24,7 @@ class CreatePreorderCampaignParams extends Equatable {
     required this.depositPercentage,
     this.status = 'ACTIVE',
     this.images,
+    this.category,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,6 +39,7 @@ class CreatePreorderCampaignParams extends Equatable {
       "depositPercentage": depositPercentage,
       "status": status,
       if (images != null) "images": images,
+      if (category != null) "category": category,
     };
   }
 
@@ -52,5 +55,6 @@ class CreatePreorderCampaignParams extends Equatable {
         depositPercentage,
         status,
         images,
+        category,
       ];
 }
