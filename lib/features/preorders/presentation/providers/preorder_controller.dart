@@ -10,10 +10,10 @@ import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
 import 'package:harvest_app/features/preorders/data/repositories/preorder_repository_impl.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
-import 'package:harvest_app/domain/usecases/preorder/reserve_preorder_usecase.dart';
-import 'package:harvest_app/domain/usecases/preorder/get_active_campaigns_usecase.dart';
-import 'package:harvest_app/domain/usecases/preorder/get_preorder_campaign_detail_usecase.dart';
-import 'package:harvest_app/domain/usecases/preorder/get_my_reservations_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/reserve_preorder_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_active_campaigns_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_preorder_campaign_detail_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_my_reservations_usecase.dart';
 import 'preorder_state.dart';
 
 part 'preorder_controller.g.dart';

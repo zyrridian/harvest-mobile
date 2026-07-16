@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failure.dart';
 import '../../domain/entities/nearby_farmer.dart';
-import '../../domain/repositories/nearby_farmer_repository.dart';
+import '../../features/farmers/domain/repositories/nearby_farmer_repository.dart';
 import '../../features/farmers/data/datasources/remote/nearby_farmer_remote_datasource.dart';
 
 class NearbyFarmerRepositoryImpl implements NearbyFarmerRepository {

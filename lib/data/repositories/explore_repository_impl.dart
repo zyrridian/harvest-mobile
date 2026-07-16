@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/domain/entities/explore.dart';
-import 'package:harvest_app/domain/repositories/explore_repository.dart';
+import 'package:harvest_app/features/explore/domain/repositories/explore_repository.dart';
 import 'package:harvest_app/features/explore/data/datasources/remote/explore_remote_datasource.dart';
 
 class ExploreRepositoryImpl implements ExploreRepository {

@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:harvest_app/domain/usecases/producer/get_farmer_products_usecase.dart';
-import 'package:harvest_app/domain/usecases/producer/get_farmer_product_detail_usecase.dart';
-import 'package:harvest_app/domain/usecases/producer/create_farmer_product_usecase.dart';
-import 'package:harvest_app/domain/usecases/producer/update_farmer_product_usecase.dart';
-import 'package:harvest_app/domain/usecases/producer/delete_farmer_product_usecase.dart';
-import 'package:harvest_app/domain/usecases/producer/toggle_farmer_product_availability_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_products_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_product_detail_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/create_farmer_product_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/update_farmer_product_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/delete_farmer_product_usecase.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/toggle_farmer_product_availability_usecase.dart';
 import 'farmer_dashboard_controller.dart';
 import 'farmer_products_state.dart';
 

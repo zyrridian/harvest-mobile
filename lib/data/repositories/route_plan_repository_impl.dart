@@ -4,7 +4,7 @@ import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/features/farmers/data/datasources/local/route_plan_local_datasource.dart';
 import 'package:harvest_app/features/farmers/data/datasources/remote/route_plan_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/route_plan.dart';
-import 'package:harvest_app/domain/repositories/route_plan_repository.dart';
+import 'package:harvest_app/features/farmers/domain/repositories/route_plan_repository.dart';
 
 class RoutePlanRepositoryImpl implements RoutePlanRepository {
   final RoutePlanRemoteDataSource remoteDataSource;

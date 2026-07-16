@@ -3,7 +3,7 @@ import '../../../core/error/failures.dart';
 import '../../features/catalog/domain/entities/product.dart';
 import '../../features/community/domain/entities/review.dart';
 import '../../domain/entities/paginated_response.dart';
-import '../../domain/repositories/farmer_products_repository.dart';
+import '../../features/farmers/domain/repositories/farmer_products_repository.dart';
 import '../datasources/remote/farmer_products_remote_datasource.dart';
 import '../../../core/error/exceptions.dart';
 

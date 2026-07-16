@@ -4,8 +4,8 @@ import '../../../../core/error/failures.dart';
 import '../../data/datasources/remote/settings_remote_datasource.dart';
 import '../../../../data/repositories/settings_repository_impl.dart';
 import '../../../../domain/entities/app_settings.dart';
-import '../../../../domain/usecases/settings/get_app_settings.dart';
-import '../../../../domain/usecases/settings/update_app_settings.dart';
+import '../../domain/usecases/get_app_settings.dart';
+import '../../domain/usecases/update_app_settings.dart';
 
 // Dio provider
 final dioProvider = Provider<Dio>((ref) => Dio());

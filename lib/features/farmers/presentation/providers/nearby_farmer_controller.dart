@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../../domain/usecases/get_nearby_farmers_usecase.dart';
+import '../../domain/usecases/get_nearby_farmers_usecase.dart';
 import 'nearby_farmer_providers.dart';
 import 'nearby_farmer_state.dart';
 

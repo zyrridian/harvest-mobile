@@ -3,11 +3,11 @@ import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
 import 'package:harvest_app/data/repositories/harvest_schedule_repository_impl.dart';
-import 'package:harvest_app/domain/repositories/harvest_schedule_repository.dart';
-import 'package:harvest_app/domain/usecases/harvest_schedule/get_harvest_schedule_usecase.dart';
-import 'package:harvest_app/domain/usecases/harvest_schedule/pay_deposit_usecase.dart';
-import 'package:harvest_app/domain/usecases/harvest_schedule/arrange_pickup_usecase.dart';
-import 'package:harvest_app/domain/usecases/harvest_schedule/get_schedule_dashboard_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/repositories/harvest_schedule_repository.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_harvest_schedule_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/pay_deposit_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/arrange_pickup_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_schedule_dashboard_usecase.dart';
 import 'harvest_schedule_state.dart';
 
 part 'harvest_schedule_controller.g.dart';

@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/domain/entities/farmer_gallery_image.dart';
-import 'package:harvest_app/domain/usecases/farmers/add_farmer_gallery_image.dart';
-import 'package:harvest_app/domain/usecases/farmers/delete_farmer_gallery_image.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/add_farmer_gallery_image.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/delete_farmer_gallery_image.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/farmers_controller.dart';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 

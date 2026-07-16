@@ -5,7 +5,7 @@ import '../../domain/entities/farmer.dart';
 import '../../domain/entities/farmer_detail.dart';
 import '../../domain/entities/paginated_response.dart';
 import '../../domain/entities/farmer_gallery_image.dart';
-import '../../domain/repositories/farmer_repository.dart';
+import '../../features/farmers/domain/repositories/farmer_repository.dart';
 import '../datasources/local/farmer_local_datasource.dart';
 import '../datasources/remote/farmer_remote_datasource.dart';
 

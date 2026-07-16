@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/domain/usecases/farmers/get_farmer_by_id.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_by_id.dart';
 import '../../../../core/providers/dio_provider.dart';
 import '../../../../data/datasources/local/database/app_database.dart';
 import '../../../../data/datasources/local/farmer_local_datasource.dart';
 import '../../../../data/datasources/remote/farmer_remote_datasource.dart';
 import '../../../../data/repositories/farmer_repository_impl.dart';
-import '../../../../domain/repositories/farmer_repository.dart';
-import '../../../../domain/usecases/farmers/get_farmers.dart';
-import '../../../../domain/usecases/farmers/get_nearby_farmers.dart';
-import '../../../../domain/usecases/farmers/get_farmer_detail_by_id.dart';
-import '../../../../domain/usecases/farmers/get_farmer_gallery.dart';
+import '../../domain/repositories/farmer_repository.dart';
+import '../../domain/usecases/get_farmers.dart';
+import '../../domain/usecases/get_nearby_farmers.dart';
+import '../../domain/usecases/get_farmer_detail_by_id.dart';
+import '../../domain/usecases/get_farmer_gallery.dart';
 import 'farmers_state.dart';
 
 // Database Provider

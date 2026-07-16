@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../community/data/datasources/remote/notification_remote_datasource.dart';
 import '../../../../data/repositories/notification_repository_impl.dart';
-import '../../../../domain/repositories/notification_repository.dart';
+import '../../domain/repositories/notification_repository.dart';
 import '../../../../domain/entities/notification.dart';
-import '../../../../domain/usecases/notification/get_notifications.dart';
-import '../../../../domain/usecases/notification/mark_notification_as_read.dart';
-import '../../../../domain/usecases/notification/mark_all_notifications_as_read.dart';
-import '../../../../domain/usecases/notification/delete_notification.dart';
-import '../../../../domain/usecases/notification/clear_notifications.dart';
-import '../../../../domain/usecases/notification/get_notification_settings.dart';
-import '../../../../domain/usecases/notification/update_notification_settings.dart';
+import '../../domain/usecases/get_notifications.dart';
+import '../../domain/usecases/mark_notification_as_read.dart';
+import '../../domain/usecases/mark_all_notifications_as_read.dart';
+import '../../domain/usecases/delete_notification.dart';
+import '../../domain/usecases/clear_notifications.dart';
+import '../../domain/usecases/get_notification_settings.dart';
+import '../../domain/usecases/update_notification_settings.dart';
 
 // Data Source Provider
 final notificationDataSourceProvider =

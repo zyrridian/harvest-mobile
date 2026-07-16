@@ -12,7 +12,7 @@ import 'package:harvest_app/domain/entities/farmer_product.dart';
 import 'package:harvest_app/domain/entities/farmer_order.dart';
 import 'package:harvest_app/domain/entities/farmer_product_detail.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product_request.dart';
-import 'package:harvest_app/domain/repositories/producer_repository.dart';
+import 'package:harvest_app/features/farmers/domain/repositories/producer_repository.dart';
 import 'package:harvest_app/domain/entities/farm_profile_request.dart';
 import 'package:harvest_app/domain/entities/farm_review.dart';
 import 'package:harvest_app/data/models/producer/farm_profile_request_model.dart';

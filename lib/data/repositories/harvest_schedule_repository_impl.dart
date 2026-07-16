@@ -3,7 +3,7 @@ import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
 import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
-import 'package:harvest_app/domain/repositories/harvest_schedule_repository.dart';
+import 'package:harvest_app/features/preorders/domain/repositories/harvest_schedule_repository.dart';
 
 class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
   final HarvestScheduleRemoteDataSource remoteDataSource;
