@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/domain/entities/home.dart';
+import 'package:harvest_app/features/storefront/domain/entities/home.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/home_controller.dart';

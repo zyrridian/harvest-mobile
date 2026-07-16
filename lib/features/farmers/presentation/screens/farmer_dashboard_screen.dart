@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_order.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_stats.dart';
+import 'package:harvest_app/features/farmers/presentation/providers/farmer_dashboard_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../../domain/entities/farmer_stats.dart';
-import '../../../../domain/entities/farmer_order.dart';
-import '../providers/farmer_dashboard_controller.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);

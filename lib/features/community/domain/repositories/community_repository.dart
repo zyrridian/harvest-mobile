@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/community_post.dart';
 import '../entities/recipe.dart';
-import '../../../../domain/entities/paginated_response.dart';
+import '../../../../core/models/paginated_response.dart';
 import '../entities/community_comment.dart';
 
 abstract class CommunityRepository {

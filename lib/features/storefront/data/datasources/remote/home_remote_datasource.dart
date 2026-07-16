@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/home/home_model.dart';
-import 'package:harvest_app/data/models/home/home_response_model.dart';
+import 'package:harvest_app/features/storefront/data/models/home_model.dart';
+import 'package:harvest_app/features/storefront/data/models/home_response_model.dart';
 
 abstract class HomeRemoteDataSource {
   Future<HomeModel> getHomeData();

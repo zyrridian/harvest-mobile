@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/user_profile.dart';
+import 'package:harvest_app/features/users/domain/entities/user_profile.dart';
 
 part 'profile_state.freezed.dart';
 

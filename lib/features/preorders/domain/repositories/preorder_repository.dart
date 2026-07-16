@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/preorder.dart';
-import 'package:harvest_app/domain/entities/preorder_campaign.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreorderRepository {
   Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns();

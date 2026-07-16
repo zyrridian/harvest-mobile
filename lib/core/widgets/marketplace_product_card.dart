@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:intl/intl.dart';

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../../../domain/entities/nearby_farmer.dart';
+import 'package:harvest_app/features/farmers/domain/entities/nearby_farmer.dart';
 
 part 'nearby_farmer_state.freezed.dart';
 

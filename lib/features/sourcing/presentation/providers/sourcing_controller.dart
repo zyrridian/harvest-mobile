@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
 
 import '../../domain/entities/sourcing_request.dart';
 import '../../domain/entities/sourcing_offer.dart';

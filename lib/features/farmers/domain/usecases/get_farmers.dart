@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/farmer.dart';
-import '../../../../domain/entities/paginated_response.dart';
-import '../repositories/farmer_repository.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
+import 'package:harvest_app/features/farmers/domain/repositories/farmer_repository.dart';
 
 class GetFarmers {
   final FarmerRepository repository;

@@ -13,7 +13,7 @@ import 'package:harvest_app/features/community/domain/usecases/delete_post_useca
 import 'package:harvest_app/features/community/domain/usecases/get_post_comments_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/create_comment_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/toggle_comment_like_usecase.dart';
-import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
 import 'community_state.dart';
 
 part 'community_controller.g.dart';

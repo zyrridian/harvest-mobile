@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/route_plan.dart';
+import 'package:harvest_app/features/farmers/domain/entities/route_plan.dart';
 
 part 'route_plan_state.freezed.dart';
 

@@ -1,8 +1,8 @@
 // Removed unused imports
-import 'package:harvest_app/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:harvest_app/domain/entities/preorder.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';

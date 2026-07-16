@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/preorder.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
 
 part 'preorder_state.freezed.dart';
 

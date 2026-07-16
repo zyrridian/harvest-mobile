@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/farmer_profile.dart';
-import 'package:harvest_app/domain/entities/delivery_settings.dart';
+import 'package:harvest_app/features/farmers/domain/entities/delivery_settings.dart';
+
+import '../../../domain/entities/farmer_profile.dart';
 
 part 'farmer_settings_state.freezed.dart';
 

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failures.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
 
 abstract class AddressRepository {
   Future<Either<Failure, List<Address>>> getAddresses();

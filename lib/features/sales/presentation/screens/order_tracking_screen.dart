@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_order.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../../domain/entities/farmer_order.dart';
 import '../providers/farmer_orders_controller.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/widgets/app_search_bar.dart';

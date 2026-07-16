@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/farmer.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/search_history.dart';
 import '../../domain/entities/search_suggestion.dart';

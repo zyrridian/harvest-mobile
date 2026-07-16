@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/dio_provider.dart';
 import '../../data/datasources/remote/utility_remote_datasource.dart';
 import '../../data/repositories/utility_repository_impl.dart';
-import '../../../../domain/repositories/utility_repository.dart';
+import '../../domain/repositories/utility_repository.dart';
 import '../../domain/usecases/upload_file_usecase.dart';
 import '../../domain/usecases/generate_share_link_usecase.dart';
 

@@ -4,7 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/presentation/widgets/marketplace_filter_sheet.dart';
 import 'package:harvest_app/core/widgets/marketplace_product_card.dart';
 import 'package:harvest_app/core/widgets/app_search_bar.dart';

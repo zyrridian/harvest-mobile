@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/harvest_schedule/harvest_schedule_api_response.dart';
-import 'package:harvest_app/data/models/harvest_schedule/harvest_schedule_dashboard_model.dart';
+import 'package:harvest_app/features/preorders/data/models/harvest_schedule_api_response.dart';
+import 'package:harvest_app/features/preorders/data/models/harvest_schedule_dashboard_model.dart';
 
 abstract class HarvestScheduleRemoteDataSource {
   Future<HarvestScheduleDashboardModel> getHarvestSchedule({String? month});

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/farmer.dart';
 import '../repositories/farmer_repository.dart';
 
 class GetFarmerById {

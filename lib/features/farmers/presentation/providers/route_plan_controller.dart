@@ -5,7 +5,7 @@ import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/farmers/data/datasources/local/route_plan_local_datasource.dart';
 import 'package:harvest_app/features/farmers/data/datasources/remote/route_plan_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/route_plan_repository_impl.dart';
+import 'package:harvest_app/features/farmers/data/repositories/route_plan_repository_impl.dart';
 import 'package:harvest_app/features/farmers/domain/repositories/route_plan_repository.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/route_plan/create_route_plan_usecase.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/route_plan/get_route_plan_detail_usecase.dart';

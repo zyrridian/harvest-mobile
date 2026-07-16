@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_gallery_image.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/farmers_controller.dart';
 import '../../../../core/error/failure.dart';
 import '../repositories/farmer_repository.dart';
-import '../../../../domain/entities/farmer_gallery_image.dart';
 
 final addFarmerGalleryImageUseCaseProvider = Provider<AddFarmerGalleryImageUseCase>((ref) {
   return AddFarmerGalleryImageUseCase(ref.read(farmerRepositoryProvider));

@@ -4,7 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
-import 'package:harvest_app/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);

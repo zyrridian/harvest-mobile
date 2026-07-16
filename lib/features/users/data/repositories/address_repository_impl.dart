@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../domain/repositories/address_repository.dart';

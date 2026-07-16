@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/product_model.dart';
-import 'package:harvest_app/data/models/farmer_model.dart';
+import 'package:harvest_app/features/catalog/data/models/product_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_model.dart';
 import 'package:harvest_app/features/catalog/data/models/search_history_model.dart';
 import 'package:harvest_app/features/catalog/data/models/search_suggestion_model.dart';
 

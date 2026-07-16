@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../domain/entities/farmer.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 
 // Constants
 const kDarkGreen = Color(0xFF1A2F25);

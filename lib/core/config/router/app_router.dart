@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
+import 'package:harvest_app/features/farmers/domain/entities/drop_point.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import 'package:harvest_app/features/farmers/presentation/screens/settings/delivery_settings_screen.dart';
 import 'package:harvest_app/features/farmers/presentation/screens/settings/drop_points_screen.dart';
 import 'package:harvest_app/features/farmers/presentation/screens/settings/edit_drop_point_screen.dart';
@@ -42,15 +44,13 @@ import '../../../features/sourcing/presentation/screens/create_sourcing_request_
 import '../../../features/sourcing/presentation/screens/farmer_sourcing_offers_screen.dart';
 import '../../../features/sourcing/presentation/screens/buyer_request_details_screen.dart';
 import '../../../features/storefront/presentation/screens/category_products_screen.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart';
 import '../../../features/preorders/presentation/screens/preorder_screen.dart';
 import '../../../features/preorders/presentation/screens/preorder_detail_screen.dart';
 import '../../../features/preorders/presentation/screens/preorder_reservations_screen.dart';
 import '../../../features/farmers/presentation/screens/nearby_farmer_screen.dart';
 import '../../../features/preorders/presentation/screens/harvest_schedule_screen.dart';
 import '../../../features/farmers/presentation/screens/route_plan_screen.dart';
-import '../../../domain/entities/farmer.dart';
-import '../../../domain/entities/drop_point.dart';
 
 class AppRouter {
   // Auth routes

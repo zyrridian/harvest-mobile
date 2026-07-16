@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:harvest_app/features/community/domain/repositories/recipe_repository.dart';
 

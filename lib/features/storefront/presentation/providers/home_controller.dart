@@ -3,7 +3,7 @@ import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/storefront/data/datasources/local/home_local_datasource.dart';
 import 'package:harvest_app/features/storefront/data/datasources/remote/home_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/home_repository_impl.dart';
+import 'package:harvest_app/features/storefront/data/repositories/home_repository_impl.dart';
 import 'package:harvest_app/features/storefront/domain/repositories/home_repository.dart';
 import 'package:harvest_app/features/storefront/domain/usecases/get_home_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

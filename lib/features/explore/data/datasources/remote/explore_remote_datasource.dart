@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/explore/explore_model.dart';
+import 'package:harvest_app/features/explore/data/models/explore_model.dart';
 
 abstract class ExploreRemoteDataSource {
   Future<ExploreModel> getExploreData();

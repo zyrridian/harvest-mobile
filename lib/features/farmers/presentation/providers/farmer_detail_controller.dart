@@ -1,18 +1,18 @@
+import 'package:harvest_app/core/providers/dio_provider.dart';
+import 'package:harvest_app/features/farmers/data/datasources/remote/farmer_products_remote_datasource.dart';
+import 'package:harvest_app/features/farmers/data/repositories/farmer_products_repository_impl.dart';
+import 'package:harvest_app/features/farmers/domain/repositories/farmer_products_repository.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/follow_farmer.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_products.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_reviews.dart';
+import 'package:harvest_app/features/farmers/domain/usecases/unfollow_farmer.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/dio_provider.dart';
-import '../../../../data/datasources/remote/farmer_products_remote_datasource.dart';
-import '../../../../data/repositories/farmer_products_repository_impl.dart';
-import '../../domain/repositories/farmer_products_repository.dart';
-import '../../domain/usecases/get_farmer_products.dart';
-import '../../domain/usecases/get_farmer_reviews.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart' hide dioProvider; // To reuse the community repository provider
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
 import 'package:harvest_app/features/sales/presentation/providers/cart/cart_controller.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/catalog/domain/entities/product.dart';
-import '../../domain/usecases/follow_farmer.dart';
-import '../../domain/usecases/unfollow_farmer.dart';
 import 'farmers_controller.dart';
 import 'farmer_detail_state.dart';
 

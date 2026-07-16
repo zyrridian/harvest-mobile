@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/producer/route_plan_model.dart';
+import 'package:harvest_app/features/farmers/data/models/route_plan_model.dart';
 
 abstract class RoutePlanRemoteDataSource {
   Future<List<RoutePlanModel>> getRoutePlans(String date);

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:harvest_app/data/models/producer/route_plan_model.dart';
+import 'package:harvest_app/features/farmers/data/models/route_plan_model.dart';
 
 abstract class RoutePlanLocalDataSource {
   Future<List<RoutePlanModel>> getRoutePlans(String date);

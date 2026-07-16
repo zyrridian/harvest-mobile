@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/farmer.dart';
-import '../../../../domain/entities/farmer_detail.dart';
-import '../../../../domain/entities/farmer_gallery_image.dart';
-import '../../../../domain/entities/paginated_response.dart';
+import '../entities/farmer.dart';
+import '../entities/farmer_detail.dart';
+import '../entities/farmer_gallery_image.dart';
+import '../../../../core/models/paginated_response.dart';
 
 abstract class FarmerRepository {
   Future<Either<Failure, PaginatedResponse<Farmer>>> getFarmers({

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/nearby_farmer.dart';
-import '../repositories/nearby_farmer_repository.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/features/farmers/domain/entities/nearby_farmer.dart';
+import 'package:harvest_app/features/farmers/domain/repositories/nearby_farmer_repository.dart';
 
 class GetNearbyFarmersParams {
   final double latitude;

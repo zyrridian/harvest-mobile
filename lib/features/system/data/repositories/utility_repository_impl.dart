@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../../../core/error/failures.dart';
-import '../../../../../domain/entities/uploaded_file.dart';
-import '../../../../../domain/entities/share_content.dart';
-import '../../../../../domain/repositories/utility_repository.dart';
+import '../../domain/entities/uploaded_file.dart';
+import '../../domain/entities/share_content.dart';
+import '../../domain/repositories/utility_repository.dart';
 import '../datasources/remote/utility_remote_datasource.dart';
 
 class UtilityRepositoryImpl implements UtilityRepository {

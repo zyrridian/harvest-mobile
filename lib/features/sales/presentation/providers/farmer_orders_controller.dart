@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_order.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_orders_usecase.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/update_order_status_usecase.dart';
 import '../../../farmers/presentation/providers/farmer_dashboard_controller.dart';
-import 'package:harvest_app/domain/entities/farmer_order.dart';
 import 'farmer_orders_state.dart';
 part 'farmer_orders_controller.g.dart';
 

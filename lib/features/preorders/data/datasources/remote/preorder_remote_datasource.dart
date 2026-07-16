@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/preorder/preorder_model.dart';
-import 'package:harvest_app/data/models/preorder/campaign_model.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/data/models/preorder_model.dart';
+import 'package:harvest_app/features/preorders/data/models/campaign_model.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreOrderRemoteDataSource {
   // New endpoints

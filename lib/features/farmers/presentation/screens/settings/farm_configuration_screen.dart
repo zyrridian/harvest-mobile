@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/domain/entities/farmer_profile.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_profile.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/farmer_settings_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 

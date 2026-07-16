@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/paginated_response.dart';
+import '../../../../core/models/paginated_response.dart';
 import '../../domain/entities/sourcing_request.dart';
 import '../../domain/entities/sourcing_offer.dart';
 import '../../domain/repositories/sourcing_repository.dart';

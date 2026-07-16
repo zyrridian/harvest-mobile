@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/share_content.dart';
-import '../../../../domain/repositories/utility_repository.dart';
+import '../entities/share_content.dart';
+import '../repositories/utility_repository.dart';
 
 class GenerateShareLinkUseCase {
   final UtilityRepository repository;

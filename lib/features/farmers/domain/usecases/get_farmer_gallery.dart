@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/farmer_gallery_image.dart';
 import '../repositories/farmer_repository.dart';
+import '../entities/farmer_gallery_image.dart';
 
 class GetFarmerGalleryUseCase {
   final FarmerRepository repository;

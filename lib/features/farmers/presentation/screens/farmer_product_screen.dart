@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_product.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-
 import '../../../../core/config/router/app_router.dart';
-import '../../../../domain/entities/farmer_product.dart';
-import '../../../../domain/entities/preorder_campaign.dart';
+import '../../../preorders/domain/entities/preorder_campaign.dart';
 import '../../../../core/widgets/app_cached_image.dart';
 import '../../../../core/widgets/app_search_bar.dart';
 import '../../../../core/widgets/pill_tab_bar.dart';

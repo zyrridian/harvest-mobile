@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/producer/farmer_stats_model.dart';
-import 'package:harvest_app/data/models/producer/farmer_profile_model.dart';
-import 'package:harvest_app/data/models/producer/delivery_settings_model.dart';
-import 'package:harvest_app/data/models/producer/farmer_product_model.dart';
-import 'package:harvest_app/data/models/producer/farmer_order_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_stats_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_profile_model.dart';
+import 'package:harvest_app/features/farmers/data/models/delivery_settings_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_product_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_order_model.dart';
 
-import 'package:harvest_app/data/models/producer/farmer_product_detail_model.dart';
-import 'package:harvest_app/data/models/producer/farm_profile_request_model.dart';
-import 'package:harvest_app/data/models/producer/farm_review_model.dart';
-import 'package:harvest_app/data/models/producer/drop_point_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_product_detail_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farm_profile_request_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farm_review_model.dart';
+import 'package:harvest_app/features/farmers/data/models/drop_point_model.dart';
 
 abstract class ProducerRemoteDataSource {
   Future<FarmerStatsDataModel> getStats();

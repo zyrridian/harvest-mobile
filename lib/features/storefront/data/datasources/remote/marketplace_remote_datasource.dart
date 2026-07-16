@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/marketplace/marketplace_model.dart';
-import 'package:harvest_app/data/models/marketplace/marketplace_response_model.dart';
+import 'package:harvest_app/features/storefront/data/models/marketplace_model.dart';
+import 'package:harvest_app/features/storefront/data/models/marketplace_response_model.dart';
 
 abstract class MarketplaceRemoteDataSource {
   Future<MarketplaceModel> getMarketplaceData({

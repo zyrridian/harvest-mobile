@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
+import 'package:harvest_app/features/preorders/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_controller.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_state.dart';
 import 'package:intl/intl.dart';

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/exceptions.dart';
-import '../../../../data/models/paginated_response_model.dart';
+import '../../../../core/models/paginated_response_model.dart';
 import '../models/sourcing_request_model.dart';
 import '../models/sourcing_offer_model.dart';
 

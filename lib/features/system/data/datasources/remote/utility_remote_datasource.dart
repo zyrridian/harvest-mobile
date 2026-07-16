@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import '../../../../../data/models/uploaded_file_model.dart';
-import '../../../../../data/models/share_content_model.dart';
+import '../../models/uploaded_file_model.dart';
+import '../../models/share_content_model.dart';
 
 abstract class UtilityRemoteDataSource {
   Future<UploadedFileModel> uploadFile(File file);

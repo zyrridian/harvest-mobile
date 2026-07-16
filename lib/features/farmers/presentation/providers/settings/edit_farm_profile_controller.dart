@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farm_profile_request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/update_farm_profile_usecase.dart';
-import 'package:harvest_app/domain/entities/farm_profile_request.dart';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 import '../farmer_dashboard_controller.dart';
 import 'farmer_settings_controller.dart';

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/farm_review.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farm_review.dart';
 import 'package:harvest_app/features/farmers/domain/repositories/producer_repository.dart';
 
 class GetFarmReviewsUseCase {

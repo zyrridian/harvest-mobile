@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/notification.dart';
+import '../entities/notification.dart';
 import '../repositories/notification_repository.dart';
 
 class ClearNotifications {

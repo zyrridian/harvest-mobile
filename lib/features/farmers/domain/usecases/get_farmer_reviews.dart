@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../community/domain/entities/review.dart';
-import '../../../../domain/entities/paginated_response.dart';
+import '../../../../core/models/paginated_response.dart';
 import '../repositories/farmer_products_repository.dart';
 
 class GetFarmerReviews {

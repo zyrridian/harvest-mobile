@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../models/conversation_model.dart';
-import '../../../../../data/models/message_model.dart';
+import '../../../../chat/data/models/message_model.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../../../core/constants/app_constants.dart';

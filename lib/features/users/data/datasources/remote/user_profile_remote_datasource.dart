@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../../core/error/exceptions.dart';
-import '../../../../../data/models/user_profile_model.dart';
+import '../../models/user_profile_model.dart';
 
 abstract class UserProfileRemoteDataSource {
   Future<UserProfileModel> getUserProfile();

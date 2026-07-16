@@ -7,7 +7,7 @@ import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
 import '../../providers/cart/cart_controller.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
 import 'package:harvest_app/features/users/presentation/providers/address_controller.dart';

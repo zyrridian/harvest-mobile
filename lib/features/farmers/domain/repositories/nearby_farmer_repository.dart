@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../domain/entities/nearby_farmer.dart';
+import '../entities/nearby_farmer.dart';
 
 abstract class NearbyFarmerRepository {
   Future<Either<Failure, List<NearbyFarmerData>>> getNearbyFarmers({

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/notification_providers.dart';
-import '../../../../domain/entities/notification.dart';
+import '../../domain/entities/notification.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);

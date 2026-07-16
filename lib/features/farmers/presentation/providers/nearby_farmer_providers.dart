@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/api_service.dart';
 import '../../data/datasources/remote/nearby_farmer_remote_datasource.dart';
-import '../../../../data/repositories/nearby_farmer_repository_impl.dart';
+import '../../data/repositories/nearby_farmer_repository_impl.dart';
 import '../../domain/repositories/nearby_farmer_repository.dart';
 import '../../domain/usecases/get_nearby_farmers_usecase.dart';
 

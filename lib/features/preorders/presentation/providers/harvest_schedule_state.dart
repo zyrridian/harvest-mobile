@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/harvest_schedule_dashboard.dart';
+import 'package:harvest_app/features/preorders/domain/entities/harvest_schedule_dashboard.dart';
 
 part 'harvest_schedule_state.freezed.dart';
 

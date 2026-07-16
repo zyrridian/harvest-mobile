@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/preorder_campaign.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
-import 'package:harvest_app/domain/entities/preorder.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
 
 class PreorderRepositoryImpl implements PreorderRepository {

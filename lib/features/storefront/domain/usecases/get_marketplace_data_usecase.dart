@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/domain/repositories/marketplace_repository.dart';
 
 class GetMarketplaceDataUseCase {

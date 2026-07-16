@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/domain/entities/security_settings.dart';
+import 'package:harvest_app/features/users/domain/entities/security_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/providers/dio_provider.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../data/datasources/local/user_profile_local_datasource.dart';
 import '../../data/datasources/local/security_settings_local_datasource.dart';
 import '../../data/datasources/remote/user_profile_remote_datasource.dart';
-import '../../../../data/repositories/user_profile_repository.dart';
-import '../../../../data/repositories/security_settings_repository.dart';
+import '../../data/repositories/user_profile_repository.dart';
+import '../../data/repositories/security_settings_repository.dart';
 import 'profile_state.dart';
 
 part 'profile_controller.g.dart';

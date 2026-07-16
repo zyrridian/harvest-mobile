@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/producer/farmer_product_model.dart';
+import 'package:harvest_app/features/farmers/data/models/farmer_product_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ProducerLocalDataSource {

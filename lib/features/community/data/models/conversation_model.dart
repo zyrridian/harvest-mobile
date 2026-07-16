@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/conversation.dart';
-import '../../../../data/models/message_model.dart';
+import '../../../chat/data/models/message_model.dart';
 
 part 'conversation_model.g.dart';
 

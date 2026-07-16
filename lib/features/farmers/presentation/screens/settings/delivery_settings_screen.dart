@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/delivery_settings_controller.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/farmer_settings_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/domain/entities/delivery_settings.dart';
+import 'package:harvest_app/features/farmers/domain/entities/delivery_settings.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);

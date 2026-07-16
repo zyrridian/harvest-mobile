@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/route_plan.dart';
+import 'package:harvest_app/features/farmers/domain/entities/route_plan.dart';
 
 abstract class RoutePlanRepository {
   Future<Either<Failure, List<RoutePlan>>> getRoutePlans(String date);

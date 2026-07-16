@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../community/data/datasources/remote/notification_remote_datasource.dart';
-import '../../../../data/repositories/notification_repository_impl.dart';
+import '../../data/repositories/notification_repository_impl.dart';
 import '../../domain/repositories/notification_repository.dart';
-import '../../../../domain/entities/notification.dart';
+import '../../domain/entities/notification.dart';
 import '../../domain/usecases/get_notifications.dart';
 import '../../domain/usecases/mark_notification_as_read.dart';
 import '../../domain/usecases/mark_all_notifications_as_read.dart';

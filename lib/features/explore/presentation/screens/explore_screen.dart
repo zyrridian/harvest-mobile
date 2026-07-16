@@ -4,7 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../providers/explore_controller.dart';
-import '../../../../domain/entities/explore.dart';
+import '../../domain/entities/explore.dart';
 
 // --- DESIGN CONSTANTS ---
 const kDarkGreen = Color(0xFF1A2F25);

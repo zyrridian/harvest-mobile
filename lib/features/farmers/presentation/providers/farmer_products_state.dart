@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:harvest_app/domain/entities/farmer_product.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer_product.dart';
 
 part 'farmer_products_state.freezed.dart';
 
