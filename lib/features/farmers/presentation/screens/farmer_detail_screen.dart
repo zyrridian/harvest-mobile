@@ -5,14 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../domain/entities/farmer.dart';
 import '../../../catalog/domain/entities/product.dart';
-import '../../../../presentation/shared_widgets/product_card.dart';
-import '../../../../presentation/shared_widgets/community_post_card.dart';
+import '../../../../core/widgets/product_card.dart';
+import '../../../../core/widgets/community_post_card.dart';
 import '../../../community/domain/entities/review.dart';
 import '../../../community/domain/entities/community_post.dart';
 import '../../../community/presentation/screens/image_viewer_screen.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../providers/farmer_detail_controller.dart';
-import '../../../../presentation/providers/messaging_providers.dart';
+import '../../../chat/presentation/providers/messaging_providers.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
 const kBgColor = Color(0xFFFFFFFF);

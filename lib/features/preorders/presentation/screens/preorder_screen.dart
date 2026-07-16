@@ -5,9 +5,9 @@ import 'package:harvest_app/domain/entities/preorder.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/presentation/shared_widgets/app_search_bar.dart';
+import 'package:harvest_app/core/widgets/app_search_bar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:harvest_app/presentation/shared_widgets/pill_tab_bar.dart';
+import 'package:harvest_app/core/widgets/pill_tab_bar.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);

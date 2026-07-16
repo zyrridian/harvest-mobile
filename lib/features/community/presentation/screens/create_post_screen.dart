@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
-import '../../../../presentation/providers/utility_providers.dart';
+import '../../../system/presentation/providers/utility_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 

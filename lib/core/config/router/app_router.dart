@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/delivery_settings_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/drop_points_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/edit_drop_point_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/edit_farm_profile_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/farm_reviews_screen.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/manage_gallery_screen.dart';
 import 'package:harvest_app/features/sourcing/domain/entities/sourcing_request.dart';
 import '../../../main.dart';
 import 'package:harvest_app/features/auth/presentation/screens/forgot_password_screen.dart';
@@ -14,22 +20,14 @@ import '../../../features/auth/presentation/screens/splash_screen.dart';
 import '../../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../../features/storefront/presentation/screens/main_screen.dart';
 import '../../../features/farmers/presentation/screens/farmer_main_screen.dart';
-import '../../../presentation/features/producer/products/screens/farmer_add_edit_product_screen.dart';
-import '../../../presentation/features/producer/orders/screens/harvest_schedule_detail_screen.dart';
+import '../../../features/farmers/presentation/screens/farmer_add_edit_product_screen.dart';
+import '../../../features/sales/presentation/screens/harvest_schedule_detail_screen.dart';
 import '../../../features/explore/presentation/screens/explore_screen.dart';
 import '../../../features/farmers/presentation/screens/farmer_detail_screen.dart';
 import '../../../features/users/presentation/screens/settings_screen.dart';
-import '../../../presentation/features/subscriptions/screens/subscriptions_screen.dart';
-import '../../../presentation/features/subscriptions/screens/subscription_intro_screen.dart';
-import '../../../presentation/features/producer/settings/screens/edit_farm_profile_screen.dart';
-import '../../../presentation/features/producer/settings/screens/farm_reviews_screen.dart';
-import '../../../presentation/features/producer/settings/screens/delivery_settings_screen.dart';
-import '../../../presentation/features/producer/settings/screens/drop_points_screen.dart';
-import '../../../presentation/features/producer/settings/screens/edit_drop_point_screen.dart';
-import '../../../presentation/features/notifications/screens/notifications_screen.dart';
+import '../../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../../features/users/presentation/screens/addresses_screen.dart';
 import '../../../features/catalog/presentation/screens/product_detail_screen.dart';
-import 'package:harvest_app/presentation/features/producer/settings/screens/manage_gallery_screen.dart';
 import '../../../features/sales/presentation/screens/cart/cart_screen.dart';
 import '../../../features/sales/presentation/screens/cart/checkout_screen.dart';
 import '../../../features/sales/presentation/screens/orders/orders_list_screen.dart';
@@ -48,9 +46,9 @@ import 'package:harvest_app/domain/entities/marketplace.dart';
 import '../../../features/preorders/presentation/screens/preorder_screen.dart';
 import '../../../features/preorders/presentation/screens/preorder_detail_screen.dart';
 import '../../../features/preorders/presentation/screens/preorder_reservations_screen.dart';
-import '../../../presentation/features/nearby_farmer/screens/nearby_farmer_screen.dart';
-import '../../../presentation/features/harvest_schedule/screens/harvest_schedule_screen.dart';
-import '../../../presentation/features/producer/route_plan/screens/route_plan_screen.dart';
+import '../../../features/farmers/presentation/screens/nearby_farmer_screen.dart';
+import '../../../features/preorders/presentation/screens/harvest_schedule_screen.dart';
+import '../../../features/farmers/presentation/screens/route_plan_screen.dart';
 import '../../../domain/entities/farmer.dart';
 import '../../../domain/entities/drop_point.dart';
 
@@ -244,16 +242,6 @@ class AppRouter {
         path: settings,
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
-      ),
-      GoRoute(
-        path: subscriptionIntro,
-        name: 'subscriptionIntro',
-        builder: (context, state) => const SubscriptionIntroScreen(),
-      ),
-      GoRoute(
-        path: subscriptions,
-        name: 'subscriptions',
-        builder: (context, state) => const SubscriptionsScreen(),
       ),
       GoRoute(
         path: notifications,

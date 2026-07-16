@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../providers/profile_controller.dart';
-import '../../../../presentation/providers/utility_providers.dart';
+import '../../../system/presentation/providers/utility_providers.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);

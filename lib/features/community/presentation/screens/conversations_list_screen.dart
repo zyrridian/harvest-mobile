@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../data/models/conversation_model.dart';
-import '../../../../presentation/providers/messaging_providers.dart';
+import '../../../chat/presentation/providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
 import '../../../../core/utils/time_utils.dart';
 import 'package:harvest_app/features/auth/domain/entities/user.dart';

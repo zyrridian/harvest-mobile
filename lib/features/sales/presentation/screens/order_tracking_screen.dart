@@ -1,37 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
-import '../../../../../core/config/router/app_router.dart';
-import '../../../../../core/widgets/app_search_bar.dart';
-import '../../../../../core/widgets/pill_tab_bar.dart';
+import '../../../../core/config/router/app_router.dart';
+import '../../../../domain/entities/farmer_order.dart';
+import '../providers/farmer_orders_controller.dart';
+import 'package:intl/intl.dart';
+import '../../../../core/widgets/app_search_bar.dart';
+import '../../../../core/widgets/pill_tab_bar.dart';
 
-// --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
+const kPrimaryGreen = Color(0xFF2D4A3E);
 const kAccentOrange = Color(0xFFE86A33);
-const kPillGrey = Color(0xFFF0F2F0);
+const kCardBg = Colors.white;
 const kTextGrey = Color(0xFF6E7A75);
 const kBorderColor = Color(0xFFE5E7EB);
 
-class OrdersListScreen extends ConsumerStatefulWidget {
-  static const routeName = '/orders';
-
-  const OrdersListScreen({super.key});
+class OrderTrackingScreen extends ConsumerStatefulWidget {
+  const OrderTrackingScreen({super.key});
 
   @override
-  ConsumerState<OrdersListScreen> createState() => _OrdersListScreenState();
+  ConsumerState<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
 }
 
-class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
-    with SingleTickerProviderStateMixin {
+class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with SingleTickerProviderStateMixin {
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> _filters = ['All', 'Processing', 'Delivered', 'Cancelled'];
+  final List<String> _filters = [
+    'All',
+    'Pending Payment',
+    'Confirmed',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Completed',
+    'Cancelled'
+  ];
   int _selectedFilterIndex = 0;
+
+  final Map<String, String> _statusMap = {
+    'All': 'all',
+    'Pending Payment': 'pending_payment',
+    'Confirmed': 'confirmed',
+    'Processing': 'processing',
+    'Shipped': 'shipped',
+    'Delivered': 'delivered',
+    'Completed': 'completed',
+    'Cancelled': 'cancelled'
+  };
 
   @override
   void dispose() {
@@ -39,9 +58,19 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
     super.dispose();
   }
 
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return 'Date TBD';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr.substring(0, 10);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ordersAsync = ref.watch(ordersProvider(const {'role': 'buyer'}));
+    final ordersState = ref.watch(farmerOrdersControllerProvider(status: 'all'));
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -50,7 +79,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         child: RefreshIndicator(
           color: kDarkGreen,
           backgroundColor: Colors.white,
-          onRefresh: () async => ref.refresh(ordersProvider(const {'role': 'buyer'})),
+          onRefresh: () async => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -60,18 +89,9 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                 backgroundColor: kBgColor,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                titleSpacing: 0,
+                titleSpacing: 16,
                 centerTitle: false,
-                leading: IconButton(
-                  icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(AppRouter.main);
-                    }
-                  },
-                ),
+                automaticallyImplyLeading: false,
                 title: AnimatedCrossFade(
                   duration: const Duration(milliseconds: 200),
                   crossFadeState: _isSearchVisible
@@ -99,7 +119,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   firstChild: SizedBox(
                     width: double.infinity,
                     child: Text(
-                      'My Orders',
+                      'Orders & Schedules',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: kDarkGreen,
                                 fontWeight: FontWeight.w700,
@@ -166,25 +186,27 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   ),
                 ),
               ),
-              ordersAsync.when(
+              ordersState.maybeWhen(
                 data: (orders) {
-                  List<dynamic> filteredOrders = orders;
-                  final selectedStatus = _filters[_selectedFilterIndex].toLowerCase();
-                  if (selectedStatus != 'all') {
-                    filteredOrders = filteredOrders.where((o) => o.status == selectedStatus).toList();
-                  }
+                  final statusFilter = _statusMap[_filters[_selectedFilterIndex]]!;
+                  final query = _searchController.text.toLowerCase();
 
-                  if (_searchController.text.isNotEmpty) {
-                    final query = _searchController.text.toLowerCase();
-                    filteredOrders = filteredOrders.where((o) {
-                      return (o.orderNumber?.toLowerCase().contains(query) ?? false) ||
-                             (o.seller?.name?.toLowerCase().contains(query) ?? false);
-                    }).toList();
-                  }
+                  final filteredOrders = orders.where((o) {
+                    final matchesStatus = statusFilter == 'all' || o.status.toLowerCase() == statusFilter;
+                    final matchesSearch = query.isEmpty ||
+                        o.orderNumber.toLowerCase().contains(query) ||
+                        o.buyerName.toLowerCase().contains(query);
+                    return matchesStatus && matchesSearch;
+                  }).toList();
 
                   if (filteredOrders.isEmpty) {
                     return SliverFillRemaining(
-                      child: _buildEmptyState(),
+                      child: Center(
+                        child: Text(
+                          'No orders found',
+                          style: TextStyle(color: kTextGrey),
+                        ),
+                      ),
                     );
                   }
 
@@ -207,72 +229,37 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                 loading: () => SliverFillRemaining(
                   child: _buildShimmerList(),
                 ),
-                error: (e, st) => SliverFillRemaining(
+                error: (error) => SliverFillRemaining(
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const PhosphorIcon(PhosphorIconsRegular.warningCircle, size: 48, color: kTextGrey),
-                        const SizedBox(height: 16),
-                        Text('Error: $e', style: const TextStyle(color: kTextGrey)),
+                        Text(error.toString(), style: const TextStyle(color: Colors.red)),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => ref.refresh(ordersProvider(const {'role': 'buyer'})),
+                          onPressed: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
                           child: const Text('Retry'),
                         ),
                       ],
                     ),
                   ),
                 ),
+                orElse: () => const SliverFillRemaining(
+                  child: SizedBox.shrink(),
+                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: kPillGrey,
-              shape: BoxShape.circle,
-            ),
-            child: const PhosphorIcon(PhosphorIconsRegular.shoppingBag,
-                size: 48, color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'No orders yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kDarkGreen,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Your orders will appear here',
-            style: TextStyle(color: kTextGrey),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: () => context.go(AppRouter.main),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kDarkGreen,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
-            ),
-            child: const Text('Start Shopping'),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'routePlanFab',
+        onPressed: () {
+          context.push(AppRouter.routePlan);
+        },
+        backgroundColor: kAccentOrange,
+        icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
+        label: const Text('Route Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -284,7 +271,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 8, bottom: 100),
         itemCount: 5,
-        itemBuilder: (context, idx) {
+        itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: Container(
@@ -292,7 +279,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!, width: 1),
+                border: Border.all(color: kBorderColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,50 +287,36 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(width: 100, height: 20, color: Colors.white),
-                      Container(width: 80, height: 20, color: Colors.white),
+                      Container(width: 80, height: 14, color: Colors.white),
+                      Container(width: 60, height: 20, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      const CircleAvatar(radius: 20, backgroundColor: Colors.white),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(width: 150, height: 16, color: Colors.white),
+                            Container(width: 120, height: 16, color: Colors.white),
                             const SizedBox(height: 4),
-                            Container(width: 100, height: 14, color: Colors.white),
+                            Container(width: 150, height: 14, color: Colors.white),
                           ],
                         ),
                       ),
+                      Container(width: 60, height: 16, color: Colors.white),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: kBorderColor, height: 1),
-                  ),
+                  const SizedBox(height: 16),
+                  const Divider(height: 1, color: kBorderColor),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(width: 80, height: 12, color: Colors.white),
-                          const SizedBox(height: 4),
-                          Container(width: 100, height: 20, color: Colors.white),
-                        ],
-                      ),
-                      Container(width: 40, height: 40, color: Colors.white),
+                      Container(width: 100, height: 14, color: Colors.white),
+                      Container(width: 80, height: 14, color: Colors.white),
                     ],
                   ),
                 ],
@@ -355,66 +328,64 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
     );
   }
 
-  Widget _buildOrderCard(dynamic order) {
-    return GestureDetector(
+  Widget _buildOrderCard(FarmerOrder data) {
+    final isHarvestSchedule = data.deliveryMethod == 'harvest_schedule';
+    final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed' || data.status.toLowerCase() == 'paid';
+
+    String statusDisplay = data.status.replaceAll('_', ' ');
+    statusDisplay = statusDisplay.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
+
+    return InkWell(
       onTap: () {
-        context.push('${AppRouter.orderDetail}?orderId=${order.orderId}');
+        if (isHarvestSchedule) {
+          context.push(AppRouter.harvestScheduleDetail);
+        } else {
+          context.push('${AppRouter.orderDetail}?orderId=${data.id}');
+        }
       },
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: kCardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
+          border: Border.all(color: kBorderColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  order.orderNumber,
+                  data.orderNumber,
                   style: const TextStyle(
-                    fontSize: 15,
+                    color: kTextGrey,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: kDarkGreen,
                   ),
                 ),
-                _buildStatusBadge(order.status),
+                _buildStatusBadge(data.status),
               ],
             ),
             const SizedBox(height: 12),
-
-            // Seller Info
             Row(
               children: [
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(
-                    color: kPillGrey,
-                    borderRadius: BorderRadius.circular(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF0F5F2),
+                    shape: BoxShape.circle,
                   ),
                   clipBehavior: Clip.hardEdge,
-                  child: order.seller.profilePicture != null && order.seller.profilePicture!.isNotEmpty
+                  child: data.items.isNotEmpty && data.items.first.productImage != null
                       ? Image.network(
-                          order.seller.profilePicture!,
+                          data.items.first.productImage!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
-                            child: Text(
-                              order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
-                            ),
-                          ),
+                          errorBuilder: (_, __, ___) => const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
                         )
-                      : Center(
-                          child: Text(
-                            order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
-                          ),
-                        ),
+                      : const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -422,76 +393,158 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        order.seller.name,
+                        data.buyerName,
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                           color: kDarkGreen,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        data.items.map((i) => '${i.quantity}x ${i.productName}').join(', '),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: kTextGrey,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${order.items.length} item${order.items.length > 1 ? 's' : ''}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: kTextGrey,
-                        ),
-                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(color: kBorderColor, height: 1),
-            ),
-
-            // Total & Arrow
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Amount',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: kTextGrey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Rp ${order.totalAmount}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: kDarkGreen,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: kPillGrey,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const PhosphorIcon(
-                    PhosphorIconsRegular.caretRight,
-                    size: 16,
+                Text(
+                  NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(data.totalAmount),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                     color: kDarkGreen,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            const Divider(color: kBorderColor, height: 1),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(PhosphorIconsRegular.calendar, size: 16, color: kTextGrey),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatDate(data.deliveryDate),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: kTextGrey,
+                      ),
+                    ),
+                  ],
+                ),
+                if (isHarvestSchedule)
+                  const Text(
+                    'View Details',
+                    style: TextStyle(
+                      color: kAccentOrange,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                else
+                  GestureDetector(
+                    onTap: () => _showUpdateStatusBottomSheet(context, data),
+                    child: const Text(
+                      'Update Status',
+                      style: TextStyle(
+                        color: kDarkGreen,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showUpdateStatusBottomSheet(BuildContext context, FarmerOrder order) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final statuses = [
+          'pending_payment',
+          'confirmed',
+          'processing',
+          'shipped',
+          'delivered',
+          'completed',
+          'cancelled'
+        ];
+        
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Update Order Status',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Order #${order.orderNumber}',
+                    style: const TextStyle(color: kTextGrey, fontSize: 14),
+                  ),
+                  const SizedBox(height: 24),
+                  ...statuses.map((status) {
+                    final isSelected = order.status.toLowerCase() == status.toLowerCase();
+                    String statusDisplay = status.replaceAll('_', ' ');
+                    statusDisplay = statusDisplay.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
+                    
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        statusDisplay,
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? kDarkGreen : Colors.black87,
+                        ),
+                      ),
+                      trailing: isSelected ? const Icon(PhosphorIconsRegular.checkCircle, color: kDarkGreen) : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(farmerOrdersControllerProvider(status: 'all').notifier).updateOrderStatus(order.id, status);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Status updated to $statusDisplay')),
+                        );
+                      },
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -506,7 +559,13 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         textColor = kAccentOrange;
         icon = PhosphorIconsRegular.arrowsClockwise;
         break;
+      case 'shipped':
+        bgColor = Colors.blue.withOpacity(0.1);
+        textColor = Colors.blue;
+        icon = PhosphorIconsRegular.truck;
+        break;
       case 'delivered':
+      case 'completed':
         bgColor = Colors.green.withOpacity(0.1);
         textColor = Colors.green;
         icon = PhosphorIconsRegular.checkCircle;
@@ -516,10 +575,12 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
         textColor = Colors.red;
         icon = PhosphorIconsRegular.xCircle;
         break;
+      case 'pending_payment':
+      case 'confirmed':
       default:
-        bgColor = kPillGrey;
-        textColor = kTextGrey;
-        icon = PhosphorIconsRegular.info;
+        bgColor = Colors.orange.withOpacity(0.1);
+        textColor = Colors.orange;
+        icon = PhosphorIconsRegular.clock;
     }
 
     return Container(
@@ -535,7 +596,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
           PhosphorIcon(icon, size: 12, color: textColor),
           const SizedBox(width: 4),
           Text(
-            status.toUpperCase(),
+            status.replaceAll('_', ' ').toUpperCase(),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,

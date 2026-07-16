@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
-import 'package:harvest_app/presentation/providers/utility_providers.dart';
+import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 
 class CreateRecipeScreen extends ConsumerStatefulWidget {
   const CreateRecipeScreen({super.key});

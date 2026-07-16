@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
-import 'package:harvest_app/presentation/providers/messaging_providers.dart';
+import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
 import '../../../../../core/config/router/app_router.dart';
 
 // --- DESIGN CONSTANTS ---

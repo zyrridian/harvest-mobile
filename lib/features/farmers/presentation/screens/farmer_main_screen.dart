@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:harvest_app/presentation/providers/messaging_providers.dart';
+import 'package:harvest_app/features/farmers/presentation/screens/settings/farm_configuration_screen.dart';
+import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'farmer_dashboard_screen.dart';
-import '../../../../presentation/features/producer/products/screens/farmer_product_screen.dart';
-import '../../../../presentation/features/producer/orders/screens/order_tracking_screen.dart';
-import '../../../../presentation/features/producer/settings/screens/farm_configuration_screen.dart';
+import 'farmer_product_screen.dart';
+import '../../../sales/presentation/screens/order_tracking_screen.dart';
 import '../../../community/presentation/screens/conversations_list_screen.dart';
 import '../../../community/presentation/providers/chat_socket_providers.dart';
 

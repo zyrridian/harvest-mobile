@@ -11,7 +11,7 @@ import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
-import 'package:harvest_app/presentation/shared_widgets/community_post_card.dart';
+import 'package:harvest_app/core/widgets/community_post_card.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
 import 'create_recipe_screen.dart';
@@ -20,7 +20,7 @@ import 'recipe_detail_screen.dart';
 import 'package:harvest_app/features/auth/domain/entities/user.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/presentation/shared_widgets/pill_tab_bar.dart';
+import 'package:harvest_app/core/widgets/pill_tab_bar.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 
 // --- DESIGN CONSTANTS ---

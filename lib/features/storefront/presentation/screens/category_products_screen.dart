@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
-import 'package:harvest_app/presentation/shared_widgets/marketplace_product_card.dart';
-import 'package:harvest_app/presentation/shared_widgets/app_search_bar.dart';
+import 'package:harvest_app/core/widgets/marketplace_product_card.dart';
+import 'package:harvest_app/core/widgets/app_search_bar.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
