@@ -11,64 +11,6 @@ class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
   HarvestScheduleRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, HarvestScheduleDashboardEntity>> getHarvestSchedule({
-    String? month,
-  }) async {
-    try {
-      final model = await remoteDataSource.getHarvestSchedule(month: month);
-      return Right(model.toEntity());
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> payDeposit({
-    required String harvestId,
-  }) async {
-    try {
-      final result = await remoteDataSource.payDeposit(harvestId: harvestId);
-      return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> arrangePickup({
-    required String harvestId,
-    required String pickupTime,
-  }) async {
-    try {
-      final result = await remoteDataSource.arrangePickup(
-        harvestId: harvestId,
-        pickupTime: pickupTime,
-      );
-      return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, HarvestScheduleDashboardEntity>> getScheduleDashboard({
     String? month,
     double? latitude,
@@ -81,6 +23,42 @@ class HarvestScheduleRepositoryImpl implements HarvestScheduleRepository {
         longitude: longitude,
       );
       return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addToSchedule({
+    required String campaignId,
+    bool remindersEnabled = true,
+  }) async {
+    try {
+      await remoteDataSource.addToSchedule(
+        campaignId: campaignId,
+        remindersEnabled: remindersEnabled,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromSchedule({
+    required String campaignId,
+  }) async {
+    try {
+      await remoteDataSource.removeFromSchedule(campaignId: campaignId);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

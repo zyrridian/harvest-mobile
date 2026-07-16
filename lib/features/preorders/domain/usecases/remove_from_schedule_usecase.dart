@@ -2,14 +2,16 @@ import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/harvest_schedule_repository.dart';
 
-class PayDepositUseCase {
+class RemoveFromScheduleUseCase {
   final HarvestScheduleRepository repository;
 
-  PayDepositUseCase(this.repository);
+  RemoveFromScheduleUseCase(this.repository);
 
-  Future<Either<Failure, Map<String, dynamic>>> call({
-    required String harvestId,
+  Future<Either<Failure, void>> call({
+    required String campaignId,
   }) async {
-    return await repository.payDeposit(harvestId: harvestId);
+    return await repository.removeFromSchedule(
+      campaignId: campaignId,
+    );
   }
 }

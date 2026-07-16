@@ -1,40 +1,29 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/features/preorders/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
 import 'package:harvest_app/features/preorders/data/repositories/harvest_schedule_repository_impl.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/harvest_schedule_repository.dart';
-import 'package:harvest_app/features/preorders/domain/usecases/get_harvest_schedule_usecase.dart';
-import 'package:harvest_app/features/preorders/domain/usecases/pay_deposit_usecase.dart';
-import 'package:harvest_app/features/preorders/domain/usecases/arrange_pickup_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/get_schedule_dashboard_usecase.dart';
 import 'harvest_schedule_state.dart';
 
 part 'harvest_schedule_controller.g.dart';
 
 // Dependency Injection Providers
-final harvestScheduleRemoteDataSourceProvider = Provider<HarvestScheduleRemoteDataSource>((ref) {
+final harvestScheduleRemoteDataSourceProvider =
+    Provider<HarvestScheduleRemoteDataSource>((ref) {
   return HarvestScheduleRemoteDataSourceImpl(ref.watch(dioProvider));
 });
 
-final harvestScheduleRepositoryProvider = Provider<HarvestScheduleRepository>((ref) {
-  return HarvestScheduleRepositoryImpl(ref.watch(harvestScheduleRemoteDataSourceProvider));
+final harvestScheduleRepositoryProvider =
+    Provider<HarvestScheduleRepository>((ref) {
+  return HarvestScheduleRepositoryImpl(
+      ref.watch(harvestScheduleRemoteDataSourceProvider));
 });
 
-final getHarvestScheduleUseCaseProvider = Provider<GetHarvestScheduleUseCase>((ref) {
-  return GetHarvestScheduleUseCase(ref.watch(harvestScheduleRepositoryProvider));
-});
-
-final payDepositUseCaseProvider = Provider<PayDepositUseCase>((ref) {
-  return PayDepositUseCase(ref.watch(harvestScheduleRepositoryProvider));
-});
-
-final arrangePickupUseCaseProvider = Provider<ArrangePickupUseCase>((ref) {
-  return ArrangePickupUseCase(ref.watch(harvestScheduleRepositoryProvider));
-});
-
-final getScheduleDashboardUseCaseProvider = Provider<GetScheduleDashboardUseCase>((ref) {
-  return GetScheduleDashboardUseCase(ref.watch(harvestScheduleRepositoryProvider));
+final getScheduleDashboardUseCaseProvider =
+    Provider<GetScheduleDashboardUseCase>((ref) {
+  return GetScheduleDashboardUseCase(
+      ref.watch(harvestScheduleRepositoryProvider));
 });
 
 @riverpod
@@ -46,7 +35,8 @@ class HarvestScheduleController extends _$HarvestScheduleController {
     return const HarvestScheduleState.loading();
   }
 
-  Future<void> _fetchData(DateTime date, {DateTime? selectedDate, bool? isMonthView}) async {
+  Future<void> _fetchData(DateTime date,
+      {DateTime? selectedDate, bool? isMonthView}) async {
     final oldData = state.maybeWhen(data: (d) => d, orElse: () => null);
 
     if (oldData == null) {
@@ -55,9 +45,9 @@ class HarvestScheduleController extends _$HarvestScheduleController {
 
     try {
       final dashboardUseCase = ref.read(getScheduleDashboardUseCaseProvider);
-      
+
       final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-      
+
       final dashboardResult = await dashboardUseCase.call(month: monthStr);
 
       dashboardResult.fold(
@@ -81,7 +71,8 @@ class HarvestScheduleController extends _$HarvestScheduleController {
   void toggleViewMode() {
     state.maybeWhen(
       data: (data) {
-        state = HarvestScheduleState.data(data.copyWith(isMonthView: !data.isMonthView));
+        state = HarvestScheduleState.data(
+            data.copyWith(isMonthView: !data.isMonthView));
       },
       orElse: () {},
     );
@@ -94,7 +85,8 @@ class HarvestScheduleController extends _$HarvestScheduleController {
             data.selectedDate?.month == date.month &&
             data.selectedDate?.day == date.day) {
           // Deselect
-          state = HarvestScheduleState.data(data.copyWith(clearSelectedDate: true));
+          state =
+              HarvestScheduleState.data(data.copyWith(clearSelectedDate: true));
         } else {
           // Select
           state = HarvestScheduleState.data(data.copyWith(
@@ -112,7 +104,8 @@ class HarvestScheduleController extends _$HarvestScheduleController {
       data: (data) {
         if (data.activeQuickFilter == filter) {
           // Deselect
-          state = HarvestScheduleState.data(data.copyWith(clearQuickFilter: true));
+          state =
+              HarvestScheduleState.data(data.copyWith(clearQuickFilter: true));
         } else {
           // Select
           state = HarvestScheduleState.data(data.copyWith(
@@ -130,15 +123,19 @@ class HarvestScheduleController extends _$HarvestScheduleController {
       data: (data) {
         DateTime newBaseDate;
         if (data.isMonthView) {
-          newBaseDate = DateTime(data.baseDate.year, data.baseDate.month + 1, data.baseDate.day);
+          newBaseDate = DateTime(
+              data.baseDate.year, data.baseDate.month + 1, data.baseDate.day);
         } else {
           newBaseDate = data.baseDate.add(const Duration(days: 7));
         }
-        
-        if (newBaseDate.month != data.baseDate.month || newBaseDate.year != data.baseDate.year) {
-          _fetchData(newBaseDate, selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+
+        if (newBaseDate.month != data.baseDate.month ||
+            newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate,
+              selectedDate: data.selectedDate, isMonthView: data.isMonthView);
         } else {
-          state = HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+          state =
+              HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
         }
       },
       orElse: () {},
@@ -150,15 +147,19 @@ class HarvestScheduleController extends _$HarvestScheduleController {
       data: (data) {
         DateTime newBaseDate;
         if (data.isMonthView) {
-          newBaseDate = DateTime(data.baseDate.year, data.baseDate.month - 1, data.baseDate.day);
+          newBaseDate = DateTime(
+              data.baseDate.year, data.baseDate.month - 1, data.baseDate.day);
         } else {
           newBaseDate = data.baseDate.subtract(const Duration(days: 7));
         }
-        
-        if (newBaseDate.month != data.baseDate.month || newBaseDate.year != data.baseDate.year) {
-          _fetchData(newBaseDate, selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+
+        if (newBaseDate.month != data.baseDate.month ||
+            newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate,
+              selectedDate: data.selectedDate, isMonthView: data.isMonthView);
         } else {
-          state = HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+          state =
+              HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
         }
       },
       orElse: () {},
@@ -169,7 +170,8 @@ class HarvestScheduleController extends _$HarvestScheduleController {
     final now = DateTime.now();
     state.maybeWhen(
       data: (data) {
-        if (now.month != data.baseDate.month || now.year != data.baseDate.year) {
+        if (now.month != data.baseDate.month ||
+            now.year != data.baseDate.year) {
           _fetchData(now, selectedDate: now, isMonthView: data.isMonthView);
         } else {
           state = HarvestScheduleState.data(data.copyWith(
@@ -182,94 +184,6 @@ class HarvestScheduleController extends _$HarvestScheduleController {
       orElse: () {
         Future.microtask(() => _fetchData(now));
       },
-    );
-  }
-
-  Future<void> payDeposit(HarvestScheduleItemEntity item) async {
-    state.maybeWhen(
-      data: (data) async {
-        // Optimistic Update
-        final updatedItems = data.items.map((i) {
-          if (i.id == item.id) {
-            final newBadges = List<String>.from(i.badges)
-              ..remove('Pending confirmation')
-              ..add('Deposit Paid');
-            return HarvestScheduleItemEntity(
-              id: i.id,
-              title: i.title,
-              farmerName: i.farmerName,
-              distance: i.distance,
-              imageUrl: i.imageUrl,
-              statusText: i.statusText,
-              price: i.price,
-              badges: newBadges,
-              descriptionText: i.descriptionText.replaceAll('deposit pending', 'deposit paid'),
-              actionButton1: 'View\\ndetails',
-              actionButton2: '',
-              dateGroup: i.dateGroup,
-              isToday: i.isToday,
-              dateDayFilter: i.dateDayFilter,
-            );
-          }
-          return i;
-        }).toList();
-
-        state = HarvestScheduleState.data(data.copyWith(items: updatedItems));
-
-        final usecase = ref.read(payDepositUseCaseProvider);
-        final result = await usecase.call(harvestId: item.id);
-
-        result.fold(
-          (failure) {
-            // Revert on failure
-          },
-          (success) {
-            // Confirm success if needed
-          },
-        );
-      },
-      orElse: () {},
-    );
-  }
-
-  Future<void> arrangePickup(HarvestScheduleItemEntity item) async {
-    state.maybeWhen(
-      data: (data) async {
-        // Optimistic Update
-        final updatedItems = data.items.map((i) {
-          if (i.id == item.id) {
-            final newBadges = List<String>.from(i.badges)..add('Pickup Arranged');
-            return HarvestScheduleItemEntity(
-              id: i.id,
-              title: i.title,
-              farmerName: i.farmerName,
-              distance: i.distance,
-              imageUrl: i.imageUrl,
-              statusText: i.statusText,
-              price: i.price,
-              badges: newBadges,
-              descriptionText: i.descriptionText,
-              actionButton1: 'Chat\\nfarmer',
-              actionButton2: '',
-              dateGroup: i.dateGroup,
-              isToday: i.isToday,
-              dateDayFilter: i.dateDayFilter,
-            );
-          }
-          return i;
-        }).toList();
-
-        state = HarvestScheduleState.data(data.copyWith(items: updatedItems));
-
-        final usecase = ref.read(arrangePickupUseCaseProvider);
-        final result = await usecase.call(harvestId: item.id, pickupTime: '14:00');
-
-        result.fold(
-          (failure) {},
-          (success) {},
-        );
-      },
-      orElse: () {},
     );
   }
 }

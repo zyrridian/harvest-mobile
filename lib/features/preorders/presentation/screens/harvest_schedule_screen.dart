@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/features/preorders/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_controller.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_state.dart';
 import 'package:intl/intl.dart';
 
-const kBgColor = Color(0xFFFAFAF8);
-const kDarkGreen = Color(0xFF2E4E20);
-const kTextGreen = Color(0xFF1E3A20);
-const kHighlightGreen = Color(0xFF4A7C38);
+const kBgColor = Color(0xFFFFFFFF);
+const kDarkGreen = Color(0xFF1A2F25);
+const kTextGreen = Color(0xFF1A2F25);
+const kHighlightGreen = Color(0xFFE86A33);
+const kPillGrey = Color(0xFFF0F2F0);
 
 class HarvestScheduleScreen extends ConsumerWidget {
   const HarvestScheduleScreen({super.key});
@@ -25,53 +28,37 @@ class HarvestScheduleScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: const Icon(Icons.chevron_left, color: kTextGreen),
-          ),
-          onPressed: () => context.pop(),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
         ),
+        titleSpacing: 0,
         title: Text(
-          'Harvest Schedule',
+          'Scheduled Deliveries',
           style: TextStyle(
-            color: kTextGreen,
-            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
+            padding: const EdgeInsets.only(right: 12.0),
+            child: IconButton(
+              icon: PhosphorIcon(
+                state.maybeWhen(
+                  data: (d) => d.isMonthView ? PhosphorIconsRegular.list : PhosphorIconsRegular.calendarBlank,
+                  orElse: () => PhosphorIconsRegular.calendarBlank,
+                ),
+                color: kDarkGreen,
+              ),
+              onPressed: () {
                 ref.read(harvestScheduleControllerProvider.notifier).toggleViewMode();
               },
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Icon(
-                      state.maybeWhen(
-                        data: (d) => d.isMonthView ? Icons.calendar_view_week : Icons.calendar_month_outlined,
-                        orElse: () => Icons.calendar_month_outlined,
-                      ),
-                      color: kTextGreen,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -200,27 +187,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                 ),
               ),
 
-              // Stats
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: _buildStatCard(context, ref, data,
-                              '${data.thisWeekCount}', 'This week', QuickFilter.thisWeek)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                          child: _buildStatCard(context, ref, data,
-                              '${data.readyTodayCount}', 'Ready today', QuickFilter.readyToday)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                          child: _buildStatCard(context, ref, data,
-                              '${data.thisMonthCount}', 'This month', QuickFilter.thisMonth)),
-                    ],
-                  ),
-                ),
-              ),
+
 
               // Upcoming Harvests Header
               SliverToBoxAdapter(
@@ -801,14 +768,6 @@ class HarvestScheduleScreen extends ConsumerWidget {
 
   Widget _buildHarvestCard(
       BuildContext context, WidgetRef ref, HarvestScheduleItemEntity item) {
-    Color leftBorderColor = kHighlightGreen;
-    if (item.badges.contains('Pending confirmation')) {
-      leftBorderColor = const Color(0xFFD4833D);
-    }
-    if (item.badges.contains('Just reserved')) {
-      leftBorderColor = const Color(0xFF3B82F6);
-    }
-
     final formatter =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
@@ -816,234 +775,128 @@ class HarvestScheduleScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: IntrinsicHeight(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AppCachedImage(
+                imageUrl: item.imageUrl,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorAssetImage: 'assets/images/placeholder.png',
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8F3E8),
-                            borderRadius: BorderRadius.circular(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
                           ),
-                          child: Center(
-                            child: Text(item.imageUrl,
-                                style: const TextStyle(fontSize: 24)),
-                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.title,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: kTextGreen),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${item.farmerName} · ${item.distance} km',
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.grey[600]),
-                              ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: item.badges.map((badge) {
-                                  Color badgeBg = const Color(0xFFE8F3E8);
-                                  Color badgeText = const Color(0xFF2E7D32);
-                                  if (badge == 'Pre-ordered' ||
-                                      badge == 'Just reserved') {
-                                    badgeBg = const Color(0xFFE3F2FD);
-                                    badgeText = const Color(0xFF1565C0);
-                                  } else if (badge == 'Pending confirmation') {
-                                    badgeBg = const Color(0xFFFFF3E0);
-                                    badgeText = const Color(0xFFE65100);
-                                  }
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: badgeBg,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      badge,
-                                      style: TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w600,
-                                          color: badgeText),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                item.descriptionText,
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.grey[700]),
-                              ),
-                            ],
-                          ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        item.statusText == 'Now' ? 'Ready' : '${item.statusText} days',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: item.statusText == 'Now'
+                              ? kHighlightGreen
+                              : kDarkGreen,
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              item.statusText,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: item.statusText == 'Now'
-                                    ? kHighlightGreen
-                                    : (item.statusText == '15'
-                                        ? const Color(0xFF3B82F6)
-                                        : const Color(0xFFD4833D)),
-                              ),
-                            ),
-                            Text(
-                              item.statusText == 'Now' ? 'ready' : 'days left',
-                              style: TextStyle(
-                                  fontSize: 10, color: Colors.grey[600]),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              formatter
-                                  .format(item.price)
-                                  .replaceAll(',00', ''),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: kTextGreen),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    if (item.actionButton1.isNotEmpty ||
-                        item.actionButton2.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          if (item.actionButton1.isNotEmpty)
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (item.actionButton1.contains('Chat')) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Opening chat with ${item.farmerName}...'),
-                                      duration: const Duration(seconds: 2),
-                                    ));
-                                  }
-                                },
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        if (item.actionButton1.contains('Chat'))
-                                          const Icon(Icons.chat_bubble_outline,
-                                              size: 14),
-                                        if (item.actionButton1.contains('Chat'))
-                                          const SizedBox(width: 4),
-                                        Text(
-                                          item.actionButton1
-                                              .replaceAll('\\n', ' ')
-                                              .replaceAll('\n', ' '),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (item.actionButton1.isNotEmpty &&
-                              item.actionButton2.isNotEmpty)
-                            const SizedBox(width: 12),
-                          if (item.actionButton2.isNotEmpty)
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (item.actionButton2.contains('Pay')) {
-                                    ref
-                                        .read(harvestScheduleControllerProvider
-                                            .notifier)
-                                        .payDeposit(item);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text('Paying deposit...')));
-                                  } else if (item.actionButton2
-                                      .contains('Arrange')) {
-                                    ref
-                                        .read(harvestScheduleControllerProvider
-                                            .notifier)
-                                        .arrangePickup(item);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text('Arranging pickup...')));
-                                  }
-                                },
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      item.actionButton2
-                                          .replaceAll('\\n', ' ')
-                                          .replaceAll('\n', ' '),
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
                       ),
                     ],
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${item.farmerName} · ${item.distance} km',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: item.badges.map((badge) {
+                      Color badgeBg = kPillGrey;
+                      Color badgeText = Colors.grey[700]!;
+                      if (badge == 'Pre-ordered' ||
+                          badge == 'Just reserved') {
+                        badgeBg = const Color(0xFFF3F6F1);
+                        badgeText = const Color(0xFF336240);
+                      } else if (badge == 'Pending confirmation') {
+                        badgeBg = const Color(0xFFFFF4EC);
+                        badgeText = const Color(0xFFD97706);
+                      }
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: badgeBg,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          badge,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: badgeText,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.descriptionText,
+                          style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        formatter.format(item.price).replaceAll(',00', ''),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
