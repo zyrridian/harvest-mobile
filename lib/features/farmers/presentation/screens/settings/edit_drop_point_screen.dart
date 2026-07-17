@@ -1,9 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/features/farmers/domain/entities/drop_point.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/drop_points_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest_app/features/users/presentation/screens/map_picker_screen.dart';
+import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
+import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 
 const kBgColor = Color(0xFFF7F9F8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -27,11 +32,13 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _whatWeSellController;
   late TextEditingController _addressController;
-  late TextEditingController _latitudeController;
-  late TextEditingController _longitudeController;
-  late TextEditingController _imageUrlController;
   late TextEditingController _tagsController;
   late TextEditingController _operatingHoursController;
+  
+  double _latitude = -6.1944;
+  double _longitude = 106.8229;
+  String? _imagePath;
+  
   bool _isActive = true;
   bool _isLoading = false;
 
@@ -42,11 +49,14 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
     _descriptionController = TextEditingController(text: widget.dropPoint?.description ?? '');
     _whatWeSellController = TextEditingController(text: widget.dropPoint?.whatWeSell ?? '');
     _addressController = TextEditingController(text: widget.dropPoint?.address ?? '');
-    _latitudeController = TextEditingController(text: widget.dropPoint?.latitude.toString() ?? '');
-    _longitudeController = TextEditingController(text: widget.dropPoint?.longitude.toString() ?? '');
-    _imageUrlController = TextEditingController(text: widget.dropPoint?.imageUrl ?? '');
     _tagsController = TextEditingController(text: widget.dropPoint?.tags.join(', ') ?? '');
     _operatingHoursController = TextEditingController(text: widget.dropPoint?.operatingHours ?? '');
+    
+    if (widget.dropPoint != null) {
+      _latitude = widget.dropPoint!.latitude;
+      _longitude = widget.dropPoint!.longitude;
+      _imagePath = widget.dropPoint!.imageUrl;
+    }
     _isActive = widget.dropPoint?.isActive ?? true;
   }
 
@@ -56,9 +66,6 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
     _descriptionController.dispose();
     _whatWeSellController.dispose();
     _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
-    _imageUrlController.dispose();
     _tagsController.dispose();
     _operatingHoursController.dispose();
     super.dispose();
@@ -67,6 +74,33 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
+
+      String? finalImageUrl = _imagePath;
+
+      if (_imagePath != null && !_imagePath!.startsWith('http')) {
+        final uploadUseCase = ref.read(uploadFileUseCaseProvider);
+        final result = await uploadUseCase(File(_imagePath!));
+
+        bool uploadFailed = false;
+        result.fold(
+          (failure) {
+            uploadFailed = true;
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to upload image: ${failure.toString()}')),
+              );
+            }
+          },
+          (uploadedFile) {
+            finalImageUrl = uploadedFile.url;
+          },
+        );
+
+        if (uploadFailed) {
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
 
       final tagsList = _tagsController.text
           .split(',')
@@ -79,10 +113,10 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         whatWeSell: _whatWeSellController.text.trim(),
-        latitude: double.tryParse(_latitudeController.text.trim()) ?? 0.0,
-        longitude: double.tryParse(_longitudeController.text.trim()) ?? 0.0,
+        latitude: _latitude,
+        longitude: _longitude,
         address: _addressController.text.trim(),
-        imageUrl: _imageUrlController.text.trim(),
+        imageUrl: finalImageUrl,
         isActive: _isActive,
         tags: tagsList,
         operatingHours: _operatingHoursController.text.trim(),
@@ -169,33 +203,86 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _latitudeController,
-                      label: 'Latitude',
-                      icon: PhosphorIconsRegular.compass,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    ),
+              // Map Preview
+              Text(
+                'Location',
+                style: TextStyle(
+                  color: kDarkGreen,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: kBorderColor),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        key: ValueKey('$_latitude-$_longitude'),
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(_latitude, _longitude),
+                          zoom: 15,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('preview'),
+                            position: LatLng(_latitude, _longitude),
+                          ),
+                        },
+                        zoomControlsEnabled: false,
+                        scrollGesturesEnabled: false,
+                        tiltGesturesEnabled: false,
+                        rotateGesturesEnabled: false,
+                        zoomGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        mapToolbarEnabled: false,
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _showLocationPicker,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 16, color: kDarkGreen),
+                              const SizedBox(width: 4),
+                              Text('Change', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: kDarkGreen)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _longitudeController,
-                      label: 'Longitude',
-                      icon: PhosphorIconsRegular.compass,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    ),
-                  ),
-                ],
+                ),
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: _operatingHoursController,
                 label: 'Operating Hours',
                 icon: PhosphorIconsRegular.clock,
-                hint: 'e.g. Sat & Sun: 8 AM - 12 PM',
+                hint: 'e.g. 08:00 AM - 05:00 PM',
+                readOnly: true,
+                onTap: _showOperatingHoursPicker,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -205,11 +292,49 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
                 hint: 'e.g. Organic, Weekend',
               ),
               const SizedBox(height: 16),
-              _buildTextField(
-                controller: _imageUrlController,
-                label: 'Image URL',
-                icon: PhosphorIconsRegular.image,
-                hint: 'https://...',
+              // Image Upload
+              Text(
+                'Branch Photo',
+                style: TextStyle(
+                  color: kDarkGreen,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                    setState(() => _imagePath = path);
+                  });
+                },
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kBorderColor),
+                  ),
+                  child: _imagePath != null && _imagePath!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: _imagePath!.startsWith('http')
+                              ? Image.network(_imagePath!, fit: BoxFit.cover)
+                              : Image.file(File(_imagePath!), fit: BoxFit.cover),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(PhosphorIconsRegular.image, size: 40, color: Colors.grey.shade400),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to upload a photo',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                ),
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -284,6 +409,8 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
     TextInputType keyboardType = TextInputType.text,
     String? hint,
     String? Function(String?)? validator,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,6 +429,8 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
           maxLines: maxLines,
           keyboardType: keyboardType,
           validator: validator,
+          readOnly: readOnly,
+          onTap: onTap,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
@@ -329,5 +458,49 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _showLocationPicker() async {
+    final result = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: LatLng(_latitude, _longitude),
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location updated successfully')),
+      );
+    }
+  }
+
+  Future<void> _showOperatingHoursPicker() async {
+    final openTime = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 8, minute: 0),
+      helpText: 'Select Opening Time',
+    );
+    if (openTime == null || !mounted) return;
+
+    final closeTime = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 17, minute: 0),
+      helpText: 'Select Closing Time',
+    );
+    if (closeTime == null || !mounted) return;
+
+    final openStr = openTime.format(context);
+    final closeStr = closeTime.format(context);
+    setState(() {
+      _operatingHoursController.text = '$openStr - $closeStr';
+    });
   }
 }

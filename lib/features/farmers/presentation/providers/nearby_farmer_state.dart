@@ -12,6 +12,8 @@ class NearbyFarmerState with _$NearbyFarmerState {
     @Default('') String searchQuery,
     @Default(false) bool isOrganicFilter,
     @Default(false) bool isOpenNowFilter,
+    @Default(3.0) double radius,
+    @Default(false) bool isLoading,
   }) = _Data;
   const factory NearbyFarmerState.error(String message) = _Error;
 }

@@ -30,6 +30,8 @@ class Farmer extends Equatable {
   final int? followersCount;
   final bool isFollowed;
   final List<FarmerGalleryImage> gallery;
+  final Map<String, dynamic>? mainLocation;
+  final List<dynamic>? cabang;
 
   // Compatibility getters for the UI to reduce some breakage
   String get whatWeSell {
@@ -69,6 +71,8 @@ class Farmer extends Equatable {
     this.followersCount,
     this.isFollowed = false,
     this.gallery = const [],
+    this.mainLocation,
+    this.cabang,
   });
 
   Farmer copyWith({
@@ -99,6 +103,8 @@ class Farmer extends Equatable {
     int? followersCount,
     bool? isFollowed,
     List<FarmerGalleryImage>? gallery,
+    Map<String, dynamic>? mainLocation,
+    List<dynamic>? cabang,
   }) {
     return Farmer(
       id: id ?? this.id,
@@ -128,6 +134,8 @@ class Farmer extends Equatable {
       followersCount: followersCount ?? this.followersCount,
       isFollowed: isFollowed ?? this.isFollowed,
       gallery: gallery ?? this.gallery,
+      mainLocation: mainLocation ?? this.mainLocation,
+      cabang: cabang ?? this.cabang,
     );
   }
 
@@ -169,5 +177,7 @@ class Farmer extends Equatable {
         followersCount,
         isFollowed,
         gallery,
+        mainLocation,
+        cabang,
       ];
 }

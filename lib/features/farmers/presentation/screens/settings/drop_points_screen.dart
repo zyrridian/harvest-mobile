@@ -134,12 +134,12 @@ class DropPointsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (point.imageUrl.isNotEmpty)
+          if (point.imageUrl != null && point.imageUrl!.isNotEmpty)
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(16)),
               child: Image.network(
-                point.imageUrl,
+                point.imageUrl!,
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -192,7 +192,7 @@ class DropPointsScreen extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        point.address,
+                        point.address ?? 'No address',
                         style: TextStyle(fontSize: 14, color: kTextGrey),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -208,7 +208,7 @@ class DropPointsScreen extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        point.operatingHours,
+                        point.operatingHours ?? 'No operating hours',
                         style: TextStyle(fontSize: 14, color: kTextGrey),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

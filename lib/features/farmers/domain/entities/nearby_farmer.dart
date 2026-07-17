@@ -14,6 +14,41 @@ class NearbyFarmerProduct with _$NearbyFarmerProduct {
 }
 
 @freezed
+class NearbyFarmerCabang with _$NearbyFarmerCabang {
+  const factory NearbyFarmerCabang({
+    required String id,
+    required String name,
+    String? description,
+    String? whatWeSell,
+    required double latitude,
+    required double longitude,
+    String? address,
+    String? imageUrl,
+    @Default(true) bool isActive,
+    @Default([]) List<String> tags,
+    String? operatingHours,
+    double? distance,
+  }) = _NearbyFarmerCabang;
+
+  factory NearbyFarmerCabang.fromJson(Map<String, dynamic> json) =>
+      _$NearbyFarmerCabangFromJson(json);
+}
+
+@freezed
+class NearbyFarmerMainLocation with _$NearbyFarmerMainLocation {
+  const factory NearbyFarmerMainLocation({
+    required double latitude,
+    required double longitude,
+    String? address,
+    String? city,
+    String? state,
+  }) = _NearbyFarmerMainLocation;
+
+  factory NearbyFarmerMainLocation.fromJson(Map<String, dynamic> json) =>
+      _$NearbyFarmerMainLocationFromJson(json);
+}
+
+@freezed
 class NearbyFarmerData with _$NearbyFarmerData {
   const factory NearbyFarmerData({
     required String id,
@@ -32,6 +67,8 @@ class NearbyFarmerData with _$NearbyFarmerData {
     required double latitude,
     required double longitude,
     required String iconPath,
+    NearbyFarmerMainLocation? mainLocation,
+    @Default([]) List<NearbyFarmerCabang> cabang,
   }) = _NearbyFarmerData;
 
   factory NearbyFarmerData.fromJson(Map<String, dynamic> json) =>

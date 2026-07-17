@@ -37,7 +37,7 @@ PreOrderHarvestModel _$PreOrderHarvestModelFromJson(
       id: json['id'] as String,
       title: json['title'] as String,
       farmerName: json['farmer_name'] as String,
-      distance: json['distance'] as String,
+      distance: json['distance'] as String?,
       imageUrl: json['image_url'] as String,
       price: (json['price'] as num).toDouble(),
       unit: json['unit'] as String,
@@ -62,6 +62,7 @@ Map<String, dynamic> _$PreOrderHarvestModelToJson(
       'total_quantity': instance.totalQuantity,
       'days_left': instance.daysLeft,
       'status': instance.status,
+      'total_people_reserved': instance.totalPeopleReserved,
     };
 
 PreOrderReservationModel _$PreOrderReservationModelFromJson(

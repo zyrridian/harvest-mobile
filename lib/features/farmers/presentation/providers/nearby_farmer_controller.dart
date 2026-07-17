@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/usecases/get_nearby_farmers_usecase.dart';
 import 'nearby_farmer_providers.dart';
@@ -7,6 +8,8 @@ part 'nearby_farmer_controller.g.dart';
 
 @riverpod
 class NearbyFarmerController extends _$NearbyFarmerController {
+  Timer? _debounceTimer;
+
   @override
   NearbyFarmerState build() {
     Future.microtask(() => _fetchData());
@@ -15,7 +18,11 @@ class NearbyFarmerController extends _$NearbyFarmerController {
 
   Future<void> _fetchData() async {
     final currentData = state.mapOrNull(data: (d) => d);
-    state = const NearbyFarmerState.loading();
+    if (currentData == null) {
+      state = const NearbyFarmerState.loading();
+    } else {
+      state = currentData.copyWith(isLoading: true);
+    }
     
     try {
       final usecase = ref.read(getNearbyFarmersUsecaseProvider);
@@ -23,7 +30,7 @@ class NearbyFarmerController extends _$NearbyFarmerController {
       final params = GetNearbyFarmersParams(
         latitude: -6.200000,
         longitude: 106.816666,
-        radius: 3.0,
+        radius: currentData?.radius ?? 3.0,
         search: currentData?.searchQuery.isNotEmpty == true ? currentData!.searchQuery : null,
         isOrganic: currentData?.isOrganicFilter == true ? true : null,
         isOpenNow: currentData?.isOpenNowFilter == true ? true : null,
@@ -41,6 +48,8 @@ class NearbyFarmerController extends _$NearbyFarmerController {
             searchQuery: currentData?.searchQuery ?? '',
             isOrganicFilter: currentData?.isOrganicFilter ?? false,
             isOpenNowFilter: currentData?.isOpenNowFilter ?? false,
+            radius: currentData?.radius ?? 3.0,
+            isLoading: false,
           );
         },
       );
@@ -50,10 +59,13 @@ class NearbyFarmerController extends _$NearbyFarmerController {
   }
 
   void updateSearchQuery(String query) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     state.mapOrNull(
       data: (data) {
         state = data.copyWith(searchQuery: query);
-        _fetchData();
+        _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+          _fetchData();
+        });
       },
     );
   }
@@ -71,6 +83,15 @@ class NearbyFarmerController extends _$NearbyFarmerController {
     state.mapOrNull(
       data: (data) {
         state = data.copyWith(isOpenNowFilter: !data.isOpenNowFilter);
+        _fetchData();
+      },
+    );
+  }
+
+  void updateRadius(double radius) {
+    state.mapOrNull(
+      data: (data) {
+        state = data.copyWith(radius: radius);
         _fetchData();
       },
     );

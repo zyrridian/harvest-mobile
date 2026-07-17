@@ -53,6 +53,9 @@ class FarmerStats extends Equatable {
   final FarmerStatsEngagement? engagement;
 
   final List<FarmerOrder> recentOrders;
+  
+  // New: List of branches (cabang / drop points)
+  final List<dynamic>? dropPoints; // Typically would be List<DropPoint>
 
   const FarmerStats({
     this.profile,
@@ -66,6 +69,7 @@ class FarmerStats extends Equatable {
     required this.lastMonthRevenue,
     this.engagement,
     required this.recentOrders,
+    this.dropPoints,
   });
 
   @override
@@ -81,5 +85,6 @@ class FarmerStats extends Equatable {
         lastMonthRevenue,
         engagement,
         recentOrders,
+        dropPoints,
       ];
 }

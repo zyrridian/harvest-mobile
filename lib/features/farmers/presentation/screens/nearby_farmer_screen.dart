@@ -26,6 +26,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
   bool _isListView = true;
   String? _selectedFarmerId;
   bool _isScrolled = false;
+  final Set<String> _expandedCabangFarmers = {};
 
   @override
   void initState() {
@@ -58,7 +59,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (err) => Center(child: Text('Error: $err')),
-        data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter) {
+        data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter, radius, isLoading) {
           return LayoutBuilder(
             builder: (context, constraints) {
               final sheetHeaderHeight = 100.0;
@@ -83,8 +84,31 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                         zoom: 13,
                       ),
                       markers: farmers
-                          .map((f) => Marker(
-                                markerId: MarkerId(f.id),
+                          .expand((f) {
+                            final List<Marker> markers = [];
+                            
+                            // Plot Main Farm Location (if valid coordinates exist)
+                            if (f.mainLocation != null) {
+                              markers.add(Marker(
+                                markerId: MarkerId('main-${f.id}'),
+                                position: LatLng(f.mainLocation!.latitude, f.mainLocation!.longitude),
+                                icon: BitmapDescriptor.defaultMarkerWithHue(
+                                  _selectedFarmerId == f.id
+                                      ? BitmapDescriptor.hueGreen
+                                      : BitmapDescriptor.hueRed,
+                                ),
+                                onTap: () {
+                                  setState(() => _selectedFarmerId = f.id);
+                                  _mapController?.animateCamera(
+                                    CameraUpdate.newLatLng(
+                                        LatLng(f.mainLocation!.latitude, f.mainLocation!.longitude)),
+                                  );
+                                },
+                              ));
+                            } else {
+                              // Fallback to legacy farmer coordinates
+                              markers.add(Marker(
+                                markerId: MarkerId('main-${f.id}'),
                                 position: LatLng(f.latitude, f.longitude),
                                 icon: BitmapDescriptor.defaultMarkerWithHue(
                                   _selectedFarmerId == f.id
@@ -98,7 +122,30 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                         LatLng(f.latitude, f.longitude)),
                                   );
                                 },
-                              ))
+                              ));
+                            }
+
+                            // Plot all Cabang / Branches
+                            for (var branch in f.cabang) {
+                              markers.add(Marker(
+                                markerId: MarkerId('branch-${branch.id}'),
+                                position: LatLng(branch.latitude, branch.longitude),
+                                icon: BitmapDescriptor.defaultMarkerWithHue(
+                                  _selectedFarmerId == f.id
+                                      ? BitmapDescriptor.hueGreen
+                                      : BitmapDescriptor.hueOrange,
+                                ),
+                                onTap: () {
+                                  setState(() => _selectedFarmerId = f.id);
+                                  _mapController?.animateCamera(
+                                    CameraUpdate.newLatLng(
+                                        LatLng(branch.latitude, branch.longitude)),
+                                  );
+                                },
+                              ));
+                            }
+                            return markers;
+                          })
                           .toSet(),
                       onMapCreated: (mapController) =>
                           _mapController = mapController,
@@ -151,39 +198,57 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () => controller.toggleOpenNowFilter(),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: isOpenNowFilter
-                                    ? kHighlightGreen.withOpacity(0.1)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                    color: isOpenNowFilter
-                                        ? kHighlightGreen
-                                        : Colors.grey[300]!),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(PhosphorIconsRegular.clock,
-                                      size: 14,
-                                      color: isOpenNowFilter
-                                          ? kHighlightGreen
-                                          : Colors.black87),
-                                  const SizedBox(width: 4),
-                                  Text('Open now',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: isOpenNowFilter
-                                              ? kHighlightGreen
-                                              : Colors.black87)),
-                                ],
-                              ),
-                            ),
+                          DropdownButton<double>(
+                            value: radius,
+                            icon: const Icon(Icons.arrow_drop_down, size: 16),
+                            underline: const SizedBox(),
+                            style: const TextStyle(fontSize: 12, color: Colors.black87),
+                            items: const [
+                              DropdownMenuItem(value: 3.0, child: Text('3 km')),
+                              DropdownMenuItem(value: 5.0, child: Text('5 km')),
+                              DropdownMenuItem(value: 10.0, child: Text('10 km')),
+                              DropdownMenuItem(value: 0.0, child: Text('All')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) {
+                                controller.updateRadius(val);
+                              }
+                            },
                           ),
+                          const SizedBox(width: 8),
+                          // GestureDetector(
+                          //   onTap: () => controller.toggleOpenNowFilter(),
+                          //   child: Container(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 12, vertical: 6),
+                          //     decoration: BoxDecoration(
+                          //       color: isOpenNowFilter
+                          //           ? kHighlightGreen.withOpacity(0.1)
+                          //           : Colors.transparent,
+                          //       border: Border.all(
+                          //           color: isOpenNowFilter
+                          //               ? kHighlightGreen
+                          //               : Colors.grey[300]!),
+                          //       borderRadius: BorderRadius.circular(8),
+                          //     ),
+                          //     // child: Row(
+                          //     //   children: [
+                          //     //     Icon(PhosphorIconsRegular.clock,
+                          //     //         size: 14,
+                          //     //         color: isOpenNowFilter
+                          //     //             ? kHighlightGreen
+                          //     //             : Colors.black87),
+                          //     //     const SizedBox(width: 4),
+                          //     //     Text('Open now',
+                          //     //         style: TextStyle(
+                          //     //             fontSize: 12,
+                          //     //             color: isOpenNowFilter
+                          //     //                 ? kHighlightGreen
+                          //     //                 : Colors.black87)),
+                          //     //   ],
+                          //     // ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -227,47 +292,47 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       ),
                     ),
                   ),
-                  // Legend overlay (Covered by dark overlay)
-                  AnimatedBuilder(
-                    animation: _sheetController,
-                    builder: (context, child) {
-                      double posSize = 0.5;
-                      if (_sheetController.isAttached) {
-                        posSize = _sheetController.size;
-                      }
-                      return Positioned(
-                        bottom: (posSize * constraints.maxHeight) + 16,
-                        left: 68,
-                        child: child!,
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          _buildLegendItem(
-                              const Color(0xFF4A7C38), 'Produce'),
-                          const SizedBox(width: 12),
-                          _buildLegendItem(
-                              const Color(0xFFD97706), 'Aquaculture'),
-                          const SizedBox(width: 12),
-                          _buildLegendItem(Colors.grey, 'Closed'),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // // Legend overlay
+                  // AnimatedBuilder(
+                  //   animation: _sheetController,
+                  //   builder: (context, child) {
+                  //     double posSize = 0.5;
+                  //     if (_sheetController.isAttached) {
+                  //       posSize = _sheetController.size;
+                  //     }
+                  //     return Positioned(
+                  //       bottom: (posSize * constraints.maxHeight) + 16,
+                  //       left: 68,
+                  //       child: child!,
+                  //     );
+                  //   },
+                  //   child: Container(
+                  //     padding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.white,
+                  //       borderRadius: BorderRadius.circular(20),
+                  //       boxShadow: [
+                  //         BoxShadow(
+                  //           color: Colors.black.withOpacity(0.05),
+                  //           blurRadius: 10,
+                  //           offset: const Offset(0, 2),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     child: Row(
+                  //       children: [
+                  //         _buildLegendItem(
+                  //             const Color(0xFF4A7C38), 'Produce'),
+                  //         const SizedBox(width: 12),
+                  //         _buildLegendItem(
+                  //             const Color(0xFFD97706), 'Aquaculture'),
+                  //         const SizedBox(width: 12),
+                  //         _buildLegendItem(Colors.grey, 'Closed'),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   // Dark Overlay
                   AnimatedBuilder(
                     animation: _sheetController,
@@ -390,13 +455,19 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          '${farmers.length} farmers near you · within 3 km',
+                                          '${farmers.length} farmers near you ${radius == 0.0 ? '' : '· within ${radius.toInt()} km'}',
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.black87,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
+                                        if (isLoading)
+                                          const SizedBox(
+                                            height: 16,
+                                            width: 16,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: kDarkGreen),
+                                          ),
                                         Row(
                                           children: [
                                             GestureDetector(
@@ -543,8 +614,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
     return GestureDetector(
       onTap: () {
         setState(() => _selectedFarmerId = farmer.id);
+        final lat = farmer.mainLocation?.latitude ?? farmer.latitude;
+        final lng = farmer.mainLocation?.longitude ?? farmer.longitude;
         _mapController?.animateCamera(
-          CameraUpdate.newLatLng(LatLng(farmer.latitude, farmer.longitude)),
+          CameraUpdate.newLatLng(LatLng(lat, lng)),
         );
       },
       child: Container(
@@ -593,35 +666,39 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             fontSize: 12, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: farmer.tags.map((tag) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: tag == 'Organic'
-                                  ? const Color(0xFFE8F3E8)
-                                  : (tag == 'Community seller'
-                                      ? const Color(0xFFE3F2FD)
-                                      : const Color(0xFFFFF3E0)),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              tag,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: tag == 'Organic'
-                                    ? const Color(0xFF2E7D32)
-                                    : (tag == 'Community seller'
-                                        ? const Color(0xFF1565C0)
-                                        : const Color(0xFFE65100)),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: farmer.tags.map((tag) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: tag == 'Organic'
+                                      ? const Color(0xFFE8F3E8)
+                                      : (tag == 'Community seller'
+                                          ? const Color(0xFFE3F2FD)
+                                          : const Color(0xFFFFF3E0)),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: tag == 'Organic'
+                                        ? const Color(0xFF2E7D32)
+                                        : (tag == 'Community seller'
+                                            ? const Color(0xFF1565C0)
+                                            : const Color(0xFFE65100)),
+                                  ),
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList(),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ],
                   ),
@@ -664,36 +741,39 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Row(
-                    children: [
-                      ...farmer.products
-                          .map((p) => Row(
-                                children: [
-                                  Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                          color:
-                                              farmer.category == 'Aquaculture'
-                                                  ? const Color(0xFFD97706)
-                                                  : kHighlightGreen,
-                                          shape: BoxShape.circle)),
-                                  const SizedBox(width: 4),
-                                  Text(p.name,
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey[800])),
-                                  const SizedBox(width: 8),
-                                ],
-                              ))
-                          ,
-                      if (farmer.extraProductsCount > 0)
-                        Text('+${farmer.extraProductsCount} more',
-                            style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.grey[600],
-                                height: 1.1)),
-                    ],
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ...farmer.products
+                            .map((p) => Row(
+                                  children: [
+                                    Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: BoxDecoration(
+                                            color:
+                                                farmer.category == 'Aquaculture'
+                                                    ? const Color(0xFFD97706)
+                                                    : kHighlightGreen,
+                                            shape: BoxShape.circle)),
+                                    const SizedBox(width: 4),
+                                    Text(p.name,
+                                        style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey[800])),
+                                    const SizedBox(width: 8),
+                                  ],
+                                ))
+                            ,
+                        if (farmer.extraProductsCount > 0)
+                          Text('+${farmer.extraProductsCount} more',
+                              style: TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.grey[600],
+                                  height: 1.1)),
+                      ],
+                    ),
                   ),
                 ),
                 Row(
@@ -777,33 +857,148 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            // Status
+            // Status and Branches
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: farmer.isOpen ? kHighlightGreen : Colors.grey,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  farmer.statusText,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color:
-                          farmer.isOpen ? kHighlightGreen : Colors.grey[700]),
-                ),
-                if (farmer.statusSubText.isNotEmpty)
-                  Text(
-                    ' · ${farmer.statusSubText}',
-                    style: TextStyle(
-                        fontSize: 11, color: Colors.grey[700]),
+                // Row(
+                //   children: [
+                //     Container(
+                //       width: 6,
+                //       height: 6,
+                //       decoration: BoxDecoration(
+                //         color: farmer.isOpen ? kHighlightGreen : Colors.grey,
+                //         shape: BoxShape.circle,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 6),
+                //     Text(
+                //       farmer.statusText,
+                //       style: TextStyle(
+                //           fontSize: 11,
+                //           color:
+                //               farmer.isOpen ? kHighlightGreen : Colors.grey[700]),
+                //     ),
+                //     if (farmer.statusSubText.isNotEmpty)
+                //       Text(
+                //         ' · ${farmer.statusSubText}',
+                //         style: TextStyle(
+                //             fontSize: 11, color: Colors.grey[600]),
+                //       ),
+                //   ],
+                // ),
+                const SizedBox(), // Placeholder for removed opening time Row
+                if (farmer.cabang.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_expandedCabangFarmers.contains(farmer.id)) {
+                          _expandedCabangFarmers.remove(farmer.id);
+                        } else {
+                          _expandedCabangFarmers.add(farmer.id);
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(PhosphorIconsRegular.mapPin, size: 12, color: Colors.orange),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${farmer.cabang.length} Branches',
+                            style: TextStyle(fontSize: 10, color: Colors.orange[800], fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            _expandedCabangFarmers.contains(farmer.id)
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            size: 14,
+                            color: Colors.orange[800],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
               ],
             ),
+            // Expanded Branches List
+            if (farmer.cabang.isNotEmpty)
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: Container(
+                  constraints: _expandedCabangFarmers.contains(farmer.id)
+                      ? const BoxConstraints(maxHeight: double.infinity)
+                      : const BoxConstraints(maxHeight: 0.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Available at these locations:',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kDarkGreen),
+                        ),
+                        const SizedBox(height: 8),
+                        ...farmer.cabang.map((branch) => GestureDetector(
+                              onTap: () {
+                                setState(() => _selectedFarmerId = farmer.id);
+                                _mapController?.animateCamera(
+                                  CameraUpdate.newLatLng(LatLng(branch.latitude, branch.longitude)),
+                                );
+                              },
+                              child: Container(
+                                color: Colors.transparent, // Ensure it catches taps
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(PhosphorIconsFill.mapPin, size: 16, color: Colors.orange),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            branch.name,
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            branch.address ?? 'No address available',
+                                            style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (branch.distance != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 2.0),
+                                              child: Text(
+                                                '${branch.distance} km away',
+                                                style: TextStyle(fontSize: 10, color: kHighlightGreen, fontWeight: FontWeight.w500),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

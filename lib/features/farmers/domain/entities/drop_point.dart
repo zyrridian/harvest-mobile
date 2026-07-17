@@ -3,28 +3,28 @@ import 'package:equatable/equatable.dart';
 class DropPoint extends Equatable {
   final String id;
   final String name;
-  final String description;
-  final String whatWeSell;
+  final String? description;
+  final String? whatWeSell;
   final double latitude;
   final double longitude;
-  final String address;
-  final String imageUrl;
+  final String? address;
+  final String? imageUrl;
   final bool isActive;
   final List<String> tags;
-  final String operatingHours;
+  final String? operatingHours;
 
   const DropPoint({
     required this.id,
     required this.name,
-    required this.description,
-    required this.whatWeSell,
+    this.description,
+    this.whatWeSell,
     required this.latitude,
     required this.longitude,
-    required this.address,
-    required this.imageUrl,
+    this.address,
+    this.imageUrl,
     required this.isActive,
     required this.tags,
-    required this.operatingHours,
+    this.operatingHours,
   });
 
   @override

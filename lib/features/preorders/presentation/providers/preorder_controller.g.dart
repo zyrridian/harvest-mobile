@@ -7,7 +7,7 @@ part of 'preorder_controller.dart';
 // **************************************************************************
 
 String _$preOrderControllerHash() =>
-    r'5fdec45d2fc5e2eecc2be99bc63aa9635bda7af9';
+    r'0d15b35d01174b1554322b913d44186a491ad9fc';
 
 /// See also [PreOrderController].
 @ProviderFor(PreOrderController)

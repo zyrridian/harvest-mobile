@@ -7,47 +7,47 @@ part 'drop_point_model.g.dart';
 class DropPointModel {
   final String id;
   final String name;
-  final String description;
+  final String? description;
   @JsonKey(name: 'what_we_sell')
-  final String whatWeSell;
+  final String? whatWeSell;
   final double latitude;
   final double longitude;
-  final String address;
+  final String? address;
   @JsonKey(name: 'image_url')
-  final String imageUrl;
+  final String? imageUrl;
   @JsonKey(name: 'is_active')
   final bool isActive;
   final List<String> tags;
   @JsonKey(name: 'operating_hours')
-  final String operatingHours;
+  final String? operatingHours;
 
   DropPointModel({
     required this.id,
     required this.name,
-    required this.description,
-    required this.whatWeSell,
+    this.description,
+    this.whatWeSell,
     required this.latitude,
     required this.longitude,
-    required this.address,
-    required this.imageUrl,
+    this.address,
+    this.imageUrl,
     required this.isActive,
     required this.tags,
-    required this.operatingHours,
+    this.operatingHours,
   });
 
   factory DropPointModel.fromJson(Map<String, dynamic> json) {
     return DropPointModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String,
-      whatWeSell: (json['what_we_sell'] ?? json['whatWeSell']) as String,
+      description: json['description'] as String?,
+      whatWeSell: (json['what_we_sell'] ?? json['whatWeSell']) as String?,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      address: json['address'] as String,
-      imageUrl: (json['image_url'] ?? json['imageUrl'] ?? '') as String,
+      address: json['address'] as String?,
+      imageUrl: (json['image_url'] ?? json['imageUrl']) as String?,
       isActive: (json['is_active'] ?? json['isActive'] ?? false) as bool,
-      tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
-      operatingHours: (json['operating_hours'] ?? json['operatingHours'] ?? '') as String,
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      operatingHours: (json['operating_hours'] as String?) ?? (json['operatingHours'] as String?),
     );
   }
 
