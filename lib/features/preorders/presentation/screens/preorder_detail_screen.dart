@@ -25,6 +25,7 @@ class PreOrderDetailScreen extends ConsumerStatefulWidget {
 class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
   final formatter =
       NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  bool? _localIsScheduled;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +55,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
               ? campaign.productImage!
               : AppConstants.emptyImageUrl;
           final bool hasReserved = campaign.hasReserved ?? false;
+          final bool isScheduled = _localIsScheduled ?? (campaign.isScheduled ?? false);
 
           return CustomScrollView(
             slivers: [
@@ -77,17 +79,47 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                   IconButton(
                     icon: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: isScheduled ? const Color(0xFF166534) : Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: const PhosphorIcon(
-                          PhosphorIconsRegular.calendarPlus,
-                          color: kDarkGreen,
+                      child: PhosphorIcon(
+                          isScheduled 
+                              ? PhosphorIconsFill.calendarCheck 
+                              : PhosphorIconsRegular.calendarPlus,
+                          color: isScheduled ? Colors.white : kDarkGreen,
                           size: 20),
                     ),
-                    onPressed: () {
-                      // TODO: Implement add to schedule logic
+                    onPressed: () async {
+                      setState(() {
+                        _localIsScheduled = !isScheduled;
+                      });
+                      
+                      final isSuccess = await ref
+                          .read(preOrderControllerProvider.notifier)
+                          .toggleSchedule(campaign.id, isScheduled);
+                          
+                      if (mounted) {
+                        if (isSuccess) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                _localIsScheduled!
+                                    ? 'Added to schedule'
+                                    : 'Removed from schedule',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: const Color(0xFF166534),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          // Revert on failure
+                          setState(() {
+                            _localIsScheduled = isScheduled;
+                          });
+                        }
+                      }
                     },
                   ),
                   const SizedBox(width: 8),

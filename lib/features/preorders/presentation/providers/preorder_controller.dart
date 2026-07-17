@@ -16,6 +16,9 @@ import 'package:harvest_app/features/preorders/domain/usecases/get_preorder_camp
 import 'package:harvest_app/features/preorders/domain/usecases/get_my_reservations_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/delete_preorder_campaign_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/update_preorder_campaign_status_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/add_to_schedule_usecase.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/remove_from_schedule_usecase.dart';
+import 'harvest_schedule_controller.dart';
 import 'preorder_state.dart';
 
 part 'preorder_controller.g.dart';
@@ -82,6 +85,14 @@ final updatePreorderCampaignStatusUseCaseProvider = Provider<UpdatePreorderCampa
   return UpdatePreorderCampaignStatusUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
+final addToScheduleUseCaseProvider = Provider<AddToScheduleUseCase>((ref) {
+  return AddToScheduleUseCase(ref.watch(harvestScheduleRepositoryProvider));
+});
+
+final removeFromScheduleUseCaseProvider = Provider<RemoveFromScheduleUseCase>((ref) {
+  return RemoveFromScheduleUseCase(ref.watch(harvestScheduleRepositoryProvider));
+});
+
 final myReservationsProvider = FutureProvider.autoDispose<List<PreOrderReservation>>((ref) async {
   final usecase = ref.watch(getMyReservationsUseCaseProvider);
   final result = await usecase.call();
@@ -138,6 +149,7 @@ class PreOrderController extends _$PreOrderController {
               daysLeft: daysLeft > 0 ? daysLeft : 0,
               status: c.status ?? 'Active',
               totalPeopleReserved: c.totalPeopleReserved ?? 0,
+              isScheduled: c.isScheduled ?? false,
             );
           }).toList();
 
@@ -313,5 +325,58 @@ class PreOrderController extends _$PreOrderController {
       (failure) => false,
       (_) => true,
     );
+  }
+
+  Future<bool> toggleSchedule(String campaignId, bool currentIsScheduled) async {
+    bool isSuccess = false;
+    await state.maybeWhen(
+      data: (data) async {
+        // Optimistic UI update
+        final updatedHarvests = data.availableHarvests.map((h) {
+          if (h.id == campaignId) {
+            return h.copyWith(isScheduled: !currentIsScheduled);
+          }
+          return h;
+        }).toList();
+
+        state = PreOrderState.data(data.copyWith(
+          availableHarvests: updatedHarvests,
+        ));
+
+        // API call
+        if (currentIsScheduled) {
+          final usecase = ref.read(removeFromScheduleUseCaseProvider);
+          final result = await usecase.call(campaignId: campaignId);
+          result.fold(
+            (failure) => isSuccess = false,
+            (_) => isSuccess = true,
+          );
+        } else {
+          final usecase = ref.read(addToScheduleUseCaseProvider);
+          final result = await usecase.call(campaignId: campaignId);
+          result.fold(
+            (failure) => isSuccess = false,
+            (_) => isSuccess = true,
+          );
+        }
+
+        // Revert on failure
+        if (!isSuccess) {
+          final revertedHarvests = data.availableHarvests.map((h) {
+            if (h.id == campaignId) {
+              return h.copyWith(isScheduled: currentIsScheduled);
+            }
+            return h;
+          }).toList();
+          state = PreOrderState.data(data.copyWith(
+            availableHarvests: revertedHarvests,
+          ));
+        }
+      },
+      orElse: () async {
+        isSuccess = false;
+      },
+    );
+    return isSuccess;
   }
 }

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
+import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import 'package:harvest_app/features/farmers/domain/entities/nearby_farmer.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/nearby_farmer_controller.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -27,10 +30,14 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
   String? _selectedFarmerId;
   bool _isScrolled = false;
   final Set<String> _expandedCabangFarmers = {};
+  final TextEditingController _searchController = TextEditingController();
+  bool _myLocationEnabled = false;
+  Position? _currentPosition;
 
   @override
   void initState() {
     super.initState();
+    _checkLocationPermission();
     _sheetController.addListener(() {
       if (_sheetController.size <= 0.3 && _isListView) {
         setState(() => _isListView = false);
@@ -40,9 +47,50 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
     });
   }
 
+  Future<void> _checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _myLocationEnabled = true;
+      });
+
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+        if (mounted) {
+          setState(() {
+            _currentPosition = position;
+          });
+        }
+      } catch (e) {
+        debugPrint('Error getting location: $e');
+      }
+    }
+  }
+
   @override
   void dispose() {
     _sheetController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -59,7 +107,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
         error: (err) => Center(child: Text('Error: $err')),
-        data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter, radius, isLoading) {
+        data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter, radius,
+            isLoading) {
           return LayoutBuilder(
             builder: (context, constraints) {
               final sheetHeaderHeight = 100.0;
@@ -77,78 +126,94 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     child: GoogleMap(
                       padding: EdgeInsets.only(
                         top: topPadding + 80,
-                        bottom: _isListView ? (constraints.maxHeight * 0.5) : sheetHeaderHeight,
+                        bottom: _isListView
+                            ? (constraints.maxHeight * 0.5)
+                            : sheetHeaderHeight,
                       ),
                       initialCameraPosition: const CameraPosition(
                         target: LatLng(-6.200000, 106.816666),
                         zoom: 13,
                       ),
-                      markers: farmers
-                          .expand((f) {
-                            final List<Marker> markers = [];
-                            
-                            // Plot Main Farm Location (if valid coordinates exist)
-                            if (f.mainLocation != null) {
-                              markers.add(Marker(
-                                markerId: MarkerId('main-${f.id}'),
-                                position: LatLng(f.mainLocation!.latitude, f.mainLocation!.longitude),
-                                icon: BitmapDescriptor.defaultMarkerWithHue(
-                                  _selectedFarmerId == f.id
-                                      ? BitmapDescriptor.hueGreen
-                                      : BitmapDescriptor.hueRed,
-                                ),
-                                onTap: () {
-                                  setState(() => _selectedFarmerId = f.id);
-                                  _mapController?.animateCamera(
-                                    CameraUpdate.newLatLng(
-                                        LatLng(f.mainLocation!.latitude, f.mainLocation!.longitude)),
-                                  );
-                                },
-                              ));
-                            } else {
-                              // Fallback to legacy farmer coordinates
-                              markers.add(Marker(
-                                markerId: MarkerId('main-${f.id}'),
-                                position: LatLng(f.latitude, f.longitude),
-                                icon: BitmapDescriptor.defaultMarkerWithHue(
-                                  _selectedFarmerId == f.id
-                                      ? BitmapDescriptor.hueGreen
-                                      : BitmapDescriptor.hueRed,
-                                ),
-                                onTap: () {
-                                  setState(() => _selectedFarmerId = f.id);
-                                  _mapController?.animateCamera(
-                                    CameraUpdate.newLatLng(
-                                        LatLng(f.latitude, f.longitude)),
-                                  );
-                                },
-                              ));
-                            }
+                      markers: farmers.expand((f) {
+                        final List<Marker> markers = [];
 
-                            // Plot all Cabang / Branches
-                            for (var branch in f.cabang) {
-                              markers.add(Marker(
-                                markerId: MarkerId('branch-${branch.id}'),
-                                position: LatLng(branch.latitude, branch.longitude),
-                                icon: BitmapDescriptor.defaultMarkerWithHue(
-                                  _selectedFarmerId == f.id
-                                      ? BitmapDescriptor.hueGreen
-                                      : BitmapDescriptor.hueOrange,
-                                ),
-                                onTap: () {
-                                  setState(() => _selectedFarmerId = f.id);
-                                  _mapController?.animateCamera(
-                                    CameraUpdate.newLatLng(
-                                        LatLng(branch.latitude, branch.longitude)),
-                                  );
-                                },
-                              ));
+                        // Plot Main Farm Location (if valid coordinates exist)
+                        if (f.mainLocation != null) {
+                          markers.add(Marker(
+                            markerId: MarkerId('main-${f.id}'),
+                            position: LatLng(f.mainLocation!.latitude,
+                                f.mainLocation!.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                              _selectedFarmerId == f.id
+                                  ? BitmapDescriptor.hueGreen
+                                  : BitmapDescriptor.hueRed,
+                            ),
+                            onTap: () {
+                              setState(() => _selectedFarmerId = f.id);
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLng(LatLng(
+                                    f.mainLocation!.latitude,
+                                    f.mainLocation!.longitude)),
+                              );
+                            },
+                          ));
+                        } else {
+                          // Fallback to legacy farmer coordinates
+                          markers.add(Marker(
+                            markerId: MarkerId('main-${f.id}'),
+                            position: LatLng(f.latitude, f.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                              _selectedFarmerId == f.id
+                                  ? BitmapDescriptor.hueGreen
+                                  : BitmapDescriptor.hueRed,
+                            ),
+                            onTap: () {
+                              setState(() => _selectedFarmerId = f.id);
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLng(
+                                    LatLng(f.latitude, f.longitude)),
+                              );
+                            },
+                          ));
+                        }
+
+                        // Plot all Cabang / Branches
+                        for (var branch in f.cabang) {
+                          markers.add(Marker(
+                            markerId: MarkerId('branch-${branch.id}'),
+                            position: LatLng(branch.latitude, branch.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                              _selectedFarmerId == f.id
+                                  ? BitmapDescriptor.hueGreen
+                                  : BitmapDescriptor.hueOrange,
+                            ),
+                            onTap: () {
+                              setState(() => _selectedFarmerId = f.id);
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLng(
+                                    LatLng(branch.latitude, branch.longitude)),
+                              );
+                            },
+                          ));
+                        }
+                        return markers;
+                      }).toSet(),
+                      circles: _currentPosition != null && radius > 0
+                          ? {
+                              Circle(
+                                circleId: const CircleId('radius_circle'),
+                                center: LatLng(_currentPosition!.latitude,
+                                    _currentPosition!.longitude),
+                                radius: radius * 1000,
+                                fillColor: Colors.blue.withOpacity(0.15),
+                                strokeColor: Colors.blue,
+                                strokeWidth: 2,
+                              )
                             }
-                            return markers;
-                          })
-                          .toSet(),
+                          : {},
                       onMapCreated: (mapController) =>
                           _mapController = mapController,
+                      myLocationEnabled: _myLocationEnabled,
                       myLocationButtonEnabled: false,
                       zoomControlsEnabled: false,
                       mapToolbarEnabled: false,
@@ -161,7 +226,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                          horizontal: 16, vertical: 0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -175,18 +240,24 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.grey),
+                          const PhosphorIcon(
+                              PhosphorIconsRegular.magnifyingGlass,
+                              color: Colors.grey),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
+                              controller: _searchController,
                               onChanged: (val) =>
                                   controller.updateSearchQuery(val),
-                              style: TextStyle(fontSize: 13),
+                              style: const TextStyle(fontSize: 13),
+                              textAlignVertical: TextAlignVertical.center,
                               cursorColor: kDarkGreen,
                               decoration: InputDecoration(
                                 hintText: 'Search area or farmer name...',
-                                hintStyle: TextStyle(
-                                    color: Colors.grey, fontSize: 13),
+                                hintStyle: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                ),
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
@@ -195,6 +266,18 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                 isDense: true,
                                 contentPadding:
                                     const EdgeInsets.symmetric(vertical: 8),
+                                suffixIcon: searchQuery.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.close,
+                                            size: 16, color: Colors.grey),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          controller.updateSearchQuery('');
+                                        },
+                                      )
+                                    : null,
                               ),
                             ),
                           ),
@@ -202,11 +285,13 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             value: radius,
                             icon: const Icon(Icons.arrow_drop_down, size: 16),
                             underline: const SizedBox(),
-                            style: const TextStyle(fontSize: 12, color: Colors.black87),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.black87),
                             items: const [
                               DropdownMenuItem(value: 3.0, child: Text('3 km')),
                               DropdownMenuItem(value: 5.0, child: Text('5 km')),
-                              DropdownMenuItem(value: 10.0, child: Text('10 km')),
+                              DropdownMenuItem(
+                                  value: 10.0, child: Text('10 km')),
                               DropdownMenuItem(value: 0.0, child: Text('All')),
                             ],
                             onChanged: (val) {
@@ -216,39 +301,6 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             },
                           ),
                           const SizedBox(width: 8),
-                          // GestureDetector(
-                          //   onTap: () => controller.toggleOpenNowFilter(),
-                          //   child: Container(
-                          //     padding: const EdgeInsets.symmetric(
-                          //         horizontal: 12, vertical: 6),
-                          //     decoration: BoxDecoration(
-                          //       color: isOpenNowFilter
-                          //           ? kHighlightGreen.withOpacity(0.1)
-                          //           : Colors.transparent,
-                          //       border: Border.all(
-                          //           color: isOpenNowFilter
-                          //               ? kHighlightGreen
-                          //               : Colors.grey[300]!),
-                          //       borderRadius: BorderRadius.circular(8),
-                          //     ),
-                          //     // child: Row(
-                          //     //   children: [
-                          //     //     Icon(PhosphorIconsRegular.clock,
-                          //     //         size: 14,
-                          //     //         color: isOpenNowFilter
-                          //     //             ? kHighlightGreen
-                          //     //             : Colors.black87),
-                          //     //     const SizedBox(width: 4),
-                          //     //     Text('Open now',
-                          //     //         style: TextStyle(
-                          //     //             fontSize: 12,
-                          //     //             color: isOpenNowFilter
-                          //     //                 ? kHighlightGreen
-                          //     //                 : Colors.black87)),
-                          //     //   ],
-                          //     // ),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
@@ -419,123 +471,133 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(24)),
-                                boxShadow: _isScrolled
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(24)),
+                                  boxShadow: _isScrolled
+                                      ? [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.05),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Column(
+                                  children: [
+                                    // Drag handle
+                                    Center(
+                                      child: Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 12, bottom: 8),
+                                        width: 40,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[300],
+                                          borderRadius:
+                                              BorderRadius.circular(2),
                                         ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Column(
-                                children: [
-                                  // Drag handle
-                                  Center(
-                                    child: Container(
-                                      margin: const EdgeInsets.only(
-                                          top: 12, bottom: 8),
-                                      width: 40,
-                                      height: 4,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(2),
                                       ),
                                     ),
-                                  ),
-                                  // List Header
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        16, 0, 16, 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          '${farmers.length} farmers near you ${radius == 0.0 ? '' : '· within ${radius.toInt()} km'}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600,
+                                    // List Header
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 0, 16, 12),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            '${farmers.length} farmers near you ${radius == 0.0 ? '' : '· within ${radius.toInt()} km'}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
-                                        ),
-                                        if (isLoading)
-                                          const SizedBox(
-                                            height: 16,
-                                            width: 16,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: kDarkGreen),
-                                          ),
-                                        Row(
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () {
-                                                _sheetController.animateTo(0.5,
-                                                    duration: const Duration(
-                                                        milliseconds: 300),
-                                                    curve: Curves.easeInOut);
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(6),
-                                                decoration: BoxDecoration(
-                                                  color: _isListView
-                                                      ? kHighlightGreen
-                                                      : Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  border: Border.all(
-                                                      color: _isListView
-                                                          ? kHighlightGreen
-                                                          : Colors.grey[300]!),
-                                                ),
-                                                child: Icon(Icons.list,
-                                                    size: 20,
+                                          if (isLoading)
+                                            const SizedBox(
+                                              height: 16,
+                                              width: 16,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: kDarkGreen),
+                                            ),
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _sheetController.animateTo(
+                                                      0.5,
+                                                      duration: const Duration(
+                                                          milliseconds: 300),
+                                                      curve: Curves.easeInOut);
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
                                                     color: _isListView
-                                                        ? Colors.white
-                                                        : Colors.black87),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _sheetController.animateTo(
-                                                    minFraction,
-                                                    duration: const Duration(
-                                                        milliseconds: 300),
-                                                    curve: Curves.easeInOut);
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(6),
-                                                decoration: BoxDecoration(
-                                                  color: !_isListView
-                                                      ? kHighlightGreen
-                                                      : Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  border: Border.all(
-                                                      color: !_isListView
-                                                          ? kHighlightGreen
-                                                          : Colors.grey[300]!),
+                                                        ? kHighlightGreen
+                                                        : Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        color: _isListView
+                                                            ? kHighlightGreen
+                                                            : Colors
+                                                                .grey[300]!),
+                                                  ),
+                                                  child: Icon(Icons.list,
+                                                      size: 20,
+                                                      color: _isListView
+                                                          ? Colors.white
+                                                          : Colors.black87),
                                                 ),
-                                                child: Icon(Icons.map_outlined,
-                                                    size: 20,
-                                                    color: !_isListView
-                                                        ? Colors.white
-                                                        : Colors.grey),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              const SizedBox(width: 8),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _sheetController.animateTo(
+                                                      minFraction,
+                                                      duration: const Duration(
+                                                          milliseconds: 300),
+                                                      curve: Curves.easeInOut);
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    color: !_isListView
+                                                        ? kHighlightGreen
+                                                        : Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        color: !_isListView
+                                                            ? kHighlightGreen
+                                                            : Colors
+                                                                .grey[300]!),
+                                                  ),
+                                                  child: Icon(
+                                                      Icons.map_outlined,
+                                                      size: 20,
+                                                      color: !_isListView
+                                                          ? Colors.white
+                                                          : Colors.grey),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
                             ),
                             // List
                             Expanded(
@@ -560,7 +622,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                     return false;
                                   },
                                   child: ListView.separated(
-                                    physics: const AlwaysScrollableScrollPhysics(),
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
                                     padding: const EdgeInsets.only(
                                         left: 16, right: 16, bottom: 24),
                                     itemCount: farmers.length,
@@ -642,9 +705,14 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     color: const Color(0xFFE8F3E8), // light green
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Center(
-                    child: Text(farmer.iconPath,
-                        style: const TextStyle(fontSize: 24)),
+                child: AppCachedImage(
+                    imageUrl: (farmer.iconPath == null || farmer.iconPath!.isEmpty)
+                        ? AppConstants.emptyImageUrl
+                        : farmer.iconPath!,
+                    width: 48,
+                    height: 48,
+                    borderRadius: BorderRadius.circular(12),
+                    errorAssetImage: AppConstants.emptyImageUrl,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -662,8 +730,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${farmer.category} · ${farmer.subCategory}',
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey[700]),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 8),
                       SingleChildScrollView(
@@ -715,20 +782,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     ),
                     Text(
                       'km away',
-                      style: TextStyle(
-                          fontSize: 10, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, size: 12, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${farmer.rating} (${farmer.reviewCount})',
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey[700]),
-                        ),
-                      ],
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -741,39 +795,35 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
             Row(
               children: [
                 Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        ...farmer.products
-                            .map((p) => Row(
-                                  children: [
-                                    Container(
-                                        width: 6,
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                            color:
-                                                farmer.category == 'Aquaculture'
-                                                    ? const Color(0xFFD97706)
-                                                    : kHighlightGreen,
-                                            shape: BoxShape.circle)),
-                                    const SizedBox(width: 4),
-                                    Text(p.name,
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey[800])),
-                                    const SizedBox(width: 8),
-                                  ],
-                                ))
-                            ,
-                        if (farmer.extraProductsCount > 0)
-                          Text('+${farmer.extraProductsCount} more',
-                              style: TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.grey[600],
-                                  height: 1.1)),
-                      ],
-                    ),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ...farmer.products.take(4).map((p) => Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                      color: farmer.category == 'Aquaculture'
+                                          ? const Color(0xFFD97706)
+                                          : kHighlightGreen,
+                                      shape: BoxShape.circle)),
+                              const SizedBox(width: 4),
+                              Text(p.name,
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey[800])),
+                            ],
+                          )),
+                      if (farmer.products.length > 4 ||
+                          farmer.extraProductsCount > 0)
+                        Text(
+                            '+${(farmer.products.length > 4 ? farmer.products.length - 4 : 0) + farmer.extraProductsCount} more',
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[600])),
+                    ],
                   ),
                 ),
                 Row(
@@ -900,18 +950,23 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.orange.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          const Icon(PhosphorIconsRegular.mapPin, size: 12, color: Colors.orange),
+                          const Icon(PhosphorIconsRegular.mapPin,
+                              size: 12, color: Colors.orange),
                           const SizedBox(width: 4),
                           Text(
                             '${farmer.cabang.length} Branches',
-                            style: TextStyle(fontSize: 10, color: Colors.orange[800], fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.orange[800],
+                                fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(width: 4),
                           Icon(
@@ -946,45 +1001,63 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                         const SizedBox(height: 12),
                         Text(
                           'Available at these locations:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kDarkGreen),
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: kDarkGreen),
                         ),
                         const SizedBox(height: 8),
                         ...farmer.cabang.map((branch) => GestureDetector(
                               onTap: () {
                                 setState(() => _selectedFarmerId = farmer.id);
                                 _mapController?.animateCamera(
-                                  CameraUpdate.newLatLng(LatLng(branch.latitude, branch.longitude)),
+                                  CameraUpdate.newLatLng(LatLng(
+                                      branch.latitude, branch.longitude)),
                                 );
                               },
                               child: Container(
-                                color: Colors.transparent, // Ensure it catches taps
+                                color: Colors
+                                    .transparent, // Ensure it catches taps
                                 padding: const EdgeInsets.only(bottom: 12.0),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(PhosphorIconsFill.mapPin, size: 16, color: Colors.orange),
+                                    const Icon(PhosphorIconsFill.mapPin,
+                                        size: 16, color: Colors.orange),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             branch.name,
-                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            branch.address ?? 'No address available',
-                                            style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                                            branch.address ??
+                                                'No address available',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey[700]),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           if (branch.distance != null)
                                             Padding(
-                                              padding: const EdgeInsets.only(top: 2.0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 2.0),
                                               child: Text(
                                                 '${branch.distance} km away',
-                                                style: TextStyle(fontSize: 10, color: kHighlightGreen, fontWeight: FontWeight.w500),
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: kHighlightGreen,
+                                                    fontWeight:
+                                                        FontWeight.w500),
                                               ),
                                             ),
                                         ],

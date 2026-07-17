@@ -84,7 +84,7 @@ class _ConversationsListScreenState
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'all', child: Text('All Messages')),
               const PopupMenuItem(value: 'unread', child: Text('Unread')),
-              const PopupMenuItem(value: 'orders', child: Text('Orders')),
+              // const PopupMenuItem(value: 'orders', child: Text('Orders')),
               const PopupMenuItem(value: 'general', child: Text('General')),
             ],
           ),
@@ -136,7 +136,8 @@ class _ConversationsListScreenState
                       Expanded(
                         child: Text(
                           'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
-                          style: TextStyle(color: Colors.blue[900], fontSize: 13),
+                          style:
+                              TextStyle(color: Colors.blue[900], fontSize: 13),
                         ),
                       ),
                     ],
@@ -246,35 +247,15 @@ class _ConversationTile extends ConsumerWidget {
             ),
         ],
       ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              participant.name,
-              style: TextStyle(
-                fontWeight: conversation.unreadCount > 0
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
+      title: Expanded(
+        child: Text(
+          participant.name,
+          style: TextStyle(
+            fontWeight: conversation.unreadCount > 0
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
-          if (participant.verified)
-            const PhosphorIcon(PhosphorIconsRegular.checkCircle,
-                size: 16, color: Colors.blue),
-          const SizedBox(width: 4),
-          if (conversation.type == 'order')
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.orange[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Order',
-                style: TextStyle(fontSize: 10, color: Colors.orange[900]),
-              ),
-            ),
-        ],
+        ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,14 +311,25 @@ class _ConversationTile extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (lastMessage != null)
-            Text(
-              _formatTime(lastMessage.timestamp),
-              style: TextStyle(
-                fontSize: 12,
-                color: conversation.unreadCount > 0
-                    ? Colors.blue
-                    : Colors.grey[600],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  _formatTime(lastMessage.timestamp),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: conversation.unreadCount > 0
+                        ? Colors.blue
+                        : Colors.grey[600],
+                  ),
+                ),
+                if (participant.verified)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: const PhosphorIcon(PhosphorIconsRegular.checkCircle,
+                        size: 16, color: Colors.blue),
+                  ),
+              ],
             ),
           if (conversation.unreadCount > 0)
             Container(

@@ -28,6 +28,7 @@ class PreorderCampaign extends Equatable {
   final int? successfulHarvests;
   final List<CommunityReservationInfo>? communityReservations;
   final String? profileImage;
+  final bool? isScheduled;
 
   const PreorderCampaign({
     required this.id,
@@ -57,7 +58,70 @@ class PreorderCampaign extends Equatable {
     this.successfulHarvests,
     this.communityReservations,
     this.profileImage,
+    this.isScheduled,
   });
+
+  PreorderCampaign copyWith({
+    String? id,
+    String? productId,
+    String? productName,
+    String? productImage,
+    String? farmerName,
+    int? targetQuantity,
+    int? currentReservations,
+    DateTime? deadline,
+    DateTime? estimatedHarvestDate,
+    bool? depositRequired,
+    double? depositAmount,
+    String? status,
+    double? price,
+    String? unit,
+    String? description,
+    bool? hasReserved,
+    double? distance,
+    String? location,
+    List<String>? images,
+    List<PreorderReservationInfo>? reservations,
+    int? totalPeopleReserved,
+    String? category,
+    int? minimumOrder,
+    int? userReservedQuantity,
+    int? successfulHarvests,
+    List<CommunityReservationInfo>? communityReservations,
+    String? profileImage,
+    bool? isScheduled,
+  }) {
+    return PreorderCampaign(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      productImage: productImage ?? this.productImage,
+      farmerName: farmerName ?? this.farmerName,
+      targetQuantity: targetQuantity ?? this.targetQuantity,
+      currentReservations: currentReservations ?? this.currentReservations,
+      deadline: deadline ?? this.deadline,
+      estimatedHarvestDate: estimatedHarvestDate ?? this.estimatedHarvestDate,
+      depositRequired: depositRequired ?? this.depositRequired,
+      depositAmount: depositAmount ?? this.depositAmount,
+      status: status ?? this.status,
+      price: price ?? this.price,
+      unit: unit ?? this.unit,
+      description: description ?? this.description,
+      hasReserved: hasReserved ?? this.hasReserved,
+      distance: distance ?? this.distance,
+      location: location ?? this.location,
+      images: images ?? this.images,
+      reservations: reservations ?? this.reservations,
+      totalPeopleReserved: totalPeopleReserved ?? this.totalPeopleReserved,
+      category: category ?? this.category,
+      minimumOrder: minimumOrder ?? this.minimumOrder,
+      userReservedQuantity: userReservedQuantity ?? this.userReservedQuantity,
+      successfulHarvests: successfulHarvests ?? this.successfulHarvests,
+      communityReservations: communityReservations ?? this.communityReservations,
+      profileImage: profileImage ?? this.profileImage,
+      isScheduled: isScheduled ?? this.isScheduled,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -88,6 +152,7 @@ class PreorderCampaign extends Equatable {
         successfulHarvests,
         communityReservations,
         profileImage,
+        isScheduled,
       ];
 }
 

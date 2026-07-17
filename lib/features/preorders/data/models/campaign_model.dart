@@ -29,6 +29,7 @@ class PreorderCampaignModel extends PreorderCampaign {
     super.successfulHarvests,
     super.communityReservations,
     super.profileImage,
+    super.isScheduled,
   });
 
   factory PreorderCampaignModel.fromJson(Map<String, dynamic> json) {
@@ -129,6 +130,7 @@ class PreorderCampaignModel extends PreorderCampaign {
       successfulHarvests: json['successfulHarvests'],
       communityReservations: communityReservationsList,
       profileImage: json['profileImage'],
+      isScheduled: json['isScheduled'],
     );
   }
 
@@ -163,6 +165,7 @@ class PreorderCampaignModel extends PreorderCampaign {
                 {'id': e.id, 'name': e.name, 'profileImage': e.profileImage})
             .toList(),
       if (profileImage != null) 'profileImage': profileImage,
+      if (isScheduled != null) 'isScheduled': isScheduled,
     };
   }
 }

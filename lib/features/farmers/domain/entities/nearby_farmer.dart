@@ -66,7 +66,7 @@ class NearbyFarmerData with _$NearbyFarmerData {
     required bool isOpen,
     required double latitude,
     required double longitude,
-    required String iconPath,
+    String? iconPath,
     NearbyFarmerMainLocation? mainLocation,
     @Default([]) List<NearbyFarmerCabang> cabang,
   }) = _NearbyFarmerData;

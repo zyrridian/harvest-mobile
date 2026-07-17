@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/features/preorders/domain/entities/harvest_schedule_dashboard.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_controller.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_state.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
@@ -28,7 +30,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -37,7 +40,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
         ),
         titleSpacing: 0,
         title: Text(
-          'Scheduled Deliveries',
+          'Harvest Schedule',
           style: TextStyle(
             color: kDarkGreen,
             fontWeight: FontWeight.bold,
@@ -51,13 +54,17 @@ class HarvestScheduleScreen extends ConsumerWidget {
             child: IconButton(
               icon: PhosphorIcon(
                 state.maybeWhen(
-                  data: (d) => d.isMonthView ? PhosphorIconsRegular.list : PhosphorIconsRegular.calendarBlank,
+                  data: (d) => d.isMonthView
+                      ? PhosphorIconsRegular.list
+                      : PhosphorIconsRegular.calendarBlank,
                   orElse: () => PhosphorIconsRegular.calendarBlank,
                 ),
                 color: kDarkGreen,
               ),
               onPressed: () {
-                ref.read(harvestScheduleControllerProvider.notifier).toggleViewMode();
+                ref
+                    .read(harvestScheduleControllerProvider.notifier)
+                    .toggleViewMode();
               },
             ),
           ),
@@ -98,12 +105,17 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).goToToday(),
+                                  onTap: () => ref
+                                      .read(harvestScheduleControllerProvider
+                                          .notifier)
+                                      .goToToday(),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -117,26 +129,36 @@ class HarvestScheduleScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).previous(),
+                                  onTap: () => ref
+                                      .read(harvestScheduleControllerProvider
+                                          .notifier)
+                                      .previous(),
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(Icons.chevron_left, size: 20, color: Colors.black87),
+                                    child: const Icon(Icons.chevron_left,
+                                        size: 20, color: Colors.black87),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () => ref.read(harvestScheduleControllerProvider.notifier).next(),
+                                  onTap: () => ref
+                                      .read(harvestScheduleControllerProvider
+                                          .notifier)
+                                      .next(),
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(Icons.chevron_right, size: 20, color: Colors.black87),
+                                    child: const Icon(Icons.chevron_right,
+                                        size: 20, color: Colors.black87),
                                   ),
                                 ),
                               ],
@@ -151,7 +173,15 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+                            children: [
+                              'SUN',
+                              'MON',
+                              'TUE',
+                              'WED',
+                              'THU',
+                              'FRI',
+                              'SAT'
+                            ]
                                 .map((day) => Expanded(
                                       child: Center(
                                         child: Text(
@@ -176,7 +206,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           children: _getWeekDays(data.baseDate).map((date) {
                             return Expanded(
                               child: _buildDayColumn(context, ref, data, date,
-                                  hasDot: _hasHarvestOnDate(data, date), showDayStr: true),
+                                  hasDot: _hasHarvestOnDate(data, date),
+                                  showDayStr: true),
                             );
                           }).toList(),
                         ),
@@ -186,8 +217,6 @@ class HarvestScheduleScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-
-
 
               // Upcoming Harvests Header
               SliverToBoxAdapter(
@@ -204,31 +233,31 @@ class HarvestScheduleScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () => _showFilterBottomSheet(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Filter',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: kTextGreen),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.tune, size: 14, color: kTextGreen),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () => _showFilterBottomSheet(context),
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 12, vertical: 6),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.white,
+                      //       border: Border.all(color: Colors.grey[300]!),
+                      //       borderRadius: BorderRadius.circular(8),
+                      //     ),
+                      //     child: Row(
+                      //       children: [
+                      //         Text(
+                      //           'Filter',
+                      //           style: TextStyle(
+                      //               fontSize: 12,
+                      //               fontWeight: FontWeight.w600,
+                      //               color: kTextGreen),
+                      //         ),
+                      //         const SizedBox(width: 4),
+                      //         const Icon(Icons.tune, size: 14, color: kTextGreen),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -314,20 +343,23 @@ class HarvestScheduleScreen extends ConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Browse pre-orders',
-                              style: TextStyle(
-                                color: kTextGreen,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                          GestureDetector(
+                            onTap: () => context.push(AppRouter.preorder),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Browse pre-orders',
+                                style: TextStyle(
+                                  color: kTextGreen,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
@@ -350,17 +382,26 @@ class HarvestScheduleScreen extends ConsumerWidget {
     bool isSelected = data.selectedDate?.year == date.year &&
         data.selectedDate?.month == date.month &&
         data.selectedDate?.day == date.day;
-    
+
     final now = DateTime.now();
-    bool isToday = now.year == date.year && now.month == date.month && now.day == date.day;
-    
+    bool isToday =
+        now.year == date.year && now.month == date.month && now.day == date.day;
+
     bool isCurrentMonth = date.month == data.baseDate.month;
-    Color dayTextColor = isSelected ? kHighlightGreen : (isCurrentMonth ? Colors.grey[600]! : Colors.grey[400]!);
-    Color dateTextColor = isSelected ? Colors.white : (isToday ? kHighlightGreen : (isCurrentMonth ? Colors.black87 : Colors.grey[400]!));
+    Color dayTextColor = isSelected
+        ? kHighlightGreen
+        : (isCurrentMonth ? Colors.grey[600]! : Colors.grey[400]!);
+    Color dateTextColor = isSelected
+        ? Colors.white
+        : (isToday
+            ? kHighlightGreen
+            : (isCurrentMonth ? Colors.black87 : Colors.grey[400]!));
 
     return GestureDetector(
       onTap: () {
-        ref.read(harvestScheduleControllerProvider.notifier).toggleDateFilter(date);
+        ref
+            .read(harvestScheduleControllerProvider.notifier)
+            .toggleDateFilter(date);
       },
       child: Column(
         children: [
@@ -369,7 +410,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
               DateFormat('E').format(date).toUpperCase(),
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                fontWeight:
+                    isSelected || isToday ? FontWeight.bold : FontWeight.normal,
                 color: dayTextColor,
               ),
             ),
@@ -379,8 +421,12 @@ class HarvestScheduleScreen extends ConsumerWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isSelected ? kHighlightGreen : (isToday ? const Color(0xFFE8F3E8) : Colors.transparent),
-              border: isToday && !isSelected ? Border.all(color: kHighlightGreen.withOpacity(0.5)) : null,
+              color: isSelected
+                  ? kHighlightGreen
+                  : (isToday ? const Color(0xFFE8F3E8) : Colors.transparent),
+              border: isToday && !isSelected
+                  ? Border.all(color: kHighlightGreen.withOpacity(0.5))
+                  : null,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -388,7 +434,9 @@ class HarvestScheduleScreen extends ConsumerWidget {
                 date.day.toString(),
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected || isToday
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                   color: dateTextColor,
                 ),
               ),
@@ -445,7 +493,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -467,7 +516,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
                   const Divider(),
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       children: [
                         Text(
                           'Sort By',
@@ -480,14 +530,19 @@ class HarvestScheduleScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 12,
-                          children: ['Date', 'Price', 'Distance'].map((sortOption) {
+                          children:
+                              ['Date', 'Price', 'Distance'].map((sortOption) {
                             final isSelected = selectedSort == sortOption;
                             return ChoiceChip(
                               label: Text(
                                 sortOption,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                 ),
                               ),
                               selected: isSelected,
@@ -496,7 +551,9 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(
-                                  color: isSelected ? kHighlightGreen : Colors.grey[300]!,
+                                  color: isSelected
+                                      ? kHighlightGreen
+                                      : Colors.grey[300]!,
                                 ),
                               ),
                               onSelected: (selected) {
@@ -531,8 +588,12 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               label: Text(
                                 status,
                                 style: TextStyle(
-                                  color: isSelected ? kHighlightGreen : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected
+                                      ? kHighlightGreen
+                                      : Colors.black87,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                 ),
                               ),
                               selected: isSelected,
@@ -542,7 +603,9 @@ class HarvestScheduleScreen extends ConsumerWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(
-                                  color: isSelected ? kHighlightGreen : Colors.grey[300]!,
+                                  color: isSelected
+                                      ? kHighlightGreen
+                                      : Colors.grey[300]!,
                                 ),
                               ),
                               onSelected: (selected) {
@@ -668,30 +731,38 @@ class HarvestScheduleScreen extends ConsumerWidget {
   List<DateTime> _getWeekDays(DateTime baseDate) {
     int weekday = baseDate.weekday;
     int offset = weekday == 7 ? 0 : weekday;
-    DateTime startOfWeek = baseDate.subtract(Duration(days: offset));
-    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
+    return List.generate(
+        7,
+        (index) => DateTime(
+            baseDate.year, baseDate.month, baseDate.day - offset + index));
   }
 
   List<DateTime> _getMonthDays(DateTime baseDate) {
     DateTime firstDayOfMonth = DateTime(baseDate.year, baseDate.month, 1);
     int firstWeekday = firstDayOfMonth.weekday;
     int offset = firstWeekday == 7 ? 0 : firstWeekday;
-    DateTime startOfCalendar = firstDayOfMonth.subtract(Duration(days: offset));
-    
+
     List<DateTime> days = [];
-    DateTime current = startOfCalendar;
+    int i = -offset;
     while (true) {
+      DateTime current = DateTime(baseDate.year, baseDate.month, 1 + i);
       days.add(current);
-      current = current.add(const Duration(days: 1));
-      if (days.length >= 28 && current.month != baseDate.month && current.weekday == 7) {
-        break;
+      i++;
+
+      if (days.length >= 28 && days.length % 7 == 0) {
+        DateTime nextDay = DateTime(baseDate.year, baseDate.month, 1 + i);
+        if (nextDay.month != baseDate.month) {
+          break;
+        }
       }
+
       if (days.length >= 42) break; // Fallback
     }
     return days;
   }
 
-  List<Widget> _buildMonthGrid(BuildContext context, WidgetRef ref, HarvestScheduleData data) {
+  List<Widget> _buildMonthGrid(
+      BuildContext context, WidgetRef ref, HarvestScheduleData data) {
     final days = _getMonthDays(data.baseDate);
     List<Widget> rows = [];
     for (int i = 0; i < days.length; i += 7) {
@@ -714,12 +785,18 @@ class HarvestScheduleScreen extends ConsumerWidget {
     return rows;
   }
 
-  Widget _buildStatCard(BuildContext context, WidgetRef ref, HarvestScheduleData data, String value, String label, QuickFilter filterType) {
+  Widget _buildStatCard(
+      BuildContext context,
+      WidgetRef ref,
+      HarvestScheduleData data,
+      String value,
+      String label,
+      QuickFilter filterType) {
     bool isActive = data.activeQuickFilter == filterType;
     bool isReadyToday = filterType == QuickFilter.readyToday;
 
-    Color bgColor = isActive 
-        ? (isReadyToday ? const Color(0xFFD4833D) : kTextGreen) 
+    Color bgColor = isActive
+        ? (isReadyToday ? const Color(0xFFD4833D) : kTextGreen)
         : Colors.white;
     Color textColor = isActive ? Colors.white : kTextGreen;
     Color labelColor = isActive ? Colors.white70 : Colors.grey[600]!;
@@ -727,7 +804,9 @@ class HarvestScheduleScreen extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        ref.read(harvestScheduleControllerProvider.notifier).toggleQuickFilter(filterType);
+        ref
+            .read(harvestScheduleControllerProvider.notifier)
+            .toggleQuickFilter(filterType);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -775,14 +854,14 @@ class HarvestScheduleScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // border: Border.all(color: Colors.grey.shade100),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withOpacity(0.03),
+        //     blurRadius: 8,
+        //     offset: const Offset(0, 4),
+        //   ),
+        // ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -792,11 +871,13 @@ class HarvestScheduleScreen extends ConsumerWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: AppCachedImage(
-                imageUrl: item.imageUrl,
+                imageUrl: item.imageUrl.isEmpty
+                    ? AppConstants.emptyImageUrl
+                    : item.imageUrl,
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                errorAssetImage: 'assets/images/placeholder.png',
+                errorAssetImage: AppConstants.emptyImageUrl,
               ),
             ),
             const SizedBox(width: 12),
@@ -822,7 +903,9 @@ class HarvestScheduleScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        item.statusText == 'Now' ? 'Ready' : '${item.statusText} days',
+                        item.statusText == 'Now'
+                            ? 'Ready'
+                            : '${item.statusText} days',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -835,7 +918,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${item.farmerName} · ${item.distance} km',
+                    '${item.farmerName}', // · ${item.distance} km',
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.grey[600],
@@ -848,8 +931,7 @@ class HarvestScheduleScreen extends ConsumerWidget {
                     children: item.badges.map((badge) {
                       Color badgeBg = kPillGrey;
                       Color badgeText = Colors.grey[700]!;
-                      if (badge == 'Pre-ordered' ||
-                          badge == 'Just reserved') {
+                      if (badge == 'Pre-ordered' || badge == 'Just reserved') {
                         badgeBg = const Color(0xFFF3F6F1);
                         badgeText = const Color(0xFF336240);
                       } else if (badge == 'Pending confirmation') {
@@ -881,7 +963,8 @@ class HarvestScheduleScreen extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           item.descriptionText,
-                          style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                          style:
+                              TextStyle(fontSize: 11, color: Colors.grey[700]),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

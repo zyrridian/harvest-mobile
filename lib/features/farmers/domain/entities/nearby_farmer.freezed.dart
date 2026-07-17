@@ -832,7 +832,7 @@ mixin _$NearbyFarmerData {
   bool get isOpen => throw _privateConstructorUsedError;
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
-  String get iconPath => throw _privateConstructorUsedError;
+  String? get iconPath => throw _privateConstructorUsedError;
   NearbyFarmerMainLocation? get mainLocation =>
       throw _privateConstructorUsedError;
   List<NearbyFarmerCabang> get cabang => throw _privateConstructorUsedError;
@@ -869,7 +869,7 @@ abstract class $NearbyFarmerDataCopyWith<$Res> {
       bool isOpen,
       double latitude,
       double longitude,
-      String iconPath,
+      String? iconPath,
       NearbyFarmerMainLocation? mainLocation,
       List<NearbyFarmerCabang> cabang});
 
@@ -906,7 +906,7 @@ class _$NearbyFarmerDataCopyWithImpl<$Res, $Val extends NearbyFarmerData>
     Object? isOpen = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? iconPath = null,
+    Object? iconPath = freezed,
     Object? mainLocation = freezed,
     Object? cabang = null,
   }) {
@@ -971,10 +971,10 @@ class _$NearbyFarmerDataCopyWithImpl<$Res, $Val extends NearbyFarmerData>
           ? _value.longitude
           : longitude // ignore: cast_nullable_to_non_nullable
               as double,
-      iconPath: null == iconPath
+      iconPath: freezed == iconPath
           ? _value.iconPath
           : iconPath // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       mainLocation: freezed == mainLocation
           ? _value.mainLocation
           : mainLocation // ignore: cast_nullable_to_non_nullable
@@ -1026,7 +1026,7 @@ abstract class _$$NearbyFarmerDataImplCopyWith<$Res>
       bool isOpen,
       double latitude,
       double longitude,
-      String iconPath,
+      String? iconPath,
       NearbyFarmerMainLocation? mainLocation,
       List<NearbyFarmerCabang> cabang});
 
@@ -1062,7 +1062,7 @@ class __$$NearbyFarmerDataImplCopyWithImpl<$Res>
     Object? isOpen = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? iconPath = null,
+    Object? iconPath = freezed,
     Object? mainLocation = freezed,
     Object? cabang = null,
   }) {
@@ -1127,10 +1127,10 @@ class __$$NearbyFarmerDataImplCopyWithImpl<$Res>
           ? _value.longitude
           : longitude // ignore: cast_nullable_to_non_nullable
               as double,
-      iconPath: null == iconPath
+      iconPath: freezed == iconPath
           ? _value.iconPath
           : iconPath // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       mainLocation: freezed == mainLocation
           ? _value.mainLocation
           : mainLocation // ignore: cast_nullable_to_non_nullable
@@ -1162,7 +1162,7 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
       required this.isOpen,
       required this.latitude,
       required this.longitude,
-      required this.iconPath,
+      this.iconPath,
       this.mainLocation,
       final List<NearbyFarmerCabang> cabang = const []})
       : _tags = tags,
@@ -1215,7 +1215,7 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
   @override
   final double longitude;
   @override
-  final String iconPath;
+  final String? iconPath;
   @override
   final NearbyFarmerMainLocation? mainLocation;
   final List<NearbyFarmerCabang> _cabang;
@@ -1325,7 +1325,7 @@ abstract class _NearbyFarmerData implements NearbyFarmerData {
       required final bool isOpen,
       required final double latitude,
       required final double longitude,
-      required final String iconPath,
+      final String? iconPath,
       final NearbyFarmerMainLocation? mainLocation,
       final List<NearbyFarmerCabang> cabang}) = _$NearbyFarmerDataImpl;
 
@@ -1363,7 +1363,7 @@ abstract class _NearbyFarmerData implements NearbyFarmerData {
   @override
   double get longitude;
   @override
-  String get iconPath;
+  String? get iconPath;
   @override
   NearbyFarmerMainLocation? get mainLocation;
   @override

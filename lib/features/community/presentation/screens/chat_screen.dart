@@ -383,10 +383,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   lastSeen: lastSeen,
                 ),
               ),
-              _buildHeaderAction(
-                PhosphorIconsRegular.dotsThreeVertical,
-                onTap: () => _showOptionsSheet(context),
-              ),
+              // _buildHeaderAction(
+              //   PhosphorIconsRegular.dotsThreeVertical,
+              //   onTap: () => _showOptionsSheet(context),
+              // ),
             ],
           ),
         ),

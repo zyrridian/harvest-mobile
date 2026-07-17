@@ -94,7 +94,7 @@ _$NearbyFarmerDataImpl _$$NearbyFarmerDataImplFromJson(
       isOpen: json['isOpen'] as bool,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      iconPath: json['iconPath'] as String,
+      iconPath: json['iconPath'] as String?,
       mainLocation: json['mainLocation'] == null
           ? null
           : NearbyFarmerMainLocation.fromJson(

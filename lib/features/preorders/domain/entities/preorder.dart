@@ -13,6 +13,7 @@ class PreOrderHarvest extends Equatable {
   final int daysLeft;
   final String status;
   final int totalPeopleReserved;
+  final bool isScheduled;
 
   const PreOrderHarvest({
     required this.id,
@@ -27,7 +28,40 @@ class PreOrderHarvest extends Equatable {
     required this.daysLeft,
     required this.status,
     required this.totalPeopleReserved,
+    this.isScheduled = false,
   });
+
+  PreOrderHarvest copyWith({
+    String? id,
+    String? title,
+    String? farmerName,
+    String? distance,
+    String? imageUrl,
+    double? price,
+    String? unit,
+    double? bookedQuantity,
+    double? totalQuantity,
+    int? daysLeft,
+    String? status,
+    int? totalPeopleReserved,
+    bool? isScheduled,
+  }) {
+    return PreOrderHarvest(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      farmerName: farmerName ?? this.farmerName,
+      distance: distance ?? this.distance,
+      imageUrl: imageUrl ?? this.imageUrl,
+      price: price ?? this.price,
+      unit: unit ?? this.unit,
+      bookedQuantity: bookedQuantity ?? this.bookedQuantity,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      daysLeft: daysLeft ?? this.daysLeft,
+      status: status ?? this.status,
+      totalPeopleReserved: totalPeopleReserved ?? this.totalPeopleReserved,
+      isScheduled: isScheduled ?? this.isScheduled,
+    );
+  }
 
   double get progressPercentage =>
       totalQuantity > 0 ? (bookedQuantity / totalQuantity) * 100 : 0;
@@ -47,6 +81,7 @@ class PreOrderHarvest extends Equatable {
         daysLeft,
         status,
         totalPeopleReserved,
+        isScheduled,
       ];
 }
 

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
+import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 
-class PreOrderHarvestCard extends StatelessWidget {
+class PreOrderHarvestCard extends ConsumerWidget {
   final PreOrderHarvest harvest;
   final int index;
 
@@ -18,7 +20,7 @@ class PreOrderHarvestCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     String imageUrl = harvest.imageUrl;
 
     final formatter =
@@ -79,18 +81,41 @@ class PreOrderHarvestCard extends StatelessWidget {
                   top: 8,
                   right: 8,
                   child: GestureDetector(
-                    onTap: () {
-                      // TODO: Implement add to schedule logic
+                    onTap: () async {
+                      final isSuccess = await ref
+                          .read(preOrderControllerProvider.notifier)
+                          .toggleSchedule(harvest.id, harvest.isScheduled);
+                          
+                      if (context.mounted && isSuccess) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              harvest.isScheduled
+                                  ? 'Removed from schedule'
+                                  : 'Added to schedule',
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: AppColors.primary,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: harvest.isScheduled 
+                            ? AppColors.primary 
+                            : Colors.white.withOpacity(0.9),
                         shape: BoxShape.circle,
                       ),
-                      child: const PhosphorIcon(
-                        PhosphorIconsRegular.calendarPlus,
-                        color: AppColors.primary,
+                      child: PhosphorIcon(
+                        harvest.isScheduled 
+                            ? PhosphorIconsFill.calendarCheck 
+                            : PhosphorIconsRegular.calendarPlus,
+                        color: harvest.isScheduled 
+                            ? Colors.white 
+                            : AppColors.primary,
                         size: 16,
                       ),
                     ),
