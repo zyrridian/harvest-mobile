@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/features/farmers/domain/entities/drop_point.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/drop_points_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -290,8 +291,10 @@ class DropPointsScreen extends ConsumerWidget {
                         context.push(AppRouter.editDropPoint, extra: point);
                       },
                       icon: const PhosphorIcon(
-                          PhosphorIconsRegular.pencilSimple,
-                          size: 18),
+                        PhosphorIconsRegular.pencilSimple,
+                        size: 18,
+                        color: AppColors.white,
+                      ),
                       label: const Text('Edit'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 44),

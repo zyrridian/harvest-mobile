@@ -6,22 +6,32 @@ part 'order_model.g.dart';
 @JsonSerializable(explicitToJson: true)
 class OrderItemModel {
   @JsonKey(name: 'order_item_id')
-  final String orderItemId;
+  final String? orderItemId;
   @JsonKey(name: 'product')
-  final Map<String, dynamic> product;
+  final Map<String, dynamic>? product;
+  @JsonKey(name: 'product_id')
+  final String? productId;
+  @JsonKey(name: 'product_name')
+  final String? productName;
+  final String? image;
   final int quantity;
+  final String? unit;
   @JsonKey(name: 'unit_price')
-  final num unitPrice;
-  final num discount;
-  final num subtotal;
+  final num? unitPrice;
+  final num? discount;
+  final num? subtotal;
 
   OrderItemModel({
-    required this.orderItemId,
-    required this.product,
+    this.orderItemId,
+    this.product,
+    this.productId,
+    this.productName,
+    this.image,
     required this.quantity,
-    required this.unitPrice,
-    required this.discount,
-    required this.subtotal,
+    this.unit,
+    this.unitPrice,
+    this.discount,
+    this.subtotal,
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) =>
@@ -29,14 +39,14 @@ class OrderItemModel {
   Map<String, dynamic> toJson() => _$OrderItemModelToJson(this);
 
   OrderItem toEntity() => OrderItem(
-        orderItemId: orderItemId,
-        productId: product['product_id'] ?? '',
-        name: product['name'] ?? '',
+        orderItemId: orderItemId ?? '',
+        productId: productId ?? product?['product_id'] ?? '',
+        name: productName ?? product?['name'] ?? '',
         quantity: quantity,
-        unitPrice: unitPrice,
-        discount: discount,
-        subtotal: subtotal,
-        imageUrl: product['image'] as String?,
+        unitPrice: unitPrice ?? 0,
+        discount: discount ?? 0,
+        subtotal: subtotal ?? 0,
+        imageUrl: image ?? product?['image'] as String?,
       );
 }
 

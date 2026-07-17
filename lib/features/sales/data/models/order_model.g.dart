@@ -8,19 +8,27 @@ part of 'order_model.dart';
 
 OrderItemModel _$OrderItemModelFromJson(Map<String, dynamic> json) =>
     OrderItemModel(
-      orderItemId: json['order_item_id'] as String,
-      product: json['product'] as Map<String, dynamic>,
+      orderItemId: json['order_item_id'] as String?,
+      product: json['product'] as Map<String, dynamic>?,
+      productId: json['product_id'] as String?,
+      productName: json['product_name'] as String?,
+      image: json['image'] as String?,
       quantity: (json['quantity'] as num).toInt(),
-      unitPrice: json['unit_price'] as num,
-      discount: json['discount'] as num,
-      subtotal: json['subtotal'] as num,
+      unit: json['unit'] as String?,
+      unitPrice: json['unit_price'] as num?,
+      discount: json['discount'] as num?,
+      subtotal: json['subtotal'] as num?,
     );
 
 Map<String, dynamic> _$OrderItemModelToJson(OrderItemModel instance) =>
     <String, dynamic>{
       'order_item_id': instance.orderItemId,
       'product': instance.product,
+      'product_id': instance.productId,
+      'product_name': instance.productName,
+      'image': instance.image,
       'quantity': instance.quantity,
+      'unit': instance.unit,
       'unit_price': instance.unitPrice,
       'discount': instance.discount,
       'subtotal': instance.subtotal,

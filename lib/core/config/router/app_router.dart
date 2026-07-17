@@ -368,10 +368,17 @@ class AppRouter {
           final conversationId = extra?['conversationId'] as String? ??
               state.uri.queryParameters['conversationId'] ??
               'conv_1234567890abcdef';
+          final farmerId = extra?['farmerId'] as String? ??
+              state.uri.queryParameters['farmerId'];
+          final farmerName = extra?['farmerName'] as String? ??
+              state.uri.queryParameters['farmerName'];
+          final farmerAvatar = extra?['farmerAvatar'] as String? ??
+              state.uri.queryParameters['farmerAvatar'];
           return ChatScreen(
             conversationId: conversationId,
-            farmerName: extra?['farmerName'] as String?,
-            farmerAvatar: extra?['farmerAvatar'] as String?,
+            farmerId: farmerId,
+            farmerName: farmerName,
+            farmerAvatar: farmerAvatar,
           );
         },
       ),

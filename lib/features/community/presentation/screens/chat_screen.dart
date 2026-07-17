@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,7 +15,10 @@ import '../../domain/entities/conversation.dart';
 import '../../../chat/presentation/providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
 import '../../../../core/utils/time_utils.dart';
+import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import 'image_viewer_screen.dart';
+
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const _kBg = Color(0xFFF7F8FC);
 const _kDarkGreen = Color(0xFF1A2F25);
@@ -28,12 +32,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 
   /// Passed from the farmer detail so the header looks right immediately,
   /// before the conversation detail loads from the server.
+  final String? farmerId;
   final String? farmerName;
   final String? farmerAvatar;
 
   const ChatScreen({
     super.key,
     required this.conversationId,
+    this.farmerId,
     this.farmerName,
     this.farmerAvatar,
   });
@@ -172,26 +178,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
       final uploadUc = ref.read(uploadFileUseCaseProvider);
       uploadUc.call(File(imageToUpload.path)).then((uploadResult) {
-        uploadResult.fold(
-          (failure) {
-            if (mounted) {
-              setState(() => _uploadingMessageIds.remove(tempImgId));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to upload image: ${failure.message}')),
-              );
-            }
-          },
-          (uploadedFile) {
-            if (mounted) {
-              ref.read(sendSocketMessageProvider).call(
-                conversationId: widget.conversationId,
-                type: 'image',
-                content: uploadedFile.url,
-                tempId: tempImgId,
-              );
-            }
+        uploadResult.fold((failure) {
+          if (mounted) {
+            setState(() => _uploadingMessageIds.remove(tempImgId));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to upload image: ${failure.message}')),
+            );
           }
-        );
+        }, (uploadedFile) {
+          if (mounted) {
+            ref.read(sendSocketMessageProvider).call(
+                  conversationId: widget.conversationId,
+                  type: 'image',
+                  content: uploadedFile.url,
+                  tempId: tempImgId,
+                );
+          }
+        });
       });
     }
 
@@ -209,11 +213,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       _scrollToBottom();
 
       ref.read(sendSocketMessageProvider).call(
-        conversationId: widget.conversationId,
-        content: content,
-        type: 'text',
-        tempId: tempId,
-      );
+            conversationId: widget.conversationId,
+            content: content,
+            type: 'text',
+            tempId: tempId,
+          );
     }
 
     // Stop typing indicator
@@ -236,13 +240,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     });
   }
 
-  Future<void> _pickAndCropImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
+  void _pickAndCropImage() {
+    ImagePickerBottomSheet.show(context, onImagePicked: (path) async {
       final croppedFile = await ImageCropper().cropImage(
-        sourcePath: image.path,
+        sourcePath: path,
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Crop Image',
@@ -271,12 +272,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         ],
       );
 
-      if (croppedFile != null) {
+      if (croppedFile != null && mounted) {
         setState(() {
           _selectedImageToUpload = XFile(croppedFile.path);
         });
       }
-    }
+    });
   }
 
   @override
@@ -362,18 +363,65 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               const SizedBox(width: 8),
               conversationAsync.when(
                 data: (detail) => _buildHeaderInfo(
-                  name: detail.participant.name,
-                  avatar: detail.participant.profilePicture,
-                  isOnline: isOnline,
-                  isTyping: isTyping,
-                  lastSeen: lastSeen,
-                ),
+                    name: detail.participant.name,
+                    avatar: detail.participant.profilePicture,
+                    isOnline: isOnline,
+                    isTyping: isTyping,
+                    lastSeen: lastSeen,
+                    onTap: () {
+                      final uid = detail.participant.userId;
+                      if (uid.isNotEmpty) {
+                        final mockFarmer = Farmer(
+                          id: uid,
+                          userId: uid,
+                          name: detail.participant.name,
+                          description: '',
+                          profileImage: detail.participant.profilePicture,
+                          latitude: 0,
+                          longitude: 0,
+                          address: '',
+                          rating: 0,
+                          totalReviews: 0,
+                          totalProducts: 0,
+                          specialties: const [],
+                          isVerified: detail.participant.verified,
+                          hasMapFeature: false,
+                          joinedDate: DateTime.now(),
+                          isOnline: isOnline,
+                        );
+                        context.push(AppRouter.farmerDetail, extra: mockFarmer);
+                      }
+                    }),
                 loading: () => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
                   isOnline: isOnline,
                   isTyping: isTyping,
                   lastSeen: lastSeen,
+                  onTap: widget.farmerId != null
+                      ? () {
+                          final mockFarmer = Farmer(
+                            id: widget.farmerId!,
+                            userId: widget.farmerId!,
+                            name: widget.farmerName ?? 'Farmer',
+                            description: '',
+                            profileImage: widget.farmerAvatar,
+                            latitude: 0,
+                            longitude: 0,
+                            address: '',
+                            rating: 0,
+                            totalReviews: 0,
+                            totalProducts: 0,
+                            specialties: const [],
+                            isVerified: false,
+                            hasMapFeature: false,
+                            joinedDate: DateTime.now(),
+                            isOnline: isOnline,
+                          );
+                          context.push(AppRouter.farmerDetail,
+                              extra: mockFarmer);
+                        }
+                      : null,
                 ),
                 error: (_, __) => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
@@ -381,6 +429,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   isOnline: isOnline,
                   isTyping: isTyping,
                   lastSeen: lastSeen,
+                  onTap: widget.farmerId != null
+                      ? () {
+                          final mockFarmer = Farmer(
+                            id: widget.farmerId!,
+                            userId: widget.farmerId!,
+                            name: widget.farmerName ?? 'Farmer',
+                            description: '',
+                            profileImage: widget.farmerAvatar,
+                            latitude: 0,
+                            longitude: 0,
+                            address: '',
+                            rating: 0,
+                            totalReviews: 0,
+                            totalProducts: 0,
+                            specialties: const [],
+                            isVerified: false,
+                            hasMapFeature: false,
+                            joinedDate: DateTime.now(),
+                            isOnline: isOnline,
+                          );
+                          context.push(AppRouter.farmerDetail,
+                              extra: mockFarmer);
+                        }
+                      : null,
                 ),
               ),
               // _buildHeaderAction(
@@ -400,81 +472,85 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     required bool isOnline,
     bool isTyping = false,
     DateTime? lastSeen,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: _kDarkGreen.withValues(alpha: 0.1),
-                backgroundImage: avatar != null && avatar.startsWith('http')
-                    ? CachedNetworkImageProvider(avatar)
-                    : null,
-                onBackgroundImageError:
-                    avatar != null && avatar.startsWith('http')
-                        ? (_, __) {}
-                        : null,
-                child: avatar == null || !avatar.startsWith('http')
-                    ? Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : 'F',
-                        style: TextStyle(
-                            color: _kDarkGreen, fontWeight: FontWeight.w700),
-                      )
-                    : null,
-              ),
-              if (isOnline)
-                Positioned(
-                  right: 1,
-                  bottom: 1,
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: _kOnlineGreen,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: _kDarkGreen.withValues(alpha: 0.1),
+                  backgroundImage: avatar != null && avatar.startsWith('http')
+                      ? CachedNetworkImageProvider(avatar)
+                      : null,
+                  onBackgroundImageError:
+                      avatar != null && avatar.startsWith('http')
+                          ? (_, __) {}
+                          : null,
+                  child: avatar == null || !avatar.startsWith('http')
+                      ? Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : 'F',
+                          style: TextStyle(
+                              color: _kDarkGreen, fontWeight: FontWeight.w700),
+                        )
+                      : null,
+                ),
+                if (isOnline)
+                  Positioned(
+                    right: 1,
+                    bottom: 1,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _kOnlineGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: _kDarkGreen,
-                  ),
-                ),
-                Text(
-                  isTyping
-                      ? 'typing...'
-                      : isOnline
-                          ? 'Online'
-                          : lastSeen != null
-                              ? 'Last seen ${TimeUtils.formatLastSeen(lastSeen).toLowerCase()}'
-                              : 'Tap to view profile',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: _kDarkGreen,
+                    ),
+                  ),
+                  Text(
+                    isTyping
+                        ? 'typing...'
+                        : isOnline
+                            ? 'Online'
+                            : lastSeen != null
+                                ? 'Last seen ${TimeUtils.formatLastSeen(lastSeen).toLowerCase()}'
+                                : 'Tap to view profile',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -657,7 +733,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   // ── Input Bar ──────────────────────────────────────────────────────────────
 
   Widget _buildInputBar() {
-    final hasText = _inputController.text.isNotEmpty || _selectedImageToUpload != null;
+    final hasText =
+        _inputController.text.isNotEmpty || _selectedImageToUpload != null;
 
     return Container(
       color: Colors.white,
@@ -669,7 +746,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           children: [
             if (_selectedImageToUpload != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Stack(
@@ -688,14 +766,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                           right: -8,
                           top: -8,
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedImageToUpload = null),
+                            onTap: () =>
+                                setState(() => _selectedImageToUpload = null),
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: const PhosphorIcon(PhosphorIconsRegular.x, size: 12, color: Colors.white),
+                              child: const PhosphorIcon(PhosphorIconsRegular.x,
+                                  size: 12, color: Colors.white),
                             ),
                           ),
                         ),
@@ -713,84 +793,87 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   Container(
                     width: 44,
                     height: 44,
-                    margin: const EdgeInsets.only(bottom: 2), // Align icon visually with text
+                    margin: const EdgeInsets.only(
+                        bottom: 2), // Align icon visually with text
                     child: IconButton(
                       onPressed: _pickAndCropImage,
                       icon: const PhosphorIcon(PhosphorIconsRegular.plus,
                           color: _kDarkGreen, size: 26),
                     ),
                   ),
-              const SizedBox(width: 4),
-              // Text field
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  child: TextField(
-                    controller: _inputController,
-                    minLines: 1,
-                    maxLines: 5,
-                    textInputAction: TextInputAction.newline,
-                    style: TextStyle(fontSize: 15, color: _kDarkGreen),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      filled: true,
-                      fillColor: const Color(0xFFF3F4F6),
-                      hintText: 'Message…',
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+                  const SizedBox(width: 4),
+                  // Text field
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 120),
+                      child: TextField(
+                        controller: _inputController,
+                        minLines: 1,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        style: TextStyle(fontSize: 15, color: _kDarkGreen),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          filled: true,
+                          fillColor: const Color(0xFFF3F4F6),
+                          hintText: 'Message…',
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Send button
-              AnimatedBuilder(
-                animation: _sendBtnScale,
-                builder: (_, child) => Transform.scale(
-                  scale: _sendBtnScale.value,
-                  child: child,
-                ),
-                child: GestureDetector(
-                  onTap: hasText ? _sendMessage : null,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 44,
-                    height: 44,
-                    margin: const EdgeInsets.only(bottom: 2), // Align bottom visually
-                    decoration: BoxDecoration(
-                      color: hasText ? _kDarkGreen : const Color(0xFFF3F4F6),
-                      shape: BoxShape.circle,
+                  const SizedBox(width: 8),
+                  // Send button
+                  AnimatedBuilder(
+                    animation: _sendBtnScale,
+                    builder: (_, child) => Transform.scale(
+                      scale: _sendBtnScale.value,
+                      child: child,
                     ),
-                    child: Icon(
-                      PhosphorIconsFill.paperPlaneRight,
-                      size: 20,
-                      color: hasText ? Colors.white : _kGrey,
+                    child: GestureDetector(
+                      onTap: hasText ? _sendMessage : null,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 44,
+                        height: 44,
+                        margin: const EdgeInsets.only(
+                            bottom: 2), // Align bottom visually
+                        decoration: BoxDecoration(
+                          color:
+                              hasText ? _kDarkGreen : const Color(0xFFF3F4F6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          PhosphorIconsFill.paperPlaneRight,
+                          size: 20,
+                          color: hasText ? Colors.white : _kGrey,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ── Options bottom sheet ───────────────────────────────────────────────────
+  // ── Message List ───────────────────────────────────────────────────────────
 
   void _showOptionsSheet(BuildContext context) {
     showModalBottomSheet(
@@ -867,7 +950,8 @@ class _ChatBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isMe ? _kBubbleMe : _kBubbleThem,
                 borderRadius: BorderRadius.circular(18),
-                border: isMe ? null : Border.all(color: const Color(0xFFF3F4F6)),
+                border:
+                    isMe ? null : Border.all(color: const Color(0xFFF3F4F6)),
               ),
               child: _buildContent(context),
             ),
@@ -880,7 +964,8 @@ class _ChatBubble extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     switch (message.type) {
       case 'image':
-        final isLocal = message.content != null && !message.content!.startsWith('http');
+        final isLocal =
+            message.content != null && !message.content!.startsWith('http');
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: Stack(
@@ -925,13 +1010,16 @@ class _ChatBubble extends StatelessWidget {
                               width: 200,
                               height: 200,
                               color: Colors.grey[200],
-                              child: const Center(child: CircularProgressIndicator(color: _kDarkGreen)),
+                              child: const Center(
+                                  child: CircularProgressIndicator(
+                                      color: _kDarkGreen)),
                             ),
                             errorWidget: (context, url, error) => Container(
                               width: 200,
                               height: 200,
                               color: Colors.grey[200],
-                              child: const Icon(Icons.broken_image, color: Colors.grey),
+                              child: const Icon(Icons.broken_image,
+                                  color: Colors.grey),
                             ),
                           ),
                   ),
@@ -998,8 +1086,6 @@ class _ChatBubble extends StatelessWidget {
             ),
           ),
         );
-
-
 
       case 'product':
         return _ProductCard(message: message, isMe: isMe);
@@ -1222,4 +1308,3 @@ class _TypingDotsState extends State<_TypingDots>
     );
   }
 }
-

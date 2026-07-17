@@ -354,9 +354,17 @@ class _ConversationTile extends ConsumerWidget {
         ],
       ),
       onTap: () {
+        final uri = Uri(
+          path: AppRouter.chat,
+          queryParameters: {
+            'conversationId': conversation.conversationId,
+            'farmerId': participant.userId,
+            'farmerName': participant.name,
+            if (participant.profilePicture != null) 'farmerAvatar': participant.profilePicture,
+          },
+        );
         context
-            .push(
-                '${AppRouter.chat}?conversationId=${conversation.conversationId}')
+            .push(uri.toString())
             .then((_) {
           // Refresh the list when returning from the chat
           ref.invalidate(conversationsProvider);

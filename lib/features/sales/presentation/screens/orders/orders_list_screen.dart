@@ -7,6 +7,7 @@ import 'package:harvest_app/features/sales/presentation/providers/orders/order_p
 import '../../../../../core/config/router/app_router.dart';
 import '../../../../../core/widgets/app_search_bar.dart';
 import '../../../../../core/widgets/pill_tab_bar.dart';
+import 'package:harvest_app/features/sales/domain/entities/order.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);
@@ -168,7 +169,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
               ),
               ordersAsync.when(
                 data: (orders) {
-                  List<dynamic> filteredOrders = orders;
+                  List<Order> filteredOrders = List.from(orders);
                   final selectedStatus = _filters[_selectedFilterIndex].toLowerCase();
                   if (selectedStatus != 'all') {
                     filteredOrders = filteredOrders.where((o) => o.status == selectedStatus).toList();
@@ -177,8 +178,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   if (_searchController.text.isNotEmpty) {
                     final query = _searchController.text.toLowerCase();
                     filteredOrders = filteredOrders.where((o) {
-                      return (o.orderNumber?.toLowerCase().contains(query) ?? false) ||
-                             (o.seller?.name?.toLowerCase().contains(query) ?? false);
+                      return (o.orderNumber.toLowerCase().contains(query)) ||
+                             (o.seller.name.toLowerCase().contains(query));
                     }).toList();
                   }
 
@@ -355,7 +356,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
     );
   }
 
-  Widget _buildOrderCard(dynamic order) {
+  Widget _buildOrderCard(Order order) {
     return GestureDetector(
       onTap: () {
         context.push('${AppRouter.orderDetail}?orderId=${order.orderId}');
@@ -390,48 +391,89 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
             // Seller Info
             Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: kPillGrey,
-                    borderRadius: BorderRadius.circular(8),
+                const PhosphorIcon(PhosphorIconsRegular.storefront, size: 16, color: kTextGrey),
+                const SizedBox(width: 6),
+                Text(
+                  order.seller.name,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: kTextGrey,
                   ),
-                  clipBehavior: Clip.hardEdge,
-                  child: order.seller.profilePicture != null && order.seller.profilePicture!.isNotEmpty
-                      ? Image.network(
-                          order.seller.profilePicture!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
-                            child: Text(
-                              order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            order.seller.name.isNotEmpty ? order.seller.name[0] : 'S',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
-                          ),
-                        ),
                 ),
-                const SizedBox(width: 12),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Products Info
+            Row(
+              children: [
+                // Images
+                Row(
+                  children: List.generate(
+                    order.items.length > 3 ? 3 : order.items.length,
+                    (index) {
+                      final item = order.items[index];
+                      final isLast = index == 2 && order.items.length > 3;
+                      final imageUrl = item.imageUrl;
+                      
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: kPillGrey,
+                          borderRadius: BorderRadius.circular(8),
+                          image: imageUrl != null
+                              ? DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: isLast
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '+${order.items.length - 2}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : imageUrl == null
+                                ? const Center(
+                                    child: PhosphorIcon(PhosphorIconsRegular.image, color: kTextGrey),
+                                  )
+                                : null,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Product Names
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        order.seller.name,
+                        order.items.map((e) => e.name).join(', '),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: kDarkGreen,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         '${order.items.length} item${order.items.length > 1 ? 's' : ''}',
                         style: const TextStyle(

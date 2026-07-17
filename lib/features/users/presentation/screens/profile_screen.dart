@@ -126,8 +126,8 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // 3. SETTINGS SECTION
-            _buildSectionHeader(context.l10n.accountSettings),
-            const SizedBox(height: 12),
+            // _buildSectionHeader(context.l10n.accountSettings),
+            // const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -204,54 +204,54 @@ class ProfileScreen extends ConsumerWidget {
 
             const SizedBox(height: 32),
 
-            // 4. SUPPORT SECTION
-            _buildSectionHeader(context.l10n.support),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kPillGrey),
-              ),
-              child: Column(
-                children: [
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.question,
-                    title: context.l10n.helpCenter,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HelpCenterScreen(),
-                      ),
-                    ),
-                  ),
-                  _buildDivider(),
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.shield,
-                    title: context.l10n.privacyPolicy,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PrivacyPolicyScreen(),
-                      ),
-                    ),
-                  ),
-                  _buildDivider(),
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.info,
-                    title: context.l10n.aboutUs,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AboutUsScreen(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // // 4. SUPPORT SECTION
+            // _buildSectionHeader(context.l10n.support),
+            // const SizedBox(height: 12),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.circular(20),
+            //     border: Border.all(color: kPillGrey),
+            //   ),
+            //   child: Column(
+            //     children: [
+            //       _buildModernMenuItem(
+            //         icon: PhosphorIconsRegular.question,
+            //         title: context.l10n.helpCenter,
+            //         onTap: () => Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const HelpCenterScreen(),
+            //           ),
+            //         ),
+            //       ),
+            //       _buildDivider(),
+            //       _buildModernMenuItem(
+            //         icon: PhosphorIconsRegular.shield,
+            //         title: context.l10n.privacyPolicy,
+            //         onTap: () => Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const PrivacyPolicyScreen(),
+            //           ),
+            //         ),
+            //       ),
+            //       _buildDivider(),
+            //       _buildModernMenuItem(
+            //         icon: PhosphorIconsRegular.info,
+            //         title: context.l10n.aboutUs,
+            //         onTap: () => Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const AboutUsScreen(),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
-            const SizedBox(height: 32),
+            // const SizedBox(height: 32),
 
             // 5. LOGOUT BUTTON
             SizedBox(

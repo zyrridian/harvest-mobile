@@ -74,8 +74,8 @@ class FarmConfigurationScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // 2. SETTINGS SECTION
-              _buildSectionHeader('Farm Configuration'),
-              const SizedBox(height: 12),
+              // _buildSectionHeader('Farm Configuration'),
+              // const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -101,30 +101,30 @@ class FarmConfigurationScreen extends ConsumerWidget {
                       title: 'My Farm Reviews',
                       onTap: () => context.push(AppRouter.farmReviews),
                     ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: PhosphorIconsRegular.wallet,
-                      title: 'Wallet & Earnings',
-                      onTap: () {},
-                    ),
+                    // _buildDivider(),
+                    // _buildModernMenuItem(
+                    //   icon: PhosphorIconsRegular.wallet,
+                    //   title: 'Wallet & Earnings',
+                    //   onTap: () {},
+                    // ),
                     _buildDivider(),
                     _buildModernMenuItem(
                       icon: PhosphorIconsRegular.mapTrifold,
                       title: 'Manage Drop Points',
                       onTap: () => context.push(AppRouter.dropPoints),
                     ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: PhosphorIconsRegular.truck,
-                      title: 'Delivery Settings',
-                      onTap: () => context.push(AppRouter.deliverySettings),
-                    ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: PhosphorIconsRegular.gear,
-                      title: 'Account Settings',
-                      onTap: () {},
-                    ),
+                    // _buildDivider(),
+                    // _buildModernMenuItem(
+                    //   icon: PhosphorIconsRegular.truck,
+                    //   title: 'Delivery Settings',
+                    //   onTap: () => context.push(AppRouter.deliverySettings),
+                    // ),
+                    // _buildDivider(),
+                    // _buildModernMenuItem(
+                    //   icon: PhosphorIconsRegular.gear,
+                    //   title: 'Account Settings',
+                    //   onTap: () {},
+                    // ),
                   ],
                 ),
               ),
