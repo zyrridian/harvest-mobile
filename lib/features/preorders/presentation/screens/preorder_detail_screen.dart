@@ -40,7 +40,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
         data: (PreorderCampaign campaign) {
           final String title = campaign.productName ?? 'Unknown Product';
           final String farmName = campaign.farmerName ?? 'Unknown Farm';
-          final double price = campaign.price ?? campaign.depositAmount;
+          final double price = campaign.price ?? 0;
           final int daysLeft =
               campaign.deadline.difference(DateTime.now()).inDays.clamp(0, 365);
           final double progress = campaign.targetQuantity > 0
@@ -55,7 +55,8 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
               ? campaign.productImage!
               : AppConstants.emptyImageUrl;
           final bool hasReserved = campaign.hasReserved ?? false;
-          final bool isScheduled = _localIsScheduled ?? (campaign.isScheduled ?? false);
+          final bool isScheduled =
+              _localIsScheduled ?? (campaign.isScheduled ?? false);
 
           return CustomScrollView(
             slivers: [
@@ -80,12 +81,14 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isScheduled ? const Color(0xFF166534) : Colors.white,
+                        color: isScheduled
+                            ? const Color(0xFF166534)
+                            : Colors.white,
                         shape: BoxShape.circle,
                       ),
                       child: PhosphorIcon(
-                          isScheduled 
-                              ? PhosphorIconsFill.calendarCheck 
+                          isScheduled
+                              ? PhosphorIconsFill.calendarCheck
                               : PhosphorIconsRegular.calendarPlus,
                           color: isScheduled ? Colors.white : kDarkGreen,
                           size: 20),
@@ -94,11 +97,11 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                       setState(() {
                         _localIsScheduled = !isScheduled;
                       });
-                      
+
                       final isSuccess = await ref
                           .read(preOrderControllerProvider.notifier)
                           .toggleSchedule(campaign.id, isScheduled);
-                          
+
                       if (mounted) {
                         if (isSuccess) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -562,7 +565,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
       ),
       bottomNavigationBar: detailAsyncValue.maybeWhen(
         data: (PreorderCampaign campaign) {
-          final double price = campaign.price ?? campaign.depositAmount;
+          final double price = campaign.price ?? 0;
           return SafeArea(
             child: Container(
               padding: const EdgeInsets.all(24),

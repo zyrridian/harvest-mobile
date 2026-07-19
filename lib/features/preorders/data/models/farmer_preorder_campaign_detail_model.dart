@@ -18,9 +18,6 @@ class FarmerPreorderCampaignDetailModel {
   final int targetQuantity;
   final int currentBookedQuantity;
   
-  @JsonKey(fromJson: _toDouble)
-  final double depositPercentage;
-  
   final DateTime estimatedHarvestDate;
   final String status;
   final List<String> images;
@@ -40,7 +37,6 @@ class FarmerPreorderCampaignDetailModel {
     required this.minimumOrderQuantity,
     required this.targetQuantity,
     required this.currentBookedQuantity,
-    required this.depositPercentage,
     required this.estimatedHarvestDate,
     required this.status,
     required this.images,
@@ -69,7 +65,6 @@ class FarmerPreorderCampaignDetailModel {
       minimumOrderQuantity: minimumOrderQuantity,
       targetQuantity: targetQuantity,
       currentBookedQuantity: currentBookedQuantity,
-      depositPercentage: depositPercentage,
       estimatedHarvestDate: estimatedHarvestDate,
       status: status,
       images: images,
@@ -89,9 +84,6 @@ class FarmerPreorderReservationModel {
   
   @JsonKey(fromJson: _toDouble)
   final double totalPrice;
-  
-  @JsonKey(fromJson: _toDouble)
-  final double depositAmount;
   
   final String status;
   final String? paymentMethod;
@@ -116,7 +108,6 @@ class FarmerPreorderReservationModel {
     required this.id,
     required this.quantity,
     required this.totalPrice,
-    required this.depositAmount,
     required this.status,
     this.paymentMethod,
     this.deliveryMethod,
@@ -145,7 +136,6 @@ class FarmerPreorderReservationModel {
       id: id,
       quantity: quantity,
       totalPrice: totalPrice,
-      depositAmount: depositAmount,
       status: status,
       paymentMethod: paymentMethod,
       deliveryMethod: deliveryMethod,

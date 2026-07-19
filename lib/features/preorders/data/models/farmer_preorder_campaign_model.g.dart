@@ -19,8 +19,6 @@ FarmerPreorderCampaignModel _$FarmerPreorderCampaignModelFromJson(
       minimumOrderQuantity: (json['minimumOrderQuantity'] as num).toInt(),
       targetQuantity: (json['targetQuantity'] as num).toInt(),
       currentBookedQuantity: (json['currentBookedQuantity'] as num).toInt(),
-      depositPercentage:
-          FarmerPreorderCampaignModel._toDouble(json['depositPercentage']),
       estimatedHarvestDate:
           DateTime.parse(json['estimatedHarvestDate'] as String),
       status: json['status'] as String,
@@ -44,7 +42,6 @@ Map<String, dynamic> _$FarmerPreorderCampaignModelToJson(
       'minimumOrderQuantity': instance.minimumOrderQuantity,
       'targetQuantity': instance.targetQuantity,
       'currentBookedQuantity': instance.currentBookedQuantity,
-      'depositPercentage': instance.depositPercentage,
       'estimatedHarvestDate': instance.estimatedHarvestDate.toIso8601String(),
       'status': instance.status,
       'images': instance.images,

@@ -40,7 +40,7 @@ class _PreorderReservationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final double price = widget.campaign.price ?? widget.campaign.depositAmount;
+    final double price = widget.campaign.price ?? 0;
     final int remaining =
         (widget.campaign.targetQuantity - widget.campaign.currentReservations)
             .clamp(0, 99999);

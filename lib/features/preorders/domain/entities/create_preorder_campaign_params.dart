@@ -8,7 +8,6 @@ class CreatePreorderCampaignParams extends Equatable {
   final int targetQuantity;
   final DateTime estimatedHarvestDate;
   final int minimumOrderQuantity;
-  final int depositPercentage;
   final String status;
   final List<String>? images;
   final String? category;
@@ -21,7 +20,6 @@ class CreatePreorderCampaignParams extends Equatable {
     required this.targetQuantity,
     required this.estimatedHarvestDate,
     required this.minimumOrderQuantity,
-    required this.depositPercentage,
     this.status = 'ACTIVE',
     this.images,
     this.category,
@@ -36,7 +34,6 @@ class CreatePreorderCampaignParams extends Equatable {
       "targetQuantity": targetQuantity,
       "estimatedHarvestDate": estimatedHarvestDate.toIso8601String(),
       "minimumOrderQuantity": minimumOrderQuantity,
-      "depositPercentage": depositPercentage,
       "status": status,
       if (images != null) "images": images,
       if (category != null) "category": category,
@@ -52,7 +49,6 @@ class CreatePreorderCampaignParams extends Equatable {
         targetQuantity,
         estimatedHarvestDate,
         minimumOrderQuantity,
-        depositPercentage,
         status,
         images,
         category,

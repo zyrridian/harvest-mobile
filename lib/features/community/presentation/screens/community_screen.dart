@@ -278,38 +278,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             ),
           FloatingActionButton.extended(
             heroTag: 'create_post_fab',
-            backgroundColor: isProducer ? AppColors.primary : kAccentOrange,
-            onPressed: () {
-              if (isProducer) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CreatePostScreen()),
-                ).then((result) {
-                  if (result == true) {
-                    ref
-                        .read(communityControllerProvider.notifier)
-                        .setFilter('All Posts');
-                  }
-                });
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CreateRecipeScreen()),
-                ).then((result) {
-                  if (result == true) {
-                    setState(() => _selectedFilter = 'Kitchen Recipes');
-                    ref.read(recipeControllerProvider.notifier).refresh();
-                  }
-                });
-              }
-            },
-            icon: Icon(isProducer ? Icons.add : PhosphorIconsRegular.cookingPot,
-                color: Colors.white),
-            label: Text(
-              isProducer ? 'Create Post' : 'Create Recipe',
-              style: const TextStyle(
+            backgroundColor: AppColors.primary,
+            onPressed: _openCreatePost,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text(
+              'Create',
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),

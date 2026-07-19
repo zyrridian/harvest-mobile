@@ -248,7 +248,8 @@ class _CampaignCard extends ConsumerWidget {
                               _StatusMenu(campaign: campaign),
                             ],
                           ),
-                          if (campaign.pricePerUnit != null && campaign.unit != null)
+                          if (campaign.pricePerUnit != null &&
+                              campaign.unit != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 4.0),
                               child: Text(
@@ -780,15 +781,6 @@ class _ReservationsSheet extends ConsumerWidget {
                                         color: _kDarkGreen,
                                         fontSize: 13,
                                       ),
-                                    ),
-                                  ),
-                                if (res.depositAmount != null &&
-                                    res.depositAmount! > 0)
-                                  Text(
-                                    'Dep: Rp ${res.depositAmount?.toInt()}',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: _kTextGrey,
                                     ),
                                   ),
                               ],

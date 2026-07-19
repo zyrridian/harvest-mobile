@@ -142,7 +142,7 @@ class PreOrderController extends _$PreOrderController {
               imageUrl: (c.productImage != null && c.productImage!.trim().isNotEmpty)
                   ? c.productImage!
                   : '',
-              price: c.price ?? c.depositAmount,
+              price: c.price ?? 0,
               unit: c.unit ?? 'kg',
               bookedQuantity: c.currentReservations.toDouble(),
               totalQuantity: c.targetQuantity.toDouble(),

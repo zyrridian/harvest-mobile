@@ -22,7 +22,6 @@ abstract class PreOrderRemoteDataSource {
   Future<List<PreOrderReservationModel>> getMyReservations();
   Future<Map<String, dynamic>> reserveSpot(
       String id, int quantity, String deliveryMethod, String? addressId);
-  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod);
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
   Future<Map<String, dynamic>> completeReservation(String id);
@@ -202,11 +201,13 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(String id) async {
+  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(
+      String id) async {
     try {
       final response = await dio.get('/preorders/campaigns/me/$id');
       if (response.data['status'] == 'success') {
-        return FarmerPreorderCampaignDetailModel.fromJson(response.data['data']);
+        return FarmerPreorderCampaignDetailModel.fromJson(
+            response.data['data']);
       }
       throw ServerException(
           response.data['message'] ?? 'Failed to load campaign detail');
@@ -252,26 +253,6 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       }
       throw ServerException(
           response.data['message'] ?? 'Failed to reserve spot');
-    } on DioException catch (e) {
-      throw _handleDioException(e);
-    } catch (e) {
-      throw ServerException('An unexpected error occurred: $e');
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> payDeposit(
-      String id, String paymentMethod) async {
-    try {
-      final response = await dio.post(
-        '/preorders/reservations/$id/pay',
-        data: {'paymentMethod': paymentMethod},
-      );
-      if (response.data['status'] == 'success') {
-        return response.data['data'] ?? {};
-      }
-      throw ServerException(
-          response.data['message'] ?? 'Failed to pay deposit');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {

@@ -19,8 +19,6 @@ FarmerPreorderCampaignDetailModel _$FarmerPreorderCampaignDetailModelFromJson(
       minimumOrderQuantity: (json['minimumOrderQuantity'] as num).toInt(),
       targetQuantity: (json['targetQuantity'] as num).toInt(),
       currentBookedQuantity: (json['currentBookedQuantity'] as num).toInt(),
-      depositPercentage: FarmerPreorderCampaignDetailModel._toDouble(
-          json['depositPercentage']),
       estimatedHarvestDate:
           DateTime.parse(json['estimatedHarvestDate'] as String),
       status: json['status'] as String,
@@ -48,7 +46,6 @@ Map<String, dynamic> _$FarmerPreorderCampaignDetailModelToJson(
       'minimumOrderQuantity': instance.minimumOrderQuantity,
       'targetQuantity': instance.targetQuantity,
       'currentBookedQuantity': instance.currentBookedQuantity,
-      'depositPercentage': instance.depositPercentage,
       'estimatedHarvestDate': instance.estimatedHarvestDate.toIso8601String(),
       'status': instance.status,
       'images': instance.images,
@@ -65,8 +62,6 @@ FarmerPreorderReservationModel _$FarmerPreorderReservationModelFromJson(
       id: json['id'] as String,
       quantity: (json['quantity'] as num).toInt(),
       totalPrice: FarmerPreorderReservationModel._toDouble(json['totalPrice']),
-      depositAmount:
-          FarmerPreorderReservationModel._toDouble(json['depositAmount']),
       status: json['status'] as String,
       paymentMethod: json['paymentMethod'] as String?,
       deliveryMethod: json['deliveryMethod'] as String?,
@@ -90,7 +85,6 @@ Map<String, dynamic> _$FarmerPreorderReservationModelToJson(
       'id': instance.id,
       'quantity': instance.quantity,
       'totalPrice': instance.totalPrice,
-      'depositAmount': instance.depositAmount,
       'status': instance.status,
       'paymentMethod': instance.paymentMethod,
       'deliveryMethod': instance.deliveryMethod,

@@ -10,8 +10,6 @@ class PreorderCampaign extends Equatable {
   final int currentReservations;
   final DateTime deadline;
   final DateTime estimatedHarvestDate;
-  final bool depositRequired;
-  final double depositAmount;
   final String? status;
   final double? price;
   final String? unit;
@@ -40,8 +38,6 @@ class PreorderCampaign extends Equatable {
     required this.currentReservations,
     required this.deadline,
     required this.estimatedHarvestDate,
-    required this.depositRequired,
-    required this.depositAmount,
     this.status,
     this.price,
     this.unit,
@@ -71,8 +67,6 @@ class PreorderCampaign extends Equatable {
     int? currentReservations,
     DateTime? deadline,
     DateTime? estimatedHarvestDate,
-    bool? depositRequired,
-    double? depositAmount,
     String? status,
     double? price,
     String? unit,
@@ -101,8 +95,6 @@ class PreorderCampaign extends Equatable {
       currentReservations: currentReservations ?? this.currentReservations,
       deadline: deadline ?? this.deadline,
       estimatedHarvestDate: estimatedHarvestDate ?? this.estimatedHarvestDate,
-      depositRequired: depositRequired ?? this.depositRequired,
-      depositAmount: depositAmount ?? this.depositAmount,
       status: status ?? this.status,
       price: price ?? this.price,
       unit: unit ?? this.unit,
@@ -134,8 +126,6 @@ class PreorderCampaign extends Equatable {
         currentReservations,
         deadline,
         estimatedHarvestDate,
-        depositRequired,
-        depositAmount,
         status,
         price,
         unit,
@@ -178,7 +168,6 @@ class PreorderReservationInfo extends Equatable {
   final int quantity;
   final String status;
   final double? totalPrice;
-  final double? depositAmount;
   final String? paymentMethod;
   final String? deliveryMethod;
   final String? addressId;
@@ -193,7 +182,6 @@ class PreorderReservationInfo extends Equatable {
     required this.quantity,
     required this.status,
     this.totalPrice,
-    this.depositAmount,
     this.paymentMethod,
     this.deliveryMethod,
     this.addressId,
@@ -210,7 +198,6 @@ class PreorderReservationInfo extends Equatable {
         quantity,
         status,
         totalPrice,
-        depositAmount,
         paymentMethod,
         deliveryMethod,
         addressId,

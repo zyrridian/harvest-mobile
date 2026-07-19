@@ -164,12 +164,12 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                   _buildDivider(),
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.clipboardText,
-                    title: 'My Bulk Requests',
-                    onTap: () => context.push(AppRouter.buyerSourcingRequests),
-                  ),
-                  _buildDivider(),
+                  // _buildModernMenuItem(
+                  //   icon: PhosphorIconsRegular.clipboardText,
+                  //   title: 'My Bulk Requests',
+                  //   onTap: () => context.push(AppRouter.buyerSourcingRequests),
+                  // ),
+                  // _buildDivider(),
                   _buildModernMenuItem(
                     icon: PhosphorIconsRegular.bell,
                     title: context.l10n.notifications,

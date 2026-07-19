@@ -10,7 +10,6 @@ class FarmerPreorderCampaignDetail extends Equatable {
   final int minimumOrderQuantity;
   final int targetQuantity;
   final int currentBookedQuantity;
-  final double depositPercentage;
   final DateTime estimatedHarvestDate;
   final String status;
   final List<String> images;
@@ -30,7 +29,6 @@ class FarmerPreorderCampaignDetail extends Equatable {
     required this.minimumOrderQuantity,
     required this.targetQuantity,
     required this.currentBookedQuantity,
-    required this.depositPercentage,
     required this.estimatedHarvestDate,
     required this.status,
     required this.images,
@@ -52,7 +50,6 @@ class FarmerPreorderCampaignDetail extends Equatable {
         minimumOrderQuantity,
         targetQuantity,
         currentBookedQuantity,
-        depositPercentage,
         estimatedHarvestDate,
         status,
         images,
@@ -68,7 +65,6 @@ class FarmerPreorderReservation extends Equatable {
   final String id;
   final int quantity;
   final double totalPrice;
-  final double depositAmount;
   final String status;
   final String? paymentMethod;
   final String? deliveryMethod;
@@ -87,7 +83,6 @@ class FarmerPreorderReservation extends Equatable {
     required this.id,
     required this.quantity,
     required this.totalPrice,
-    required this.depositAmount,
     required this.status,
     this.paymentMethod,
     this.deliveryMethod,
@@ -108,7 +103,6 @@ class FarmerPreorderReservation extends Equatable {
         id,
         quantity,
         totalPrice,
-        depositAmount,
         status,
         paymentMethod,
         deliveryMethod,

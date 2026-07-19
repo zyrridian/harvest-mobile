@@ -19,9 +19,6 @@ class FarmerPreorderCampaignModel {
   final int targetQuantity;
   final int currentBookedQuantity;
 
-  @JsonKey(fromJson: _toDouble)
-  final double depositPercentage;
-
   final DateTime estimatedHarvestDate;
   final String status;
   final List<String> images;
@@ -40,7 +37,6 @@ class FarmerPreorderCampaignModel {
     required this.minimumOrderQuantity,
     required this.targetQuantity,
     required this.currentBookedQuantity,
-    required this.depositPercentage,
     required this.estimatedHarvestDate,
     required this.status,
     required this.images,
@@ -60,8 +56,6 @@ class FarmerPreorderCampaignModel {
   static double _toDouble(Object? value) =>
       (value as num).toDouble();
 
-  bool get depositRequired => depositPercentage > 0;
-
   String? get thumbnail =>
       images.isNotEmpty ? images.first : null;
 
@@ -77,7 +71,6 @@ class FarmerPreorderCampaignModel {
       minimumOrderQuantity: minimumOrderQuantity,
       targetQuantity: targetQuantity,
       currentBookedQuantity: currentBookedQuantity,
-      depositPercentage: depositPercentage,
       estimatedHarvestDate: estimatedHarvestDate,
       status: status,
       images: images,

@@ -27,8 +27,6 @@ abstract class PreorderRepository {
   Future<Either<Failure, List<PreOrderReservation>>> getMyReservations();
   Future<Either<Failure, Map<String, dynamic>>> reserveSpot(
       String id, int quantity, String deliveryMethod, String? addressId);
-  Future<Either<Failure, Map<String, dynamic>>> payDeposit(
-      String id, String paymentMethod);
   Future<Either<Failure, Map<String, dynamic>>> arrangePickup(
       String id, DateTime pickupTime);
   Future<Either<Failure, Map<String, dynamic>>> cancelReservation(String id);
@@ -37,5 +35,6 @@ abstract class PreorderRepository {
 
   /// Farmer
   Future<Either<Failure, List<FarmerPreorderCampaign>>> getMyCampaigns();
-  Future<Either<Failure, FarmerPreorderCampaignDetail>> getFarmerCampaignDetail(String id);
+  Future<Either<Failure, FarmerPreorderCampaignDetail>> getFarmerCampaignDetail(
+      String id);
 }

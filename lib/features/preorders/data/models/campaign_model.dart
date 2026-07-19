@@ -11,8 +11,6 @@ class PreorderCampaignModel extends PreorderCampaign {
     required super.currentReservations,
     required super.deadline,
     required super.estimatedHarvestDate,
-    required super.depositRequired,
-    required super.depositAmount,
     super.status,
     super.price,
     super.unit,
@@ -54,9 +52,6 @@ class PreorderCampaignModel extends PreorderCampaign {
           status: res['status'] ?? 'PENDING',
           totalPrice: res['totalPrice'] != null
               ? (res['totalPrice'] as num).toDouble()
-              : null,
-          depositAmount: res['depositAmount'] != null
-              ? (res['depositAmount'] as num).toDouble()
               : null,
           paymentMethod: res['paymentMethod'],
           deliveryMethod: res['deliveryMethod'],
@@ -107,10 +102,6 @@ class PreorderCampaignModel extends PreorderCampaign {
       estimatedHarvestDate: json['estimatedHarvestDate'] != null
           ? DateTime.parse(json['estimatedHarvestDate'])
           : DateTime.now(),
-      depositRequired:
-          json['depositRequired'] ?? ((json['depositPercentage'] ?? 0) > 0),
-      depositAmount:
-          (json['depositAmount'] ?? json['depositPercentage'] ?? 0).toDouble(),
       status: json['status'],
       price: (json['price'] ?? 0).toDouble() ??
           (json['pricePerUnit'] ?? 0).toDouble(),
@@ -142,8 +133,6 @@ class PreorderCampaignModel extends PreorderCampaign {
       'currentReservations': currentReservations,
       'deadline': deadline.toIso8601String(),
       'estimatedHarvestDate': estimatedHarvestDate.toIso8601String(),
-      'depositRequired': depositRequired,
-      'depositAmount': depositAmount,
       'status': status,
       'price': price,
       'unit': unit,

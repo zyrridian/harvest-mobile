@@ -36,7 +36,6 @@ class _CreatePreorderCampaignScreenState
   final _pricePerUnitController = TextEditingController();
   final _targetQuantityController = TextEditingController();
   final _minimumOrderQuantityController = TextEditingController();
-  final _depositPercentageController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedUnit;
@@ -71,7 +70,6 @@ class _CreatePreorderCampaignScreenState
     _pricePerUnitController.dispose();
     _targetQuantityController.dispose();
     _minimumOrderQuantityController.dispose();
-    _depositPercentageController.dispose();
     super.dispose();
   }
 
@@ -123,7 +121,6 @@ class _CreatePreorderCampaignScreenState
         estimatedHarvestDate: _estimatedHarvestDate!,
         minimumOrderQuantity:
             int.tryParse(_minimumOrderQuantityController.text) ?? 1,
-        depositPercentage: int.tryParse(_depositPercentageController.text) ?? 0,
         status: widget.campaign?.status ?? "ACTIVE",
         images: finalImages,
         category: _selectedCategory,

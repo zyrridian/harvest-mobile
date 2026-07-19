@@ -30,8 +30,6 @@ class PreOrder extends Equatable {
   final String unit;
   final double pricePerUnit;
   final double totalPrice;
-  final double? depositAmount; // Optional deposit for perishables
-  final bool depositPaid;
   final PreOrderStatus status;
   final DateTime harvestDate;
   final DeliveryMethod deliveryMethod;
@@ -58,8 +56,6 @@ class PreOrder extends Equatable {
     required this.unit,
     required this.pricePerUnit,
     required this.totalPrice,
-    this.depositAmount,
-    this.depositPaid = false,
     required this.status,
     required this.harvestDate,
     required this.deliveryMethod,
@@ -84,19 +80,6 @@ class PreOrder extends Equatable {
         status == PreOrderStatus.confirmed;
   }
 
-  /// Check if pre-order requires deposit
-  bool get requiresDeposit {
-    return depositAmount != null && depositAmount! > 0;
-  }
-
-  /// Amount remaining after deposit
-  double get remainingAmount {
-    if (depositPaid && depositAmount != null) {
-      return totalPrice - depositAmount!;
-    }
-    return totalPrice;
-  }
-
   @override
   List<Object?> get props => [
         id,
@@ -112,8 +95,6 @@ class PreOrder extends Equatable {
         unit,
         pricePerUnit,
         totalPrice,
-        depositAmount,
-        depositPaid,
         status,
         harvestDate,
         deliveryMethod,
