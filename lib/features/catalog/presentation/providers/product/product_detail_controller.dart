@@ -10,6 +10,9 @@ import 'package:harvest_app/features/catalog/domain/usecases/product/get_product
 import 'package:harvest_app/features/catalog/domain/usecases/product/check_favorite_status.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_usecase.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/submit_product_review.dart';
+import 'package:harvest_app/features/catalog/domain/usecases/product/get_product_reviews.dart';
+import 'package:harvest_app/features/community/domain/entities/review_response.dart';
 import 'product_detail_state.dart';
 
 part 'product_detail_controller.g.dart';
@@ -41,6 +44,27 @@ AddFavoriteUseCase addFavoriteUseCase(Ref ref) {
 @riverpod
 RemoveFavoriteUseCase removeFavoriteUseCase(Ref ref) {
   return RemoveFavoriteUseCase(ref.watch(productRepositoryProvider));
+}
+
+@riverpod
+SubmitProductReview submitProductReviewUseCase(Ref ref) {
+  return SubmitProductReview(ref.watch(productRepositoryProvider));
+}
+
+@riverpod
+GetProductReviews getProductReviewsUseCase(Ref ref) {
+  return GetProductReviews(ref.watch(productRepositoryProvider));
+}
+
+@riverpod
+Future<ReviewResponse> productReviews(Ref ref, String slug) async {
+  final useCase = ref.watch(getProductReviewsUseCaseProvider);
+  final result = await useCase.call(slug, limit: 5);
+  
+  return result.fold(
+    (failure) => throw Exception(failure.message),
+    (reviews) => reviews,
+  );
 }
 
 @riverpod

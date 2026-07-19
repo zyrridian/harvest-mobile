@@ -242,7 +242,31 @@ class AppRouter {
         path: farmerDetail,
         name: 'farmerDetail',
         builder: (context, state) {
-          final farmer = state.extra as Farmer;
+          final extra = state.extra;
+          Farmer farmer;
+          if (extra is Farmer) {
+            farmer = extra;
+          } else if (extra is String) {
+            farmer = Farmer(
+              id: extra,
+              userId: extra,
+              name: 'Loading...',
+              description: '',
+              latitude: 0,
+              longitude: 0,
+              address: '',
+              rating: 0,
+              totalReviews: 0,
+              totalProducts: 0,
+              specialties: const [],
+              isVerified: false,
+              hasMapFeature: false,
+              joinedDate: DateTime.now(),
+              isOnline: false,
+            );
+          } else {
+            throw Exception('Invalid arguments for farmerDetail: $extra');
+          }
           return FarmerDetailScreen(farmer: farmer);
         },
       ),

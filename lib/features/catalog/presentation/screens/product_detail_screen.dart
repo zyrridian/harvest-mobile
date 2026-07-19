@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/scheduler.dart';
@@ -706,73 +707,182 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildRatingReviews(BuildContext context, ProductDetail product) {
-    if (product.reviewCount == 0) return const SizedBox.shrink();
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Ratings & Reviews',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kDarkGreen,
-                    ),
-              ),
-              TextButton(
-                onPressed: () => _viewAllReviews(product),
-                child: Text('View All',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: kAccentOrange)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Text(
-                product.rating.toStringAsFixed(1),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: List.generate(
-                        5,
-                        (index) => Icon(
-                          index < product.rating.floor()
-                              ? PhosphorIconsFill.star
-                              : PhosphorIconsRegular.star,
-                          color: kAccentOrange,
-                          size: 20,
+      child: Consumer(
+        builder: (context, ref, child) {
+          final reviewsAsync = ref.watch(productReviewsProvider(product.id));
+
+          return reviewsAsync.when(
+            data: (response) {
+              if (response.summary.totalReviews == 0) return const SizedBox.shrink();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ratings & Reviews',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                            ),
+                      ),
+                      TextButton(
+                        onPressed: () => _viewAllReviews(product),
+                        child: Text('View All',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: kAccentOrange)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text(
+                        response.summary.averageRating.toStringAsFixed(1),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: List.generate(
+                                5,
+                                (index) => Icon(
+                                  index < response.summary.averageRating.round()
+                                      ? PhosphorIconsFill.star
+                                      : PhosphorIconsRegular.star,
+                                  color: kAccentOrange,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text('Based on ${response.summary.totalReviews} reviews',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(color: kTextGrey)),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text('Based on ${product.reviewCount} reviews',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: kTextGrey)),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  if (response.reviews.isNotEmpty)
+                    Column(
+                      children: response.reviews.take(3).map((review) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: kPillGrey,
+                                  backgroundImage: review.userAvatar != null &&
+                                          review.userAvatar!.startsWith('http')
+                                      ? CachedNetworkImageProvider(
+                                          review.userAvatar!)
+                                      : null,
+                                  onBackgroundImageError: (review.userAvatar != null &&
+                                          review.userAvatar!.startsWith('http'))
+                                      ? (_, __) {}
+                                      : null,
+                                  child: review.userAvatar == null ||
+                                          !review.userAvatar!.startsWith('http')
+                                      ? Text(
+                                          review.userName.isNotEmpty
+                                              ? review.userName[0].toUpperCase()
+                                              : '?',
+                                          style: const TextStyle(
+                                            color: kDarkGreen,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    review.userName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: kDarkGreen,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  DateFormat('MMM d, yyyy').format(review.createdAt),
+                                  style: const TextStyle(
+                                    color: kTextGrey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: List.generate(
+                                5,
+                                (index) => Icon(
+                                  index < review.rating
+                                      ? PhosphorIconsFill.star
+                                      : PhosphorIconsRegular.star,
+                                  color: kAccentOrange,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (review.comment.isNotEmpty)
+                              Text(
+                                review.comment,
+                                style: const TextStyle(
+                                  color: kDarkGreen,
+                                  height: 1.5,
+                                ),
+                              ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Divider(color: kPillGrey),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            },
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(color: kAccentOrange),
               ),
-            ],
-          ),
-        ],
+            ),
+            error: (error, stack) => Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Could not load reviews.',
+                style: TextStyle(color: Colors.red.shade400),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

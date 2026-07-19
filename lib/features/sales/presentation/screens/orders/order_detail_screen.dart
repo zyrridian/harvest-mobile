@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:harvest_app/features/sales/presentation/providers/orders/order_providers.dart';
 import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import '../../../../../core/config/router/app_router.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -117,8 +118,30 @@ class OrderDetailScreen extends ConsumerWidget {
                   // Seller Info
                   _buildSectionTitle('Seller Information'),
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(16),
+                  GestureDetector(
+                    onTap: () {
+                      final dummyFarmer = Farmer(
+                        id: order.seller.userId,
+                        userId: order.seller.userId,
+                        name: order.seller.name,
+                        description: '',
+                        profileImage: order.seller.profilePicture,
+                        latitude: 0,
+                        longitude: 0,
+                        address: '',
+                        rating: 0,
+                        totalReviews: 0,
+                        totalProducts: 0,
+                        specialties: const [],
+                        isVerified: false,
+                        hasMapFeature: false,
+                        joinedDate: DateTime.now(),
+                        isOnline: false,
+                      );
+                      context.push('/farmer-detail', extra: dummyFarmer);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -177,6 +200,7 @@ class OrderDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -185,8 +209,12 @@ class OrderDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   ...order.items.map((item) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.push('/products/${item.productId}');
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -261,6 +289,7 @@ class OrderDetailScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
+                        ),
                         ),
                       )),
 

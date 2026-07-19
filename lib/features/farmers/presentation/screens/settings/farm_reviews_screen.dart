@@ -324,46 +324,51 @@ class FarmReviewsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: kBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: kPillGrey,
-                        borderRadius: BorderRadius.circular(4),
-                        image: review.product.image != null
-                            ? DecorationImage(
-                                image: NetworkImage(review.product.image!),
-                                fit: BoxFit.cover,
-                              )
+              GestureDetector(
+                onTap: () {
+                  context.push('/products/${review.product.id}');
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: kBgColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: kPillGrey,
+                          borderRadius: BorderRadius.circular(4),
+                          image: review.product.image != null
+                              ? DecorationImage(
+                                  image: NetworkImage(review.product.image!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: review.product.image == null
+                            ? const PhosphorIcon(PhosphorIconsRegular.package,
+                                color: kTextGrey)
                             : null,
                       ),
-                      child: review.product.image == null
-                          ? const PhosphorIcon(PhosphorIconsRegular.package,
-                              color: kTextGrey)
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        review.product.name,
-                        style: TextStyle(
-                          color: kDarkGreen,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          review.product.name,
+                          style: const TextStyle(
+                            color: kDarkGreen,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               if (review.helpfulCount > 0) ...[

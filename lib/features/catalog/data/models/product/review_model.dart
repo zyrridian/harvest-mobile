@@ -38,8 +38,23 @@ class ReviewModel {
     this.isHelpful = false,
   });
 
-  factory ReviewModel.fromJson(Map<String, dynamic> json) =>
-      _$ReviewModelFromJson(json);
+  factory ReviewModel.fromJson(Map<String, dynamic> json) {
+    // Handle both flat structure and nested 'user' structure
+    final user = json['user'] as Map<String, dynamic>?;
+    return ReviewModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      userName: (user?['name'] as String?) ?? (json['user_name'] as String?) ?? 'Anonymous',
+      userAvatar: (user?['avatar_url'] as String?) ?? (json['user_avatar'] as String?),
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      comment: json['comment'] as String? ?? '',
+      images: (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      createdAt: json['created_at'] as String? ?? DateTime.now().toIso8601String(),
+      isVerifiedPurchase: json['is_verified_purchase'] as bool? ?? false,
+      helpfulCount: (json['helpful_count'] as num?)?.toInt() ?? 0,
+      isHelpful: json['is_helpful'] as bool? ?? false,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$ReviewModelToJson(this);
 

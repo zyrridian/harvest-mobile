@@ -8,6 +8,7 @@ import '../../../../../core/config/router/app_router.dart';
 import '../../../../../core/widgets/app_search_bar.dart';
 import '../../../../../core/widgets/pill_tab_bar.dart';
 import 'package:harvest_app/features/sales/domain/entities/order.dart';
+import 'package:harvest_app/features/catalog/presentation/widgets/review_product_sheet.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);
@@ -517,17 +518,72 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: kPillGrey,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const PhosphorIcon(
-                    PhosphorIconsRegular.caretRight,
-                    size: 16,
-                    color: kDarkGreen,
-                  ),
+                Row(
+                  children: [
+                    if (order.status.toLowerCase() == 'delivered' || order.status.toLowerCase() == 'completed')
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            if (order.items.length == 1) {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => ReviewProductSheet(
+                                  orderId: order.orderId,
+                                  productId: order.items.first.productId,
+                                  productName: order.items.first.name,
+                                  productImageUrl: order.items.first.imageUrl ?? '',
+                                ),
+                              );
+                            } else {
+                              // Multiple items handling: For now, review the first item
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => ReviewProductSheet(
+                                  orderId: order.orderId,
+                                  productId: order.items.first.productId,
+                                  productName: order.items.first.name,
+                                  productImageUrl: order.items.first.imageUrl ?? '',
+                                ),
+                              );
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: kDarkGreen),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Review',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: kDarkGreen,
+                            ),
+                          ),
+                        ),
+                      ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: kPillGrey,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const PhosphorIcon(
+                        PhosphorIconsRegular.caretRight,
+                        size: 16,
+                        color: kDarkGreen,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

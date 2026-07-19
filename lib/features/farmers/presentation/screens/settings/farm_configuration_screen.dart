@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/providers/language_provider.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farmer_profile.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/farmer_settings_controller.dart';
+import 'package:harvest_app/features/users/presentation/screens/language_selection_screen.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
@@ -19,6 +21,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsState = ref.watch(farmerSettingsControllerProvider);
+    final currentLanguage = ref.watch(currentLanguageNameProvider);
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -113,6 +116,18 @@ class FarmConfigurationScreen extends ConsumerWidget {
                       title: 'Manage Drop Points',
                       onTap: () => context.push(AppRouter.dropPoints),
                     ),
+                    _buildDivider(),
+                    _buildModernMenuItem(
+                      icon: PhosphorIconsRegular.globe,
+                      title: 'Language',
+                      trailingText: currentLanguage,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LanguageSelectionScreen(),
+                        ),
+                      ),
+                    ),
                     // _buildDivider(),
                     // _buildModernMenuItem(
                     //   icon: PhosphorIconsRegular.truck,
@@ -185,7 +200,8 @@ class FarmConfigurationScreen extends ConsumerWidget {
             height: 120,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
               color: kPillGrey,
               image: profile.coverImage != null
                   ? DecorationImage(
@@ -294,20 +310,6 @@ class FarmConfigurationScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: kTextGrey,
-        ),
       ),
     );
   }

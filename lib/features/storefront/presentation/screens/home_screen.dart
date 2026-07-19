@@ -109,11 +109,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ],
                   ),
-                  _iconBtn(
-                    icon: PhosphorIconsRegular.bell,
-                    hasDot: true,
-                    onTap: () => context.push(AppRouter.notifications),
-                  ),
+                  // _iconBtn(
+                  //   icon: PhosphorIconsRegular.bell,
+                  //   hasDot: true,
+                  //   onTap: () => context.push(AppRouter.notifications),
+                  // ),
                 ],
               ),
             ),

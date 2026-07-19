@@ -5,12 +5,37 @@ import 'review_model.dart';
 part 'review_response_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
+class ProductReviewSummaryModel extends ProductReviewSummary {
+  @JsonKey(name: 'average_rating')
+  final double averageRatingModel;
+  @JsonKey(name: 'total_reviews')
+  final int totalReviewsModel;
+  @JsonKey(name: 'rating_distribution')
+  final Map<String, int> ratingDistributionModel;
+
+  const ProductReviewSummaryModel({
+    required this.averageRatingModel,
+    required this.totalReviewsModel,
+    required this.ratingDistributionModel,
+  }) : super(
+          averageRating: averageRatingModel,
+          totalReviews: totalReviewsModel,
+          ratingDistribution: ratingDistributionModel,
+        );
+
+  factory ProductReviewSummaryModel.fromJson(Map<String, dynamic> json) => _$ProductReviewSummaryModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ProductReviewSummaryModelToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class ReviewResponseModel {
   final List<ReviewModel> reviews;
+  final ProductReviewSummaryModel summary;
   final PaginationModel pagination;
 
   ReviewResponseModel({
     required this.reviews,
+    required this.summary,
     required this.pagination,
   });
 
@@ -19,6 +44,7 @@ class ReviewResponseModel {
 
   ReviewResponse toEntity() => ReviewResponse(
         reviews: reviews.map((e) => e.toEntity()).toList(),
+        summary: summary,
         pagination: pagination.toEntity(),
       );
 }
@@ -31,7 +57,7 @@ class PaginationModel {
   final int totalPages;
   @JsonKey(name: 'total_items')
   final int totalItems;
-  @JsonKey(name: 'items_per_page')
+  @JsonKey(name: 'limit')
   final int itemsPerPage;
 
   PaginationModel({

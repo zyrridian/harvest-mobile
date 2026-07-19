@@ -102,8 +102,46 @@ final removeFavoriteUseCaseProvider =
 // ignore: unused_element
 typedef RemoveFavoriteUseCaseRef
     = AutoDisposeProviderRef<RemoveFavoriteUseCase>;
-String _$productDetailControllerHash() =>
-    r'36f9bf5d172d87e9c0cd428175ce398a461d0a5e';
+String _$submitProductReviewUseCaseHash() =>
+    r'1e22ef546d586aeaded9d09262d76f0ead45586c';
+
+/// See also [submitProductReviewUseCase].
+@ProviderFor(submitProductReviewUseCase)
+final submitProductReviewUseCaseProvider =
+    AutoDisposeProvider<SubmitProductReview>.internal(
+  submitProductReviewUseCase,
+  name: r'submitProductReviewUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$submitProductReviewUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SubmitProductReviewUseCaseRef
+    = AutoDisposeProviderRef<SubmitProductReview>;
+String _$getProductReviewsUseCaseHash() =>
+    r'375ac7f120638d2bad0575b5216f35367c8117df';
+
+/// See also [getProductReviewsUseCase].
+@ProviderFor(getProductReviewsUseCase)
+final getProductReviewsUseCaseProvider =
+    AutoDisposeProvider<GetProductReviews>.internal(
+  getProductReviewsUseCase,
+  name: r'getProductReviewsUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getProductReviewsUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetProductReviewsUseCaseRef = AutoDisposeProviderRef<GetProductReviews>;
+String _$productReviewsHash() => r'a19f8d5d2ce53d5717c42bb4ed246df931f6b9d9';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -125,6 +163,138 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [productReviews].
+@ProviderFor(productReviews)
+const productReviewsProvider = ProductReviewsFamily();
+
+/// See also [productReviews].
+class ProductReviewsFamily extends Family<AsyncValue<ReviewResponse>> {
+  /// See also [productReviews].
+  const ProductReviewsFamily();
+
+  /// See also [productReviews].
+  ProductReviewsProvider call(
+    String slug,
+  ) {
+    return ProductReviewsProvider(
+      slug,
+    );
+  }
+
+  @override
+  ProductReviewsProvider getProviderOverride(
+    covariant ProductReviewsProvider provider,
+  ) {
+    return call(
+      provider.slug,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'productReviewsProvider';
+}
+
+/// See also [productReviews].
+class ProductReviewsProvider extends AutoDisposeFutureProvider<ReviewResponse> {
+  /// See also [productReviews].
+  ProductReviewsProvider(
+    String slug,
+  ) : this._internal(
+          (ref) => productReviews(
+            ref as ProductReviewsRef,
+            slug,
+          ),
+          from: productReviewsProvider,
+          name: r'productReviewsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$productReviewsHash,
+          dependencies: ProductReviewsFamily._dependencies,
+          allTransitiveDependencies:
+              ProductReviewsFamily._allTransitiveDependencies,
+          slug: slug,
+        );
+
+  ProductReviewsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.slug,
+  }) : super.internal();
+
+  final String slug;
+
+  @override
+  Override overrideWith(
+    FutureOr<ReviewResponse> Function(ProductReviewsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ProductReviewsProvider._internal(
+        (ref) => create(ref as ProductReviewsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        slug: slug,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ReviewResponse> createElement() {
+    return _ProductReviewsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProductReviewsProvider && other.slug == slug;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, slug.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ProductReviewsRef on AutoDisposeFutureProviderRef<ReviewResponse> {
+  /// The parameter `slug` of this provider.
+  String get slug;
+}
+
+class _ProductReviewsProviderElement
+    extends AutoDisposeFutureProviderElement<ReviewResponse>
+    with ProductReviewsRef {
+  _ProductReviewsProviderElement(super.provider);
+
+  @override
+  String get slug => (origin as ProductReviewsProvider).slug;
+}
+
+String _$productDetailControllerHash() =>
+    r'36f9bf5d172d87e9c0cd428175ce398a461d0a5e';
 
 abstract class _$ProductDetailController
     extends BuildlessAutoDisposeNotifier<ProductDetailState> {

@@ -648,7 +648,21 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
                               review.userAvatar!.startsWith('http')
                           ? CachedNetworkImageProvider(review.userAvatar!)
                           : null,
-                      onBackgroundImageError: (_, __) {},
+                      onBackgroundImageError: (review.userAvatar != null &&
+                              review.userAvatar!.startsWith('http'))
+                          ? (_, __) {}
+                          : null,
+                      child: review.userAvatar == null ||
+                              !review.userAvatar!.startsWith('http')
+                          ? Text(
+                              review.userName.isNotEmpty
+                                  ? review.userName[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(
+                                  color: kDarkGreen,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : null,
                     ),
                     const SizedBox(width: 12),
                     Column(
@@ -884,9 +898,28 @@ class FarmerProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                           child: CircleAvatar(
                             radius: profileRadius,
                             backgroundColor: kPillGrey,
-                            backgroundImage: CachedNetworkImageProvider(
-                                farmer.profileImage ?? ''),
-                            onBackgroundImageError: (_, __) {},
+                            backgroundImage: farmer.profileImage != null &&
+                                    farmer.profileImage!.isNotEmpty
+                                ? CachedNetworkImageProvider(
+                                    farmer.profileImage!)
+                                : null,
+                            onBackgroundImageError: farmer.profileImage != null &&
+                                    farmer.profileImage!.isNotEmpty
+                                ? (_, __) {}
+                                : null,
+                            child: farmer.profileImage == null ||
+                                    farmer.profileImage!.isEmpty
+                                ? Text(
+                                    farmer.name.isNotEmpty
+                                        ? farmer.name[0].toUpperCase()
+                                        : '?',
+                                    style: TextStyle(
+                                      fontSize: profileRadius * 0.8,
+                                      fontWeight: FontWeight.bold,
+                                      color: kDarkGreen,
+                                    ),
+                                  )
+                                : null,
                           ),
                         ),
                       ),

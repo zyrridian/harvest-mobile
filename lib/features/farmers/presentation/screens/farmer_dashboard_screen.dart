@@ -136,36 +136,35 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8, right: 16),
-          child: Row(
-            children: [
-
-              IconButton(
-                onPressed: () => context.push(AppRouter.notifications),
-                icon: Stack(
-                  children: [
-                    const Icon(PhosphorIconsRegular.bell, color: kDarkGreen),
-                    Positioned(
-                      right: 2,
-                      top: 2,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: kAccentOrange,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.only(top: 8, right: 16),
+      //     child: Row(
+      //       children: [
+      //         IconButton(
+      //           onPressed: () => context.push(AppRouter.notifications),
+      //           icon: Stack(
+      //             children: [
+      //               const Icon(PhosphorIconsRegular.bell, color: kDarkGreen),
+      //               Positioned(
+      //                 right: 2,
+      //                 top: 2,
+      //                 child: Container(
+      //                   width: 8,
+      //                   height: 8,
+      //                   decoration: const BoxDecoration(
+      //                     color: kAccentOrange,
+      //                     shape: BoxShape.circle,
+      //                   ),
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      // ],
     );
   }
 

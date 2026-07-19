@@ -170,11 +170,11 @@ class ProfileScreen extends ConsumerWidget {
                   //   onTap: () => context.push(AppRouter.buyerSourcingRequests),
                   // ),
                   // _buildDivider(),
-                  _buildModernMenuItem(
-                    icon: PhosphorIconsRegular.bell,
-                    title: context.l10n.notifications,
-                    onTap: () => context.push(AppRouter.notifications),
-                  ),
+                  // _buildModernMenuItem(
+                  //   icon: PhosphorIconsRegular.bell,
+                  //   title: context.l10n.notifications,
+                  //   onTap: () => context.push(AppRouter.notifications),
+                  // ),
                   // _buildDivider(),
                   // _buildModernMenuItem(
                   //   icon: PhosphorIconsRegular.shieldCheck,
