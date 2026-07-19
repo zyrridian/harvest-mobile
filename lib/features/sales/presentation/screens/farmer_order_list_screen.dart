@@ -18,14 +18,16 @@ const kCardBg = Colors.white;
 const kTextGrey = Color(0xFF6E7A75);
 const kBorderColor = Color(0xFFE5E7EB);
 
-class OrderTrackingScreen extends ConsumerStatefulWidget {
-  const OrderTrackingScreen({super.key});
+class FarmerOrderListScreen extends ConsumerStatefulWidget {
+  const FarmerOrderListScreen({super.key});
 
   @override
-  ConsumerState<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
+  ConsumerState<FarmerOrderListScreen> createState() =>
+      _OrderTrackingScreenState();
 }
 
-class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with SingleTickerProviderStateMixin {
+class _OrderTrackingScreenState extends ConsumerState<FarmerOrderListScreen>
+    with SingleTickerProviderStateMixin {
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -70,7 +72,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
 
   @override
   Widget build(BuildContext context) {
-    final ordersState = ref.watch(farmerOrdersControllerProvider(status: 'all'));
+    final ordersState =
+        ref.watch(farmerOrdersControllerProvider(status: 'all'));
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -79,7 +82,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
         child: RefreshIndicator(
           color: kDarkGreen,
           backgroundColor: Colors.white,
-          onRefresh: () async => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
+          onRefresh: () async => ref
+              .read(farmerOrdersControllerProvider(status: 'all').notifier)
+              .refresh(),
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -89,8 +94,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                 backgroundColor: kBgColor,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                titleSpacing: 16,
-                centerTitle: false,
+                titleSpacing: 0,
+                centerTitle: true,
                 automaticallyImplyLeading: false,
                 title: AnimatedCrossFade(
                   duration: const Duration(milliseconds: 200),
@@ -116,21 +121,18 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                       ],
                     );
                   },
-                  firstChild: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      'Orders & Schedules',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: kDarkGreen,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ) ??
-                          const TextStyle(
-                            color: kDarkGreen,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                    ),
+                  firstChild: Text(
+                    'Orders',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: kDarkGreen,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ) ??
+                        const TextStyle(
+                          color: kDarkGreen,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
                   ),
                   secondChild: SizedBox(
                     width: double.infinity,
@@ -188,11 +190,13 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
               ),
               ordersState.maybeWhen(
                 data: (orders) {
-                  final statusFilter = _statusMap[_filters[_selectedFilterIndex]]!;
+                  final statusFilter =
+                      _statusMap[_filters[_selectedFilterIndex]]!;
                   final query = _searchController.text.toLowerCase();
 
                   final filteredOrders = orders.where((o) {
-                    final matchesStatus = statusFilter == 'all' || o.status.toLowerCase() == statusFilter;
+                    final matchesStatus = statusFilter == 'all' ||
+                        o.status.toLowerCase() == statusFilter;
                     final matchesSearch = query.isEmpty ||
                         o.orderNumber.toLowerCase().contains(query) ||
                         o.buyerName.toLowerCase().contains(query);
@@ -217,7 +221,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                         (context, index) {
                           final order = filteredOrders[index];
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 6),
                             child: _buildOrderCard(order),
                           );
                         },
@@ -234,10 +239,15 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(error.toString(), style: const TextStyle(color: Colors.red)),
+                        Text(error.toString(),
+                            style: const TextStyle(color: Colors.red)),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => ref.read(farmerOrdersControllerProvider(status: 'all').notifier).refresh(),
+                          onPressed: () => ref
+                              .read(
+                                  farmerOrdersControllerProvider(status: 'all')
+                                      .notifier)
+                              .refresh(),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -251,15 +261,6 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'routePlanFab',
-        onPressed: () {
-          context.push(AppRouter.routePlan);
-        },
-        backgroundColor: kAccentOrange,
-        icon: const Icon(PhosphorIconsRegular.mapTrifold, color: Colors.white),
-        label: const Text('Route Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -288,21 +289,29 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(width: 80, height: 14, color: Colors.white),
-                      Container(width: 60, height: 20, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+                      Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8))),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const CircleAvatar(radius: 20, backgroundColor: Colors.white),
+                      const CircleAvatar(
+                          radius: 20, backgroundColor: Colors.white),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(width: 120, height: 16, color: Colors.white),
+                            Container(
+                                width: 120, height: 16, color: Colors.white),
                             const SizedBox(height: 4),
-                            Container(width: 150, height: 14, color: Colors.white),
+                            Container(
+                                width: 150, height: 14, color: Colors.white),
                           ],
                         ),
                       ),
@@ -330,10 +339,17 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
 
   Widget _buildOrderCard(FarmerOrder data) {
     final isHarvestSchedule = data.deliveryMethod == 'harvest_schedule';
-    final isReady = data.status.toLowerCase() == 'ready' || data.status.toLowerCase() == 'confirmed' || data.status.toLowerCase() == 'paid';
+    final isReady = data.status.toLowerCase() == 'ready' ||
+        data.status.toLowerCase() == 'confirmed' ||
+        data.status.toLowerCase() == 'paid';
 
     String statusDisplay = data.status.replaceAll('_', ' ');
-    statusDisplay = statusDisplay.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
+    statusDisplay = statusDisplay
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? '${word[0].toUpperCase()}${word.substring(1)}'
+            : '')
+        .join(' ');
 
     return InkWell(
       onTap: () {
@@ -379,13 +395,18 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                     shape: BoxShape.circle,
                   ),
                   clipBehavior: Clip.hardEdge,
-                  child: data.items.isNotEmpty && data.items.first.productImage != null
+                  child: data.items.isNotEmpty &&
+                          data.items.first.productImage != null
                       ? Image.network(
                           data.items.first.productImage!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
+                          errorBuilder: (_, __, ___) => const Icon(
+                              PhosphorIconsRegular.user,
+                              color: kDarkGreen,
+                              size: 20),
                         )
-                      : const Icon(PhosphorIconsRegular.user, color: kDarkGreen, size: 20),
+                      : const Icon(PhosphorIconsRegular.user,
+                          color: kDarkGreen, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -402,7 +423,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        data.items.map((i) => '${i.quantity}x ${i.productName}').join(', '),
+                        data.items
+                            .map((i) => '${i.quantity}x ${i.productName}')
+                            .join(', '),
                         style: const TextStyle(
                           fontSize: 13,
                           color: kTextGrey,
@@ -414,7 +437,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                   ),
                 ),
                 Text(
-                  NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(data.totalAmount),
+                  NumberFormat.currency(
+                          locale: 'id', symbol: 'Rp', decimalDigits: 0)
+                      .format(data.totalAmount),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -431,7 +456,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
               children: [
                 Row(
                   children: [
-                    const Icon(PhosphorIconsRegular.calendar, size: 16, color: kTextGrey),
+                    const Icon(PhosphorIconsRegular.calendar,
+                        size: 16, color: kTextGrey),
                     const SizedBox(width: 4),
                     Text(
                       _formatDate(data.deliveryDate),
@@ -489,7 +515,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
           'completed',
           'cancelled'
         ];
-        
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
@@ -516,25 +542,40 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
                   ),
                   const SizedBox(height: 24),
                   ...statuses.map((status) {
-                    final isSelected = order.status.toLowerCase() == status.toLowerCase();
+                    final isSelected =
+                        order.status.toLowerCase() == status.toLowerCase();
                     String statusDisplay = status.replaceAll('_', ' ');
-                    statusDisplay = statusDisplay.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
-                    
+                    statusDisplay = statusDisplay
+                        .split(' ')
+                        .map((word) => word.isNotEmpty
+                            ? '${word[0].toUpperCase()}${word.substring(1)}'
+                            : '')
+                        .join(' ');
+
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         statusDisplay,
                         style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected ? kDarkGreen : Colors.black87,
                         ),
                       ),
-                      trailing: isSelected ? const Icon(PhosphorIconsRegular.checkCircle, color: kDarkGreen) : null,
+                      trailing: isSelected
+                          ? const Icon(PhosphorIconsRegular.checkCircle,
+                              color: kDarkGreen)
+                          : null,
                       onTap: () {
                         Navigator.pop(context);
-                        ref.read(farmerOrdersControllerProvider(status: 'all').notifier).updateOrderStatus(order.id, status);
+                        ref
+                            .read(farmerOrdersControllerProvider(status: 'all')
+                                .notifier)
+                            .updateOrderStatus(order.id, status);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Status updated to $statusDisplay')),
+                          SnackBar(
+                              content:
+                                  Text('Status updated to $statusDisplay')),
                         );
                       },
                     );

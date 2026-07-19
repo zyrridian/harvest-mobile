@@ -25,7 +25,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: kBgColor,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         scrolledUnderElevation: 0,
         title: Text(
           'Farm Settings',

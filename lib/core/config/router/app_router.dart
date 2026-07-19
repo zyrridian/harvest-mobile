@@ -23,7 +23,8 @@ import '../../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../../features/storefront/presentation/screens/main_screen.dart';
 import '../../../features/farmers/presentation/screens/farmer_main_screen.dart';
 import '../../../features/farmers/presentation/screens/farmer_add_edit_product_screen.dart';
-import '../../../features/sales/presentation/screens/harvest_schedule_detail_screen.dart';
+import '../../../features/farmers/presentation/screens/farmer_product_screen.dart';
+import '../../../features/preorders/presentation/screens/seller/farmer_preorder_screen.dart';
 import '../../../features/explore/presentation/screens/explore_screen.dart';
 import '../../../features/farmers/presentation/screens/farmer_detail_screen.dart';
 import '../../../features/users/presentation/screens/settings_screen.dart';
@@ -74,6 +75,8 @@ class AppRouter {
   static const String dropPoints = '/drop-points';
   static const String editDropPoint = '/edit-drop-point';
   static const String addProduct = '/add-product';
+  static const String farmerProducts = '/farmer-products';
+  static const String farmerPreorders = '/farmer-preorders';
   static const String harvestScheduleDetail = '/harvest-schedule-detail';
   static const String routePlan = '/route-plan';
   static const String explore = '/explore';
@@ -211,9 +214,14 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: harvestScheduleDetail,
-        name: 'harvestScheduleDetail',
-        builder: (context, state) => const HarvestScheduleDetailScreen(),
+        path: farmerProducts,
+        name: 'farmerProducts',
+        builder: (context, state) => const FarmerProductScreen(),
+      ),
+      GoRoute(
+        path: farmerPreorders,
+        name: 'farmerPreorders',
+        builder: (context, state) => const FarmerPreorderScreen(),
       ),
       GoRoute(
         path: nearbyFarmers,
@@ -411,12 +419,11 @@ class AppRouter {
         builder: (context, state) => const FarmerSourcingOffersScreen(),
       ),
       GoRoute(
-        path: buyerRequestDetails,
-        builder: (context, state) {
-          final req = state.extra as SourcingRequest;
-          return BuyerRequestDetailsScreen(request: req);
-        }
-      ),
+          path: buyerRequestDetails,
+          builder: (context, state) {
+            final req = state.extra as SourcingRequest;
+            return BuyerRequestDetailsScreen(request: req);
+          }),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

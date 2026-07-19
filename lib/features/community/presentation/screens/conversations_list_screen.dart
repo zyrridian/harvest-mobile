@@ -50,7 +50,7 @@ class _ConversationsListScreenState
       appBar: AppBar(
         backgroundColor: const Color(0xFFFFFFFF),
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         scrolledUnderElevation: 0,
         leading: isProducer
             ? null
@@ -85,7 +85,7 @@ class _ConversationsListScreenState
               const PopupMenuItem(value: 'all', child: Text('All Messages')),
               const PopupMenuItem(value: 'unread', child: Text('Unread')),
               // const PopupMenuItem(value: 'orders', child: Text('Orders')),
-              const PopupMenuItem(value: 'general', child: Text('General')),
+              // const PopupMenuItem(value: 'general', child: Text('General')),
             ],
           ),
         ],

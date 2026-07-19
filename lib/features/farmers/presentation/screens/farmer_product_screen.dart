@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harvest_app/core/config/theme/app_colors.dart';
-import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farmer_product.dart';
-import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/config/router/app_router.dart';
-import '../../../preorders/domain/entities/preorder_campaign.dart';
 import '../../../../core/widgets/app_cached_image.dart';
 import '../../../../core/widgets/app_search_bar.dart';
 import '../../../../core/widgets/pill_tab_bar.dart';
 import '../providers/farmer_products_controller.dart';
-import '../providers/farmer_campaigns_controller.dart';
-import 'package:harvest_app/features/preorders/presentation/screens/create_preorder_campaign_screen.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -28,12 +20,10 @@ class FarmerProductScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<FarmerProductScreen> createState() =>
-      _ProductManagementScreenState();
+      _FarmerProductScreenState();
 }
 
-class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _FarmerProductScreenState extends ConsumerState<FarmerProductScreen> {
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -46,20 +36,15 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
   int _selectedFilterIndex = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final productsState = ref.watch(farmerProductsControllerProvider);
+
     return Scaffold(
       backgroundColor: kBgColor,
       body: SafeArea(
@@ -74,9 +59,16 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                 backgroundColor: kBgColor,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                titleSpacing: 16,
-                centerTitle: false,
+                titleSpacing: 0,
+                centerTitle: true,
                 automaticallyImplyLeading: false,
+                leading: IconButton(
+                  icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                      color: kDarkGreen),
+                  onPressed: () {
+                    if (context.canPop()) context.pop();
+                  },
+                ),
                 title: AnimatedCrossFade(
                   duration: const Duration(milliseconds: 200),
                   crossFadeState: _isSearchVisible
@@ -101,25 +93,13 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                       ],
                     );
                   },
-                  firstChild: SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 48),
-                      child: Center(
-                        child: Text(
-                          'My Products',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: kDarkGreen,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ) ??
-                                  TextStyle(
-                                    color: kDarkGreen,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 18,
-                                  ),
-                        ),
+                  firstChild: const SizedBox(
+                    child: Text(
+                      'My Products',
+                      style: TextStyle(
+                        color: kDarkGreen,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
                       ),
                     ),
                   ),
@@ -158,51 +138,99 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                   ),
                   const SizedBox(width: 8),
                 ],
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(50),
-                  child: Container(
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: kBorderColor, width: 1),
-                      ),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      labelColor: kDarkGreen,
-                      unselectedLabelColor: kTextGrey,
-                      indicatorColor: kDarkGreen,
-                      indicatorWeight: 3,
-                      labelStyle: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                      unselectedLabelStyle: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                      tabs: const [
-                        Tab(text: 'Ready Stock'),
-                        Tab(text: 'Pre-orders'),
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ];
           },
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildReadyStockTab(),
-              _buildCampaignsTab(),
-            ],
+          body: RefreshIndicator(
+            color: kDarkGreen,
+            backgroundColor: Colors.white,
+            onRefresh: () async {
+              await ref
+                  .read(farmerProductsControllerProvider.notifier)
+                  .refresh();
+            },
+            child: CustomScrollView(
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PillTabBarDelegate(
+                    height: 52.0,
+                    child: PillTabBar(
+                      backgroundColor: kBgColor,
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, top: 8, bottom: 8),
+                      tabs: _filters
+                          .map((f) => PillTabItem(
+                                name: f['name'] as String,
+                                icon: f['icon'] as IconData?,
+                              ))
+                          .toList(),
+                      selectedIndex: _selectedFilterIndex,
+                      onTabSelected: (index) {
+                        setState(() {
+                          _selectedFilterIndex = index;
+                        });
+                        ref
+                            .read(farmerProductsControllerProvider.notifier)
+                            .setFilter(_filters[index]['value'] as String);
+                      },
+                    ),
+                  ),
+                ),
+                productsState.when(
+                  loading: () => const SliverFillRemaining(
+                    child: Center(
+                        child: CircularProgressIndicator(color: kDarkGreen)),
+                  ),
+                  error: (error) => SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(error.toString(),
+                              style: const TextStyle(color: Colors.red)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => ref
+                                .read(farmerProductsControllerProvider.notifier)
+                                .refresh(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  data: (products) {
+                    if (products.isEmpty) {
+                      return const SliverFillRemaining(
+                        child: Center(
+                          child: Text('No products found',
+                              style: TextStyle(color: kTextGrey)),
+                        ),
+                      );
+                    }
+                    return SliverPadding(
+                      padding: const EdgeInsets.only(top: 0, bottom: 100),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final product = products[index];
+                            return _buildProductCard(context, ref, product);
+                          },
+                          childCount: products.length,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'addProductFab',
-        onPressed: () => _showAddOptions(context),
+        onPressed: () => context.push(AppRouter.addProduct),
         backgroundColor: kDarkGreen,
         shape: const CircleBorder(),
         child:
@@ -211,94 +239,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
     );
   }
 
-  Widget _buildReadyStockTab() {
-    final productsState = ref.watch(farmerProductsControllerProvider);
-
-    return RefreshIndicator(
-      color: kDarkGreen,
-      backgroundColor: Colors.white,
-      onRefresh: () async {
-        await ref.read(farmerProductsControllerProvider.notifier).refresh();
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: PillTabBarDelegate(
-              height: 52.0,
-              child: PillTabBar(
-                backgroundColor: kBgColor,
-                padding: const EdgeInsets.only(
-                    left: 16, right: 16, top: 8, bottom: 8),
-                tabs: _filters
-                    .map((f) => PillTabItem(
-                          name: f['name'] as String,
-                          icon: f['icon'] as IconData?,
-                        ))
-                    .toList(),
-                selectedIndex: _selectedFilterIndex,
-                onTabSelected: (index) {
-                  setState(() {
-                    _selectedFilterIndex = index;
-                  });
-                  ref
-                      .read(farmerProductsControllerProvider.notifier)
-                      .setFilter(_filters[index]['value'] as String);
-                },
-              ),
-            ),
-          ),
-          productsState.when(
-            loading: () => const SliverFillRemaining(
-              child:
-                  Center(child: CircularProgressIndicator(color: kDarkGreen)),
-            ),
-            error: (error) => SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(error.toString(), style: TextStyle(color: Colors.red)),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref
-                          .read(farmerProductsControllerProvider.notifier)
-                          .refresh(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            data: (products) {
-              if (products.isEmpty) {
-                return SliverFillRemaining(
-                  child: Center(
-                    child: Text('No products found',
-                        style: TextStyle(color: kTextGrey)),
-                  ),
-                );
-              }
-              return SliverPadding(
-                padding: const EdgeInsets.only(top: 0, bottom: 100),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final product = products[index];
-                      return _buildProductCard(product);
-                    },
-                    childCount: products.length,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductCard(FarmerProduct product) {
+  Widget _buildProductCard(
+      BuildContext context, WidgetRef ref, FarmerProduct product) {
     final inStock = product.stock > 0 && product.isAvailable;
 
     return Padding(
@@ -330,8 +272,8 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child:
-                      const Text('Delete', style: TextStyle(color: Colors.red)),
+                  child: const Text('Delete',
+                      style: TextStyle(color: Colors.red)),
                 ),
               ],
             ),
@@ -362,7 +304,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                     height: 72,
                     foregroundDecoration: !inStock
                         ? BoxDecoration(
-                            color: Colors.white.withOpacity(0.6),
+                            color: Colors.white.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(8),
                           )
                         : null,
@@ -392,7 +334,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                         const SizedBox(height: 4),
                         Text(
                           'Stock: ${product.stock}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             color: kTextGrey,
                           ),
@@ -405,7 +347,7 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
                             fontWeight: FontWeight.w600,
                             color: inStock
                                 ? kDarkGreen
-                                : kTextGrey.withOpacity(0.5),
+                                : kTextGrey.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -441,887 +383,6 @@ class _ProductManagementScreenState extends ConsumerState<FarmerProductScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCampaignsTab() {
-    final campaignsState = ref.watch(farmerCampaignsControllerProvider);
-
-    return RefreshIndicator(
-      color: kDarkGreen,
-      backgroundColor: Colors.white,
-      onRefresh: () async {
-        await ref.read(farmerCampaignsControllerProvider.notifier).refresh();
-      },
-      child: CustomScrollView(
-        slivers: [
-          campaignsState.when(
-            loading: () => const SliverFillRemaining(
-              child:
-                  Center(child: CircularProgressIndicator(color: kDarkGreen)),
-            ),
-            error: (error, st) => SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(error.toString(), style: TextStyle(color: Colors.red)),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref
-                          .read(farmerCampaignsControllerProvider.notifier)
-                          .refresh(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            data: (campaigns) {
-              if (campaigns.isEmpty) {
-                return SliverFillRemaining(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(PhosphorIconsRegular.calendarBlank,
-                              size: 48, color: kTextGrey),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No pre-order campaigns yet',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: kDarkGreen,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Create one to start selling before harvest',
-                            style: TextStyle(color: kTextGrey),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const CreatePreorderCampaignScreen(),
-                                ),
-                              );
-                            },
-                            icon: const PhosphorIcon(
-                              PhosphorIconsRegular.plus,
-                              color: AppColors.white,
-                            ),
-                            label: const Text('New Campaign'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }
-
-              return SliverPadding(
-                padding: const EdgeInsets.only(top: 16, bottom: 100),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final campaign = campaigns[index];
-                      return _buildCampaignCard(campaign);
-                    },
-                    childCount: campaigns.length,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCampaignCard(PreorderCampaign campaign) {
-    final progress = campaign.targetQuantity > 0
-        ? campaign.currentReservations / campaign.targetQuantity
-        : 0.0;
-
-    final imageUrl = (campaign.images != null && campaign.images!.isNotEmpty)
-        ? campaign.images!.first
-        : campaign.productImage;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: GestureDetector(
-        onTap: () {
-          _showReservationsBottomSheet(context, campaign);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!, width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (imageUrl != null)
-                      Container(
-                        width: 60,
-                        height: 60,
-                        margin: const EdgeInsets.only(right: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: AppCachedImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  campaign.productName ?? 'Unknown Product',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: kDarkGreen,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              PopupMenuButton<String>(
-                                onSelected: (String result) async {
-                                  if (result == 'delete') {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('Delete Campaign'),
-                                        content: const Text(
-                                            'Are you sure you want to delete this campaign? This action cannot be undone.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context)
-                                                    .pop(false),
-                                            child: const Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(true),
-                                            child: const Text('Delete',
-                                                style: TextStyle(
-                                                    color: Colors.red)),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                    if (confirm == true) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text('Deleting campaign...')),
-                                      );
-                                      final success = await ref
-                                          .read(preOrderControllerProvider
-                                              .notifier)
-                                          .deleteCampaign(campaign.id);
-                                      if (success && mounted) {
-                                        ref
-                                            .read(
-                                                farmerCampaignsControllerProvider
-                                                    .notifier)
-                                            .refresh();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content:
-                                                  Text('Campaign deleted')),
-                                        );
-                                      }
-                                    }
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Updating status to $result...')),
-                                    );
-                                    final success = await ref
-                                        .read(
-                                            preOrderControllerProvider.notifier)
-                                        .updateCampaignStatus(
-                                            campaign.id, result);
-                                    if (success && mounted) {
-                                      ref
-                                          .read(
-                                              farmerCampaignsControllerProvider
-                                                  .notifier)
-                                          .refresh();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Status updated to $result')),
-                                      );
-                                    }
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) =>
-                                    <PopupMenuEntry<String>>[
-                                  const PopupMenuItem<String>(
-                                    value: 'DRAFT',
-                                    child: Text('Draft'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'ACTIVE',
-                                    child: Text('Active'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'FULLY_BOOKED',
-                                    child: Text('Fully Booked'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'PLANTED',
-                                    child: Text('Planted'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'GROWING',
-                                    child: Text('Growing'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'HARVESTING',
-                                    child: Text('Harvesting'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'READY',
-                                    child: Text('Ready'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'COMPLETED',
-                                    child: Text('Completed'),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'CANCELLED',
-                                    child: Text('Cancelled'),
-                                  ),
-                                  const PopupMenuDivider(),
-                                  const PopupMenuItem<String>(
-                                    value: 'delete',
-                                    child: Text('Delete Campaign',
-                                        style: TextStyle(color: Colors.red)),
-                                  ),
-                                ],
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        (campaign.status ?? 'Unknown')
-                                            .toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: kDarkGreen,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      const PhosphorIcon(
-                                          PhosphorIconsRegular.caretDown,
-                                          size: 14,
-                                          color: kDarkGreen),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (campaign.price != null && campaign.unit != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Text(
-                                'Rp ${campaign.price} / ${campaign.unit}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: kTextGrey,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Target Quantity',
-                            style: TextStyle(fontSize: 12, color: kTextGrey),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${campaign.targetQuantity}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, color: kDarkGreen),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Reservations',
-                            style: TextStyle(fontSize: 12, color: kTextGrey),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${campaign.currentReservations}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, color: kDarkGreen),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                LinearProgressIndicator(
-                  value: progress.clamp(0.0, 1.0),
-                  backgroundColor: kBorderColor,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      progress >= 1.0 ? kDarkGreen : kAccentOrange),
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                const SizedBox(height: 16),
-                const Divider(height: 1, color: kBorderColor),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(PhosphorIconsRegular.calendar,
-                            size: 14, color: kTextGrey),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Est. Harvest: ${DateFormat('MMM dd').format(campaign.estimatedHarvestDate)}',
-                          style: TextStyle(fontSize: 12, color: kTextGrey),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CreatePreorderCampaignScreen(
-                                    campaign: campaign),
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Icon(PhosphorIconsRegular.pencilSimple,
-                                  size: 14, color: kAccentOrange),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Edit',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: kAccentOrange,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showReservationsBottomSheet(
-      BuildContext context, PreorderCampaign campaign) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Reservations for ${campaign.productName ?? 'Campaign'}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: kDarkGreen,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const PhosphorIcon(PhosphorIconsRegular.x,
-                        color: kDarkGreen),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: kBorderColor),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Target Quantity',
-                        style: TextStyle(fontSize: 13, color: kTextGrey),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${campaign.targetQuantity}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Total Reserved',
-                        style: TextStyle(fontSize: 13, color: kTextGrey),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${campaign.currentReservations}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: kBorderColor),
-            if (campaign.status != 'COMPLETED')
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Start Fulfillment?'),
-                          content: const Text(
-                              'This will convert all paid reservations into Orders in your Order Tracking screen, allowing you to plan routes and manage logistics.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Confirm',
-                                  style: TextStyle(color: kDarkGreen)),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirm == true) {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Starting fulfillment...')),
-                        );
-                        final success = await ref
-                            .read(preOrderControllerProvider.notifier)
-                            .fulfillCampaign(campaign.id);
-
-                        if (!context.mounted) return;
-                        if (success) {
-                          ref
-                              .read(farmerCampaignsControllerProvider.notifier)
-                              .refresh();
-                          Navigator.pop(context); // Close sheet
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Fulfillment started! Check your Orders tab.'),
-                              backgroundColor: kDarkGreen,
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to start fulfillment.'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kDarkGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Start Fulfillment',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            Expanded(
-              child: (campaign.reservations == null ||
-                      campaign.reservations!.isEmpty)
-                  ? const Center(
-                      child: Text(
-                        'No reservations yet.',
-                        style: TextStyle(color: kTextGrey, fontSize: 15),
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(24),
-                      itemCount: campaign.reservations!.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(color: kBorderColor),
-                      itemBuilder: (context, index) {
-                        final res = campaign.reservations![index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100]!,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(PhosphorIconsRegular.user,
-                                        color: kDarkGreen, size: 20),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          res.buyerName,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: kDarkGreen,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'Status: ${res.status.replaceAll('_', ' ')}',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: kTextGrey,
-                                          ),
-                                        ),
-                                        if (res.deliveryMethod != null)
-                                          Text(
-                                            'Delivery: ${res.deliveryMethod}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: kTextGrey,
-                                            ),
-                                          ),
-                                        if (res.fullAddress != null)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 4.0),
-                                            child: InkWell(
-                                              onTap: () async {
-                                                if (res.latitude != null &&
-                                                    res.longitude != null) {
-                                                  final url = Uri.parse(
-                                                      'https://www.google.com/maps/search/?api=1&query=${res.latitude},${res.longitude}');
-                                                  if (await canLaunchUrl(url)) {
-                                                    await launchUrl(url);
-                                                  }
-                                                }
-                                              },
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  if (res.latitude != null)
-                                                    const Icon(
-                                                        PhosphorIconsRegular
-                                                            .mapPin,
-                                                        size: 14,
-                                                        color: kAccentOrange),
-                                                  if (res.latitude != null)
-                                                    const SizedBox(width: 4),
-                                                  Expanded(
-                                                    child: Text(
-                                                      res.fullAddress!,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        color:
-                                                            res.latitude != null
-                                                                ? kDarkGreen
-                                                                : kTextGrey,
-                                                        decoration:
-                                                            res.latitude != null
-                                                                ? TextDecoration
-                                                                    .underline
-                                                                : null,
-                                                      ),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        else if (res.addressId != null)
-                                          Text(
-                                            'Address ID: ${res.addressId!.length > 8 ? res.addressId!.substring(0, 8) : res.addressId}...',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: kTextGrey,
-                                            ),
-                                          ),
-                                        if (res.paymentMethod != null)
-                                          Text(
-                                            'Payment: ${res.paymentMethod}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: kTextGrey,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '${res.quantity} ${campaign.unit ?? 'items'}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: kAccentOrange,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      if (res.totalPrice != null)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 4.0),
-                                          child: Text(
-                                            'Rp ${res.totalPrice?.toInt()}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              color: kDarkGreen,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ),
-                                      if (res.depositAmount != null &&
-                                          res.depositAmount! > 0)
-                                        Text(
-                                          'Dep: Rp ${res.depositAmount?.toInt()}',
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: kTextGrey,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showAddOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add New',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(PhosphorIconsRegular.package,
-                        color: kDarkGreen),
-                  ),
-                  title: Text(
-                    'Standard Product',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    'List items you have ready in stock',
-                    style: TextStyle(fontSize: 12, color: kTextGrey),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push(AppRouter.addProduct);
-                  },
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(PhosphorIconsRegular.calendar,
-                        color: kDarkGreen),
-                  ),
-                  title: Text(
-                    'Preorder Campaign',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    'Set up a future harvest schedule for pre-order',
-                    style: TextStyle(fontSize: 12, color: kTextGrey),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CreatePreorderCampaignScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

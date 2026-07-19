@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
-import 'package:harvest_app/features/farmers/presentation/providers/farmer_campaigns_controller.dart';
+import 'package:harvest_app/features/preorders/presentation/providers/seller/farmer_campaigns_controller.dart';
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
@@ -19,7 +20,7 @@ const kDarkGreen = Color(0xFF1A2F25);
 const kTextGrey = Color(0xFF6E7A75);
 
 class CreatePreorderCampaignScreen extends ConsumerStatefulWidget {
-  final PreorderCampaign? campaign;
+  final FarmerPreorderCampaign? campaign;
   const CreatePreorderCampaignScreen({super.key, this.campaign});
 
   @override
@@ -49,19 +50,16 @@ class _CreatePreorderCampaignScreenState
     super.initState();
     if (widget.campaign != null) {
       final c = widget.campaign!;
-      _titleController.text = c.productName ?? '';
+      _titleController.text = c.title;
       _descriptionController.text = c.description ?? '';
       _selectedUnit = c.unit;
       _selectedCategory = c.category;
-      _pricePerUnitController.text = c.price?.toString() ?? '';
+      _pricePerUnitController.text = c.pricePerUnit.toString();
       _targetQuantityController.text = c.targetQuantity.toString();
-      _minimumOrderQuantityController.text = '1'; // Default as minimum order qty might not be directly in campaign
-      _depositPercentageController.text = c.depositAmount.toString();
+      _minimumOrderQuantityController.text = c.minimumOrderQuantity.toString();
       _estimatedHarvestDate = c.estimatedHarvestDate;
-      if (c.images != null && c.images!.isNotEmpty) {
-        _images = List.from(c.images!);
-      } else if (c.productImage != null) {
-        _images = [c.productImage!];
+      if (c.images.isNotEmpty) {
+        _images = List.from(c.images);
       }
     }
   }
@@ -90,12 +88,14 @@ class _CreatePreorderCampaignScreenState
           // It's a local file, we need to upload it
           final uploadUseCase = ref.read(uploadFileUseCaseProvider);
           final result = await uploadUseCase(File(imagePath));
-          
+
           final uploadFailed = result.fold(
             (failure) {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to upload image: ${failure.message}')),
+                  SnackBar(
+                      content:
+                          Text('Failed to upload image: ${failure.message}')),
                 );
                 setState(() => _isLoading = false);
               }
@@ -131,7 +131,7 @@ class _CreatePreorderCampaignScreenState
 
       final isEditing = widget.campaign != null;
       bool success = false;
-      
+
       if (isEditing) {
         success = await ref
             .read(preOrderControllerProvider.notifier)
@@ -150,12 +150,18 @@ class _CreatePreorderCampaignScreenState
           ref.read(farmerCampaignsControllerProvider.notifier).refresh();
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(isEditing ? 'Campaign updated successfully!' : 'Campaign created successfully!')),
+            SnackBar(
+                content: Text(isEditing
+                    ? 'Campaign updated successfully!'
+                    : 'Campaign created successfully!')),
           );
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(isEditing ? 'Failed to update campaign. Please try again.' : 'Failed to create campaign. Please try again.')),
+            SnackBar(
+                content: Text(isEditing
+                    ? 'Failed to update campaign. Please try again.'
+                    : 'Failed to create campaign. Please try again.')),
           );
         }
       }
@@ -352,7 +358,8 @@ class _CreatePreorderCampaignScreenState
     }
 
     if (_selectedCategory != null &&
-        !categories.any((c) => c.name == _selectedCategory || c.id == _selectedCategory)) {
+        !categories.any(
+            (c) => c.name == _selectedCategory || c.id == _selectedCategory)) {
       _selectedCategory = null;
     }
 
@@ -451,12 +458,14 @@ class _CreatePreorderCampaignScreenState
   Widget build(BuildContext context) {
     final categoriesAsyncValue = ref.watch(allCategoriesProvider);
     final unitsAsyncValue = ref.watch(allUnitsProvider);
-    
+
     return Scaffold(
       backgroundColor: kBgColor,
       appBar: AppBar(
         title: Text(
-          widget.campaign == null ? 'New Pre Order Campaign' : 'Edit Pre Order Campaign',
+          widget.campaign == null
+              ? 'New Pre Order Campaign'
+              : 'Edit Pre Order Campaign',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: kDarkGreen,
                     fontWeight: FontWeight.w700,
@@ -477,170 +486,160 @@ class _CreatePreorderCampaignScreenState
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: kDarkGreen))
-        : SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImagesInput(),
-              const SizedBox(height: 20),
-              _buildLabel('Title'),
-              _buildTextField(_titleController, 'e.g. Fresh Organic Tomatoes'),
-              const SizedBox(height: 20),
-              _buildLabel('Description'),
-              _buildTextField(_descriptionController,
-                  'e.g. Sweet and juicy tomatoes from our next harvest.',
-                  maxLines: 3),
-              const SizedBox(height: 20),
-              _buildLabel('Category'),
-              categoriesAsyncValue.when(
-                data: (categories) => _buildCategoryDropdown(categories),
-                loading: () => const CircularProgressIndicator(),
-                error: (e, s) => Text('Error loading categories: $e'),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Unit'),
-                        unitsAsyncValue.when(
-                          data: (units) => _buildUnitDropdown(units),
-                          loading: () => const CircularProgressIndicator(),
-                          error: (e, s) => Text('Error loading units: $e'),
-                        ),
-                      ],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: kDarkGreen))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildImagesInput(),
+                    const SizedBox(height: 20),
+                    _buildLabel('Title'),
+                    _buildTextField(
+                        _titleController, 'e.g. Fresh Organic Tomatoes'),
+                    const SizedBox(height: 20),
+                    _buildLabel('Description'),
+                    _buildTextField(_descriptionController,
+                        'e.g. Sweet and juicy tomatoes from our next harvest.',
+                        maxLines: 3),
+                    const SizedBox(height: 20),
+                    _buildLabel('Category'),
+                    categoriesAsyncValue.when(
+                      data: (categories) => _buildCategoryDropdown(categories),
+                      loading: () => const CircularProgressIndicator(),
+                      error: (e, s) => Text('Error loading categories: $e'),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Price per Unit'),
-                        _buildTextField(_pricePerUnitController, 'e.g. 25000',
-                            isNumber: true),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Target Quantity'),
-                        _buildTextField(_targetQuantityController, 'e.g. 100',
-                            isNumber: true),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Min. Order Qty'),
-                        _buildTextField(
-                            _minimumOrderQuantityController, 'e.g. 1',
-                            isNumber: true),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Deposit %'),
-                        _buildTextField(_depositPercentageController, 'e.g. 50',
-                            isNumber: true),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Estimated Harvest Date'),
-                        InkWell(
-                          onTap: _pickDate,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: kInputBg,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _estimatedHarvestDate == null
-                                        ? 'Select Date'
-                                        : '${_estimatedHarvestDate!.toLocal()}'
-                                            .split(' ')[0],
-                                    style: TextStyle(
-                                      color: _estimatedHarvestDate == null
-                                          ? kTextGrey.withValues(alpha: 0.5)
-                                          : Colors.black87,
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel('Estimated Harvest Date'),
+                          InkWell(
+                            onTap: _pickDate,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: kInputBg,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _estimatedHarvestDate == null
+                                          ? 'Select Date'
+                                          : '${_estimatedHarvestDate!.toLocal()}'
+                                              .split(' ')[0],
+                                      style: TextStyle(
+                                        color: _estimatedHarvestDate == null
+                                            ? kTextGrey.withValues(alpha: 0.5)
+                                            : Colors.black87,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                Icon(PhosphorIconsRegular.calendarBlank,
-                                    color: kTextGrey.withValues(alpha: 0.5),
-                                    size: 20),
-                              ],
+                                  Icon(PhosphorIconsRegular.calendarBlank,
+                                      color: kTextGrey.withValues(alpha: 0.5),
+                                      size: 20),
+                                ],
+                              ),
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel('Unit'),
+                              unitsAsyncValue.when(
+                                data: (units) => _buildUnitDropdown(units),
+                                loading: () =>
+                                    const CircularProgressIndicator(),
+                                error: (e, s) =>
+                                    Text('Error loading units: $e'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel('Price per Unit'),
+                              _buildTextField(
+                                  _pricePerUnitController, 'e.g. 25000',
+                                  isNumber: true),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kDarkGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: _submit,
-                  child: Text('Create Campaign',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel('Target Quantity'),
+                              _buildTextField(
+                                  _targetQuantityController, 'e.g. 100',
+                                  isNumber: true),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel('Min. Order Qty'),
+                              _buildTextField(
+                                  _minimumOrderQuantityController, 'e.g. 1',
+                                  isNumber: true),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kDarkGreen,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: _submit,
+                        child: Text('Create Campaign',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 16)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

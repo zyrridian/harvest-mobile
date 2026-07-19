@@ -122,7 +122,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   String? _getValidImageUrl(String? url) {
-    if (url == null || url.trim().isEmpty || !url.startsWith('http')) return null;
+    if (url == null || url.trim().isEmpty || !url.startsWith('http'))
+      return null;
     return url;
   }
 
@@ -242,13 +243,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           ? AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              centerTitle: false,
+              centerTitle: true,
               scrolledUnderElevation: 0,
-              leading: IconButton(
-                icon: const Icon(PhosphorIconsRegular.caretLeft,
-                    color: kDarkGreen),
-                onPressed: () => context.pop(),
-              ),
               iconTheme: const IconThemeData(color: kDarkGreen),
               title: Text(
                 'Community',

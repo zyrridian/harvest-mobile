@@ -7,12 +7,12 @@ part of 'farmer_campaigns_controller.dart';
 // **************************************************************************
 
 String _$farmerCampaignsControllerHash() =>
-    r'6ae80f0dd8340267cec571ea4300e8626323388a';
+    r'ca0a4c730dc380e17c4bede2f1dd19e2272630fc';
 
 /// See also [FarmerCampaignsController].
 @ProviderFor(FarmerCampaignsController)
 final farmerCampaignsControllerProvider = AutoDisposeNotifierProvider<
-    FarmerCampaignsController, AsyncValue<List<PreorderCampaign>>>.internal(
+    FarmerCampaignsController, FarmerCampaignsState>.internal(
   FarmerCampaignsController.new,
   name: r'farmerCampaignsControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,7 +22,6 @@ final farmerCampaignsControllerProvider = AutoDisposeNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$FarmerCampaignsController
-    = AutoDisposeNotifier<AsyncValue<List<PreorderCampaign>>>;
+typedef _$FarmerCampaignsController = AutoDisposeNotifier<FarmerCampaignsState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

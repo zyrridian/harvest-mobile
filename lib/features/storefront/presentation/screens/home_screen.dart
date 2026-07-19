@@ -271,13 +271,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           //   ),
           // ),
 
-          // ── 7. REQUEST GOODS BANNER ───────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-              child: _buildRequestGoodsBanner(),
-            ),
-          ),
+          // // ── 7. REQUEST GOODS BANNER ───────────────────────────────────────
+          // SliverToBoxAdapter(
+          //   child: Padding(
+          //     padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+          //     child: _buildRequestGoodsBanner(),
+          //   ),
+          // ),
 
           // ── 8. UPDATES FROM MY FARMERS ────────────────────────────────────
           if (farmerUpdates.isNotEmpty)
@@ -480,56 +480,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildRequestGoodsBanner() {
-    return GestureDetector(
-      onTap: () => context.push(AppRouter.createSourcingRequest),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: kDarkGreen,
-          borderRadius: BorderRadius.circular(16), // was 24 + colored shadow
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PhosphorIcon(PhosphorIconsRegular.megaphone,
-                color: Colors.white, size: 22),
-            const SizedBox(height: 14),
-            const Text(
-              'Broadcast a bulk request', // sentence case, not shouty
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Can't find what you need? Request specific goods in bulk directly from our farmers network.",
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white.withOpacity(0.65),
-                  height: 1.45),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Text('Request goods now',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white.withOpacity(0.4))),
-                const SizedBox(width: 6),
-                PhosphorIcon(PhosphorIconsRegular.arrowRight,
-                    color: Colors.white, size: 14),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildRequestGoodsBanner() {
+  //   return GestureDetector(
+  //     onTap: () => context.push(AppRouter.createSourcingRequest),
+  //     child: Container(
+  //       padding: const EdgeInsets.all(20),
+  //       decoration: BoxDecoration(
+  //         color: kDarkGreen,
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           PhosphorIcon(PhosphorIconsRegular.megaphone,
+  //               color: Colors.white, size: 22),
+  //           const SizedBox(height: 14),
+  //           const Text(
+  //             'Broadcast a bulk request',
+  //             style: TextStyle(
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Colors.white),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             "Can't find what you need? Request specific goods in bulk directly from our farmers network.",
+  //             style: TextStyle(
+  //                 fontSize: 13,
+  //                 color: Colors.white.withOpacity(0.65),
+  //                 height: 1.45),
+  //           ),
+  //           const SizedBox(height: 18),
+  //           Row(
+  //             children: [
+  //               Text('Request goods now',
+  //                   style: TextStyle(
+  //                       fontSize: 13,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Colors.white,
+  //                       decoration: TextDecoration.underline,
+  //                       decorationColor: Colors.white.withOpacity(0.4))),
+  //               const SizedBox(width: 6),
+  //               PhosphorIcon(PhosphorIconsRegular.arrowRight,
+  //                   color: Colors.white, size: 14),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _iconBtn({
     required IconData icon,

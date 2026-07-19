@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
+import 'package:harvest_app/features/preorders/data/models/farmer_preorder_campaign_detail_model.dart';
+import 'package:harvest_app/features/preorders/data/models/farmer_preorder_campaign_model.dart';
 import 'package:harvest_app/features/preorders/data/models/preorder_model.dart';
 import 'package:harvest_app/features/preorders/data/models/campaign_model.dart';
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
@@ -7,14 +9,19 @@ import 'package:harvest_app/features/preorders/domain/entities/create_preorder_c
 abstract class PreOrderRemoteDataSource {
   // New endpoints
   Future<PreorderCampaignModel> getCampaignDetail(String id);
-  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params);
-  Future<PreorderCampaignModel> updateCampaign(String id, CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> createCampaign(
+      CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> updateCampaign(
+      String id, CreatePreorderCampaignParams params);
   Future<PreorderCampaignModel> updateCampaignStatus(String id, String status);
   Future<void> deleteCampaign(String id);
-  Future<List<PreorderCampaignModel>> getActiveCampaigns({String? filter, double? latitude, double? longitude});
-  Future<List<PreorderCampaignModel>> getMyCampaigns();
+  Future<List<PreorderCampaignModel>> getActiveCampaigns(
+      {String? filter, double? latitude, double? longitude});
+  Future<List<FarmerPreorderCampaignModel>> getMyCampaigns();
+  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(String id);
   Future<List<PreOrderReservationModel>> getMyReservations();
-  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);
+  Future<Map<String, dynamic>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId);
   Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod);
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
@@ -63,7 +70,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return PreorderCampaignModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'Failed to load campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaign');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -72,7 +80,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params) async {
+  Future<PreorderCampaignModel> createCampaign(
+      CreatePreorderCampaignParams params) async {
     try {
       final response = await dio.post(
         '/preorders/campaigns',
@@ -81,7 +90,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return PreorderCampaignModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'Failed to create campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to create campaign');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -90,7 +100,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<PreorderCampaignModel> updateCampaign(String id, CreatePreorderCampaignParams params) async {
+  Future<PreorderCampaignModel> updateCampaign(
+      String id, CreatePreorderCampaignParams params) async {
     try {
       final response = await dio.put(
         '/preorders/campaigns/$id',
@@ -99,7 +110,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return PreorderCampaignModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'Failed to update campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to update campaign');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -108,16 +120,19 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<PreorderCampaignModel> updateCampaignStatus(String id, String status) async {
+  Future<PreorderCampaignModel> updateCampaignStatus(
+      String id, String status) async {
     try {
       final response = await dio.put(
         '/preorders/campaigns/$id',
         data: {'status': status},
       );
-      if (response.data['status'] == 'success' || response.data['success'] == true) {
+      if (response.data['status'] == 'success' ||
+          response.data['success'] == true) {
         return PreorderCampaignModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'Failed to update campaign status');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to update campaign status');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -129,10 +144,12 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   Future<void> deleteCampaign(String id) async {
     try {
       final response = await dio.delete('/preorders/campaigns/$id');
-      if (response.data['status'] == 'success' || response.data['success'] == true) {
+      if (response.data['status'] == 'success' ||
+          response.data['success'] == true) {
         return;
       }
-      throw ServerException(response.data['message'] ?? 'Failed to delete campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to delete campaign');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -141,20 +158,24 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<List<PreorderCampaignModel>> getActiveCampaigns({String? filter, double? latitude, double? longitude}) async {
+  Future<List<PreorderCampaignModel>> getActiveCampaigns(
+      {String? filter, double? latitude, double? longitude}) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (filter != null && filter.toLowerCase() != 'all') queryParams['filter'] = filter;
+      if (filter != null && filter.toLowerCase() != 'all')
+        queryParams['filter'] = filter;
       if (latitude != null) queryParams['latitude'] = latitude;
       if (longitude != null) queryParams['longitude'] = longitude;
 
-      final response = await dio.get('/preorders/campaigns', queryParameters: queryParams);
+      final response =
+          await dio.get('/preorders/campaigns', queryParameters: queryParams);
       if (response.data['status'] == 'success') {
         return (response.data['data'] as List)
             .map((e) => PreorderCampaignModel.fromJson(e))
             .toList();
       }
-      throw ServerException(response.data['message'] ?? 'Failed to load campaigns');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaigns');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -163,15 +184,32 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<List<PreorderCampaignModel>> getMyCampaigns() async {
+  Future<List<FarmerPreorderCampaignModel>> getMyCampaigns() async {
     try {
       final response = await dio.get('/preorders/campaigns/me');
       if (response.data['status'] == 'success') {
         return (response.data['data'] as List)
-            .map((e) => PreorderCampaignModel.fromJson(e))
+            .map((e) => FarmerPreorderCampaignModel.fromJson(e))
             .toList();
       }
-      throw ServerException(response.data['message'] ?? 'Failed to load campaigns');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaigns');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(String id) async {
+    try {
+      final response = await dio.get('/preorders/campaigns/me/$id');
+      if (response.data['status'] == 'success') {
+        return FarmerPreorderCampaignDetailModel.fromJson(response.data['data']);
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaign detail');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -188,7 +226,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
             .map((e) => PreOrderReservationModel.fromJson(e))
             .toList();
       }
-      throw ServerException(response.data['message'] ?? 'Failed to load reservations');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load reservations');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -197,7 +236,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId) async {
+  Future<Map<String, dynamic>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId) async {
     try {
       final response = await dio.post(
         '/preorders/campaigns/$id/reserve',
@@ -210,7 +250,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data['data'] ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to reserve spot');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to reserve spot');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -219,7 +260,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod) async {
+  Future<Map<String, dynamic>> payDeposit(
+      String id, String paymentMethod) async {
     try {
       final response = await dio.post(
         '/preorders/reservations/$id/pay',
@@ -228,7 +270,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data['data'] ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to pay deposit');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to pay deposit');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -237,7 +280,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime) async {
+  Future<Map<String, dynamic>> arrangePickup(
+      String id, DateTime pickupTime) async {
     try {
       final response = await dio.post(
         '/preorders/reservations/$id/pickup',
@@ -246,7 +290,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data['data'] ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to arrange pickup');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to arrange pickup');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -261,7 +306,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data['data'] ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to cancel reservation');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to cancel reservation');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -276,7 +322,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data['data'] ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to complete reservation');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to complete reservation');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -291,7 +338,8 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return response.data ?? {};
       }
-      throw ServerException(response.data['message'] ?? 'Failed to fulfill campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to fulfill campaign');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
@@ -299,4 +347,3 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
     }
   }
 }
-

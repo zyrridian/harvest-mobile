@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign_detail.dart';
 import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
@@ -134,10 +136,26 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, List<PreorderCampaign>>> getMyCampaigns() async {
+  Future<Either<Failure, List<FarmerPreorderCampaign>>> getMyCampaigns() async {
     try {
       final result = await remoteDataSource.getMyCampaigns();
-      return Right(result);
+      return Right(result.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, FarmerPreorderCampaignDetail>> getFarmerCampaignDetail(String id) async {
+    try {
+      final result = await remoteDataSource.getFarmerCampaignDetail(id);
+      return Right(result.toEntity());
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));

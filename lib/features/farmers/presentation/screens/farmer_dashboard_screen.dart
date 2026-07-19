@@ -65,32 +65,34 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   child: _buildRevenueCard(stats),
                 ),
                 const SizedBox(height: 24),
-                const _ActiveDropPointsCard(),
-                const SizedBox(height: 16),
-                _buildSourcingRequestsBanner(context),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: () =>
-                        context.push(AppRouter.farmerSourcingOffers),
-                    icon: const Icon(PhosphorIconsRegular.listChecks,
-                        color: kDarkGreen, size: 20),
-                    label: const Text(
-                      'View My Submitted Offers',
-                      style: TextStyle(
-                          color: kDarkGreen, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
+                const _QuickActionsRow(),
                 const SizedBox(height: 24),
-                _buildSectionHeader('Urgent Orders', 'View all'),
-                const SizedBox(height: 16),
-                _buildUrgentOrders(stats.recentOrders),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Today\'s Harvest Pickups', 'Schedule'),
-                const SizedBox(height: 16),
-                _buildHarvestTimeline(),
+                const _ActiveDropPointsCard(),
+                // const SizedBox(height: 16),
+                // _buildSourcingRequestsBanner(context),
+                // const SizedBox(height: 12),
+                // Align(
+                //   alignment: Alignment.centerRight,
+                //   child: TextButton.icon(
+                //     onPressed: () =>
+                //         context.push(AppRouter.farmerSourcingOffers),
+                //     icon: const Icon(PhosphorIconsRegular.listChecks,
+                //         color: kDarkGreen, size: 20),
+                //     label: const Text(
+                //       'View My Submitted Offers',
+                //       style: TextStyle(
+                //           color: kDarkGreen, fontWeight: FontWeight.w600),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 24),
+                // _buildSectionHeader('Urgent Orders', 'View all'),
+                // const SizedBox(height: 16),
+                // _buildUrgentOrders(stats.recentOrders),
+                // const SizedBox(height: 32),
+                // _buildSectionHeader('Today\'s Harvest Pickups', 'Schedule'),
+                // const SizedBox(height: 16),
+                // _buildHarvestTimeline(),
                 const SizedBox(height: 80),
               ],
             ),
@@ -139,12 +141,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.only(top: 8, right: 16),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () {
-                  context.push(AppRouter.community);
-                },
-                icon: const Icon(PhosphorIconsRegular.users, color: kDarkGreen),
-              ),
+
               IconButton(
                 onPressed: () => context.push(AppRouter.notifications),
                 icon: Stack(
@@ -324,8 +321,126 @@ class FarmerDashboardScreen extends ConsumerWidget {
   }
 }
 
+class _QuickActionsRow extends StatelessWidget {
+  const _QuickActionsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Manage',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: kDarkGreen,
+            letterSpacing: -0.3,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _QuickActionCard(
+                icon: PhosphorIconsFill.plant,
+                label: 'Catalog',
+                subtitle: 'Ready-stock products',
+                color: kPrimaryGreen,
+                onTap: () => context.push(AppRouter.farmerProducts),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _QuickActionCard(
+                icon: PhosphorIconsFill.calendarCheck,
+                label: 'Pre-orders',
+                subtitle: 'Campaigns & reservations',
+                color: kAccentOrange,
+                onTap: () => context.push(AppRouter.farmerPreorders),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: color.withOpacity(0.18)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: kTextGrey,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 12, color: color.withOpacity(0.5)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ActiveDropPointsCard extends ConsumerStatefulWidget {
   const _ActiveDropPointsCard({Key? key}) : super(key: key);
+
 
   @override
   ConsumerState<_ActiveDropPointsCard> createState() => _ActiveDropPointsCardState();
@@ -532,64 +647,64 @@ class _ActiveDropPointsCardState extends ConsumerState<_ActiveDropPointsCard> {
   }
 }
 
-Widget _buildSourcingRequestsBanner(BuildContext context) {
-  return GestureDetector(
-    onTap: () => context.push(AppRouter.farmerSourcingRequests),
-    child: Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: kAccentOrange,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: kAccentOrange.withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(PhosphorIconsFill.speakerHigh,
-                color: Colors.white, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Open Bulk Requests',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Find buyers looking for large quantities and place your bids.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios_rounded,
-              color: Colors.white, size: 16),
-        ],
-      ),
-    ),
-  );
-}
+// Widget _buildSourcingRequestsBanner(BuildContext context) {
+//   return GestureDetector(
+//     onTap: () => context.push(AppRouter.farmerSourcingRequests),
+//     child: Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: kAccentOrange,
+//         borderRadius: BorderRadius.circular(24),
+//         boxShadow: [
+//           BoxShadow(
+//             color: kAccentOrange.withOpacity(0.2),
+//             blurRadius: 15,
+//             offset: const Offset(0, 8),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: const EdgeInsets.all(12),
+//             decoration: BoxDecoration(
+//               color: Colors.white.withOpacity(0.2),
+//               borderRadius: BorderRadius.circular(16),
+//             ),
+//             child: const Icon(PhosphorIconsFill.speakerHigh,
+//                 color: Colors.white, size: 28),
+//           ),
+//           const SizedBox(width: 16),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 const Text(
+//                   'Open Bulk Requests',
+//                   style: TextStyle(
+//                     fontSize: 18,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.white,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   'Find buyers looking for large quantities and place your bids.',
+//                   style: TextStyle(
+//                     fontSize: 13,
+//                     color: Colors.white.withOpacity(0.9),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           const Icon(Icons.arrow_forward_ios_rounded,
+//               color: Colors.white, size: 16),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
 Widget _buildUrgentOrders(List<FarmerOrder> recentOrders) {
   if (recentOrders.isEmpty) {

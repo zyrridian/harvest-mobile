@@ -5,10 +5,11 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'farmer_dashboard_screen.dart';
-import 'farmer_product_screen.dart';
-import '../../../sales/presentation/screens/order_tracking_screen.dart';
+
+import '../../../sales/presentation/screens/farmer_order_list_screen.dart';
 import '../../../community/presentation/screens/conversations_list_screen.dart';
 import '../../../community/presentation/providers/chat_socket_providers.dart';
+import '../../../community/presentation/screens/community_screen.dart';
 
 // Provider to manage which tab is active for the farmer
 final farmerBottomNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -36,8 +37,8 @@ class _FarmerMainScreenState extends ConsumerState<FarmerMainScreen> {
 
     final screens = [
       const FarmerDashboardScreen(),
-      const FarmerProductScreen(),
-      const OrderTrackingScreen(),
+      const FarmerOrderListScreen(),
+      const CommunityScreen(),
       const ConversationsListScreen(),
       const FarmConfigurationScreen(),
     ];
@@ -111,17 +112,17 @@ class _FarmerBottomNav extends ConsumerWidget {
               _NavItem(
                 index: 1,
                 currentIndex: currentIndex,
-                label: 'Products',
-                activeIcon: PhosphorIconsFill.leaf,
-                inactiveIcon: PhosphorIconsRegular.leaf,
+                label: 'Orders',
+                activeIcon: PhosphorIconsFill.receipt,
+                inactiveIcon: PhosphorIconsRegular.receipt,
                 onTap: onTap,
               ),
               _NavItem(
                 index: 2,
                 currentIndex: currentIndex,
-                label: 'Orders',
-                activeIcon: PhosphorIconsFill.receipt,
-                inactiveIcon: PhosphorIconsRegular.receipt,
+                label: 'Community',
+                activeIcon: PhosphorIconsFill.users,
+                inactiveIcon: PhosphorIconsRegular.users,
                 onTap: onTap,
               ),
               _NavItem(
