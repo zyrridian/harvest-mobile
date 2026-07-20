@@ -7,6 +7,7 @@ import 'package:harvest_app/features/auth/presentation/providers/auth_controller
 import 'package:harvest_app/features/farmers/domain/entities/farmer_profile.dart';
 import 'package:harvest_app/features/farmers/presentation/providers/settings/farmer_settings_controller.dart';
 import 'package:harvest_app/features/users/presentation/screens/language_selection_screen.dart';
+import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
@@ -209,8 +210,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                       fit: BoxFit.cover,
                     )
                   : const DecorationImage(
-                      image: NetworkImage(
-                          'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'),
+                      image: NetworkImage(AppConstants.emptyImageUrl),
                       fit: BoxFit.cover,
                     ),
             ),
@@ -237,8 +237,7 @@ class FarmConfigurationScreen extends ConsumerWidget {
                               fit: BoxFit.cover,
                             )
                           : const DecorationImage(
-                              image: NetworkImage(
-                                  'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'),
+                              image: NetworkImage(AppConstants.emptyImageUrl),
                               fit: BoxFit.cover,
                             ),
                     ),

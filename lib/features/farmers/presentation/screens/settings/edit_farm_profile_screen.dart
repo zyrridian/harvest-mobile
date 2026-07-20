@@ -36,11 +36,11 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
   late TextEditingController _stateController;
   late TextEditingController _phoneController;
   late TextEditingController _specialtiesController;
-  
+
   double _latitude = 0.0;
   double _longitude = 0.0;
   int _provinceId = 0;
-  
+
   String? _profileImagePath;
   String? _coverImagePath;
 
@@ -64,14 +64,14 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
           setState(() {
             _currentProfile = profile;
             _nameController.text = profile.name;
-            _descriptionController.text = profile.description;
-            _addressController.text = profile.address;
+            _descriptionController.text = profile.description ?? '';
+            _addressController.text = profile.address ?? '';
             _cityController.text = profile.city ?? '';
             _stateController.text = profile.state ?? '';
             _phoneController.text = profile.phoneNumber ?? '';
             _specialtiesController.text = profile.specialties.join(', ');
-            _latitude = profile.latitude;
-            _longitude = profile.longitude;
+            _latitude = profile.latitude ?? 0.0;
+            _longitude = profile.longitude ?? 0.0;
             _profileImagePath = profile.profileImage;
             _coverImagePath = profile.coverImage;
           });
@@ -97,7 +97,9 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
     if (_formKey.currentState!.validate()) {
       final request = FarmProfileRequest(
         name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isNotEmpty ? _descriptionController.text.trim() : null,
+        description: _descriptionController.text.trim().isNotEmpty
+            ? _descriptionController.text.trim()
+            : null,
         profileImage: _profileImagePath,
         coverImage: _coverImagePath,
         address: _addressController.text.trim(),
@@ -229,6 +231,7 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
                         zoomGesturesEnabled: false,
                         myLocationButtonEnabled: false,
                         mapToolbarEnabled: false,
+                        liteModeEnabled: true, // Fixes freezing on Android emulators for static maps
                       ),
                       Positioned.fill(
                         child: Material(
@@ -386,7 +389,8 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
                 ? PhosphorIcon(icon, color: kTextGrey, size: 22)
                 : null,
             suffixIcon: readOnly
-                ? const PhosphorIcon(PhosphorIconsRegular.caretDown, color: kTextGrey, size: 20)
+                ? const PhosphorIcon(PhosphorIconsRegular.caretDown,
+                    color: kTextGrey, size: 20)
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -565,8 +569,8 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error loading states: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading states: $e')));
       }
     }
   }
@@ -626,8 +630,8 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
                 itemBuilder: (context, index) {
                   final item = items[index];
                   return ListTile(
-                    title:
-                        Text(item.label, style: const TextStyle(color: kDarkGreen)),
+                    title: Text(item.label,
+                        style: const TextStyle(color: kDarkGreen)),
                     onTap: () {
                       onSelect(item);
                       Navigator.pop(context);

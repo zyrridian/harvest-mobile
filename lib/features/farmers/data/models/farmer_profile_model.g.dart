@@ -24,14 +24,14 @@ FarmerProfileModel _$FarmerProfileModelFromJson(Map<String, dynamic> json) =>
     FarmerProfileModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String,
+      description: json['description'] as String?,
       profileImage: json['profile_image'] as String?,
       coverImage: json['cover_image'] as String?,
-      address: json['address'] as String,
+      address: json['address'] as String?,
       city: json['city'] as String?,
       state: json['state'] as String?,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
       phoneNumber: json['phone_number'] as String?,
       specialties: (json['specialties'] as List<dynamic>)
           .map((e) => e as String)

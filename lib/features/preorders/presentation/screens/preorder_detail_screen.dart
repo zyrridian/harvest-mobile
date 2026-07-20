@@ -353,17 +353,17 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                       ),
                       const SizedBox(height: 32),
                       // Tracker Section
-                      Text(
-                        'Harvest Timeline',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: kTextGreen,
-                            ),
-                      ),
+                      // Text(
+                      //   'Harvest Timeline',
+                      //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      //         fontSize: 18,
+                      //         fontWeight: FontWeight.bold,
+                      //         color: kTextGreen,
+                      //       ),
+                      // ),
                       const SizedBox(height: 16),
-                      _buildTimelineTracker(),
-                      const SizedBox(height: 32),
+                      // _buildTimelineTracker(),
+                      // const SizedBox(height: 32),
                       // About Section
                       Text(
                         'About this harvest',

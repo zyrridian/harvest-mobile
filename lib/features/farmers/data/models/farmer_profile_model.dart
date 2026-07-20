@@ -20,16 +20,16 @@ class FarmerProfileResponseModel {
 class FarmerProfileModel {
   final String id;
   final String name;
-  final String description;
+  final String? description;
   @JsonKey(name: 'profile_image')
   final String? profileImage;
   @JsonKey(name: 'cover_image')
   final String? coverImage;
-  final String address;
+  final String? address;
   final String? city;
   final String? state;
-  final double latitude;
-  final double longitude;
+  final double? latitude;
+  final double? longitude;
   @JsonKey(name: 'phone_number')
   final String? phoneNumber;
   final List<String> specialties;
@@ -39,14 +39,14 @@ class FarmerProfileModel {
   FarmerProfileModel({
     required this.id,
     required this.name,
-    required this.description,
+    this.description,
     this.profileImage,
     this.coverImage,
-    required this.address,
+    this.address,
     this.city,
     this.state,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
     this.phoneNumber,
     required this.specialties,
     required this.isVerified,

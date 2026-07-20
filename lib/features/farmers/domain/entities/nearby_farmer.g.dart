@@ -78,6 +78,7 @@ _$NearbyFarmerDataImpl _$$NearbyFarmerDataImplFromJson(
         Map<String, dynamic> json) =>
     _$NearbyFarmerDataImpl(
       id: json['id'] as String,
+      userId: json['userId'] as String?,
       name: json['name'] as String,
       distance: (json['distance'] as num).toDouble(),
       category: json['category'] as String,
@@ -110,6 +111,7 @@ Map<String, dynamic> _$$NearbyFarmerDataImplToJson(
         _$NearbyFarmerDataImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'userId': instance.userId,
       'name': instance.name,
       'distance': instance.distance,
       'category': instance.category,

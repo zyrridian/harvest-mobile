@@ -818,6 +818,7 @@ NearbyFarmerData _$NearbyFarmerDataFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$NearbyFarmerData {
   String get id => throw _privateConstructorUsedError;
+  String? get userId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
   String get category => throw _privateConstructorUsedError;
@@ -855,6 +856,7 @@ abstract class $NearbyFarmerDataCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      String? userId,
       String name,
       double distance,
       String category,
@@ -892,6 +894,7 @@ class _$NearbyFarmerDataCopyWithImpl<$Res, $Val extends NearbyFarmerData>
   @override
   $Res call({
     Object? id = null,
+    Object? userId = freezed,
     Object? name = null,
     Object? distance = null,
     Object? category = null,
@@ -915,6 +918,10 @@ class _$NearbyFarmerDataCopyWithImpl<$Res, $Val extends NearbyFarmerData>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -1012,6 +1019,7 @@ abstract class _$$NearbyFarmerDataImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
+      String? userId,
       String name,
       double distance,
       String category,
@@ -1048,6 +1056,7 @@ class __$$NearbyFarmerDataImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? userId = freezed,
     Object? name = null,
     Object? distance = null,
     Object? category = null,
@@ -1071,6 +1080,10 @@ class __$$NearbyFarmerDataImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -1148,6 +1161,7 @@ class __$$NearbyFarmerDataImplCopyWithImpl<$Res>
 class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
   const _$NearbyFarmerDataImpl(
       {required this.id,
+      this.userId,
       required this.name,
       required this.distance,
       required this.category,
@@ -1174,6 +1188,8 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
 
   @override
   final String id;
+  @override
+  final String? userId;
   @override
   final String name;
   @override
@@ -1229,7 +1245,7 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
 
   @override
   String toString() {
-    return 'NearbyFarmerData(id: $id, name: $name, distance: $distance, category: $category, subCategory: $subCategory, rating: $rating, reviewCount: $reviewCount, tags: $tags, products: $products, extraProductsCount: $extraProductsCount, statusText: $statusText, statusSubText: $statusSubText, isOpen: $isOpen, latitude: $latitude, longitude: $longitude, iconPath: $iconPath, mainLocation: $mainLocation, cabang: $cabang)';
+    return 'NearbyFarmerData(id: $id, userId: $userId, name: $name, distance: $distance, category: $category, subCategory: $subCategory, rating: $rating, reviewCount: $reviewCount, tags: $tags, products: $products, extraProductsCount: $extraProductsCount, statusText: $statusText, statusSubText: $statusSubText, isOpen: $isOpen, latitude: $latitude, longitude: $longitude, iconPath: $iconPath, mainLocation: $mainLocation, cabang: $cabang)';
   }
 
   @override
@@ -1238,6 +1254,7 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
         (other.runtimeType == runtimeType &&
             other is _$NearbyFarmerDataImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
@@ -1270,26 +1287,28 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      name,
-      distance,
-      category,
-      subCategory,
-      rating,
-      reviewCount,
-      const DeepCollectionEquality().hash(_tags),
-      const DeepCollectionEquality().hash(_products),
-      extraProductsCount,
-      statusText,
-      statusSubText,
-      isOpen,
-      latitude,
-      longitude,
-      iconPath,
-      mainLocation,
-      const DeepCollectionEquality().hash(_cabang));
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        userId,
+        name,
+        distance,
+        category,
+        subCategory,
+        rating,
+        reviewCount,
+        const DeepCollectionEquality().hash(_tags),
+        const DeepCollectionEquality().hash(_products),
+        extraProductsCount,
+        statusText,
+        statusSubText,
+        isOpen,
+        latitude,
+        longitude,
+        iconPath,
+        mainLocation,
+        const DeepCollectionEquality().hash(_cabang)
+      ]);
 
   /// Create a copy of NearbyFarmerData
   /// with the given fields replaced by the non-null parameter values.
@@ -1311,6 +1330,7 @@ class _$NearbyFarmerDataImpl implements _NearbyFarmerData {
 abstract class _NearbyFarmerData implements NearbyFarmerData {
   const factory _NearbyFarmerData(
       {required final String id,
+      final String? userId,
       required final String name,
       required final double distance,
       required final String category,
@@ -1334,6 +1354,8 @@ abstract class _NearbyFarmerData implements NearbyFarmerData {
 
   @override
   String get id;
+  @override
+  String? get userId;
   @override
   String get name;
   @override

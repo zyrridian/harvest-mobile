@@ -52,6 +52,7 @@ class NearbyFarmerMainLocation with _$NearbyFarmerMainLocation {
 class NearbyFarmerData with _$NearbyFarmerData {
   const factory NearbyFarmerData({
     required String id,
+    String? userId,
     required String name,
     required double distance,
     required String category,

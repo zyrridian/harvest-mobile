@@ -324,21 +324,21 @@ class _FarmerCampaignDetailScreenState
 
                     const SizedBox(height: 28),
 
-                    // Fulfillment button
-                    Builder(builder: (context) {
-                      final status = detailAsync.hasValue
-                          ? detailAsync.value!.status
-                          : displayCampaign.status;
-                      final booked = detailAsync.hasValue
-                          ? detailAsync.value!.currentBookedQuantity
-                          : displayCampaign.currentBookedQuantity;
-                      if (status != 'COMPLETED' && booked > 0) {
-                        return _FulfillmentButton(campaign: displayCampaign);
-                      }
-                      return const SizedBox.shrink();
-                    }),
+                    // // Fulfillment button
+                    // Builder(builder: (context) {
+                    //   final status = detailAsync.hasValue
+                    //       ? detailAsync.value!.status
+                    //       : displayCampaign.status;
+                    //   final booked = detailAsync.hasValue
+                    //       ? detailAsync.value!.currentBookedQuantity
+                    //       : displayCampaign.currentBookedQuantity;
+                    //   if (status != 'COMPLETED' && booked > 0) {
+                    //     return _FulfillmentButton(campaign: displayCampaign);
+                    //   }
+                    //   return const SizedBox.shrink();
+                    // }),
 
-                    const SizedBox(height: 28),
+                    // const SizedBox(height: 28),
 
                     // Reservations header
                     Row(

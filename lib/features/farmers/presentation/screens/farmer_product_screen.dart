@@ -7,6 +7,7 @@ import '../../../../core/config/router/app_router.dart';
 import '../../../../core/widgets/app_cached_image.dart';
 import '../../../../core/widgets/app_search_bar.dart';
 import '../../../../core/widgets/pill_tab_bar.dart';
+import '../../../../core/utils/currency_util.dart';
 import '../providers/farmer_products_controller.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
@@ -341,7 +342,7 @@ class _FarmerProductScreenState extends ConsumerState<FarmerProductScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Rp ${product.price.toStringAsFixed(0)} / ${product.unit}',
+                          '${CurrencyUtil.formatRupiah(product.price)} / ${product.unit}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

@@ -325,61 +325,61 @@ class _PreOrderReservationsScreenState
           ),
           const SizedBox(height: 16),
           // Premium Tracker
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(steps.length * 2 - 1, (i) {
-              if (i.isOdd) {
-                // Line
-                final stepIndex = i ~/ 2;
-                final isActive = stepIndex < currentStep;
-                return Expanded(
-                  child: Container(
-                    height: 2,
-                    margin: const EdgeInsets.only(top: 11),
-                    color: isActive ? kDarkGreen : Colors.grey[200],
-                  ),
-                );
-              }
-              // Icon + Text
-              final stepIndex = i ~/ 2;
-              final isActive = stepIndex <= currentStep;
-              final step = steps[stepIndex];
-              return Column(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isActive ? kDarkGreen : Colors.white,
-                      border: Border.all(
-                        color: isActive ? kDarkGreen : Colors.grey[300]!,
-                        width: 2,
-                      ),
-                    ),
-                    child: Center(
-                      child: PhosphorIcon(
-                        step['icon'] as IconData,
-                        size: 12,
-                        color: isActive ? Colors.white : Colors.grey[400],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    step['title'] as String,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 10,
-                          fontWeight:
-                              isActive ? FontWeight.bold : FontWeight.normal,
-                          color: isActive ? kTextGreen : Colors.grey[500],
-                        ),
-                  ),
-                ],
-              );
-            }),
-          ),
-          const SizedBox(height: 16),
+          // Row(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: List.generate(steps.length * 2 - 1, (i) {
+          //     if (i.isOdd) {
+          //       // Line
+          //       final stepIndex = i ~/ 2;
+          //       final isActive = stepIndex < currentStep;
+          //       return Expanded(
+          //         child: Container(
+          //           height: 2,
+          //           margin: const EdgeInsets.only(top: 11),
+          //           color: isActive ? kDarkGreen : Colors.grey[200],
+          //         ),
+          //       );
+          //     }
+          //     // Icon + Text
+          //     final stepIndex = i ~/ 2;
+          //     final isActive = stepIndex <= currentStep;
+          //     final step = steps[stepIndex];
+          //     return Column(
+          //       children: [
+          //         Container(
+          //           width: 24,
+          //           height: 24,
+          //           decoration: BoxDecoration(
+          //             shape: BoxShape.circle,
+          //             color: isActive ? kDarkGreen : Colors.white,
+          //             border: Border.all(
+          //               color: isActive ? kDarkGreen : Colors.grey[300]!,
+          //               width: 2,
+          //             ),
+          //           ),
+          //           child: Center(
+          //             child: PhosphorIcon(
+          //               step['icon'] as IconData,
+          //               size: 12,
+          //               color: isActive ? Colors.white : Colors.grey[400],
+          //             ),
+          //           ),
+          //         ),
+          //         const SizedBox(height: 6),
+          //         Text(
+          //           step['title'] as String,
+          //           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          //                 fontSize: 10,
+          //                 fontWeight:
+          //                     isActive ? FontWeight.bold : FontWeight.normal,
+          //                 color: isActive ? kTextGreen : Colors.grey[500],
+          //               ),
+          //         ),
+          //       ],
+          //     );
+          //   }),
+          // ),
+          // const SizedBox(height: 16),
           Text(
             'Your pre-order helps ${reservation.farmerName} plan their harvest with confidence.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(

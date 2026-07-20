@@ -10,6 +10,10 @@ import 'package:harvest_app/features/farmers/presentation/providers/nearby_farme
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
+import 'dart:io';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -37,6 +41,16 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Fix for Android emulator freezing issue with Google Maps
+    if (Platform.isAndroid) {
+      final GoogleMapsFlutterPlatform mapsImplementation =
+          GoogleMapsFlutterPlatform.instance;
+      if (mapsImplementation is GoogleMapsFlutterAndroid) {
+        mapsImplementation.useAndroidViewSurface = true;
+      }
+    }
+    
     _checkLocationPermission();
     _sheetController.addListener(() {
       if (_sheetController.size <= 0.3 && _isListView) {
@@ -829,12 +843,37 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 Row(
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        context.pushNamed(
-                          'chat',
-                          extra: {
-                            'farmerName': farmer.name,
-                            'farmerAvatar': farmer.iconPath,
+                      onTap: () async {
+                        // Create or get conversation first
+                        final startConversation = ref.read(startConversationUsecaseProvider);
+                        final result = await startConversation(
+                          recipientId: farmer.userId!,
+                          type: 'general',
+                        );
+                        
+                        result.fold(
+                          (failure) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Could not open chat: ${failure.message}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          (data) {
+                            final convId = data['data']?['conversation_id'] as String? ?? 'conv_1234567890abcdef';
+                            if (context.mounted) {
+                              context.push(
+                                AppRouter.chat,
+                                extra: {
+                                  'conversationId': convId,
+                                  'farmerName': farmer.name,
+                                  'farmerAvatar': farmer.iconPath,
+                                },
+                              );
+                            }
                           },
                         );
                       },
@@ -865,7 +904,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       onTap: () {
                         final mockFarmer = Farmer(
                           id: farmer.id,
-                          userId: 'u1',
+                          userId: farmer.id, // Better than hardcoding 'u1'
                           name: farmer.name,
                           description: 'A great farmer',
                           latitude: farmer.latitude,
