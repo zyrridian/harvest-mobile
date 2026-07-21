@@ -12,6 +12,7 @@ import '../../../../../core/config/router/app_router.dart';
 import '../../../../../core/widgets/app_cached_image.dart';
 import '../../providers/seller/farmer_campaigns_controller.dart';
 import '../../../domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
 
 const _kBg = Color(0xFFFFFFFF);
 const _kDark = Color(0xFF1A2F25);
@@ -616,14 +617,38 @@ class _ReservationCardState extends ConsumerState<_ReservationCard> {
                       icon: PhosphorIconsRegular.chatCircle,
                       label: 'Chat',
                       color: _kDark,
-                      onTap: () {
-                        context.push(
-                          AppRouter.chat,
-                          extra: {
-                            'conversationId': reservation.conversationId ??
-                                'new_${reservation.buyerId}',
-                            'farmerName': reservation.buyerName,
-                            'farmerAvatar': avatarUrl,
+                      onTap: () async {
+                        final startConversation =
+                            ref.read(startConversationUsecaseProvider);
+                        final result = await startConversation(
+                          recipientId: reservation.buyerId,
+                          type: 'general',
+                        );
+
+                        result.fold(
+                          (failure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Could not open chat: ${failure.message}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                          (data) {
+                            final convId =
+                                data['data']?['conversation_id'] as String? ??
+                                    reservation.conversationId ??
+                                    'new_${reservation.buyerId}';
+
+                            context.push(
+                              AppRouter.chat,
+                              extra: {
+                                'conversationId': convId,
+                                'farmerName': reservation.buyerName,
+                                'farmerAvatar': avatarUrl,
+                              },
+                            );
                           },
                         );
                       },
@@ -1244,8 +1269,7 @@ class _MapPreviewSheet extends StatelessWidget {
                   if (lat != null && lng != null)
                     Positioned.fill(
                       child: Image.network(
-                        // Using openstreetmap static image service
-                        'https://staticmap.openstreetmap.de/staticmap.php?center=$lat,$lng&zoom=15&size=600x400&markers=$lat,$lng,red-pushpin',
+                        staticMapUrl!,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, progress) {
                           if (progress == null) return child;

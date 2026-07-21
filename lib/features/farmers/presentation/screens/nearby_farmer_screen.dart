@@ -334,11 +334,26 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                       );
                     },
                     child: GestureDetector(
-                      onTap: () {
-                        _mapController?.animateCamera(
-                          CameraUpdate.newLatLng(
-                              const LatLng(-6.200000, 106.816666)),
-                        );
+                      onTap: () async {
+                        if (_currentPosition != null) {
+                          _mapController?.animateCamera(
+                            CameraUpdate.newLatLng(
+                                LatLng(_currentPosition!.latitude, _currentPosition!.longitude)),
+                          );
+                        } else {
+                          await _checkLocationPermission();
+                          if (_currentPosition != null) {
+                            _mapController?.animateCamera(
+                              CameraUpdate.newLatLng(
+                                  LatLng(_currentPosition!.latitude, _currentPosition!.longitude)),
+                            );
+                          } else {
+                            _mapController?.animateCamera(
+                              CameraUpdate.newLatLng(
+                                  const LatLng(-6.200000, 106.816666)),
+                            );
+                          }
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),
