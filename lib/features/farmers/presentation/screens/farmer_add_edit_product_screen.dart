@@ -11,6 +11,8 @@ import 'package:harvest_app/features/farmers/presentation/providers/unit_provide
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 
 const kBgColor = Colors.white;
 const kDarkGreen = Color(0xFF1A2F25);
@@ -118,6 +120,34 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+
+    // Upload any local images first
+    List<String> finalImageUrls = [];
+    final uploadUseCase = ref.read(uploadFileUseCaseProvider);
+
+    for (String path in _images) {
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        finalImageUrls.add(path);
+      } else {
+        final uploadResult = await uploadUseCase.call(File(path));
+        bool uploadSuccess = false;
+        uploadResult.fold(
+          (failure) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Failed to upload image: ${failure.message}')));
+          },
+          (uploadedFile) {
+            finalImageUrls.add(uploadedFile.url);
+            uploadSuccess = true;
+          },
+        );
+        if (!uploadSuccess) {
+          setState(() => _isLoading = false);
+          return; // Stop saving if an image upload fails
+        }
+      }
+    }
+
     final request = ProductRequest(
       name: _nameController.text,
       description: _descController.text,
@@ -133,7 +163,7 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
       targetAmount: null,
       harvestDate: null,
       categoryId: _selectedCategory,
-      images: _images
+      images: finalImageUrls
           .asMap()
           .entries
           .map((e) => ProductImageEntity(url: e.value, isPrimary: e.key == 0))

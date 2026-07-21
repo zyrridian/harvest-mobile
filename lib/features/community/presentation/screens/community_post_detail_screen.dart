@@ -175,6 +175,11 @@ class _CommunityPostDetailScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(postDetailControllerProvider(widget.post.id));
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.maybeWhen(
+      authenticated: (user) => user.id,
+      orElse: () => null,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -215,7 +220,7 @@ class _CommunityPostDetailScreenState
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             final comment = data.data[index];
-                            return _buildCommentThread(comment);
+                            return _buildCommentThread(comment, currentUserId);
                           },
                           childCount: data.data.length,
                         ),
@@ -449,17 +454,17 @@ class _CommunityPostDetailScreenState
     );
   }
 
-  Widget _buildCommentThread(CommunityComment comment) {
+  Widget _buildCommentThread(CommunityComment comment, String? currentUserId) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCommentItem(comment, isReply: false),
+        _buildCommentItem(comment, isReply: false, currentUserId: currentUserId),
         if (comment.replies.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 48.0), // Indent replies
             child: Column(
               children: comment.replies
-                  .map((reply) => _buildCommentItem(reply, isReply: true))
+                  .map((reply) => _buildCommentItem(reply, isReply: true, currentUserId: currentUserId))
                   .toList(),
             ),
           ),
@@ -467,7 +472,7 @@ class _CommunityPostDetailScreenState
     );
   }
 
-  Widget _buildCommentItem(CommunityComment comment, {required bool isReply}) {
+  Widget _buildCommentItem(CommunityComment comment, {required bool isReply, String? currentUserId}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 0 : 16, 16, 16, 8),
       child: Opacity(
@@ -581,9 +586,10 @@ class _CommunityPostDetailScreenState
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
+                      if (comment.user.id == currentUserId)
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Delete Comment'),

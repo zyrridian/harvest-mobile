@@ -83,7 +83,10 @@ class FarmerProductDetailModel extends FarmerProductDetail {
       harvestDate: json['harvest_date'] != null
           ? DateTime.tryParse(json['harvest_date'])
           : null,
-      categoryId: json['category_id'],
+      categoryId: json['category_id'] is Map 
+          ? json['category_id']['id'] as String? 
+          : json['category_id']?.toString() ?? 
+            (json['category'] is Map ? json['category']['id'] as String? : null),
       images: (json['images'] as List<dynamic>?)
               ?.map((e) => ProductImageModel.fromJson(e as Map<String, dynamic>))
               .toList() ??

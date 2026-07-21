@@ -1041,48 +1041,61 @@ class _ChatBubble extends StatelessWidget {
           ),
         );
       case 'text':
-        return Padding(
-          padding:
-              const EdgeInsets.only(left: 14, right: 14, top: 9, bottom: 9),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: message.content ?? '',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isMe ? Colors.white : _kDarkGreen,
-                    height: 1.4,
-                  ),
+        return GestureDetector(
+          onLongPress: () {
+            if (message.content != null && message.content!.isNotEmpty) {
+              Clipboard.setData(ClipboardData(text: message.content!));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Message copied to clipboard'),
+                  duration: Duration(seconds: 2),
                 ),
-                const WidgetSpan(child: SizedBox(width: 12)),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.bottom,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _formatTime(message.timestamp),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isMe ? Colors.white70 : _kGrey,
+              );
+            }
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 14, right: 14, top: 9, bottom: 9),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: message.content ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isMe ? Colors.white : _kDarkGreen,
+                      height: 1.4,
+                    ),
+                  ),
+                  const WidgetSpan(child: SizedBox(width: 12)),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.bottom,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          _formatTime(message.timestamp),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isMe ? Colors.white70 : _kGrey,
+                          ),
                         ),
-                      ),
-                      if (isMe) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          message.isRead
-                              ? PhosphorIconsRegular.checks
-                              : PhosphorIconsRegular.check,
-                          size: 14,
-                          color: Colors.white,
-                        ),
+                        if (isMe) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            message.isRead
+                                ? PhosphorIconsRegular.checks
+                                : PhosphorIconsRegular.check,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
