@@ -19,12 +19,13 @@ class RecipeController extends _$RecipeController {
     return const RecipeState.loading();
   }
 
-  Future<void> _fetchRecipes({int page = 1}) async {
+  Future<void> _fetchRecipes({int page = 1, String? authorId}) async {
     state = const RecipeState.loading();
     final useCase = ref.read(getRecipesUseCaseProvider);
     final result = await useCase.call(
       page: page,
       limit: 20,
+      authorId: authorId,
     );
 
     result.fold(
@@ -33,8 +34,8 @@ class RecipeController extends _$RecipeController {
     );
   }
 
-  void refresh() {
-    _fetchRecipes();
+  void refresh({String? authorId}) {
+    _fetchRecipes(authorId: authorId);
   }
 }
 

@@ -9,6 +9,9 @@ part 'nearby_farmer_controller.g.dart';
 @riverpod
 class NearbyFarmerController extends _$NearbyFarmerController {
   Timer? _debounceTimer;
+  double? _lat;
+  double? _lng;
+  int _fetchId = 0;
 
   @override
   NearbyFarmerState build() {
@@ -17,6 +20,7 @@ class NearbyFarmerController extends _$NearbyFarmerController {
   }
 
   Future<void> _fetchData() async {
+    final fetchId = ++_fetchId;
     final currentData = state.mapOrNull(data: (d) => d);
     if (currentData == null) {
       state = const NearbyFarmerState.loading();
@@ -28,8 +32,8 @@ class NearbyFarmerController extends _$NearbyFarmerController {
       final usecase = ref.read(getNearbyFarmersUsecaseProvider);
       
       final params = GetNearbyFarmersParams(
-        latitude: -6.200000,
-        longitude: 106.816666,
+        latitude: _lat ?? -6.200000,
+        longitude: _lng ?? 106.816666,
         radius: currentData?.radius ?? 3.0,
         search: currentData?.searchQuery.isNotEmpty == true ? currentData!.searchQuery : null,
         isOrganic: currentData?.isOrganicFilter == true ? true : null,
@@ -37,6 +41,8 @@ class NearbyFarmerController extends _$NearbyFarmerController {
       );
 
       final result = await usecase(params);
+
+      if (fetchId != _fetchId) return;
 
       result.fold(
         (failure) {
@@ -95,5 +101,11 @@ class NearbyFarmerController extends _$NearbyFarmerController {
         _fetchData();
       },
     );
+  }
+
+  void setLocation(double lat, double lng) {
+    _lat = lat;
+    _lng = lng;
+    _fetchData();
   }
 }

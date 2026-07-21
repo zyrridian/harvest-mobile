@@ -41,7 +41,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Fix for Android emulator freezing issue with Google Maps
     if (Platform.isAndroid) {
       final GoogleMapsFlutterPlatform mapsImplementation =
@@ -50,7 +50,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
         mapsImplementation.useAndroidViewSurface = true;
       }
     }
-    
+
     _checkLocationPermission();
     _sheetController.addListener(() {
       if (_sheetController.size <= 0.3 && _isListView) {
@@ -94,6 +94,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
           setState(() {
             _currentPosition = position;
           });
+          ref.read(nearbyFarmerControllerProvider.notifier).setLocation(
+                position.latitude,
+                position.longitude,
+              );
         }
       } catch (e) {
         debugPrint('Error getting location: $e');
@@ -336,16 +340,26 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     child: GestureDetector(
                       onTap: () async {
                         if (_currentPosition != null) {
+                          ref.read(nearbyFarmerControllerProvider.notifier).setLocation(
+                            _currentPosition!.latitude,
+                            _currentPosition!.longitude,
+                          );
                           _mapController?.animateCamera(
-                            CameraUpdate.newLatLng(
-                                LatLng(_currentPosition!.latitude, _currentPosition!.longitude)),
+                            CameraUpdate.newLatLng(LatLng(
+                                _currentPosition!.latitude,
+                                _currentPosition!.longitude)),
                           );
                         } else {
                           await _checkLocationPermission();
                           if (_currentPosition != null) {
+                            ref.read(nearbyFarmerControllerProvider.notifier).setLocation(
+                              _currentPosition!.latitude,
+                              _currentPosition!.longitude,
+                            );
                             _mapController?.animateCamera(
-                              CameraUpdate.newLatLng(
-                                  LatLng(_currentPosition!.latitude, _currentPosition!.longitude)),
+                              CameraUpdate.newLatLng(LatLng(
+                                  _currentPosition!.latitude,
+                                  _currentPosition!.longitude)),
                             );
                           } else {
                             _mapController?.animateCamera(
@@ -734,10 +748,11 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     color: const Color(0xFFE8F3E8), // light green
                     borderRadius: BorderRadius.circular(12),
                   ),
-                child: AppCachedImage(
-                    imageUrl: (farmer.iconPath == null || farmer.iconPath!.isEmpty)
-                        ? AppConstants.emptyImageUrl
-                        : farmer.iconPath!,
+                  child: AppCachedImage(
+                    imageUrl:
+                        (farmer.iconPath == null || farmer.iconPath!.isEmpty)
+                            ? AppConstants.emptyImageUrl
+                            : farmer.iconPath!,
                     width: 48,
                     height: 48,
                     borderRadius: BorderRadius.circular(12),
@@ -860,25 +875,29 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     GestureDetector(
                       onTap: () async {
                         // Create or get conversation first
-                        final startConversation = ref.read(startConversationUsecaseProvider);
+                        final startConversation =
+                            ref.read(startConversationUsecaseProvider);
                         final result = await startConversation(
                           recipientId: farmer.userId!,
                           type: 'general',
                         );
-                        
+
                         result.fold(
                           (failure) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Could not open chat: ${failure.message}'),
+                                  content: Text(
+                                      'Could not open chat: ${failure.message}'),
                                   backgroundColor: Colors.red,
                                 ),
                               );
                             }
                           },
                           (data) {
-                            final convId = data['data']?['conversation_id'] as String? ?? 'conv_1234567890abcdef';
+                            final convId =
+                                data['data']?['conversation_id'] as String? ??
+                                    'conv_1234567890abcdef';
                             if (context.mounted) {
                               context.push(
                                 AppRouter.chat,

@@ -55,6 +55,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   final List<String> _filters = [
     'All Posts',
     'Kitchen Recipes',
+    'My Recipes',
     'Farmer Updates',
     'Following',
     'My Posts',
@@ -98,16 +99,29 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
   void _onFilterSelected(String filter) {
     setState(() => _selectedFilter = filter);
-    final apiFilterMap = {
-      'All Posts': 'all',
-      'Kitchen Recipes': 'recipes',
-      'Farmer Updates': 'farmers',
-      'Following': 'following',
-      'My Posts': 'my_posts',
-    };
-    ref
-        .read(communityControllerProvider.notifier)
-        .setFilter(apiFilterMap[filter]!);
+    
+    final currentUserId = ref.read(authControllerProvider).maybeWhen(
+      authenticated: (user) => user.id,
+      orElse: () => null,
+    );
+
+    if (filter == 'Kitchen Recipes') {
+      ref.read(recipeControllerProvider.notifier).refresh();
+    } else if (filter == 'My Recipes') {
+      ref.read(recipeControllerProvider.notifier).refresh(authorId: currentUserId);
+    } else {
+      final apiFilterMap = {
+        'All Posts': 'all',
+        'Farmer Updates': 'farmers',
+        'Following': 'following',
+        'My Posts': 'my_posts',
+      };
+      if (apiFilterMap.containsKey(filter)) {
+        ref
+            .read(communityControllerProvider.notifier)
+            .setFilter(apiFilterMap[filter]!);
+      }
+    }
   }
 
   void _onTagSelected(String tag) {
@@ -315,7 +329,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               ),
 
               // Posts List or Recipes List
-              _selectedFilter == 'Kitchen Recipes'
+              (_selectedFilter == 'Kitchen Recipes' || _selectedFilter == 'My Recipes')
                   ? _buildRecipesList(ref)
                   : _buildPostsList(state, currentUserId),
 
