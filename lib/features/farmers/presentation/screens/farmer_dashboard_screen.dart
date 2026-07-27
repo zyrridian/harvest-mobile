@@ -448,6 +448,39 @@ class _ActiveDropPointsCard extends ConsumerStatefulWidget {
 class _ActiveDropPointsCardState extends ConsumerState<_ActiveDropPointsCard> {
   bool _isExpanded = false;
 
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, String id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Branch'),
+        content: const Text('Are you sure you want to delete this branch?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: kTextGrey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      final success = await ref.read(dropPointsControllerProvider.notifier).deleteDropPoint(id);
+      if (success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Branch deleted successfully')),
+        );
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete branch'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dropPointsState = ref.watch(dropPointsControllerProvider);
@@ -626,6 +659,11 @@ class _ActiveDropPointsCardState extends ConsumerState<_ActiveDropPointsCard> {
                                   context.push(AppRouter.editDropPoint,
                                       extra: branch);
                                 },
+                              ),
+                              IconButton(
+                                icon: const Icon(PhosphorIconsRegular.trash,
+                                    size: 20, color: Colors.red),
+                                onPressed: () => _confirmDelete(context, ref, branch.id),
                               ),
                             ],
                           ),

@@ -46,5 +46,5 @@ abstract class AddressRepository {
 
   Future<Either<Failure, void>> deleteAddress(String addressId);
 
-  Future<Either<Failure, Address>> setPrimaryAddress(String addressId);
+  Future<Either<Failure, void>> setPrimaryAddress(String addressId);
 }

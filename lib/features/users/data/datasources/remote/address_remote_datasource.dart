@@ -11,7 +11,7 @@ abstract class AddressRemoteDataSource {
     Map<String, dynamic> addressData,
   );
   Future<void> deleteAddress(String addressId);
-  Future<AddressModel> setPrimaryAddress(String addressId);
+  Future<void> setPrimaryAddress(String addressId);
 }
 
 class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
@@ -85,12 +85,12 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
   }
 
   @override
-  Future<AddressModel> setPrimaryAddress(String addressId) async {
+  Future<void> setPrimaryAddress(String addressId) async {
     try {
       final response = await dio
           .patch('${AppConstants.addressesEndpoint}/$addressId/primary');
       if (response.statusCode == 200) {
-        return AddressModel.fromJson(response.data['data']);
+        return;
       } else {
         throw ServerException("Failed to set primary address");
       }

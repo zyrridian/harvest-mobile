@@ -67,8 +67,12 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
         ),
-        data: (profile) => ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        data: (profile) => RefreshIndicator(
+          onRefresh: () => ref.read(profileControllerProvider.notifier).refresh(),
+          color: kDarkGreen,
+          backgroundColor: Colors.white,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // 1. PROFILE HEADER CARD
             Container(
@@ -284,6 +288,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 40),
           ],
+        ),
         ),
       ),
     );

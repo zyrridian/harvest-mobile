@@ -16,6 +16,10 @@ abstract class RecipeRemoteDataSource {
   Future<RecipeModel> getRecipeById(String id);
 
   Future<RecipeModel> createRecipe(Map<String, dynamic> data);
+
+  Future<RecipeModel> updateRecipe(String id, Map<String, dynamic> data);
+
+  Future<void> deleteRecipe(String id);
 }
 
 class RecipeRemoteDataSourceImpl implements RecipeRemoteDataSource {
@@ -95,6 +99,44 @@ class RecipeRemoteDataSourceImpl implements RecipeRemoteDataSource {
       } else {
         throw ServerException(
           'Failed to create recipe',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<RecipeModel> updateRecipe(String id, Map<String, dynamic> data) async {
+    try {
+      final response = await dio.put('/community/recipes/$id', data: data);
+
+      if (response.statusCode == 200) {
+        return RecipeModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException(
+          'Failed to update recipe',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteRecipe(String id) async {
+    try {
+      final response = await dio.delete('/community/recipes/$id');
+
+      if (response.statusCode != 200) {
+        throw ServerException(
+          'Failed to delete recipe',
           statusCode: response.statusCode,
         );
       }

@@ -98,4 +98,40 @@ class RecipeRepositoryImpl implements RecipeRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, Recipe>> updateRecipe(String id, Map<String, dynamic> data) async {
+    try {
+      final remoteRecipe = await remoteDataSource.updateRecipe(id, data);
+      return Right(remoteRecipe.toEntity());
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteRecipe(String id) async {
+    try {
+      await remoteDataSource.deleteRecipe(id);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else if (e is AuthException) {
+        return Left(AuthFailure(e.message, statusCode: e.statusCode));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
 }

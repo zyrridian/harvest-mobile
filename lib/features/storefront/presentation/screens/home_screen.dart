@@ -12,6 +12,7 @@ import 'package:harvest_app/features/storefront/presentation/widgets/quick_actio
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/sales/presentation/screens/orders/orders_list_screen.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'main_screen.dart';
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
 const kBgColor = Color(0xFFFFFFFF);
@@ -280,22 +281,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // ),
 
           // ── 8. UPDATES FROM MY FARMERS ────────────────────────────────────
-          if (farmerUpdates.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 32),
-                child: _buildMyFarmersUpdates(farmerUpdates),
-              ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: farmerUpdates.isNotEmpty
+                  ? _buildMyFarmersUpdates(farmerUpdates)
+                  : _buildEmptyFarmersUpdatesPlaceholder(),
             ),
+          ),
 
-          // ── 9. WEEKLY STAPLES (REORDER) ───────────────────────────────────
-          if (weeklyStaples.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildWeeklyStaples(weeklyStaples),
-              ),
-            ),
+          // // ── 9. WEEKLY STAPLES (REORDER) ───────────────────────────────────
+          // if (weeklyStaples.isNotEmpty)
+          //   SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.only(bottom: 16),
+          //       child: _buildWeeklyStaples(weeklyStaples),
+          //     ),
+          //   ),
 
           // Bottom padding
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -305,6 +307,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  Widget _buildEmptyFarmersUpdatesPlaceholder() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: _sectionHeader('Updates from Your Farmers', showSeeAll: false),
+        ),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: GestureDetector(
+            onTap: () {
+              ref.read(bottomNavIndexProvider.notifier).state = 2; // Community tab
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: kBgColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: kPillGrey, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                      color: kSand,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const PhosphorIcon(
+                      PhosphorIconsRegular.usersThree,
+                      color: kAccentOrange,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Follow Farmers to Explore',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: kDarkGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Stay updated with your favorite farmers. Tap to explore the community.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildMyFarmersUpdates(List<HomeFarmerUpdate> updates) {
     return Column(
@@ -404,81 +478,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildWeeklyStaples(List<HomeWeeklyStaple> staples) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _sectionHeader('Your Weekly Staples', showSeeAll: false),
-              const SizedBox(height: 4),
-              Text(
-                'Items you frequently buy, ready for 1-click reorder',
-                style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: staples.length,
-          separatorBuilder: (_, __) =>
-              Divider(height: 28, color: kPillGrey, thickness: 1),
-          itemBuilder: (context, index) {
-            final item = staples[index];
-            return Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(item.image,
-                      width: 52,
-                      height: 52,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          Container(width: 52, height: 52, color: kPillGrey)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.name,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: kDarkGreen)),
-                      const SizedBox(height: 2),
-                      Text(
-                          '${item.quantityLabel} · ${item.currency} ${item.price.toInt()}',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.grey[500])),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: kDarkGreen, width: 1.2)),
-                    child: Icon(Icons.refresh, size: 16, color: kDarkGreen),
-                  ),
-                ),
-              ],
-            );
-          },
-        )
-      ],
-    );
-  }
+  // Widget _buildWeeklyStaples(List<HomeWeeklyStaple> staples) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 24),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             _sectionHeader('Your Weekly Staples', showSeeAll: false),
+  //             const SizedBox(height: 4),
+  //             Text(
+  //               'Items you frequently buy, ready for 1-click reorder',
+  //               style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       const SizedBox(height: 16),
+  //       ListView.separated(
+  //         padding: const EdgeInsets.symmetric(horizontal: 24),
+  //         shrinkWrap: true,
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         itemCount: staples.length,
+  //         separatorBuilder: (_, __) =>
+  //             Divider(height: 28, color: kPillGrey, thickness: 1),
+  //         itemBuilder: (context, index) {
+  //           final item = staples[index];
+  //           return Row(
+  //             children: [
+  //               ClipRRect(
+  //                 borderRadius: BorderRadius.circular(8),
+  //                 child: Image.network(item.image,
+  //                     width: 52,
+  //                     height: 52,
+  //                     fit: BoxFit.cover,
+  //                     errorBuilder: (_, __, ___) =>
+  //                         Container(width: 52, height: 52, color: kPillGrey)),
+  //               ),
+  //               const SizedBox(width: 14),
+  //               Expanded(
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(item.name,
+  //                         style: TextStyle(
+  //                             fontSize: 14,
+  //                             fontWeight: FontWeight.w600,
+  //                             color: kDarkGreen)),
+  //                     const SizedBox(height: 2),
+  //                     Text(
+  //                         '${item.quantityLabel} · ${item.currency} ${item.price.toInt()}',
+  //                         style:
+  //                             TextStyle(fontSize: 12, color: Colors.grey[500])),
+  //                   ],
+  //                 ),
+  //               ),
+  //               GestureDetector(
+  //                 onTap: () {},
+  //                 child: Container(
+  //                   width: 34,
+  //                   height: 34,
+  //                   decoration: BoxDecoration(
+  //                       shape: BoxShape.circle,
+  //                       border: Border.all(color: kDarkGreen, width: 1.2)),
+  //                   child: Icon(Icons.refresh, size: 16, color: kDarkGreen),
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       )
+  //     ],
+  //   );
+  // }
 
   // Widget _buildRequestGoodsBanner() {
   //   return GestureDetector(

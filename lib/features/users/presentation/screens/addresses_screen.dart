@@ -77,11 +77,19 @@ class AddressesScreen extends ConsumerWidget {
   Widget _buildAddressesList(
       BuildContext context, WidgetRef ref, List<Address> addresses) {
     if (addresses.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
+      return RefreshIndicator(
+        color: kDarkGreen,
+        backgroundColor: Colors.white,
+        onRefresh: () => ref.read(addressControllerProvider.notifier).refresh(),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: kCream,
@@ -121,17 +129,27 @@ class AddressesScreen extends ConsumerWidget {
             ),
           ],
         ),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: addresses.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final address = addresses[index];
-        return _buildAddressCard(context, ref, address);
-      },
+    return RefreshIndicator(
+      color: kDarkGreen,
+      backgroundColor: Colors.white,
+      onRefresh: () => ref.read(addressControllerProvider.notifier).refresh(),
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        itemCount: addresses.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final address = addresses[index];
+          return _buildAddressCard(context, ref, address);
+        },
+      ),
     );
   }
 
@@ -292,7 +310,7 @@ class AddressesScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -321,7 +339,7 @@ class AddressesScreen extends ConsumerWidget {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   await _setPrimaryAddress(context, ref, address.addressId);
                 },
               ),
@@ -339,7 +357,7 @@ class AddressesScreen extends ConsumerWidget {
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -367,7 +385,7 @@ class AddressesScreen extends ConsumerWidget {
                   ),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   await _deleteAddress(context, ref, address.addressId);
                 },
               ),
@@ -394,13 +412,15 @@ class AddressesScreen extends ConsumerWidget {
     final useCase = ref.read(setPrimaryAddressUseCaseProvider);
     final result = await useCase(addressId);
 
+    if (!context.mounted) return;
+
     result.fold(
       (failure) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${failure.toString()}')),
         );
       },
-      (address) {
+      (_) {
         ref.read(addressControllerProvider.notifier).refresh();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Primary address updated')),
@@ -436,6 +456,8 @@ class AddressesScreen extends ConsumerWidget {
     if (confirmed == true) {
       final useCase = ref.read(deleteAddressUseCaseProvider);
       final result = await useCase(addressId);
+
+      if (!context.mounted) return;
 
       result.fold(
         (failure) {

@@ -74,54 +74,72 @@ class ManageGalleryScreen extends ConsumerWidget {
         ),
         data: (images) {
           if (images.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const PhosphorIcon(PhosphorIconsRegular.image,
-                        size: 64, color: kPillGrey),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No images in your gallery',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: kTextGrey,
-                            fontSize: 16,
-                          ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () => _showAddImageDialog(context, ref),
-                      icon: const PhosphorIcon(PhosphorIconsRegular.plus,
-                          size: 18),
-                      label: const Text('Add Image'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kDarkGreen,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+            return RefreshIndicator(
+              color: kDarkGreen,
+              backgroundColor: Colors.white,
+              onRefresh: () => ref.read(manageGalleryControllerProvider.notifier).refresh(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const PhosphorIcon(PhosphorIconsRegular.image,
+                                size: 64, color: kPillGrey),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No images in your gallery',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: kTextGrey,
+                                    fontSize: 16,
+                                  ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () => _showAddImageDialog(context, ref),
+                              icon: const PhosphorIcon(PhosphorIconsRegular.plus,
+                                  size: 18),
+                              label: const Text('Add Image'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kDarkGreen,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 1.0,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+          return RefreshIndicator(
+            color: kDarkGreen,
+            backgroundColor: Colors.white,
+            onRefresh: () => ref.read(manageGalleryControllerProvider.notifier).refresh(),
+            child: GridView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: images.length,
+              itemBuilder: (context, index) {
+                final image = images[index];
+                return _buildGalleryItem(context, ref, image);
+              },
             ),
-            itemCount: images.length,
-            itemBuilder: (context, index) {
-              final image = images[index];
-              return _buildGalleryItem(context, ref, image);
-            },
           );
         },
       ),

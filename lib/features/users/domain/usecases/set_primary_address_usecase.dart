@@ -8,7 +8,7 @@ class SetPrimaryAddressUseCase {
 
   SetPrimaryAddressUseCase(this.repository);
 
-  Future<Either<Failure, Address>> call(String addressId) async {
+  Future<Either<Failure, void>> call(String addressId) async {
     return await repository.setPrimaryAddress(addressId);
   }
 }

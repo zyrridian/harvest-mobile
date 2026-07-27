@@ -232,7 +232,7 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
   @override
   Future<void> deleteDropPoint(String id) async {
     try {
-      final response = await dio.delete('${AppConstants.producerDropPointsEndpoint}?id=$id');
+      final response = await dio.delete('${AppConstants.producerDropPointsEndpoint}/$id');
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw ServerException('Failed to delete drop point', statusCode: response.statusCode);
       }

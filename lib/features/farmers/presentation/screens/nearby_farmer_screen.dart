@@ -37,6 +37,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _myLocationEnabled = false;
   Position? _currentPosition;
+  NearbyFarmerCabang? _selectedCabang;
 
   @override
   void initState() {
@@ -98,6 +99,11 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 position.latitude,
                 position.longitude,
               );
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(
+              LatLng(position.latitude, position.longitude),
+            ),
+          );
         }
       } catch (e) {
         debugPrint('Error getting location: $e');
@@ -148,8 +154,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                             ? (constraints.maxHeight * 0.5)
                             : sheetHeaderHeight,
                       ),
-                      initialCameraPosition: const CameraPosition(
-                        target: LatLng(-6.200000, 106.816666),
+                      initialCameraPosition: CameraPosition(
+                        target: _currentPosition != null
+                            ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+                            : const LatLng(-6.200000, 106.816666),
                         zoom: 13,
                       ),
                       markers: farmers.expand((f) {
@@ -206,7 +214,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                   : BitmapDescriptor.hueOrange,
                             ),
                             onTap: () {
-                              setState(() => _selectedFarmerId = f.id);
+                              setState(() {
+                                _selectedFarmerId = f.id;
+                                _selectedCabang = branch;
+                              });
                               _mapController?.animateCamera(
                                 CameraUpdate.newLatLng(
                                     LatLng(branch.latitude, branch.longitude)),
@@ -231,12 +242,25 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                           : {},
                       onMapCreated: (mapController) =>
                           _mapController = mapController,
+                      onTap: (_) {
+                        if (_selectedCabang != null) {
+                          setState(() => _selectedCabang = null);
+                        }
+                      },
                       myLocationEnabled: _myLocationEnabled,
                       myLocationButtonEnabled: false,
                       zoomControlsEnabled: false,
                       mapToolbarEnabled: false,
                     ),
                   ),
+                  // Cabang Overlay
+                  if (_selectedCabang != null)
+                    Positioned(
+                      top: topPadding + 80,
+                      left: 16,
+                      right: 16,
+                      child: _buildCabangCard(_selectedCabang!),
+                    ),
                   // Search bar overlay
                   Positioned(
                     top: topPadding + 16,
@@ -698,8 +722,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
     return Row(
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
@@ -708,23 +732,136 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: TextStyle(fontSize: 10, color: Colors.black87),
+          style: const TextStyle(fontSize: 12, color: Colors.black87),
         ),
       ],
     );
   }
+
+  Widget _buildCabangCard(NearbyFarmerCabang cabang) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (cabang.imageUrl != null && cabang.imageUrl!.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                context.push(
+                  AppRouter.imageViewer,
+                  extra: {'imageUrl': cabang.imageUrl},
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: AppCachedImage(
+                  imageUrl: cabang.imageUrl!,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+          else
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(PhosphorIconsRegular.storefront, color: Colors.grey),
+            ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        cabang.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() => _selectedCabang = null),
+                      child: const Icon(Icons.close, size: 18, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                if (cabang.operatingHours != null)
+                  Row(
+                    children: [
+                      const Icon(PhosphorIconsRegular.clock, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          cabang.operatingHours.toString(),
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 4),
+                if (cabang.distance != null)
+                  Text(
+                    '${cabang.distance!.toStringAsFixed(1)} km away',
+                    style: const TextStyle(fontSize: 12, color: kHighlightGreen, fontWeight: FontWeight.w600),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildFarmerCard(NearbyFarmerData farmer, {bool isFirst = false}) {
     final isSelected = _selectedFarmerId == farmer.id;
 
     return GestureDetector(
       onTap: () {
-        setState(() => _selectedFarmerId = farmer.id);
+        setState(() {
+          _selectedFarmerId = farmer.id;
+          _selectedCabang = null;
+        });
         final lat = farmer.mainLocation?.latitude ?? farmer.latitude;
         final lng = farmer.mainLocation?.longitude ?? farmer.longitude;
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(LatLng(lat, lng)),
         );
+        if (_sheetController.isAttached) {
+          _sheetController.animateTo(
+            0.5,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -1082,11 +1219,21 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                         const SizedBox(height: 8),
                         ...farmer.cabang.map((branch) => GestureDetector(
                               onTap: () {
-                                setState(() => _selectedFarmerId = farmer.id);
+                                setState(() {
+                                  _selectedFarmerId = farmer.id;
+                                  _selectedCabang = branch;
+                                });
                                 _mapController?.animateCamera(
                                   CameraUpdate.newLatLng(LatLng(
                                       branch.latitude, branch.longitude)),
                                 );
+                                if (_sheetController.isAttached) {
+                                  _sheetController.animateTo(
+                                    0.5,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
                               },
                               child: Container(
                                 color: Colors

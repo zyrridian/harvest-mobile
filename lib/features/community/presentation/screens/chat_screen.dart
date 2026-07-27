@@ -101,12 +101,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
       if (isOurMessage) {
         // Replace temp message
-        final tempIndex = _messages.indexWhere(
-            (m) => m.messageId.startsWith('temp_') && m.content == msg.content);
+        final tempIndex = _messages.indexWhere((m) {
+          if (!m.messageId.startsWith('temp_')) return false;
+          if (m.type == 'image' && msg.type == 'image') return true;
+          return m.content == msg.content;
+        });
         if (tempIndex != -1) {
           setState(() {
+            _uploadingMessageIds.remove(_messages[tempIndex].messageId);
             _messages[tempIndex] = msg;
           });
+        } else {
+          // Fallback if not found in temp messages (e.g., sent from another device)
+          setState(() => _messages.add(msg));
+          _scrollToBottom();
         }
       } else {
         setState(() => _messages.add(msg));

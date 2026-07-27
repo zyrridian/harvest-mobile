@@ -99,16 +99,18 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
   void _onFilterSelected(String filter) {
     setState(() => _selectedFilter = filter);
-    
+
     final currentUserId = ref.read(authControllerProvider).maybeWhen(
-      authenticated: (user) => user.id,
-      orElse: () => null,
-    );
+          authenticated: (user) => user.id,
+          orElse: () => null,
+        );
 
     if (filter == 'Kitchen Recipes') {
       ref.read(recipeControllerProvider.notifier).refresh();
     } else if (filter == 'My Recipes') {
-      ref.read(recipeControllerProvider.notifier).refresh(authorId: currentUserId);
+      ref
+          .read(recipeControllerProvider.notifier)
+          .refresh(authorId: currentUserId);
     } else {
       final apiFilterMap = {
         'All Posts': 'all',
@@ -329,8 +331,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               ),
 
               // Posts List or Recipes List
-              (_selectedFilter == 'Kitchen Recipes' || _selectedFilter == 'My Recipes')
-                  ? _buildRecipesList(ref)
+              (_selectedFilter == 'Kitchen Recipes' ||
+                      _selectedFilter == 'My Recipes')
+                  ? _buildRecipesList(ref, currentUserId)
                   : _buildPostsList(state, currentUserId),
 
               // Bottom padding for nav bar
@@ -371,7 +374,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipesList(WidgetRef ref) {
+  Widget _buildRecipesList(WidgetRef ref, String? currentUserId) {
     final recipeState = ref.watch(recipeControllerProvider);
 
     return recipeState.maybeWhen(
@@ -393,7 +396,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final recipe = response.data[index];
-                return _buildRecipeCard(recipe);
+                return _buildRecipeCard(recipe, currentUserId);
               },
               childCount: response.data.length,
             ),
@@ -411,7 +414,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Recipe recipe) {
+  Widget _buildRecipeCard(Recipe recipe, String? currentUserId) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -438,17 +441,57 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey.shade100,
-                child: Image.network(
-                  recipe.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.restaurant,
-                      color: Colors.grey,
-                      size: 32),
-                ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.grey.shade100,
+                    child: Image.network(
+                      recipe.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.restaurant,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                  if (recipe.author.id == currentUserId)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert,
+                              color: Colors.white, size: 20),
+                          padding: EdgeInsets.zero,
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _editRecipe(recipe);
+                            } else if (value == 'delete') {
+                              _deleteRecipe(recipe);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
@@ -596,6 +639,45 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _deleteRecipe(Recipe recipe) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Recipe'),
+        content: const Text('Are you sure you want to delete this recipe?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await ref
+                    .read(recipeControllerProvider.notifier)
+                    .deleteRecipe(recipe.id);
+              } catch (e) {
+                // handle error silently
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editRecipe(Recipe recipe) {
+    // Basic implementation for now - just showing a dialog.
+    // In a real app this would navigate to a full edit screen like CreateRecipeScreen.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Edit recipe functionality is coming soon!')),
     );
   }
 
