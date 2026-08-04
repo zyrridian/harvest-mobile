@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/address.dart';
 import '../repositories/address_repository.dart';
 
 class AddAddressUseCase {

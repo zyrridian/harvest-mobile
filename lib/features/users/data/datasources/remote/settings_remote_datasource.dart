@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../../../../../data/models/app_settings_model.dart';
+import '../../models/app_settings_model.dart';
 
 abstract class SettingsRemoteDataSource {
   Future<AppSettingsModel> getAppSettings();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import '../../providers/cart/cart_controller.dart';
@@ -9,9 +11,10 @@ import '../../providers/cart/cart_controller.dart';
 // import 'package:harvest_app/core/config/theme/app_colors.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -31,43 +34,32 @@ class CartScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: const Icon(Icons.chevron_left, color: kDarkGreen),
-          ),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
             }
           },
         ),
+        titleSpacing: 0,
         title: Text(
           'My Cart',
-          style: GoogleFonts.inter(
-            color: kDarkGreen,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
         ),
         centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () => _clearCart(context, ref),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: const Icon(Icons.delete_outline, color: kDarkGreen),
+            child: IconButton(
+              onPressed: () => _clearCart(context, ref),
+              icon: const PhosphorIcon(
+                PhosphorIconsRegular.trash,
+                color: kDarkGreen,
               ),
             ),
           ),
@@ -77,7 +69,10 @@ class CartScreen extends ConsumerWidget {
         initial: () => const SizedBox.shrink(),
         data: (cart) {
           if (cart.items.isEmpty) {
-            return _buildEmptyState(context);
+            return Padding(
+              padding: EdgeInsets.all(16),
+              child: _buildEmptyState(context),
+            );
           }
 
           // Calculate Total (assuming item.subtotal is the line total)
@@ -125,13 +120,13 @@ class CartScreen extends ConsumerWidget {
               color: kPillGrey,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shopping_basket_outlined,
+            child: const Icon(PhosphorIconsRegular.shoppingCart,
                 size: 48, color: Colors.grey),
           ),
           const SizedBox(height: 24),
           Text(
             'Your cart is empty',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: kDarkGreen,
@@ -140,7 +135,7 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             'Fresh products are waiting for you!',
-            style: GoogleFonts.inter(color: kTextGrey),
+            style: TextStyle(color: kTextGrey),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
@@ -173,73 +168,89 @@ class CartScreen extends ConsumerWidget {
         padding: const EdgeInsets.only(right: 24),
         decoration: BoxDecoration(
           color: const Color(0xFFEF4444), // Red
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
         ),
-        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+        child: const Icon(PhosphorIconsRegular.trash,
+            color: Colors.white, size: 28),
       ),
       onDismissed: (_) => _removeItem(context, ref, item.cartItemId),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: kPillGrey),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.transparent),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 1. Product Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                width: 80,
-                height: 80,
-                color: kPillGrey,
-                child: _buildProductImage(item.imageUrl, item.name),
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // 2. Details
+            // Clickable area for product details
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: kDarkGreen,
+              child: GestureDetector(
+                onTap: () {
+                  context.push('${AppRouter.products}/${item.productId}');
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // 1. Product Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        color: kPillGrey,
+                        child: _buildProductImage(item.imageUrl, item.name),
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Rp ${item.subtotal}', // Or unit price if available
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: kAccentOrange,
+                    const SizedBox(width: 16),
+
+                    // 2. Details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: kDarkGreen,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal), // Or unit price if available
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: kAccentOrange,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            const SizedBox(width: 8),
 
             // 3. Quantity Stepper (Pill Shape)
             Container(
               height: 40,
               decoration: BoxDecoration(
                 color: kPillGrey,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildStepperBtn(
-                    icon: Icons.remove,
+                    icon: PhosphorIconsRegular.minus,
                     onTap: () => _updateQty(context, ref, item, -1),
                   ),
                   SizedBox(
@@ -247,14 +258,14 @@ class CartScreen extends ConsumerWidget {
                     child: Text(
                       '${item.quantity}',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: kDarkGreen,
                       ),
                     ),
                   ),
                   _buildStepperBtn(
-                    icon: Icons.add,
+                    icon: PhosphorIconsRegular.plus,
                     onTap: () => _updateQty(context, ref, item, 1),
                   ),
                 ],
@@ -272,7 +283,7 @@ class CartScreen extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(30),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Icon(icon, size: 16, color: kDarkGreen),
@@ -304,11 +315,11 @@ class CartScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Subtotal', style: GoogleFonts.inter(color: kTextGrey)),
+                Text('Subtotal', style: TextStyle(color: kTextGrey)),
                 Text(
-                  'Rp $total',
-                  style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold, color: kDarkGreen),
+                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(total),
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
               ],
             ),
@@ -317,12 +328,11 @@ class CartScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Delivery Fee',
-                    style: GoogleFonts.inter(color: kTextGrey)),
+                Text('Delivery Fee', style: TextStyle(color: kTextGrey)),
                 Text(
                   'Rp 15.000',
-                  style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold, color: kDarkGreen),
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
               ],
             ),
@@ -336,15 +346,15 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Total',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen,
                   ),
                 ),
                 Text(
-                  'Rp ${total + 15000}', // Adding dummy delivery fee
-                  style: GoogleFonts.inter(
+                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(total + 15000), // Adding dummy delivery fee
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kAccentOrange,
@@ -364,12 +374,12 @@ class CartScreen extends ConsumerWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: Text(
                   'Checkout Now',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -386,10 +396,20 @@ class CartScreen extends ConsumerWidget {
 
   Future<void> _updateQty(
       BuildContext context, WidgetRef ref, dynamic item, int change) async {
-    final newQty = (item.quantity + change).clamp(1, 999);
-    if (newQty == item.quantity) return;
+    final newQty = item.quantity + change;
 
-    ref.read(cartControllerProvider.notifier).updateQuantity(item.cartItemId, newQty.toInt());
+    if (newQty < 1) {
+      // Remove item if quantity goes to 0
+      await _removeItem(context, ref, item.cartItemId);
+      return;
+    }
+
+    final clampedQty = newQty.clamp(1, 999);
+    if (clampedQty == item.quantity) return;
+
+    ref
+        .read(cartControllerProvider.notifier)
+        .updateQuantity(item.cartItemId, clampedQty.toInt());
   }
 
   Future<void> _removeItem(
@@ -399,6 +419,32 @@ class CartScreen extends ConsumerWidget {
   }
 
   Future<void> _clearCart(BuildContext context, WidgetRef ref) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Cart'),
+        content: const Text(
+            'Are you sure you want to remove all items from your cart?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: kTextGrey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  const Color(0xFFEF4444), // Red for destructive action
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     ref.read(cartControllerProvider.notifier).clearCart();
     _showSnack(context, 'Cart cleared');
   }
@@ -439,7 +485,7 @@ class CartScreen extends ConsumerWidget {
     return Center(
       child: Text(
         name.isNotEmpty ? name[0] : '?',
-        style: GoogleFonts.inter(
+        style: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: kDarkGreen.withOpacity(0.4),

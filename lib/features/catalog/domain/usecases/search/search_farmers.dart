@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failures.dart';
-import 'package:harvest_app/domain/entities/farmer.dart';
 import 'package:harvest_app/features/catalog/domain/repositories/search_repository.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 
 class SearchFarmers {
   final SearchRepository repository;

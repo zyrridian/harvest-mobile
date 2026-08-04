@@ -24,6 +24,8 @@ abstract class ProductRemoteDataSource {
   Future<ReviewResponseModel> getProductReviews(String slug, {int limit = 5});
   Future<void> submitProductReview({
     required String productId,
+    required String orderId,
+    required String title,
     required String content,
     required int rating,
     List<String> images = const [],
@@ -111,7 +113,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       {int limit = 5}) async {
     try {
       final response = await dio.get(
-        '/catalog/products/reviews/$slug',
+        '/catalog/products/$slug/reviews',
         queryParameters: {'limit': limit},
       );
       if (response.statusCode == 200 && response.data['status'] == 'success') {
@@ -127,6 +129,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<void> submitProductReview({
     required String productId,
+    required String orderId,
+    required String title,
     required String content,
     required int rating,
     List<String> images = const [],
@@ -135,7 +139,9 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final response = await dio.post(
         '/catalog/products/$productId/reviews',
         data: {
-          'content': content,
+          'order_id': orderId,
+          'title': title,
+          'comment': content,
           'rating': rating,
           'images': images,
         },

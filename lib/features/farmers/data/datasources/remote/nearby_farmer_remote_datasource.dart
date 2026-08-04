@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:harvest_app/features/farmers/domain/entities/nearby_farmer.dart';
 import '../../../../../../core/error/exceptions.dart';
 import '../../../../../../core/services/api_service.dart';
-import '../../../../../../domain/entities/nearby_farmer.dart';
 
 abstract class NearbyFarmerRemoteDataSource {
   Future<List<NearbyFarmerData>> getNearbyFarmers({

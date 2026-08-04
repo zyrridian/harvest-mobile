@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import '../../models/conversation_model.dart';
-import '../../../../../data/models/message_model.dart';
+import '../../../../chat/data/models/message_model.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../../../core/constants/app_constants.dart';
+
 abstract class MessagingRemoteDataSource {
   Future<Map<String, dynamic>> getConversations({
     String filter = 'all',
@@ -139,9 +140,8 @@ Message _parseMessage(Map<String, dynamic> m) {
         ? DateTime.tryParse(m['timestamp'] as String) ?? DateTime.now()
         : DateTime.now(),
     isRead: m['is_read'] as bool? ?? false,
-    readAt: m['read_at'] != null
-        ? DateTime.tryParse(m['read_at'] as String)
-        : null,
+    readAt:
+        m['read_at'] != null ? DateTime.tryParse(m['read_at'] as String) : null,
     isEdited: m['is_edited'] as bool? ?? false,
     isDeleted: m['is_deleted'] as bool? ?? false,
     text: m['text'] as String?,
@@ -197,8 +197,8 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     final body = response.data ?? {};
     final data = body['data'] as Map<String, dynamic>? ?? body;
 
-    final participant = _parseParticipant(
-        data['participant'] as Map<String, dynamic>);
+    final participant =
+        _parseParticipant(data['participant'] as Map<String, dynamic>);
 
     final rawMessages = data['messages'] as List<dynamic>? ?? [];
     final messages = rawMessages
@@ -213,7 +213,7 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
         orderId: o['order_id'] as String,
         orderNumber: o['order_number'] as String,
         status: o['status'] as String,
-        totalAmount: (o['total_amount'] as num).toInt(),
+        totalAmount: (o['total_amount'] as num?)?.toInt(),
         itemsCount: (o['items_count'] as num?)?.toInt(),
       );
     }
@@ -270,34 +270,51 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
     String? voicePath,
     String? replyToMessageId,
   }) async {
-    final formData = FormData.fromMap({
-      'type': type,
-      if (content != null) 'content': content,
-      if (productId != null) 'product_id': productId,
-      if (orderId != null) 'order_id': orderId,
-      if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
-    });
+    final hasFiles = (imagePaths != null && imagePaths.isNotEmpty) || voicePath != null;
 
-    if (imagePaths != null) {
-      for (final path in imagePaths) {
+    Response<Map<String, dynamic>> response;
+
+    if (hasFiles) {
+      final formData = FormData.fromMap({
+        'type': type,
+        if (content != null) 'content': content,
+        if (productId != null) 'product_id': productId,
+        if (orderId != null) 'order_id': orderId,
+        if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
+      });
+
+      if (imagePaths != null) {
+        for (final path in imagePaths) {
+          formData.files.add(MapEntry(
+            'images',
+            await MultipartFile.fromFile(path),
+          ));
+        }
+      }
+      if (voicePath != null) {
         formData.files.add(MapEntry(
-          'images',
-          await MultipartFile.fromFile(path),
+          'voice',
+          await MultipartFile.fromFile(voicePath),
         ));
       }
-    }
-    if (voicePath != null) {
-      formData.files.add(MapEntry(
-        'voice',
-        await MultipartFile.fromFile(voicePath),
-      ));
-    }
 
-    final response = await _dio.post<Map<String, dynamic>>(
-      '${AppConstants.conversationsEndpoint}/$conversationId/messages',
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
-    );
+      response = await _dio.post<Map<String, dynamic>>(
+        '${AppConstants.conversationsEndpoint}/$conversationId/messages',
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+    } else {
+      response = await _dio.post<Map<String, dynamic>>(
+        '${AppConstants.conversationsEndpoint}/$conversationId/messages',
+        data: {
+          'type': type,
+          if (content != null) 'content': content,
+          if (productId != null) 'product_id': productId,
+          if (orderId != null) 'order_id': orderId,
+          if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
+        },
+      );
+    }
 
     final data = (response.data?['data'] as Map<String, dynamic>?) ??
         response.data ??
@@ -480,7 +497,8 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
 
   @override
   Future<List<BlockedUserModel>> getBlockedUsers() async {
-    final response = await _dio.get<Map<String, dynamic>>('${AppConstants.usersEndpoint}/blocked');
+    final response = await _dio
+        .get<Map<String, dynamic>>('${AppConstants.usersEndpoint}/blocked');
     final data = response.data?['data'] as List<dynamic>? ?? [];
     return data
         .map((e) => BlockedUserModel.fromJson(e as Map<String, dynamic>))

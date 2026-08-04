@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../../data/models/conversation_model.dart';
-import '../../../../presentation/providers/messaging_providers.dart';
+import '../../../chat/presentation/providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
 import '../../../../core/utils/time_utils.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 
 class ConversationsListScreen extends ConsumerStatefulWidget {
   const ConversationsListScreen({super.key});
@@ -21,6 +24,12 @@ class _ConversationsListScreenState
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final isProducer = authState.maybeWhen(
+      authenticated: (user) => user.userType == UserType.farmer,
+      orElse: () => false,
+    );
+
     // Auto-refresh the list when socket events happen
     ref.listen(newMessageStreamProvider, (_, __) {
       ref.invalidate(conversationsProvider);
@@ -37,8 +46,33 @@ class _ConversationsListScreenState
     )));
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        title: const Text('Messages'),
+        backgroundColor: const Color(0xFFFFFFFF),
+        elevation: 0,
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+        leading: isProducer
+            ? null
+            : IconButton(
+                icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                    color: Color(0xFF1A2F25)),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(AppRouter.main);
+                  }
+                },
+              ),
+        title: Text(
+          'Messages',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF1A2F25),
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+        ),
         actions: [
           PopupMenuButton<String>(
             initialValue: _selectedFilter,
@@ -50,8 +84,8 @@ class _ConversationsListScreenState
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'all', child: Text('All Messages')),
               const PopupMenuItem(value: 'unread', child: Text('Unread')),
-              const PopupMenuItem(value: 'orders', child: Text('Orders')),
-              const PopupMenuItem(value: 'general', child: Text('General')),
+              // const PopupMenuItem(value: 'orders', child: Text('Orders')),
+              // const PopupMenuItem(value: 'general', child: Text('General')),
             ],
           ),
         ],
@@ -69,8 +103,8 @@ class _ConversationsListScreenState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.chat_bubble_outline,
-                      size: 64, color: Colors.grey[400]),
+                  const PhosphorIcon(PhosphorIconsRegular.chatCircle,
+                      size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
                     'No conversations yet',
@@ -96,12 +130,15 @@ class _ConversationsListScreenState
                   color: Colors.blue[50],
                   child: Row(
                     children: [
-                      Icon(Icons.notifications_active,
+                      PhosphorIcon(PhosphorIconsRegular.bellRinging,
                           color: Colors.blue[700], size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                        'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
-                        style: TextStyle(color: Colors.blue[900], fontSize: 13),
+                      Expanded(
+                        child: Text(
+                          'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
+                          style:
+                              TextStyle(color: Colors.blue[900], fontSize: 13),
+                        ),
                       ),
                     ],
                   ),
@@ -132,7 +169,8 @@ class _ConversationsListScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                  size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text('Error: $error'),
               const SizedBox(height: 16),
@@ -203,40 +241,21 @@ class _ConversationTile extends ConsumerWidget {
                   color: Colors.orange,
                   shape: BoxShape.circle,
                 ),
-                child:
-                    const Icon(Icons.push_pin, size: 12, color: Colors.white),
+                child: const PhosphorIcon(PhosphorIconsRegular.pushPin,
+                    size: 12, color: Colors.white),
               ),
             ),
         ],
       ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              participant.name,
-              style: TextStyle(
-                fontWeight: conversation.unreadCount > 0
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
+      title: Expanded(
+        child: Text(
+          participant.name,
+          style: TextStyle(
+            fontWeight: conversation.unreadCount > 0
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
-          if (participant.verified)
-            const Icon(Icons.verified, size: 16, color: Colors.blue),
-          const SizedBox(width: 4),
-          if (conversation.type == 'order')
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.orange[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Order',
-                style: TextStyle(fontSize: 10, color: Colors.orange[900]),
-              ),
-            ),
-        ],
+        ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,8 +264,8 @@ class _ConversationTile extends ConsumerWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.shopping_bag_outlined,
-                    size: 14, color: Colors.grey[600]),
+                PhosphorIcon(PhosphorIconsRegular.shoppingBag,
+                    size: 14, color: Colors.blue[700]),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -272,7 +291,7 @@ class _ConversationTile extends ConsumerWidget {
           ] else if (lastMessage != null) ...[
             const SizedBox(height: 4),
             Text(
-              lastMessage.preview,
+              lastMessage.type == 'image' ? '[Image]' : lastMessage.preview,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -292,14 +311,25 @@ class _ConversationTile extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (lastMessage != null)
-            Text(
-              _formatTime(lastMessage.timestamp),
-              style: TextStyle(
-                fontSize: 12,
-                color: conversation.unreadCount > 0
-                    ? Colors.blue
-                    : Colors.grey[600],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  _formatTime(lastMessage.timestamp),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: conversation.unreadCount > 0
+                        ? Colors.blue
+                        : Colors.grey[600],
+                  ),
+                ),
+                if (participant.verified)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: const PhosphorIcon(PhosphorIconsRegular.checkCircle,
+                        size: 16, color: Colors.blue),
+                  ),
+              ],
             ),
           if (conversation.unreadCount > 0)
             Container(
@@ -319,12 +349,23 @@ class _ConversationTile extends ConsumerWidget {
               ),
             ),
           if (conversation.muted)
-            Icon(Icons.notifications_off, size: 16, color: Colors.grey[500]),
+            PhosphorIcon(PhosphorIconsRegular.bellSlash,
+                size: 16, color: Colors.grey[500]),
         ],
       ),
       onTap: () {
-        context.push(
-            '${AppRouter.chat}?conversationId=${conversation.conversationId}').then((_) {
+        final uri = Uri(
+          path: AppRouter.chat,
+          queryParameters: {
+            'conversationId': conversation.conversationId,
+            'farmerId': participant.userId,
+            'farmerName': participant.name,
+            if (participant.profilePicture != null) 'farmerAvatar': participant.profilePicture,
+          },
+        );
+        context
+            .push(uri.toString())
+            .then((_) {
           // Refresh the list when returning from the chat
           ref.invalidate(conversationsProvider);
         });

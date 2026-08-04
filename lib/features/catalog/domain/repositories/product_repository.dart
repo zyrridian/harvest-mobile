@@ -32,6 +32,8 @@ abstract class ProductRepository {
       {int limit = 5});
   Future<Either<Failure, void>> submitProductReview({
     required String productId,
+    required String orderId,
+    required String title,
     required String content,
     required int rating,
     List<String> images = const [],

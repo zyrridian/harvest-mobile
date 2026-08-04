@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/address_controller.dart';
-import '../providers/address_state.dart';
 import 'add_edit_address_screen.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -25,16 +27,25 @@ class AddressesScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: kBgColor,
         elevation: 0,
-        centerTitle: false,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+        ),
+        titleSpacing: 0,
         title: Text(
           'My Addresses',
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppColors.primary,
             fontWeight: FontWeight.w700,
-            color: kDarkGreen,
+            fontSize: 18,
           ),
         ),
+        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -45,7 +56,7 @@ class AddressesScreen extends ConsumerWidget {
                   color: kDarkGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 20),
+                child: const PhosphorIcon(PhosphorIconsRegular.plus, color: Colors.white, size: 20),
               ),
               onPressed: () => _showAddAddressDialog(context, ref),
               tooltip: 'Add address',
@@ -66,23 +77,31 @@ class AddressesScreen extends ConsumerWidget {
   Widget _buildAddressesList(
       BuildContext context, WidgetRef ref, List<Address> addresses) {
     if (addresses.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
+      return RefreshIndicator(
+        color: kDarkGreen,
+        backgroundColor: Colors.white,
+        onRefresh: () => ref.read(addressControllerProvider.notifier).refresh(),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF9E6),
+                color: kCream,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.location_off_outlined,
-                  size: 48, color: Color(0xFFD97706)),
+              child: const PhosphorIcon(PhosphorIconsRegular.mapPinLine,
+                  size: 48, color: kDarkGreen),
             ),
             const SizedBox(height: 16),
             Text(
               'No addresses saved',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -91,19 +110,25 @@ class AddressesScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               'Add a location to start ordering.',
-              style: GoogleFonts.inter(color: kTextGrey),
+              style: TextStyle(color: kTextGrey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => _showAddAddressDialog(context, ref),
-              icon: const Icon(Icons.add),
+              icon: const PhosphorIcon(PhosphorIconsRegular.plus),
               label: const Text('Add Address'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kDarkGreen,
                 foregroundColor: Colors.white,
-                shape: const StadiumBorder(),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
               ),
             ),
           ],
@@ -111,14 +136,20 @@ class AddressesScreen extends ConsumerWidget {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: addresses.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final address = addresses[index];
-        return _buildAddressCard(context, ref, address);
-      },
+    return RefreshIndicator(
+      color: kDarkGreen,
+      backgroundColor: Colors.white,
+      onRefresh: () => ref.read(addressControllerProvider.notifier).refresh(),
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        itemCount: addresses.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final address = addresses[index];
+          return _buildAddressCard(context, ref, address);
+        },
+      ),
     );
   }
 
@@ -126,19 +157,19 @@ class AddressesScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, Address address) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: address.isPrimary ? kCream.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: address.isPrimary ? kDarkGreen : kPillGrey,
-          width: address.isPrimary ? 1.5 : 1,
+          width: address.isPrimary ? 2.0 : 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: kDarkGreen.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: kDarkGreen.withOpacity(0.05),
+        //     blurRadius: 10,
+        //     offset: const Offset(0, 4),
+        //   ),
+        // ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -161,7 +192,7 @@ class AddressesScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         address.label.toUpperCase(),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           color: kDarkGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
@@ -174,27 +205,34 @@ class AddressesScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: kDarkGreen.withOpacity(0.1),
+                          color: kDarkGreen,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          'Primary',
-                          style: GoogleFonts.inter(
-                            color: kDarkGreen,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
+                        child: Row(
+                          children: [
+                            const PhosphorIcon(PhosphorIconsFill.checkCircle,
+                                color: Colors.white, size: 12),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Primary',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     const Spacer(),
-                    Icon(Icons.more_horiz, color: kTextGrey),
+                    PhosphorIcon(PhosphorIconsRegular.dotsThree, color: kTextGrey),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.location_on_outlined,
+                    PhosphorIcon(PhosphorIconsRegular.mapPin,
                         color: kAccentOrange, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
@@ -203,7 +241,7 @@ class AddressesScreen extends ConsumerWidget {
                         children: [
                           Text(
                             address.recipientName,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: kDarkGreen,
@@ -212,13 +250,13 @@ class AddressesScreen extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             address.phone,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 color: kTextGrey, fontSize: 13),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${address.fullAddress}\n${address.district}, ${address.city}, ${address.province} ${address.postalCode}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 color: kDarkGreen, height: 1.4),
                           ),
                           if (address.notes != null) ...[
@@ -226,19 +264,19 @@ class AddressesScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFF9E6),
+                                color: kCream,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.info_outline,
-                                      size: 16, color: Color(0xFFD97706)),
+                                  const PhosphorIcon(PhosphorIconsRegular.info,
+                                      size: 16, color: kDarkGreen),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       address.notes!,
-                                      style: GoogleFonts.inter(
-                                        color: const Color(0xFF92400E),
+                                      style: TextStyle(
+                                        color: kDarkGreen,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -272,7 +310,7 @@ class AddressesScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -294,14 +332,14 @@ class AddressesScreen extends ConsumerWidget {
                     color: kDarkGreen.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.star, color: kDarkGreen),
+                  child: const PhosphorIcon(PhosphorIconsRegular.star, color: kDarkGreen),
                 ),
                 title: Text(
                   'Set as Primary',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   await _setPrimaryAddress(context, ref, address.addressId);
                 },
               ),
@@ -312,14 +350,14 @@ class AddressesScreen extends ConsumerWidget {
                   color: kDarkGreen.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.edit, color: kDarkGreen),
+                child: const PhosphorIcon(PhosphorIconsRegular.pencilSimple, color: kDarkGreen),
               ),
               title: Text(
                 'Edit Address',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -337,17 +375,17 @@ class AddressesScreen extends ConsumerWidget {
                     color: Colors.red.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete, color: Colors.red),
+                  child: const PhosphorIcon(PhosphorIconsRegular.trash, color: Colors.red),
                 ),
                 title: Text(
                   'Delete Address',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.red,
                   ),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   await _deleteAddress(context, ref, address.addressId);
                 },
               ),
@@ -374,13 +412,15 @@ class AddressesScreen extends ConsumerWidget {
     final useCase = ref.read(setPrimaryAddressUseCaseProvider);
     final result = await useCase(addressId);
 
+    if (!context.mounted) return;
+
     result.fold(
       (failure) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${failure.toString()}')),
         );
       },
-      (address) {
+      (_) {
         ref.read(addressControllerProvider.notifier).refresh();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Primary address updated')),
@@ -416,6 +456,8 @@ class AddressesScreen extends ConsumerWidget {
     if (confirmed == true) {
       final useCase = ref.read(deleteAddressUseCaseProvider);
       final result = await useCase(addressId);
+
+      if (!context.mounted) return;
 
       result.fold(
         (failure) {

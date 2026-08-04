@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
+import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
+import 'package:harvest_app/core/widgets/community_post_card.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import 'package:intl/intl.dart';
 import 'create_post_screen.dart';
 import 'create_recipe_screen.dart';
 import 'community_post_detail_screen.dart';
 import 'recipe_detail_screen.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:harvest_app/presentation/shared_widgets/pill_tab_bar.dart';
+import 'package:harvest_app/core/widgets/pill_tab_bar.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
 
 // --- DESIGN CONSTANTS ---
@@ -49,6 +55,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   final List<String> _filters = [
     'All Posts',
     'Kitchen Recipes',
+    'My Recipes',
     'Farmer Updates',
     'Following',
     'My Posts',
@@ -92,16 +99,31 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
   void _onFilterSelected(String filter) {
     setState(() => _selectedFilter = filter);
-    final apiFilterMap = {
-      'All Posts': 'all',
-      'Kitchen Recipes': 'recipes',
-      'Farmer Updates': 'farmers',
-      'Following': 'following',
-      'My Posts': 'my_posts',
-    };
-    ref
-        .read(communityControllerProvider.notifier)
-        .setFilter(apiFilterMap[filter]!);
+
+    final currentUserId = ref.read(authControllerProvider).maybeWhen(
+          authenticated: (user) => user.id,
+          orElse: () => null,
+        );
+
+    if (filter == 'Kitchen Recipes') {
+      ref.read(recipeControllerProvider.notifier).refresh();
+    } else if (filter == 'My Recipes') {
+      ref
+          .read(recipeControllerProvider.notifier)
+          .refresh(authorId: currentUserId);
+    } else {
+      final apiFilterMap = {
+        'All Posts': 'all',
+        'Farmer Updates': 'farmers',
+        'Following': 'following',
+        'My Posts': 'my_posts',
+      };
+      if (apiFilterMap.containsKey(filter)) {
+        ref
+            .read(communityControllerProvider.notifier)
+            .setFilter(apiFilterMap[filter]!);
+      }
+    }
   }
 
   void _onTagSelected(String tag) {
@@ -113,6 +135,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       setState(() => _selectedTag = cleanTag);
       ref.read(communityControllerProvider.notifier).setTag(cleanTag);
     }
+  }
+
+  String? _getValidImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty || !url.startsWith('http'))
+      return null;
+    return url;
   }
 
   Future<void> _openCreatePost() async {
@@ -220,9 +248,31 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       authenticated: (user) => user.id,
       orElse: () => null,
     );
+    final isProducer = authState.maybeWhen(
+      authenticated: (user) => user.userType == UserType.farmer,
+      orElse: () => false,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: isProducer
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: true,
+              scrolledUnderElevation: 0,
+              iconTheme: const IconThemeData(color: kDarkGreen),
+              title: Text(
+                'Community',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: kDarkGreen,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      letterSpacing: -0.5,
+                    ),
+              ),
+            )
+          : null,
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -247,9 +297,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             backgroundColor: AppColors.primary,
             onPressed: _openCreatePost,
             icon: const Icon(Icons.add, color: Colors.white),
-            label: Text(
-              'Create Post',
-              style: GoogleFonts.inter(
+            label: const Text(
+              'Create',
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -281,8 +331,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               ),
 
               // Posts List or Recipes List
-              _selectedFilter == 'Kitchen Recipes'
-                  ? _buildRecipesList(ref)
+              (_selectedFilter == 'Kitchen Recipes' ||
+                      _selectedFilter == 'My Recipes')
+                  ? _buildRecipesList(ref, currentUserId)
                   : _buildPostsList(state, currentUserId),
 
               // Bottom padding for nav bar
@@ -313,7 +364,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        child:
+            Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -322,7 +374,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipesList(WidgetRef ref) {
+  Widget _buildRecipesList(WidgetRef ref, String? currentUserId) {
     final recipeState = ref.watch(recipeControllerProvider);
 
     return recipeState.maybeWhen(
@@ -344,7 +396,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final recipe = response.data[index];
-                return _buildRecipeCard(recipe);
+                return _buildRecipeCard(recipe, currentUserId);
               },
               childCount: response.data.length,
             ),
@@ -352,7 +404,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        child:
+            Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (msg) => SliverFillRemaining(
         child: Center(child: Text('Error: $msg')),
@@ -361,7 +414,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Recipe recipe) {
+  Widget _buildRecipeCard(Recipe recipe, String? currentUserId) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -388,17 +441,57 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey.shade100,
-                child: Image.network(
-                  recipe.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.restaurant,
-                      color: Colors.grey,
-                      size: 32),
-                ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.grey.shade100,
+                    child: Image.network(
+                      recipe.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.restaurant,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                  if (recipe.author.id == currentUserId)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert,
+                              color: Colors.white, size: 20),
+                          padding: EdgeInsets.zero,
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _editRecipe(recipe);
+                            } else if (value == 'delete') {
+                              _deleteRecipe(recipe);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
@@ -408,7 +501,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 children: [
                   Text(
                     recipe.title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -423,7 +516,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${recipe.prepTimeMinutes + recipe.cookTimeMinutes}m',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
                           fontWeight: FontWeight.w500,
@@ -449,7 +542,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       Expanded(
                         child: Text(
                           recipe.author.name,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Colors.black87,
                           ),
@@ -477,13 +570,16 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // close dialog
               try {
-                await ref.read(communityControllerProvider.notifier).deletePost(post.id);
+                await ref
+                    .read(communityControllerProvider.notifier)
+                    .deletePost(post.id);
               } catch (e) {
                 // handle error silently
               }
@@ -521,7 +617,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
           ),
           TextButton(
             onPressed: () async {
@@ -530,7 +627,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               if (newTitle.isNotEmpty && newContent.isNotEmpty) {
                 Navigator.pop(context);
                 try {
-                  await ref.read(communityControllerProvider.notifier).editPost(post.id, newTitle, newContent);
+                  await ref
+                      .read(communityControllerProvider.notifier)
+                      .editPost(post.id, newTitle, newContent);
                 } catch (e) {
                   // error handled
                 }
@@ -543,12 +642,49 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
+  void _deleteRecipe(Recipe recipe) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Recipe'),
+        content: const Text('Are you sure you want to delete this recipe?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.black87)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await ref
+                    .read(recipeControllerProvider.notifier)
+                    .deleteRecipe(recipe.id);
+              } catch (e) {
+                // handle error silently
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
+  void _editRecipe(Recipe recipe) {
+    // Basic implementation for now - just showing a dialog.
+    // In a real app this would navigate to a full edit screen like CreateRecipeScreen.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Edit recipe functionality is coming soon!')),
+    );
+  }
 
   Widget _buildPostCard(CommunityPost post, String? currentUserId) {
-    final isMyPost = post.userId == currentUserId;
-
-    return GestureDetector(
+    return CommunityPostCard(
+      post: post,
+      currentUserId: currentUserId,
       onTap: () {
         Navigator.push(
           context,
@@ -556,230 +692,42 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               builder: (context) => CommunityPostDetailScreen(post: post)),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      onProfileTap: () {
+        if (post.farmer != null) {
+          context.push(
+            AppRouter.farmerDetail,
+            extra: Farmer(
+              id: post.farmer!.id,
+              userId: post.userId,
+              name: post.farmer!.name,
+              description: '',
+              latitude: 0,
+              longitude: 0,
+              address: '',
+              rating: 0,
+              totalReviews: 0,
+              totalProducts: 0,
+              specialties: const [],
+              isVerified: true,
+              hasMapFeature: false,
+              joinedDate: DateTime.now(),
+              isOnline: false,
+              profileImage: post.farmer!.profileImage,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.grey.shade100,
-                  backgroundImage: post.user.avatarUrl != null
-                      ? NetworkImage(post.user.avatarUrl!)
-                      : null,
-                  child: post.user.avatarUrl == null
-                      ? Icon(Icons.person_outline, color: Colors.grey.shade500)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.user.name,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        _formatDate(post.createdAt),
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isMyPost)
-                  PopupMenuButton<String>(
-                    icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        _editPost(post);
-                      } else if (value == 'delete') {
-                        _deletePost(post);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: const [
-                            PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 20),
-                            SizedBox(width: 12),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            PhosphorIcon(PhosphorIconsRegular.trash, size: 20, color: Colors.red),
-                            SizedBox(width: 12),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  IconButton(
-                    icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.transparent),
-                    onPressed: null,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Title
-            Text(
-              post.title,
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Content
-            Text(
-              post.content,
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                color: Colors.black87,
-                height: 1.5,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // Images
-            if (post.images.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: post.images.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          post.images[index],
-                          width: 150,
-                          height: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 12),
-
-            // Tags
-            if (post.tags.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                children: post.tags
-                    .map((t) => Text(
-                          '#${t.tag}',
-                          style: GoogleFonts.inter(
-                            color: AppColors.primary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ))
-                    .toList(),
-              ),
-
-            const SizedBox(height: 16),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-
-            // Footer actions
-            Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    ref
-                        .read(communityControllerProvider.notifier)
-                        .toggleLike(post.id, post.isLikedByUser);
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        post.isLikedByUser
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        size: 20,
-                        color: post.isLikedByUser
-                            ? const Color(0xFFDC2626)
-                            : Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${post.likesCount}',
-                        style: GoogleFonts.inter(
-                          color: post.isLikedByUser
-                              ? const Color(0xFFDC2626)
-                              : Colors.grey.shade600,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Row(
-                  children: [
-                    Icon(Icons.chat_bubble_outline,
-                        size: 20, color: Colors.grey.shade600),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${post.commentsCount}',
-                      style: GoogleFonts.inter(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
+      onLikeToggle: () {
+        ref
+            .read(communityControllerProvider.notifier)
+            .toggleLike(post.id, post.isLikedByUser);
+      },
+      onEdit: () {
+        _editPost(post);
+      },
+      onDelete: () {
+        _deletePost(post);
+      },
     );
   }
 }
@@ -866,7 +814,7 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                           const SizedBox(height: 2),
                           Text(
                             widget.title,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
                               color: Colors.black87,
@@ -875,7 +823,7 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                           const SizedBox(height: 4),
                           Text(
                             widget.subtitle,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 13.5,
                               color: Colors.grey.shade600,
                               height: 1.3,
@@ -898,7 +846,8 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                       height: 16,
                       decoration: BoxDecoration(
                         color: widget.tapeColor,
-                        border: Border.all(color: widget.tapeColor!.withOpacity(0.5)),
+                        border: Border.all(
+                            color: widget.tapeColor!.withOpacity(0.5)),
                       ),
                     ),
                   ),
@@ -910,7 +859,8 @@ class _CreateOptionCardState extends State<_CreateOptionCard> {
                   child: Transform.rotate(
                     angle: 0.1, // 6 deg
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: widget.tagColor,
                         borderRadius: BorderRadius.circular(4),

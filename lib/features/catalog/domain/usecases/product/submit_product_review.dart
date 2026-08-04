@@ -9,12 +9,16 @@ class SubmitProductReview {
 
   Future<Either<Failure, void>> call({
     required String productId,
+    required String orderId,
+    required String title,
     required String content,
     required int rating,
     List<String> images = const [],
   }) async {
     return await repository.submitProductReview(
       productId: productId,
+      orderId: orderId,
+      title: title,
       content: content,
       rating: rating,
       images: images,

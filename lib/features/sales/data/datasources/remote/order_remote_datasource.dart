@@ -6,10 +6,13 @@ import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/features/sales/data/models/order_model.dart';
 
 abstract class OrderRemoteDataSource {
-  Future<List<OrderModel>> getOrders({required String role, String? status, int page = 1, int limit = 20});
+  Future<List<OrderModel>> getOrders(
+      {required String role, String? status, int page = 1, int limit = 20});
   Future<OrderModel> getOrderDetail({required String orderId});
-  Future<Map<String, dynamic>> createOrder({required Map<String, dynamic> payload});
-  Future<Map<String, dynamic>> cancelOrder({required String orderId, required Map<String, dynamic> payload});
+  Future<Map<String, dynamic>> createOrder(
+      {required Map<String, dynamic> payload});
+  Future<Map<String, dynamic>> cancelOrder(
+      {required String orderId, required Map<String, dynamic> payload});
 }
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -48,23 +51,23 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
             userId: sellerMap['user_id'] ?? '',
             name: sellerMap['name'] ?? '',
             profilePicture: sellerMap['profile_picture']);
-            
+
         final items = <OrderItemModel>[];
         final itemsList = map['items'] as List<dynamic>? ?? [];
         for (final it in itemsList) {
           final m = it as Map<String, dynamic>;
           items.add(OrderItemModel(
-              orderItemId: m['product_id'] ?? '',
-              product: {
-                "product_id": m['product_id'], 
-                "name": m['product_name'] ?? m['name'] ?? 'Unknown'
-              },
+              orderItemId: m['order_item_id'] ?? m['product_id'] ?? '',
+              productId: m['product_id'],
+              productName: m['product_name'] ?? m['name'],
+              image: m['image'],
+              product: m['product'] as Map<String, dynamic>?,
               quantity: m['quantity'] ?? 1,
               unitPrice: m['unit_price'] ?? 0,
-              discount: 0,
-              subtotal: 0));
+              discount: m['discount'] ?? 0,
+              subtotal: m['subtotal'] ?? 0));
         }
-        
+
         final deliveryMap = map['delivery'] ?? {};
         final delivery = OrderDeliveryModel(
             method: deliveryMap['method'] ?? 'home_delivery',
@@ -72,7 +75,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
             date: deliveryMap['date'],
             timeSlot: null,
             fee: 0);
-            
+
         return OrderModel(
             orderId: map['order_id'] ?? '',
             orderNumber: map['order_number'] ?? '',
@@ -86,7 +89,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       return orders;
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+      throw ServerException(
+          e.response?.data['message'] ?? e.message ?? 'An error occurred');
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -96,7 +100,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<OrderModel> getOrderDetail({required String orderId}) async {
     try {
       final response = await dio.get('${AppConstants.ordersEndpoint}/$orderId');
-      
+
       final d = response.data['data'] as Map<String, dynamic>;
       final seller = OrderSellerModel(
           userId: d['seller']['user_id'] ?? '',
@@ -105,8 +109,13 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       final items = (d['items'] as List<dynamic>)
           .map((it) => OrderItemModel.fromJson(it as Map<String, dynamic>))
           .toList();
-      final delivery =
-          OrderDeliveryModel.fromJson(d['delivery'] as Map<String, dynamic>);
+      final deliveryMap = d['delivery'] as Map<String, dynamic>? ?? {};
+      final delivery = OrderDeliveryModel(
+          method: deliveryMap['method'] ?? 'unknown',
+          address: deliveryMap['address'] as Map<String, dynamic>?,
+          date: deliveryMap['date'],
+          timeSlot: deliveryMap['time_slot'],
+          fee: deliveryMap['fee'] ?? 0);
       final model = OrderModel(
           orderId: d['order_id'] ?? '',
           orderNumber: d['order_number'] ?? '',
@@ -118,7 +127,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
           paymentUrl: d['payment']?['payment_url']);
       return model;
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+      throw ServerException(
+          e.response?.data['message'] ?? e.message ?? 'An error occurred');
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -139,7 +149,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         throw ServerException('Failed to create order');
       }
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? e.message ?? 'An error occurred');
+      throw ServerException(
+          e.response?.data['message'] ?? e.message ?? 'An error occurred');
     } catch (e) {
       throw ServerException(e.toString());
     }

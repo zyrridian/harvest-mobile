@@ -1,11 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/farmer.dart';
-import '../../../../data/models/farmer_model.dart';
-import '../../../../data/models/product_model.dart';
-import '../models/search_history_model.dart';
-import '../models/search_suggestion_model.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/search_history.dart';
 import '../../domain/entities/search_suggestion.dart';

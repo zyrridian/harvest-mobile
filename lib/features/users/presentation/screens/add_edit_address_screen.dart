@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
 import 'package:harvest_app/features/system/presentation/providers/master_provider.dart';
 import '../providers/address_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'map_picker_screen.dart';
 
 // --- DESIGN CONSTANTS ---
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
-const kAccentOrange = Color(0xFFE86A33);
+const kCream = Color(0xFFF0EAD6);
+const kAccentOrange = kDarkGreen;
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
 
@@ -200,17 +202,20 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
         backgroundColor: kBgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kDarkGreen),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+              color: kDarkGreen),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEdit ? 'Edit Address' : 'Add New Address',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: kDarkGreen,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
         ),
       ),
       body: Form(
@@ -223,24 +228,16 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               controller: _labelController,
               label: 'Address Label',
               hint: 'e.g. Home, Office',
-              icon: Icons.label_outline,
+              icon: PhosphorIconsRegular.tag,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Label is required' : null,
             ),
-            const SizedBox(height: 20),
-
-            // Contact Info Section
-            Text('Contact Info',
-                style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen)),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _recipientNameController,
               label: 'Recipient Name',
               hint: 'Full name',
-              icon: Icons.person_outline,
+              icon: PhosphorIconsRegular.user,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Recipient name is required' : null,
             ),
@@ -249,21 +246,12 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               controller: _phoneController,
               label: 'Phone Number',
               hint: '+62 812-xxxx-xxxx',
-              icon: Icons.phone_outlined,
+              icon: PhosphorIconsRegular.phone,
               keyboardType: TextInputType.phone,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Phone number is required' : null,
             ),
-            const SizedBox(height: 24),
-
-            // Location Section
-            Text('Location Details',
-                style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: kDarkGreen)),
             const SizedBox(height: 12),
-
             // Map Preview
             Container(
               height: 150,
@@ -308,25 +296,32 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
                       bottom: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                            ),
-                          ],
+                          // boxShadow: const [
+                          //   BoxShadow(
+                          //     color: Colors.black12,
+                          //     blurRadius: 4,
+                          //   ),
+                          // ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.edit_location_alt_outlined, size: 16, color: kDarkGreen),
+                            const PhosphorIcon(
+                                PhosphorIconsRegular.pencilSimple,
+                                size: 16,
+                                color: kDarkGreen),
                             const SizedBox(width: 4),
                             Text(
                               'Change',
-                              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: kDarkGreen),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: kDarkGreen),
                             ),
                           ],
                         ),
@@ -342,7 +337,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               controller: _fullAddressController,
               label: 'Street Address',
               hint: 'House number, street name',
-              icon: Icons.home_outlined,
+              icon: PhosphorIconsRegular.house,
               maxLines: 4,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Street address is required' : null,
@@ -408,12 +403,14 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
               controller: _notesController,
               label: 'Notes (Optional)',
               hint: 'Gate code, landmark, etc.',
-              icon: Icons.note_alt_outlined,
+              icon: PhosphorIconsRegular.note,
               maxLines: 4,
             ),
 
             SwitchListTile(
-              title: Text('Set as primary address', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: kDarkGreen)),
+              title: Text('Set as primary address',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600, color: kDarkGreen)),
               value: _isPrimary,
               onChanged: (val) => setState(() => _isPrimary = val),
               activeColor: kAccentOrange,
@@ -441,7 +438,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
                             color: Colors.white, strokeWidth: 2))
                     : Text(
                         isEdit ? 'Update Address' : 'Save Address',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -468,7 +465,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: kTextGrey,
@@ -483,17 +480,18 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
           readOnly: readOnly,
           onTap: onTap,
           textAlignVertical: TextAlignVertical.top,
-          style: GoogleFonts.inter(
-              color: kDarkGreen, fontWeight: FontWeight.w500),
+          style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+            hintStyle: TextStyle(color: Colors.grey[400]),
             filled: true,
             fillColor: Colors.white,
-            prefixIcon:
-                icon != null ? Icon(icon, color: kTextGrey, size: 20) : null,
+            prefixIcon: icon != null
+                ? PhosphorIcon(icon, color: kTextGrey, size: 20)
+                : null,
             suffixIcon: readOnly
-                ? const Icon(Icons.arrow_drop_down, color: kTextGrey)
+                ? const PhosphorIcon(PhosphorIconsRegular.caretDown,
+                    color: kTextGrey)
                 : null,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -541,14 +539,16 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading provinces: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading provinces: $e')));
       }
     }
   }
 
   Future<void> _showCitySelector() async {
     if (_provinceId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a province first')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a province first')));
       return;
     }
     try {
@@ -568,14 +568,16 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading cities: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading cities: $e')));
       }
     }
   }
 
   Future<void> _showDistrictSelector() async {
     if (_cityId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a city first')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a city first')));
       return;
     }
     try {
@@ -593,7 +595,8 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading districts: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading districts: $e')));
       }
     }
   }
@@ -602,28 +605,41 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
       Function(_SelectionItem) onSelect) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title,
-                style: GoogleFonts.inter(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: kDarkGreen)),
             const SizedBox(height: 16),
-            ...items.map((item) => ListTile(
-                  title: Text(item.label,
-                      style: GoogleFonts.inter(color: kDarkGreen)),
-                  onTap: () {
-                    onSelect(item);
-                    Navigator.pop(context);
-                  },
-                )),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return ListTile(
+                    title:
+                        Text(item.label, style: TextStyle(color: kDarkGreen)),
+                    onTap: () {
+                      onSelect(item);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -645,7 +661,7 @@ class _AddEditAddressScreenState extends ConsumerState<AddEditAddressScreen> {
         _latitude = result.latitude;
         _longitude = result.longitude;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Location updated successfully')),
       );

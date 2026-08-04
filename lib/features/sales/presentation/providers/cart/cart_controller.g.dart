@@ -131,7 +131,7 @@ final validateCartUsecaseProvider = AutoDisposeProvider<ValidateCart>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ValidateCartUsecaseRef = AutoDisposeProviderRef<ValidateCart>;
-String _$cartControllerHash() => r'3254b7c6baff37e162aeb8936e29917fb9042e5a';
+String _$cartControllerHash() => r'0e7328fcee9d47b1fccfef25cec73ef30d208cf4';
 
 /// See also [CartController].
 @ProviderFor(CartController)

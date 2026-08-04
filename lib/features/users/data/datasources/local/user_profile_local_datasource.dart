@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../../data/models/user_profile_model.dart';
+import '../../models/user_profile_model.dart';
 
 class UserProfileLocalDataSource {
   static const String _cacheKey = 'cached_user_profile';

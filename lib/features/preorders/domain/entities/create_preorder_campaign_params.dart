@@ -1,0 +1,56 @@
+import 'package:equatable/equatable.dart';
+
+class CreatePreorderCampaignParams extends Equatable {
+  final String title;
+  final String description;
+  final String unit;
+  final double pricePerUnit;
+  final int targetQuantity;
+  final DateTime estimatedHarvestDate;
+  final int minimumOrderQuantity;
+  final String status;
+  final List<String>? images;
+  final String? category;
+
+  const CreatePreorderCampaignParams({
+    required this.title,
+    required this.description,
+    required this.unit,
+    required this.pricePerUnit,
+    required this.targetQuantity,
+    required this.estimatedHarvestDate,
+    required this.minimumOrderQuantity,
+    this.status = 'ACTIVE',
+    this.images,
+    this.category,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "title": title,
+      "description": description,
+      "unit": unit,
+      "pricePerUnit": pricePerUnit,
+      "targetQuantity": targetQuantity,
+      "estimatedHarvestDate": estimatedHarvestDate.toIso8601String(),
+      "minimumOrderQuantity": minimumOrderQuantity,
+      "status": status,
+      if (images != null) "images": images,
+      if (category != null) "category": category,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        title,
+        description,
+        unit,
+        pricePerUnit,
+        targetQuantity,
+        estimatedHarvestDate,
+        minimumOrderQuantity,
+        status,
+        images,
+        category,
+      ];
+}

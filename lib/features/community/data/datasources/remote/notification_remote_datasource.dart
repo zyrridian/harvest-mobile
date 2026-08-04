@@ -1,4 +1,4 @@
-import '../../../../../data/models/notification_model.dart';
+import '../../../../notifications/data/models/notification_model.dart';
 
 abstract class NotificationRemoteDataSource {
   Future<NotificationListModel> getNotifications({

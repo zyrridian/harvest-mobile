@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
-import 'package:harvest_app/domain/entities/explore.dart';
-import 'package:harvest_app/domain/repositories/explore_repository.dart';
-import 'package:harvest_app/domain/usecases/explore/get_explore_data_usecase.dart';
-import 'package:harvest_app/data/repositories/explore_repository_impl.dart';
+import 'package:harvest_app/features/explore/domain/entities/explore.dart';
+import 'package:harvest_app/features/explore/domain/repositories/explore_repository.dart';
+import 'package:harvest_app/features/explore/domain/usecases/get_explore_data_usecase.dart';
+import 'package:harvest_app/features/explore/data/repositories/explore_repository_impl.dart';
 import 'package:harvest_app/features/explore/data/datasources/remote/explore_remote_datasource.dart';
 
 part 'explore_controller.freezed.dart';

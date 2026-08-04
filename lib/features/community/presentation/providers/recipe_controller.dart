@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
@@ -8,6 +7,8 @@ import 'package:harvest_app/features/community/data/repositories/recipe_reposito
 import 'package:harvest_app/features/community/domain/usecases/get_recipes_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/create_recipe_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/get_recipe_by_id_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/update_recipe_usecase.dart';
+import 'package:harvest_app/features/community/domain/usecases/delete_recipe_usecase.dart';
 import 'recipe_state.dart';
 
 part 'recipe_controller.g.dart';
@@ -20,12 +21,13 @@ class RecipeController extends _$RecipeController {
     return const RecipeState.loading();
   }
 
-  Future<void> _fetchRecipes({int page = 1}) async {
+  Future<void> _fetchRecipes({int page = 1, String? authorId}) async {
     state = const RecipeState.loading();
     final useCase = ref.read(getRecipesUseCaseProvider);
     final result = await useCase.call(
       page: page,
       limit: 20,
+      authorId: authorId,
     );
 
     result.fold(
@@ -34,8 +36,28 @@ class RecipeController extends _$RecipeController {
     );
   }
 
-  void refresh() {
-    _fetchRecipes();
+  void refresh({String? authorId}) {
+    _fetchRecipes(authorId: authorId);
+  }
+
+  Future<void> deleteRecipe(String id) async {
+    final useCase = ref.read(deleteRecipeUseCaseProvider);
+    final result = await useCase.call(id);
+    
+    result.fold(
+      (failure) {
+        // Handle failure if needed
+      },
+      (_) {
+        state.maybeWhen(
+          data: (data) {
+            final updatedRecipes = data.data.where((recipe) => recipe.id != id).toList();
+            state = RecipeState.data(data.copyWith(data: updatedRecipes));
+          },
+          orElse: () => refresh(),
+        );
+      },
+    );
   }
 }
 
@@ -67,4 +89,12 @@ final createRecipeUseCaseProvider = Provider<CreateRecipeUseCase>((ref) {
 
 final getRecipeByIdUseCaseProvider = Provider<GetRecipeByIdUseCase>((ref) {
   return GetRecipeByIdUseCase(ref.watch(recipeRepositoryProvider));
+});
+
+final updateRecipeUseCaseProvider = Provider<UpdateRecipeUseCase>((ref) {
+  return UpdateRecipeUseCase(ref.watch(recipeRepositoryProvider));
+});
+
+final deleteRecipeUseCaseProvider = Provider<DeleteRecipeUseCase>((ref) {
+  return DeleteRecipeUseCase(ref.watch(recipeRepositoryProvider));
 });

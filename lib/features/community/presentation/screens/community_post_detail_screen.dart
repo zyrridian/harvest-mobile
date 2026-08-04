@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
 import 'package:intl/intl.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/community_comment.dart';
 import '../providers/community_controller.dart';
 import '../providers/post_detail_controller.dart';
-import '../providers/community_controller.dart';
 
 class CommunityPostDetailScreen extends ConsumerStatefulWidget {
   final CommunityPost post;
@@ -166,9 +167,19 @@ class _CommunityPostDetailScreenState
   }
 
 
+  String? _getValidImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty || !url.startsWith('http')) return null;
+    return url;
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(postDetailControllerProvider(widget.post.id));
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.maybeWhen(
+      authenticated: (user) => user.id,
+      orElse: () => null,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -209,7 +220,7 @@ class _CommunityPostDetailScreenState
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             final comment = data.data[index];
-                            return _buildCommentThread(comment);
+                            return _buildCommentThread(comment, currentUserId);
                           },
                           childCount: data.data.length,
                         ),
@@ -255,36 +266,63 @@ class _CommunityPostDetailScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Author
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey.shade100,
-                backgroundImage: currentPost.user.avatarUrl != null
-                    ? NetworkImage(currentPost.user.avatarUrl!)
-                    : null,
-                child: currentPost.user.avatarUrl == null
-                    ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
-                    : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      currentPost.user.name,
-                      style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500, fontSize: 15),
-                    ),
-                    Text(
-                      _formatDate(currentPost.createdAt),
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: Colors.grey.shade500),
-                    ),
-                  ],
+          // Author
+          GestureDetector(
+            onTap: () {
+              if (currentPost.farmer != null) {
+                context.push(
+                  AppRouter.farmerDetail,
+                  extra: Farmer(
+                    id: currentPost.farmer!.id,
+                    userId: currentPost.userId,
+                    name: currentPost.farmer!.name,
+                    description: '',
+                    latitude: 0,
+                    longitude: 0,
+                    address: '',
+                    rating: 0,
+                    totalReviews: 0,
+                    totalProducts: 0,
+                    specialties: const [],
+                    isVerified: true,
+                    hasMapFeature: false,
+                    joinedDate: DateTime.now(),
+                    isOnline: false,
+                    profileImage: currentPost.farmer!.profileImage,
+                  ),
+                );
+              }
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.grey.shade100,
+                  backgroundImage: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) != null
+                      ? NetworkImage(_getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl)!)
+                      : null,
+                  child: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) == null
+                      ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
+                      : null,
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentPost.farmer?.name ?? currentPost.user.name,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 15),
+                      ),
+                      Text(
+                        _formatDate(currentPost.createdAt),
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade500),
+                      ),
+                    ],
+                  ),
+                ),
               if (isMyPost)
                 PopupMenuButton<String>(
                   icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
@@ -327,16 +365,17 @@ class _CommunityPostDetailScreenState
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+        ),
+        const SizedBox(height: 16),
 
           Text(
             currentPost.title,
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             currentPost.content,
-            style: GoogleFonts.inter(fontSize: 16, height: 1.5),
+            style: TextStyle(fontSize: 16, height: 1.5),
           ),
 
           if (currentPost.images.isNotEmpty) ...[
@@ -350,7 +389,7 @@ class _CommunityPostDetailScreenState
                             width: double.infinity, fit: BoxFit.cover),
                       ),
                     ))
-                .toList(),
+                ,
           ],
 
           if (currentPost.tags.isNotEmpty) ...[
@@ -360,7 +399,7 @@ class _CommunityPostDetailScreenState
               children: currentPost.tags
                   .map((t) => Text(
                         '#${t.tag}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             color: const Color(0xFF166534),
                             fontWeight: FontWeight.w500),
                       ))
@@ -415,17 +454,17 @@ class _CommunityPostDetailScreenState
     );
   }
 
-  Widget _buildCommentThread(CommunityComment comment) {
+  Widget _buildCommentThread(CommunityComment comment, String? currentUserId) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCommentItem(comment, isReply: false),
+        _buildCommentItem(comment, isReply: false, currentUserId: currentUserId),
         if (comment.replies.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 48.0), // Indent replies
             child: Column(
               children: comment.replies
-                  .map((reply) => _buildCommentItem(reply, isReply: true))
+                  .map((reply) => _buildCommentItem(reply, isReply: true, currentUserId: currentUserId))
                   .toList(),
             ),
           ),
@@ -433,7 +472,7 @@ class _CommunityPostDetailScreenState
     );
   }
 
-  Widget _buildCommentItem(CommunityComment comment, {required bool isReply}) {
+  Widget _buildCommentItem(CommunityComment comment, {required bool isReply, String? currentUserId}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 0 : 16, 16, 16, 8),
       child: Opacity(
@@ -461,17 +500,17 @@ class _CommunityPostDetailScreenState
                     children: [
                       Text(
                         comment.user.name,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 13),
                       ),
                       if (isReply && comment.replyToUser != null) ...[
                         Text(' replied to ',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontSize: 13, color: Colors.grey.shade600)),
                         Flexible(
                           child: Text(
                             '@${comment.replyToUser!.name}',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13,
                                 color: const Color(0xFF166534)),
@@ -482,7 +521,7 @@ class _CommunityPostDetailScreenState
                       const SizedBox(width: 8),
                       Text(
                         _formatDate(comment.createdAt),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                             fontSize: 12, color: Colors.grey.shade500),
                       ),
                     ],
@@ -490,7 +529,7 @@ class _CommunityPostDetailScreenState
                   const SizedBox(height: 4),
                   Text(
                     comment.content,
-                    style: GoogleFonts.inter(fontSize: 14, height: 1.4),
+                    style: TextStyle(fontSize: 14, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -522,7 +561,7 @@ class _CommunityPostDetailScreenState
                               const SizedBox(width: 4),
                               Text(
                                 '${comment.likesCount}',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 13,
                                   color: comment.isLikedByUser
                                       ? Colors.red
@@ -542,14 +581,15 @@ class _CommunityPostDetailScreenState
                                 size: 16, color: Colors.grey.shade500),
                             const SizedBox(width: 4),
                             Text('Reply',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                     fontSize: 13, color: Colors.grey.shade600)),
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
+                      if (comment.user.id == currentUserId)
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Delete Comment'),
@@ -612,10 +652,10 @@ class _CommunityPostDetailScreenState
               child: Row(
                 children: [
                   Text('Replying to ',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 12, color: Colors.grey.shade600)),
                   Text('@$_replyToUserName',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   GestureDetector(
@@ -639,7 +679,7 @@ class _CommunityPostDetailScreenState
                   controller: _commentController,
                   decoration: InputDecoration(
                     hintText: 'Write a comment...',
-                    hintStyle: GoogleFonts.inter(
+                    hintStyle: TextStyle(
                         color: Colors.grey.shade500, fontSize: 14),
                     filled: true,
                     fillColor: Colors.grey.shade100,

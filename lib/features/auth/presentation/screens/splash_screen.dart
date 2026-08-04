@@ -1,0 +1,169 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:harvest_app/features/auth/domain/entities/user.dart';
+import 'package:harvest_app/core/services/storage_service.dart';
+import '../../../../core/config/router/app_router.dart';
+import '../../../../core/config/theme/app_colors.dart';
+
+class SplashScreen extends ConsumerStatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
+    );
+
+    _animationController.forward();
+
+    // Initialize auth and navigate after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAndNavigate();
+    });
+  }
+
+  Future<void> _initializeAndNavigate() async {
+    // Wait for animation to complete and auth check
+    await Future.wait([
+      Future.delayed(const Duration(milliseconds: 2000)),
+      ref.read(authControllerProvider.notifier).checkAuthStatus(),
+    ]);
+
+    if (!mounted) return;
+
+    final isFirstLaunch = ref.read(preferencesServiceProvider).isFirstLaunch();
+
+    if (isFirstLaunch) {
+      // First time user, show onboarding
+      context.go(AppRouter.welcome);
+      return;
+    }
+
+    final authState = ref.read(authControllerProvider);
+
+    authState.maybeWhen(
+      authenticated: (user) {
+        if (user.userType == UserType.farmer) {
+          context.go(AppRouter.farmerDashboard);
+        } else {
+          context.go(AppRouter.main);
+        }
+      },
+      orElse: () => context.go(AppRouter.roleSelection),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Watch the provider to keep it alive during async operations
+    ref.watch(authControllerProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: child,
+              ),
+            );
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F5F2), // Light green tint
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Icon(
+                  Icons.agriculture,
+                  size: 70,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // App Name
+              const Text(
+                'Harvest',
+                style: TextStyle(
+                  fontSize: 42,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Tagline
+              Text(
+                'Fresh from the Farm',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF6E7A75), // kTextGrey
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              // Loading indicator
+              const SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

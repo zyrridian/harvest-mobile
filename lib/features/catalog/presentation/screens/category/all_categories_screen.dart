@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_products_screen.dart';
 
@@ -49,7 +48,7 @@ class AllCategoriesScreen extends ConsumerWidget {
             ),
             title: Text(
               'All Categories',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -63,7 +62,7 @@ class AllCategoriesScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
               child: Text(
                 'Browse through our diverse selection of fresh, locally-sourced products.',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 14,
                   color: kTextGrey,
                   height: 1.5,
@@ -108,7 +107,7 @@ class AllCategoriesScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load categories',
-                      style: GoogleFonts.inter(fontSize: 16, color: kTextGrey),
+                      style: TextStyle(fontSize: 16, color: kTextGrey),
                     ),
                   ],
                 ),
@@ -170,7 +169,7 @@ class AllCategoriesScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   '${category.productCount}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: kDarkGreen,
@@ -203,7 +202,7 @@ class AllCategoriesScreen extends ConsumerWidget {
                   // Name
                   Text(
                     category.name,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: kDarkGreen,
@@ -216,7 +215,7 @@ class AllCategoriesScreen extends ConsumerWidget {
                   // Description
                   Text(
                     category.description,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 11,
                       color: kTextGrey,
                       height: 1.3,

@@ -126,12 +126,13 @@ class CommunityUserModel {
 class CommunityFarmerModel {
   final String id;
   final String name;
-  final String? avatarUrl;
+  @JsonKey(name: 'profileImage')
+  final String? profileImage;
 
   const CommunityFarmerModel({
     required this.id,
     required this.name,
-    this.avatarUrl,
+    this.profileImage,
   });
 
   factory CommunityFarmerModel.fromJson(Map<String, dynamic> json) =>
@@ -143,7 +144,7 @@ class CommunityFarmerModel {
     return CommunityFarmer(
       id: id,
       name: name,
-      avatarUrl: avatarUrl,
+      profileImage: profileImage,
     );
   }
 
@@ -151,7 +152,7 @@ class CommunityFarmerModel {
     return CommunityFarmerModel(
       id: entity.id,
       name: entity.name,
-      avatarUrl: entity.avatarUrl,
+      profileImage: entity.profileImage,
     );
   }
 }

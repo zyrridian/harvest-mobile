@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
-import 'package:harvest_app/presentation/providers/utility_providers.dart';
+import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 
 class CreateRecipeScreen extends ConsumerStatefulWidget {
   const CreateRecipeScreen({super.key});
@@ -180,7 +179,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
         ),
         title: Text(
           'Create Recipe',
-          style: GoogleFonts.inter(
+          style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -232,7 +231,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
                             children: [
                               Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey.shade400),
                               const SizedBox(height: 8),
-                              Text('Add Recipe Photo', style: GoogleFonts.inter(color: Colors.grey.shade500)),
+                              Text('Add Recipe Photo', style: TextStyle(color: Colors.grey.shade500)),
                             ],
                           )
                         : null,
@@ -334,7 +333,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
             const SizedBox(height: 16),
 
             // Ingredients
-            Text('Ingredients', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Ingredients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ..._ingredients.asMap().entries.map((entry) {
               final idx = entry.key;
@@ -378,7 +377,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
             TextButton.icon(
               onPressed: _addIngredientRow,
               icon: const Icon(Icons.add, color: Color(0xFF166534)),
-              label: Text('Add Ingredient', style: GoogleFonts.inter(color: const Color(0xFF166534))),
+              label: Text('Add Ingredient', style: TextStyle(color: const Color(0xFF166534))),
             ),
 
             const SizedBox(height: 32),
@@ -386,7 +385,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
             const SizedBox(height: 16),
 
             // Instructions
-            Text('Instructions', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Instructions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ..._instructionControllers.asMap().entries.map((entry) {
               final idx = entry.key;
@@ -405,7 +404,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Text('${idx + 1}', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12)),
+                        child: Text('${idx + 1}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -427,7 +426,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
             TextButton.icon(
               onPressed: _addInstructionRow,
               icon: const Icon(Icons.add, color: Color(0xFF166534)),
-              label: Text('Add Step', style: GoogleFonts.inter(color: const Color(0xFF166534))),
+              label: Text('Add Step', style: TextStyle(color: const Color(0xFF166534))),
             ),
             const SizedBox(height: 40),
           ],
@@ -441,7 +440,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         text,
-        style: GoogleFonts.inter(fontWeight: FontWeight.w500, color: Colors.black87),
+        style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
       ),
     );
   }
@@ -449,7 +448,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
+      hintStyle: TextStyle(color: Colors.grey.shade400),
       filled: true,
       fillColor: Colors.grey.shade50,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

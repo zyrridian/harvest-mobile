@@ -6,17 +6,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:harvest_app/domain/entities/marketplace.dart';
+import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart';
 import 'package:harvest_app/features/storefront/data/datasources/local/marketplace_local_datasource.dart';
 import 'package:harvest_app/features/storefront/data/datasources/remote/marketplace_remote_datasource.dart';
-import 'package:harvest_app/data/repositories/marketplace_repository_impl.dart';
-import 'package:harvest_app/domain/repositories/marketplace_repository.dart';
+import 'package:harvest_app/features/storefront/data/repositories/marketplace_repository_impl.dart';
+import 'package:harvest_app/features/storefront/domain/repositories/marketplace_repository.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/get_products_usecase.dart';
 import 'package:harvest_app/features/sales/domain/usecases/cart/add_to_cart_usecase.dart';
-import 'package:harvest_app/domain/usecases/marketplace/get_marketplace_data_usecase.dart';
+import 'package:harvest_app/features/storefront/domain/usecases/get_marketplace_data_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/add_favorite_usecase.dart';
 import 'package:harvest_app/features/catalog/domain/usecases/product/remove_favorite_usecase.dart';
-import 'package:harvest_app/presentation/features/product/providers/product_detail_controller.dart';
+import 'package:harvest_app/features/catalog/presentation/providers/product/product_detail_controller.dart';
 import 'marketplace_state.dart';
 
 part 'marketplace_controller.g.dart';
@@ -71,6 +71,23 @@ final getProductsUseCaseProvider = Provider<GetProductsUseCase>((ref) {
 class MarketplaceController extends _$MarketplaceController {
   @override
   MarketplaceState build() {
+    ref.listen(cartControllerProvider, (previous, next) {
+      next.maybeWhen(
+        data: (cart) {
+          state.maybeWhen(
+            data: (data) {
+              state = MarketplaceState.data(data.copyWith(
+                cartItemCount: cart.summary.totalItems,
+                cartTotal: cart.summary.subtotal.toDouble(),
+              ));
+            },
+            orElse: () {},
+          );
+        },
+        orElse: () {},
+      );
+    });
+    
     Future.microtask(() => _fetchData());
     return const MarketplaceState.loading();
   }
@@ -189,6 +206,9 @@ class MarketplaceController extends _$MarketplaceController {
             // Error handling: optionally revert the state or show an error message
           },
           (cartData) {
+            // Refresh cart state to update the CartScreen with new items
+            ref.read(cartControllerProvider.notifier).refresh();
+            
             // Update state with actual data from backend if needed
             state = state.maybeMap(
               data: (curr) => MarketplaceState.data(curr.data.copyWith(

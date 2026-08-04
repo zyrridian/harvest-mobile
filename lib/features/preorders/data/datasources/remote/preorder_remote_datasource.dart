@@ -1,63 +1,37 @@
 import 'package:dio/dio.dart';
-import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
-import 'package:harvest_app/data/models/preorder/preorder_model.dart';
-import 'package:harvest_app/data/models/preorder/preorder_response_model.dart';
-import 'package:harvest_app/data/models/preorder/campaign_model.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/data/models/farmer_preorder_campaign_detail_model.dart';
+import 'package:harvest_app/features/preorders/data/models/farmer_preorder_campaign_model.dart';
+import 'package:harvest_app/features/preorders/data/models/preorder_model.dart';
+import 'package:harvest_app/features/preorders/data/models/campaign_model.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 
 abstract class PreOrderRemoteDataSource {
-  Future<PreOrderModel> getPreOrderData({double? latitude, double? longitude});
-  
   // New endpoints
-  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params);
-  Future<List<PreorderCampaignModel>> getActiveCampaigns();
-  Future<List<PreorderCampaignModel>> getMyCampaigns();
-  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId);
-  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod);
+  Future<PreorderCampaignModel> getCampaignDetail(String id);
+  Future<PreorderCampaignModel> createCampaign(
+      CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> updateCampaign(
+      String id, CreatePreorderCampaignParams params);
+  Future<PreorderCampaignModel> updateCampaignStatus(String id, String status);
+  Future<void> deleteCampaign(String id);
+  Future<List<PreorderCampaignModel>> getActiveCampaigns(
+      {String? filter, double? latitude, double? longitude});
+  Future<List<FarmerPreorderCampaignModel>> getMyCampaigns();
+  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(String id);
+  Future<List<PreOrderReservationModel>> getMyReservations();
+  Future<Map<String, dynamic>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId);
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
+  Future<Map<String, dynamic>> completeReservation(String id);
+  Future<Map<String, dynamic>> fulfillCampaign(String id);
 }
 
 class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   final Dio dio;
 
   PreOrderRemoteDataSourceImpl(this.dio);
-
-  @override
-  Future<PreOrderModel> getPreOrderData({double? latitude, double? longitude}) async {
-    try {
-      final Map<String, dynamic> queryParameters = {};
-      if (latitude != null) queryParameters['latitude'] = latitude;
-      if (longitude != null) queryParameters['longitude'] = longitude;
-
-      final response = await dio.get(
-        AppConstants.getPreorderDashboardEndpoint,
-        queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
-      );
-
-      if (response.statusCode == 200) {
-        final apiResponse = PreOrderApiResponse.fromJson(response.data);
-        if (apiResponse.isSuccess && apiResponse.data != null) {
-          return apiResponse.data!;
-        } else {
-          throw ServerException(
-            apiResponse.message ?? 'Failed to get preorder data',
-            statusCode: response.statusCode,
-          );
-        }
-      } else {
-        throw ServerException(
-          'Failed to get preorder data',
-          statusCode: response.statusCode,
-        );
-      }
-    } on DioException catch (e) {
-      throw _handleDioException(e);
-    } catch (e) {
-      throw ServerException('An unexpected error occurred: $e');
-    }
-  }
 
   ServerException _handleDioException(DioException e) {
     switch (e.type) {
@@ -89,7 +63,24 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
   }
 
   @override
-  Future<PreorderCampaignModel> createCampaign(CreatePreorderCampaignParams params) async {
+  Future<PreorderCampaignModel> getCampaignDetail(String id) async {
+    try {
+      final response = await dio.get('/preorders/campaigns/$id');
+      if (response.data['status'] == 'success') {
+        return PreorderCampaignModel.fromJson(response.data['data']);
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaign');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<PreorderCampaignModel> createCampaign(
+      CreatePreorderCampaignParams params) async {
     try {
       final response = await dio.post(
         '/preorders/campaigns',
@@ -98,44 +89,156 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       if (response.data['status'] == 'success') {
         return PreorderCampaignModel.fromJson(response.data['data']);
       }
-      throw ServerException('Failed to create campaign');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to create campaign');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to create campaign: $e');
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 
   @override
-  Future<List<PreorderCampaignModel>> getActiveCampaigns() async {
+  Future<PreorderCampaignModel> updateCampaign(
+      String id, CreatePreorderCampaignParams params) async {
     try {
-      final response = await dio.get('/preorders/campaigns');
+      final response = await dio.put(
+        '/preorders/campaigns/$id',
+        data: params.toJson(),
+      );
+      if (response.data['status'] == 'success') {
+        return PreorderCampaignModel.fromJson(response.data['data']);
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to update campaign');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<PreorderCampaignModel> updateCampaignStatus(
+      String id, String status) async {
+    try {
+      final response = await dio.put(
+        '/preorders/campaigns/$id',
+        data: {'status': status},
+      );
+      if (response.data['status'] == 'success' ||
+          response.data['success'] == true) {
+        return PreorderCampaignModel.fromJson(response.data['data']);
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to update campaign status');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteCampaign(String id) async {
+    try {
+      final response = await dio.delete('/preorders/campaigns/$id');
+      if (response.data['status'] == 'success' ||
+          response.data['success'] == true) {
+        return;
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to delete campaign');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<List<PreorderCampaignModel>> getActiveCampaigns(
+      {String? filter, double? latitude, double? longitude}) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (filter != null && filter.toLowerCase() != 'all')
+        queryParams['filter'] = filter;
+      if (latitude != null) queryParams['latitude'] = latitude;
+      if (longitude != null) queryParams['longitude'] = longitude;
+
+      final response =
+          await dio.get('/preorders/campaigns', queryParameters: queryParams);
       if (response.data['status'] == 'success') {
         return (response.data['data'] as List)
             .map((e) => PreorderCampaignModel.fromJson(e))
             .toList();
       }
-      throw ServerException('Failed to load campaigns');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaigns');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to load campaigns: $e');
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 
   @override
-  Future<List<PreorderCampaignModel>> getMyCampaigns() async {
+  Future<List<FarmerPreorderCampaignModel>> getMyCampaigns() async {
     try {
       final response = await dio.get('/preorders/campaigns/me');
       if (response.data['status'] == 'success') {
         return (response.data['data'] as List)
-            .map((e) => PreorderCampaignModel.fromJson(e))
+            .map((e) => FarmerPreorderCampaignModel.fromJson(e))
             .toList();
       }
-      throw ServerException('Failed to load campaigns');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaigns');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to load campaigns: $e');
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 
   @override
-  Future<Map<String, dynamic>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId) async {
+  Future<FarmerPreorderCampaignDetailModel> getFarmerCampaignDetail(
+      String id) async {
+    try {
+      final response = await dio.get('/preorders/campaigns/me/$id');
+      if (response.data['status'] == 'success') {
+        return FarmerPreorderCampaignDetailModel.fromJson(
+            response.data['data']);
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load campaign detail');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<List<PreOrderReservationModel>> getMyReservations() async {
+    try {
+      final response = await dio.get('/preorders/reservations');
+      if (response.data['status'] == 'success') {
+        return (response.data['data'] as List)
+            .map((e) => PreOrderReservationModel.fromJson(e))
+            .toList();
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to load reservations');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId) async {
     try {
       final response = await dio.post(
         '/preorders/campaigns/$id/reserve',
@@ -146,43 +249,34 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
         },
       );
       if (response.data['status'] == 'success') {
-        return response.data['data'];
+        return response.data['data'] ?? {};
       }
-      throw ServerException('Failed to reserve spot');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to reserve spot');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to reserve spot: $e');
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 
   @override
-  Future<Map<String, dynamic>> payDeposit(String id, String paymentMethod) async {
-    try {
-      final response = await dio.post(
-        '/preorders/reservations/$id/pay',
-        data: {'paymentMethod': paymentMethod},
-      );
-      if (response.data['status'] == 'success') {
-        return response.data['data'];
-      }
-      throw ServerException('Failed to pay deposit');
-    } catch (e) {
-      throw ServerException('Failed to pay deposit: $e');
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime) async {
+  Future<Map<String, dynamic>> arrangePickup(
+      String id, DateTime pickupTime) async {
     try {
       final response = await dio.post(
         '/preorders/reservations/$id/pickup',
         data: {'pickup_time': pickupTime.toIso8601String()},
       );
       if (response.data['status'] == 'success') {
-        return response.data['data'];
+        return response.data['data'] ?? {};
       }
-      throw ServerException('Failed to arrange pickup');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to arrange pickup');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to arrange pickup: $e');
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 
@@ -191,12 +285,46 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
     try {
       final response = await dio.post('/preorders/reservations/$id/cancel');
       if (response.data['status'] == 'success') {
-        return response.data['data'];
+        return response.data['data'] ?? {};
       }
-      throw ServerException('Failed to cancel reservation');
+      throw ServerException(
+          response.data['message'] ?? 'Failed to cancel reservation');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
     } catch (e) {
-      throw ServerException('Failed to cancel reservation: $e');
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> completeReservation(String id) async {
+    try {
+      final response = await dio.patch('/preorders/reservations/$id/complete');
+      if (response.data['status'] == 'success') {
+        return response.data['data'] ?? {};
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to complete reservation');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> fulfillCampaign(String id) async {
+    try {
+      final response = await dio.post('/preorders/campaigns/$id/fulfill');
+      if (response.data['status'] == 'success') {
+        return response.data ?? {};
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to fulfill campaign');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 }
-

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 
 abstract class RecipeRepository {
@@ -16,4 +16,8 @@ abstract class RecipeRepository {
   Future<Either<Failure, Recipe>> getRecipeById(String id);
 
   Future<Either<Failure, Recipe>> createRecipe(Map<String, dynamic> data);
+
+  Future<Either<Failure, Recipe>> updateRecipe(String id, Map<String, dynamic> data);
+
+  Future<Either<Failure, void>> deleteRecipe(String id);
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 const _kDarkGreen = Color(0xFF1A2F25);
@@ -157,7 +156,7 @@ class _QuickActionButtonState extends State<_QuickActionButton>
                       ),
                       child: Text(
                         action.badge!,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -172,7 +171,7 @@ class _QuickActionButtonState extends State<_QuickActionButton>
             Text(
               action.label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: _kDarkGreen,

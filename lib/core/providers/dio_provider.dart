@@ -47,6 +47,14 @@ final dioProvider = Provider<Dio>((ref) {
       onError: (error, handler) async {
         // Handle 401 Unauthorized
         if (error.response?.statusCode == 401) {
+          final path = error.requestOptions.path;
+          
+          // Don't intercept auth errors on login/register endpoints
+          if (path.contains(AppConstants.loginEndpoint) || 
+              path.contains(AppConstants.registerEndpoint)) {
+            return handler.next(error);
+          }
+
           final storage = ref.read(secureStorageProvider);
           final refreshToken = await storage.read(key: AppConstants.refreshTokenKey);
 

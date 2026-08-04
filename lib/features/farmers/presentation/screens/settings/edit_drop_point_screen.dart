@@ -1,0 +1,506 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/features/farmers/domain/entities/drop_point.dart';
+import 'package:harvest_app/features/farmers/presentation/providers/settings/drop_points_controller.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest_app/features/users/presentation/screens/map_picker_screen.dart';
+import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
+import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
+
+const kBgColor = Color(0xFFF7F9F8);
+const kDarkGreen = Color(0xFF1A2F25);
+const kPrimaryGreen = Color(0xFF2D4A3E);
+const kAccentOrange = Color(0xFFE86A33);
+const kBorderColor = Color(0xFFE5E7EB);
+
+class EditDropPointScreen extends ConsumerStatefulWidget {
+  final DropPoint? dropPoint;
+
+  const EditDropPointScreen({super.key, this.dropPoint});
+
+  @override
+  ConsumerState<EditDropPointScreen> createState() => _EditDropPointScreenState();
+}
+
+class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
+  final _formKey = GlobalKey<FormState>();
+  
+  late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _whatWeSellController;
+  late TextEditingController _addressController;
+  late TextEditingController _tagsController;
+  late TextEditingController _operatingHoursController;
+  
+  double _latitude = -6.1944;
+  double _longitude = 106.8229;
+  String? _imagePath;
+  
+  bool _isActive = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.dropPoint?.name ?? '');
+    _descriptionController = TextEditingController(text: widget.dropPoint?.description ?? '');
+    _whatWeSellController = TextEditingController(text: widget.dropPoint?.whatWeSell ?? '');
+    _addressController = TextEditingController(text: widget.dropPoint?.address ?? '');
+    _tagsController = TextEditingController(text: widget.dropPoint?.tags.join(', ') ?? '');
+    _operatingHoursController = TextEditingController(text: widget.dropPoint?.operatingHours ?? '');
+    
+    if (widget.dropPoint != null) {
+      _latitude = widget.dropPoint!.latitude;
+      _longitude = widget.dropPoint!.longitude;
+      _imagePath = widget.dropPoint!.imageUrl;
+    }
+    _isActive = widget.dropPoint?.isActive ?? true;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _whatWeSellController.dispose();
+    _addressController.dispose();
+    _tagsController.dispose();
+    _operatingHoursController.dispose();
+    super.dispose();
+  }
+
+  void _submit() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+
+      String? finalImageUrl = _imagePath;
+
+      if (_imagePath != null && !_imagePath!.startsWith('http')) {
+        final uploadUseCase = ref.read(uploadFileUseCaseProvider);
+        final result = await uploadUseCase(File(_imagePath!));
+
+        bool uploadFailed = false;
+        result.fold(
+          (failure) {
+            uploadFailed = true;
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to upload image: ${failure.toString()}')),
+              );
+            }
+          },
+          (uploadedFile) {
+            finalImageUrl = uploadedFile.url;
+          },
+        );
+
+        if (uploadFailed) {
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
+
+      final tagsList = _tagsController.text
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      final newDropPoint = DropPoint(
+        id: widget.dropPoint?.id ?? '',
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        whatWeSell: _whatWeSellController.text.trim(),
+        latitude: _latitude,
+        longitude: _longitude,
+        address: _addressController.text.trim(),
+        imageUrl: finalImageUrl,
+        isActive: _isActive,
+        tags: tagsList,
+        operatingHours: _operatingHoursController.text.trim(),
+      );
+
+      bool success;
+      if (widget.dropPoint == null) {
+        success = await ref.read(dropPointsControllerProvider.notifier).createDropPoint(newDropPoint);
+      } else {
+        success = await ref.read(dropPointsControllerProvider.notifier).updateDropPoint(widget.dropPoint!.id, newDropPoint);
+      }
+
+      setState(() => _isLoading = false);
+
+      if (success) {
+        if (mounted) context.pop();
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to save drop point')),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEditing = widget.dropPoint != null;
+
+    return Scaffold(
+      backgroundColor: kBgColor,
+      appBar: AppBar(
+        title: Text(
+          isEditing ? 'Edit Drop Point' : 'New Drop Point',
+          style: TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: kDarkGreen),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSwitchTile(
+                title: 'Drop Point Active',
+                subtitle: 'Customers can see and select this location.',
+                value: _isActive,
+                onChanged: (val) => setState(() => _isActive = val),
+              ),
+              const SizedBox(height: 24),
+              _buildTextField(
+                controller: _nameController,
+                label: 'Name',
+                icon: PhosphorIconsRegular.storefront,
+                hint: 'e.g. Downtown Farmers Market',
+                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _descriptionController,
+                label: 'Description',
+                icon: PhosphorIconsRegular.textAa,
+                maxLines: 3,
+                hint: 'e.g. Find us near the west entrance.',
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _whatWeSellController,
+                label: 'What we sell here',
+                icon: PhosphorIconsRegular.package,
+                hint: 'e.g. Only vegetables and fruits',
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _addressController,
+                label: 'Full Address',
+                icon: PhosphorIconsRegular.mapPin,
+                maxLines: 2,
+                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              // Map Preview
+              Text(
+                'Location',
+                style: TextStyle(
+                  color: kDarkGreen,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: kBorderColor),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        key: ValueKey('$_latitude-$_longitude'),
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(_latitude, _longitude),
+                          zoom: 15,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('preview'),
+                            position: LatLng(_latitude, _longitude),
+                          ),
+                        },
+                        zoomControlsEnabled: false,
+                        scrollGesturesEnabled: false,
+                        tiltGesturesEnabled: false,
+                        rotateGesturesEnabled: false,
+                        zoomGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        mapToolbarEnabled: false,
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _showLocationPicker,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 16, color: kDarkGreen),
+                              const SizedBox(width: 4),
+                              Text('Change', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: kDarkGreen)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _operatingHoursController,
+                label: 'Operating Hours',
+                icon: PhosphorIconsRegular.clock,
+                hint: 'e.g. 08:00 AM - 05:00 PM',
+                readOnly: true,
+                onTap: _showOperatingHoursPicker,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _tagsController,
+                label: 'Tags (Comma separated)',
+                icon: PhosphorIconsRegular.tag,
+                hint: 'e.g. Organic, Weekend',
+              ),
+              const SizedBox(height: 16),
+              // Image Upload
+              Text(
+                'Branch Photo',
+                style: TextStyle(
+                  color: kDarkGreen,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                    setState(() => _imagePath = path);
+                  });
+                },
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kBorderColor),
+                  ),
+                  child: _imagePath != null && _imagePath!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: _imagePath!.startsWith('http')
+                              ? Image.network(_imagePath!, fit: BoxFit.cover)
+                              : Image.file(File(_imagePath!), fit: BoxFit.cover),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(PhosphorIconsRegular.image, size: 40, color: Colors.grey.shade400),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to upload a photo',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryGreen,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          'Save Drop Point',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: kBorderColor),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
+        value: value,
+        activeColor: kAccentOrange,
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    String? hint,
+    String? Function(String?)? validator,
+    bool readOnly = false,
+    VoidCallback? onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: kDarkGreen,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          validator: validator,
+          readOnly: readOnly,
+          onTap: onTap,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.grey.shade500) : null,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kBorderColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kBorderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kPrimaryGreen),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showLocationPicker() async {
+    final result = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: LatLng(_latitude, _longitude),
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location updated successfully')),
+      );
+    }
+  }
+
+  Future<void> _showOperatingHoursPicker() async {
+    final openTime = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 8, minute: 0),
+      helpText: 'Select Opening Time',
+    );
+    if (openTime == null || !mounted) return;
+
+    final closeTime = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 17, minute: 0),
+      helpText: 'Select Closing Time',
+    );
+    if (closeTime == null || !mounted) return;
+
+    final openStr = openTime.format(context);
+    final closeStr = closeTime.format(context);
+    setState(() {
+      _operatingHoursController.text = '$openStr - $closeStr';
+    });
+  }
+}

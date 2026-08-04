@@ -109,6 +109,8 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Either<Failure, void>> submitProductReview({
     required String productId,
+    required String orderId,
+    required String title,
     required String content,
     required int rating,
     List<String> images = const [],
@@ -116,6 +118,8 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       await remoteDataSource.submitProductReview(
         productId: productId,
+        orderId: orderId,
+        title: title,
         content: content,
         rating: rating,
         images: images,

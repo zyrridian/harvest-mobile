@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:harvest_app/domain/entities/address.dart';
+import 'package:harvest_app/features/users/domain/entities/address.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../domain/repositories/address_repository.dart';
@@ -135,10 +135,10 @@ class AddressRepositoryImpl implements AddressRepository {
   }
 
   @override
-  Future<Either<Failure, Address>> setPrimaryAddress(String addressId) async {
+  Future<Either<Failure, void>> setPrimaryAddress(String addressId) async {
     try {
-      final response = await remoteDataSource.setPrimaryAddress(addressId);
-      return Right(response.toEntity());
+      await remoteDataSource.setPrimaryAddress(addressId);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message ?? 'Failed to set primary address'));
     } catch (e) {

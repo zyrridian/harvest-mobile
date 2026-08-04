@@ -12,12 +12,12 @@ ConversationParticipantModel _$ConversationParticipantModelFromJson(
       userId: json['user_id'] as String,
       name: json['name'] as String,
       profilePicture: json['profile_picture'] as String?,
-      userType: json['user_type'] as String,
-      isOnline: json['is_online'] as bool,
+      userType: json['user_type'] as String? ?? 'unknown',
+      isOnline: json['is_online'] as bool? ?? false,
       lastSeen: json['last_seen'] == null
           ? null
           : DateTime.parse(json['last_seen'] as String),
-      verified: json['verified'] as bool,
+      verified: json['verified'] as bool? ?? false,
       responseRate: (json['response_rate'] as num?)?.toInt(),
       responseTime: json['response_time'] as String?,
     );

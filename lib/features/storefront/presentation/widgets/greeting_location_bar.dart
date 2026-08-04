@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _kDarkGreen = Color(0xFF1A2F25);
 const _kSage = Color(0xFF7C9070);
@@ -50,7 +49,7 @@ class GreetingLocationBar extends StatelessWidget {
               children: [
                 Text(
                   '${_getGreeting()}, ${userName ?? 'Farmer'}! ${_getGreetingEmoji()}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: _kDarkGreen,
@@ -59,7 +58,7 @@ class GreetingLocationBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'What are you looking for today?',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 12,
                     color: _kSage,
                   ),
@@ -86,7 +85,7 @@ class GreetingLocationBar extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     locationName ?? 'Set location',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: _kTerra,

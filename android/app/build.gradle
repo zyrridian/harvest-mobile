@@ -3,6 +3,7 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
 // 1. Put the logic to READ the key here (BEFORE the 'android' block)
@@ -25,6 +26,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -46,6 +48,7 @@ android {
         // manifestPlaceholders = [MAPS_API_KEY: mapsApiKey]
         // 2. Use += to ADD your key to the map
         manifestPlaceholders += [MAPS_API_KEY: mapsApiKey]
+        // multiDexEnabled true
     }
 
     buildTypes {
@@ -59,4 +62,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }

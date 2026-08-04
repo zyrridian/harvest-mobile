@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:harvest_app/features/community/domain/entities/community_post.dart';
-import 'package:harvest_app/domain/entities/paginated_response.dart';
+import 'package:harvest_app/core/models/paginated_response.dart';
 
 part 'community_state.freezed.dart';
 

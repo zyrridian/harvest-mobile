@@ -1,12 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:harvest_app/core/error/exceptions.dart';
 import 'package:harvest_app/core/error/failure.dart';
-import 'package:harvest_app/domain/entities/preorder_campaign.dart';
-import 'package:harvest_app/domain/entities/create_preorder_campaign_params.dart';
+import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign_detail.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
+import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
 import 'package:harvest_app/features/preorders/data/datasources/local/preorder_local_datasource.dart';
 import 'package:harvest_app/features/preorders/data/datasources/remote/preorder_remote_datasource.dart';
-import 'package:harvest_app/domain/entities/preorder.dart';
-import 'package:harvest_app/data/models/preorder/campaign_model.dart';
+import 'package:harvest_app/features/preorders/domain/entities/preorder.dart';
 import 'package:harvest_app/features/preorders/domain/repositories/preorder_repository.dart';
 
 class PreorderRepositoryImpl implements PreorderRepository {
@@ -19,38 +20,17 @@ class PreorderRepositoryImpl implements PreorderRepository {
   });
 
   @override
-  Future<Either<Failure, PreOrderResponseEntity>> getPreorderData({
-    double? latitude,
-    double? longitude,
-  }) async {
+  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns(
+      {String? filter, double? latitude, double? longitude}) async {
     try {
-      // Always try to fetch fresh data from remote first
-      final remoteData = await remoteDataSource.getPreOrderData(
-        latitude: latitude,
-        longitude: longitude,
-      );
-
-      // Save to local storage for offline fallback
-      await localDataSource.savePreorderData(remoteData);
-
-      return Right(remoteData.toEntity());
+      final campaigns = await remoteDataSource.getActiveCampaigns(
+          filter: filter, latitude: latitude, longitude: longitude);
+      return Right(campaigns);
     } catch (e) {
-      // If remote fails (e.g. no internet), try to get from local cache
-      try {
-        final localData = await localDataSource.getPreorderData();
-        if (localData != null) {
-          return Right(localData.toEntity());
-        }
-      } catch (_) {
-        // Ignore local cache error, handle the remote error below
-      }
-
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
       } else if (e is NetworkException) {
         return Left(NetworkFailure(e.message));
-      } else if (e is AuthException) {
-        return Left(AuthFailure(e.message, statusCode: e.statusCode));
       } else {
         return Left(UnexpectedFailure('An unexpected error occurred: $e'));
       }
@@ -58,10 +38,10 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, List<PreorderCampaign>>> getActiveCampaigns() async {
+  Future<Either<Failure, PreorderCampaign>> getCampaignDetail(String id) async {
     try {
-      final campaigns = await remoteDataSource.getActiveCampaigns();
-      return Right(campaigns);
+      final campaign = await remoteDataSource.getCampaignDetail(id);
+      return Right(campaign);
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
@@ -80,7 +60,8 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }) async {
     try {
       // Default to PICKUP as required by API for now.
-      final result = await remoteDataSource.reserveSpot(harvestId, quantity, 'PICKUP', null);
+      final result = await remoteDataSource.reserveSpot(
+          harvestId, quantity, 'PICKUP', null);
       return Right(result);
     } catch (e) {
       if (e is ServerException) {
@@ -94,7 +75,8 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, PreorderCampaign>> createCampaign(CreatePreorderCampaignParams params) async {
+  Future<Either<Failure, PreorderCampaign>> createCampaign(
+      CreatePreorderCampaignParams params) async {
     try {
       final result = await remoteDataSource.createCampaign(params);
       return Right(result);
@@ -110,10 +92,60 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, List<PreorderCampaign>>> getMyCampaigns() async {
+  Future<Either<Failure, PreorderCampaign>> updateCampaign(
+      String id, CreatePreorderCampaignParams params) async {
+    try {
+      final result = await remoteDataSource.updateCampaign(id, params);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, PreorderCampaign>> updateCampaignStatus(
+      String id, String status) async {
+    try {
+      final result = await remoteDataSource.updateCampaignStatus(id, status);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteCampaign(String id) async {
+    try {
+      await remoteDataSource.deleteCampaign(id);
+      return const Right(null);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<FarmerPreorderCampaign>>> getMyCampaigns() async {
     try {
       final result = await remoteDataSource.getMyCampaigns();
-      return Right(result);
+      return Right(result.map((model) => model.toEntity()).toList());
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
@@ -126,10 +158,11 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> reserveSpot(String id, int quantity, String deliveryMethod, String? addressId) async {
+  Future<Either<Failure, FarmerPreorderCampaignDetail>> getFarmerCampaignDetail(
+      String id) async {
     try {
-      final result = await remoteDataSource.reserveSpot(id, quantity, deliveryMethod, addressId);
-      return Right(result);
+      final result = await remoteDataSource.getFarmerCampaignDetail(id);
+      return Right(result.toEntity());
     } catch (e) {
       if (e is ServerException) {
         return Left(ServerFailure(e.message, statusCode: e.statusCode));
@@ -142,9 +175,28 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> payDeposit(String id, String paymentMethod) async {
+  Future<Either<Failure, List<PreOrderReservation>>> getMyReservations() async {
     try {
-      final result = await remoteDataSource.payDeposit(id, paymentMethod);
+      final models = await remoteDataSource.getMyReservations();
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Right(entities);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> reserveSpot(
+      String id, int quantity, String deliveryMethod, String? addressId) async {
+    try {
+      final result = await remoteDataSource.reserveSpot(
+          id, quantity, deliveryMethod, addressId);
       return Right(result);
     } catch (e) {
       if (e is ServerException) {
@@ -158,7 +210,8 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> arrangePickup(String id, DateTime pickupTime) async {
+  Future<Either<Failure, Map<String, dynamic>>> arrangePickup(
+      String id, DateTime pickupTime) async {
     try {
       final result = await remoteDataSource.arrangePickup(id, pickupTime);
       return Right(result);
@@ -174,9 +227,44 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> cancelReservation(String id) async {
+  Future<Either<Failure, Map<String, dynamic>>> cancelReservation(
+      String id) async {
     try {
       final result = await remoteDataSource.cancelReservation(id);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> completeReservation(
+      String id) async {
+    try {
+      final result = await remoteDataSource.completeReservation(id);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> fulfillCampaign(
+      String id) async {
+    try {
+      final result = await remoteDataSource.fulfillCampaign(id);
       return Right(result);
     } catch (e) {
       if (e is ServerException) {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
-import 'package:harvest_app/features/auth/presentation/providers/auth_role_provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -31,17 +30,13 @@ class RoleSelectionScreen extends ConsumerWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF2D4A3E), Color(0xFF1A2F25)],
-                    ),
+                    color: const Color(0xFFF0F5F2), // Light green tint
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
                     Icons.agriculture,
                     size: 50,
-                    color: Colors.white,
+                    color: kDarkGreen,
                   ),
                 ),
               ),
@@ -49,7 +44,7 @@ class RoleSelectionScreen extends ConsumerWidget {
               
               Text(
                 'How do you want to use Harvest?',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: kDarkGreen,
@@ -60,7 +55,7 @@ class RoleSelectionScreen extends ConsumerWidget {
               
               Text(
                 'Select your role to continue',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 16,
                   color: kTextGrey,
                 ),
@@ -72,10 +67,9 @@ class RoleSelectionScreen extends ConsumerWidget {
               _RoleCard(
                 title: 'Consumer',
                 description: 'Buy fresh produce directly from local farmers',
-                icon: Icons.shopping_basket_outlined,
+                icon: PhosphorIconsRegular.basket,
                 onTap: () {
-                  ref.read(authRoleProvider.notifier).state = 'CONSUMER';
-                  context.go(AppRouter.login);
+                  context.go('${AppRouter.login}?role=CONSUMER');
                 },
               ),
               
@@ -85,10 +79,9 @@ class RoleSelectionScreen extends ConsumerWidget {
               _RoleCard(
                 title: 'Farmer',
                 description: 'Sell your harvest and manage your farm operations',
-                icon: Icons.landscape_outlined,
+                icon: PhosphorIconsRegular.plant,
                 onTap: () {
-                  ref.read(authRoleProvider.notifier).state = 'PRODUCER';
-                  context.go(AppRouter.login);
+                  context.go('${AppRouter.login}?role=PRODUCER');
                 },
               ),
             ],
@@ -122,14 +115,7 @@ class _RoleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: kPillGrey, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: kPillGrey, width: 1),
         ),
         child: Row(
           children: [
@@ -152,7 +138,7 @@ class _RoleCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: kDarkGreen,
@@ -161,7 +147,7 @@ class _RoleCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 14,
                       color: kTextGrey,
                       height: 1.4,
@@ -171,8 +157,8 @@ class _RoleCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Icon(
-              Icons.chevron_right,
+            const PhosphorIcon(
+              PhosphorIconsRegular.caretRight,
               color: kTextGrey,
             ),
           ],

@@ -1,21 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import '../../../system/presentation/providers/utility_providers.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/conversation.dart';
-import '../../../../presentation/providers/messaging_providers.dart';
+import '../../../chat/presentation/providers/messaging_providers.dart';
 import '../providers/chat_socket_providers.dart';
 import '../../../../core/utils/time_utils.dart';
+import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
+import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
+import 'image_viewer_screen.dart';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const _kBg = Color(0xFFF7F8FC);
 const _kDarkGreen = Color(0xFF1A2F25);
 const _kBubbleMe = Color(0xFF1A2F25);
 const _kBubbleThem = Color(0xFFFFFFFF);
-const _kInputBg = Color(0xFFFFFFFF);
 const _kGrey = Color(0xFF9CA3AF);
 const _kOnlineGreen = Color(0xFF22C55E);
 
@@ -24,12 +32,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 
   /// Passed from the farmer detail so the header looks right immediately,
   /// before the conversation detail loads from the server.
+  final String? farmerId;
   final String? farmerName;
   final String? farmerAvatar;
 
   const ChatScreen({
     super.key,
     required this.conversationId,
+    this.farmerId,
     this.farmerName,
     this.farmerAvatar,
   });
@@ -46,6 +56,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   // Messages managed locally for real-time optimistic UI
   final List<Message> _messages = [];
   bool _isSendingTyping = false; // we are typing
+  XFile? _selectedImageToUpload;
+  final Set<String> _uploadingMessageIds = {};
   Timer? _typingTimer;
   StreamSubscription<Message>? _newMessageSub;
   StreamSubscription<Map<String, dynamic>>? _readAckSub;
@@ -80,18 +92,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final repo = ref.read(chatSocketRepositoryProvider);
 
     _newMessageSub = repo.onNewMessage.listen((msg) {
-      final detail = ref.read(conversationDetailProvider(widget.conversationId)).valueOrNull;
-      final isOurMessage = msg.sender.userId == 'me' || 
-                           msg.sender.name == 'You' || 
-                           (detail != null && msg.sender.userId != detail.participant.userId);
+      final detail = ref
+          .read(conversationDetailProvider(widget.conversationId))
+          .valueOrNull;
+      final isOurMessage = msg.sender.userId == 'me' ||
+          msg.sender.name == 'You' ||
+          (detail != null && msg.sender.userId != detail.participant.userId);
 
       if (isOurMessage) {
         // Replace temp message
-        final tempIndex = _messages.indexWhere((m) => m.messageId.startsWith('temp_') && m.content == msg.content);
+        final tempIndex = _messages.indexWhere((m) {
+          if (!m.messageId.startsWith('temp_')) return false;
+          if (m.type == 'image' && msg.type == 'image') return true;
+          return m.content == msg.content;
+        });
         if (tempIndex != -1) {
           setState(() {
+            _uploadingMessageIds.remove(_messages[tempIndex].messageId);
             _messages[tempIndex] = msg;
           });
+        } else {
+          // Fallback if not found in temp messages (e.g., sent from another device)
+          setState(() => _messages.add(msg));
+          _scrollToBottom();
         }
       } else {
         setState(() => _messages.add(msg));
@@ -131,34 +154,79 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 
   void _sendMessage() {
+    final imageToUpload = _selectedImageToUpload;
     final content = _inputController.text.trim();
-    if (content.isEmpty) return;
+
+    if (content.isEmpty && imageToUpload == null) return;
 
     HapticFeedback.lightImpact();
-
-    // Bounce animation
     _sendBtnController.forward().then((_) => _sendBtnController.reverse());
 
-    // Optimistic UI: add to list immediately
-    final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
-    final optimistic = Message(
-      messageId: tempId,
-      sender: const MessageUser(userId: 'me', name: 'You'),
-      type: 'text',
-      content: content,
-      timestamp: DateTime.now(),
-      isRead: false,
-    );
-    setState(() => _messages.add(optimistic));
-    _inputController.clear();
-    _scrollToBottom();
+    setState(() {
+      _selectedImageToUpload = null;
+      _inputController.clear();
+    });
 
-    // Emit via socket
-    ref.read(sendSocketMessageProvider).call(
-          conversationId: widget.conversationId,
-          content: content,
-          tempId: tempId,
-        );
+    if (imageToUpload != null) {
+      final tempImgId = 'temp_img_${DateTime.now().millisecondsSinceEpoch}';
+      final optimisticImg = Message(
+        messageId: tempImgId,
+        sender: const MessageUser(userId: 'me', name: 'You'),
+        type: 'image',
+        content: imageToUpload.path, // Temporary local path
+        timestamp: DateTime.now(),
+        isRead: false,
+        // replyToMessageId: replyId,
+      );
+      setState(() {
+        _messages.add(optimisticImg);
+        _uploadingMessageIds.add(tempImgId);
+      });
+      _scrollToBottom();
+
+      final uploadUc = ref.read(uploadFileUseCaseProvider);
+      uploadUc.call(File(imageToUpload.path)).then((uploadResult) {
+        uploadResult.fold((failure) {
+          if (mounted) {
+            setState(() => _uploadingMessageIds.remove(tempImgId));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to upload image: ${failure.message}')),
+            );
+          }
+        }, (uploadedFile) {
+          if (mounted) {
+            ref.read(sendSocketMessageProvider).call(
+                  conversationId: widget.conversationId,
+                  type: 'image',
+                  content: uploadedFile.url,
+                  tempId: tempImgId,
+                );
+          }
+        });
+      });
+    }
+
+    if (content.isNotEmpty) {
+      final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      final optimistic = Message(
+        messageId: tempId,
+        sender: const MessageUser(userId: 'me', name: 'You'),
+        type: 'text',
+        content: content,
+        timestamp: DateTime.now(),
+        isRead: false,
+      );
+      setState(() => _messages.add(optimistic));
+      _scrollToBottom();
+
+      ref.read(sendSocketMessageProvider).call(
+            conversationId: widget.conversationId,
+            content: content,
+            type: 'text',
+            tempId: tempId,
+          );
+    }
 
     // Stop typing indicator
     _typingTimer?.cancel();
@@ -176,6 +244,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+      }
+    });
+  }
+
+  void _pickAndCropImage() {
+    ImagePickerBottomSheet.show(context, onImagePicked: (path) async {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: _kDarkGreen,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio16x9,
+            ],
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio16x9,
+            ],
+          ),
+        ],
+      );
+
+      if (croppedFile != null && mounted) {
+        setState(() {
+          _selectedImageToUpload = XFile(croppedFile.path);
+        });
       }
     });
   }
@@ -200,14 +308,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         ref.watch(conversationDetailProvider(widget.conversationId));
 
     final otherUserId = conversationAsync.valueOrNull?.participant.userId;
-    
+
     final typingState = ref.watch(typingIndicatorNotifierProvider);
-    final isTyping = otherUserId != null && (typingState[widget.conversationId] ?? {}).contains(otherUserId);
-    
+    final isTyping = otherUserId != null &&
+        (typingState[widget.conversationId] ?? {}).contains(otherUserId);
+
     final presenceState = ref.watch(userPresenceNotifierProvider);
-    final userPresence = otherUserId != null ? presenceState[otherUserId] : null;
-    final isOnline = userPresence?.isOnline ?? conversationAsync.valueOrNull?.participant.isOnline ?? false;
-    final lastSeen = userPresence?.lastSeen ?? conversationAsync.valueOrNull?.participant.lastSeen;
+    final userPresence =
+        otherUserId != null ? presenceState[otherUserId] : null;
+    final isOnline = userPresence?.isOnline ??
+        conversationAsync.valueOrNull?.participant.isOnline ??
+        false;
+    final lastSeen = userPresence?.lastSeen ??
+        conversationAsync.valueOrNull?.participant.lastSeen;
 
     // Seed messages from REST snapshot on first load
     conversationAsync.whenData((detail) {
@@ -236,14 +349,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   // ── App Bar ────────────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(AsyncValue<ConversationDetail> conversationAsync, bool isOnline, bool isTyping, DateTime? lastSeen) {
+  Widget _buildAppBar(AsyncValue<ConversationDetail> conversationAsync,
+      bool isOnline, bool isTyping, DateTime? lastSeen) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-              color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
+        border: Border(bottom: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: SafeArea(
         bottom: false,
@@ -252,29 +363,73 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           child: Row(
             children: [
               IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFF5F5F5),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
+                padding: EdgeInsets.zero,
+                icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                    size: 24, color: _kDarkGreen),
+                onPressed: () => context.pop(),
               ),
               const SizedBox(width: 8),
               conversationAsync.when(
                 data: (detail) => _buildHeaderInfo(
-                  name: detail.participant.name,
-                  avatar: detail.participant.profilePicture,
-                  isOnline: isOnline,
-                  isTyping: isTyping,
-                  lastSeen: lastSeen,
-                ),
+                    name: detail.participant.name,
+                    avatar: detail.participant.profilePicture,
+                    isOnline: isOnline,
+                    isTyping: isTyping,
+                    lastSeen: lastSeen,
+                    onTap: () {
+                      final uid = detail.participant.userId;
+                      if (uid.isNotEmpty) {
+                        final mockFarmer = Farmer(
+                          id: uid,
+                          userId: uid,
+                          name: detail.participant.name,
+                          description: '',
+                          profileImage: detail.participant.profilePicture,
+                          latitude: 0,
+                          longitude: 0,
+                          address: '',
+                          rating: 0,
+                          totalReviews: 0,
+                          totalProducts: 0,
+                          specialties: const [],
+                          isVerified: detail.participant.verified,
+                          hasMapFeature: false,
+                          joinedDate: DateTime.now(),
+                          isOnline: isOnline,
+                        );
+                        context.push(AppRouter.farmerDetail, extra: mockFarmer);
+                      }
+                    }),
                 loading: () => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
                   avatar: widget.farmerAvatar,
                   isOnline: isOnline,
                   isTyping: isTyping,
                   lastSeen: lastSeen,
+                  onTap: widget.farmerId != null
+                      ? () {
+                          final mockFarmer = Farmer(
+                            id: widget.farmerId!,
+                            userId: widget.farmerId!,
+                            name: widget.farmerName ?? 'Farmer',
+                            description: '',
+                            profileImage: widget.farmerAvatar,
+                            latitude: 0,
+                            longitude: 0,
+                            address: '',
+                            rating: 0,
+                            totalReviews: 0,
+                            totalProducts: 0,
+                            specialties: const [],
+                            isVerified: false,
+                            hasMapFeature: false,
+                            joinedDate: DateTime.now(),
+                            isOnline: isOnline,
+                          );
+                          context.push(AppRouter.farmerDetail,
+                              extra: mockFarmer);
+                        }
+                      : null,
                 ),
                 error: (_, __) => _buildHeaderInfo(
                   name: widget.farmerName ?? 'Farmer',
@@ -282,18 +437,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   isOnline: isOnline,
                   isTyping: isTyping,
                   lastSeen: lastSeen,
+                  onTap: widget.farmerId != null
+                      ? () {
+                          final mockFarmer = Farmer(
+                            id: widget.farmerId!,
+                            userId: widget.farmerId!,
+                            name: widget.farmerName ?? 'Farmer',
+                            description: '',
+                            profileImage: widget.farmerAvatar,
+                            latitude: 0,
+                            longitude: 0,
+                            address: '',
+                            rating: 0,
+                            totalReviews: 0,
+                            totalProducts: 0,
+                            specialties: const [],
+                            isVerified: false,
+                            hasMapFeature: false,
+                            joinedDate: DateTime.now(),
+                            isOnline: isOnline,
+                          );
+                          context.push(AppRouter.farmerDetail,
+                              extra: mockFarmer);
+                        }
+                      : null,
                 ),
               ),
-              const SizedBox(width: 8),
-              _buildHeaderAction(
-                Icons.phone_outlined,
-                onTap: () {},
-              ),
-              const SizedBox(width: 4),
-              _buildHeaderAction(
-                Icons.more_vert_rounded,
-                onTap: () => _showOptionsSheet(context),
-              ),
+              // _buildHeaderAction(
+              //   PhosphorIconsRegular.dotsThreeVertical,
+              //   onTap: () => _showOptionsSheet(context),
+              // ),
             ],
           ),
         ),
@@ -307,103 +480,128 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     required bool isOnline,
     bool isTyping = false,
     DateTime? lastSeen,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: _kDarkGreen.withValues(alpha:0.1),
-                backgroundImage: avatar != null && avatar.startsWith('http')
-                    ? CachedNetworkImageProvider(avatar)
-                    : null,
-                onBackgroundImageError: avatar != null && avatar.startsWith('http')
-                    ? (_, __) {}
-                    : null,
-                child: avatar == null || !avatar.startsWith('http')
-                    ? Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : 'F',
-                        style: GoogleFonts.inter(
-                            color: _kDarkGreen, fontWeight: FontWeight.w700),
-                      )
-                    : null,
-              ),
-              if (isOnline)
-                Positioned(
-                  right: 1,
-                  bottom: 1,
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: _kOnlineGreen,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: _kDarkGreen.withValues(alpha: 0.1),
+                  backgroundImage: avatar != null && avatar.startsWith('http')
+                      ? CachedNetworkImageProvider(avatar)
+                      : null,
+                  onBackgroundImageError:
+                      avatar != null && avatar.startsWith('http')
+                          ? (_, __) {}
+                          : null,
+                  child: avatar == null || !avatar.startsWith('http')
+                      ? Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : 'F',
+                          style: TextStyle(
+                              color: _kDarkGreen, fontWeight: FontWeight.w700),
+                        )
+                      : null,
+                ),
+                if (isOnline)
+                  Positioned(
+                    right: 1,
+                    bottom: 1,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _kOnlineGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: _kDarkGreen,
-                  ),
-                ),
-                Text(
-                  isTyping
-                      ? 'typing...'
-                      : isOnline
-                          ? 'Online'
-                          : lastSeen != null
-                              ? 'Last seen ${TimeUtils.formatLastSeen(lastSeen).toLowerCase()}'
-                              : 'Tap to view profile',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: _kDarkGreen,
+                    ),
+                  ),
+                  Text(
+                    isTyping
+                        ? 'typing...'
+                        : isOnline
+                            ? 'Online'
+                            : lastSeen != null
+                                ? 'Last seen ${TimeUtils.formatLastSeen(lastSeen).toLowerCase()}'
+                                : 'Tap to view profile',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: (isOnline || isTyping) ? _kOnlineGreen : _kGrey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeaderAction(IconData icon, {required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, size: 19, color: _kDarkGreen),
-      ),
+    return IconButton(
+      onPressed: onTap,
+      icon: Icon(icon, size: 19, color: _kDarkGreen),
     );
   }
 
   // ── Message List ───────────────────────────────────────────────────────────
 
   Widget _buildMessageList(AsyncValue<ConversationDetail> conversationAsync) {
+    if (conversationAsync.hasError && _messages.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load messages',
+              style: TextStyle(fontSize: 16, color: _kDarkGreen),
+            ),
+            Text(
+              conversationAsync.error.toString(),
+              style: TextStyle(fontSize: 12, color: _kGrey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     if (_messages.isEmpty) {
+      if (conversationAsync.isLoading) {
+        return const Center(
+          child: CircularProgressIndicator(color: _kDarkGreen),
+        );
+      }
+
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -412,16 +610,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: _kDarkGreen.withValues(alpha:0.06),
+                color: _kDarkGreen.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.chat_bubble_outline_rounded,
-                  size: 34, color: _kDarkGreen.withValues(alpha:0.4)),
+              child: PhosphorIcon(PhosphorIconsRegular.chatCircle,
+                  size: 34, color: _kDarkGreen.withValues(alpha: 0.4)),
             ),
             const SizedBox(height: 16),
             Text(
               'No messages yet',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: _kDarkGreen,
@@ -430,48 +628,58 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             const SizedBox(height: 6),
             Text(
               'Say hello to start the conversation!',
-              style: GoogleFonts.inter(fontSize: 13, color: _kGrey),
+              style: TextStyle(fontSize: 13, color: _kGrey),
             ),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: _messages.length,
-      itemBuilder: (context, index) {
-        final message = _messages[index];
-        final otherUserId = conversationAsync.valueOrNull?.participant.userId;
-        final isMe = message.sender.userId == 'me' ||
-            message.sender.name == 'You' ||
-            message.sender.userId == 'usr_123' ||
-            (otherUserId != null && message.sender.userId != otherUserId);
-        final prevMessage = index > 0 ? _messages[index - 1] : null;
-        final showDateDivider = prevMessage == null ||
-            !_isSameDay(prevMessage.timestamp.toLocal(), message.timestamp.toLocal());
-            
-        final nextMessage = index < _messages.length - 1 ? _messages[index + 1] : null;
-        final nextIsMe = nextMessage != null &&
-            (nextMessage.sender.userId == 'me' ||
-             nextMessage.sender.name == 'You' ||
-             nextMessage.sender.userId == 'usr_123' ||
-             (otherUserId != null && nextMessage.sender.userId != otherUserId));
-             
-        final isSequential = nextMessage != null && (isMe == nextIsMe);
-
-        return Column(
-          children: [
-            if (showDateDivider) _buildDateDivider(message.timestamp),
-            _ChatBubble(
-              message: message,
-              isMe: isMe,
-              bottomPadding: isSequential ? 4.0 : 12.0,
-            ),
-          ],
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(conversationDetailProvider(widget.conversationId));
       },
+      child: ListView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final message = _messages[index];
+          final otherUserId = conversationAsync.valueOrNull?.participant.userId;
+          final isMe = message.sender.userId == 'me' ||
+              message.sender.name == 'You' ||
+              message.sender.userId == 'usr_123' ||
+              (otherUserId != null && message.sender.userId != otherUserId);
+          final prevMessage = index > 0 ? _messages[index - 1] : null;
+          final showDateDivider = prevMessage == null ||
+              !_isSameDay(
+                  prevMessage.timestamp.toLocal(), message.timestamp.toLocal());
+
+          final nextMessage =
+              index < _messages.length - 1 ? _messages[index + 1] : null;
+          final nextIsMe = nextMessage != null &&
+              (nextMessage.sender.userId == 'me' ||
+                  nextMessage.sender.name == 'You' ||
+                  nextMessage.sender.userId == 'usr_123' ||
+                  (otherUserId != null &&
+                      nextMessage.sender.userId != otherUserId));
+
+          final isSequential = nextMessage != null && (isMe == nextIsMe);
+
+          return Column(
+            children: [
+              if (showDateDivider) _buildDateDivider(message.timestamp),
+              _ChatBubble(
+                message: message,
+                isMe: isMe,
+                bottomPadding: isSequential ? 4.0 : 12.0,
+                isUploading: _uploadingMessageIds.contains(message.messageId),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -499,8 +707,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           ),
           child: Text(
             label,
-            style: GoogleFonts.inter(
-                fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
+            style: TextStyle(
+                fontSize: 11,
+                color: const Color(0xFF6B7280),
+                fontWeight: FontWeight.w500),
           ),
         ),
       ),
@@ -521,7 +731,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           const SizedBox(width: 8),
           Text(
             'typing…',
-            style: GoogleFonts.inter(fontSize: 12, color: _kGrey),
+            style: TextStyle(fontSize: 12, color: _kGrey),
           ),
         ],
       ),
@@ -531,107 +741,147 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   // ── Input Bar ──────────────────────────────────────────────────────────────
 
   Widget _buildInputBar() {
-    final hasText = _inputController.text.isNotEmpty;
+    final hasText =
+        _inputController.text.isNotEmpty || _selectedImageToUpload != null;
 
     return Container(
       color: Colors.white,
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Attachment button
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F2F0),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(Icons.add_rounded, color: _kDarkGreen, size: 22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_selectedImageToUpload != null)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(_selectedImageToUpload!.path),
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          right: -8,
+                          top: -8,
+                          child: GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedImageToUpload = null),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const PhosphorIcon(PhosphorIconsRegular.x,
+                                  size: 12, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 8),
-              // Text field
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  decoration: BoxDecoration(
-                    color: _kInputBg,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x06000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Attachment button
+                  Container(
+                    width: 44,
+                    height: 44,
+                    margin: const EdgeInsets.only(
+                        bottom: 2), // Align icon visually with text
+                    child: IconButton(
+                      onPressed: _pickAndCropImage,
+                      icon: const PhosphorIcon(PhosphorIconsRegular.plus,
+                          color: _kDarkGreen, size: 26),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  // Text field
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 120),
+                      child: TextField(
+                        controller: _inputController,
+                        minLines: 1,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        style: TextStyle(fontSize: 15, color: _kDarkGreen),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          filled: true,
+                          fillColor: const Color(0xFFF3F4F6),
+                          hintText: 'Message…',
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _inputController,
-                    minLines: 1,
-                    maxLines: 5,
-                    textInputAction: TextInputAction.newline,
-                    style: GoogleFonts.inter(fontSize: 14, color: _kDarkGreen),
-                    decoration: InputDecoration(
-                      hintText: 'Message…',
-                      hintStyle: GoogleFonts.inter(
-                          fontSize: 14, color: const Color(0xFFBCC0C4)),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 11),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  // Send button
+                  AnimatedBuilder(
+                    animation: _sendBtnScale,
+                    builder: (_, child) => Transform.scale(
+                      scale: _sendBtnScale.value,
+                      child: child,
+                    ),
+                    child: GestureDetector(
+                      onTap: hasText ? _sendMessage : null,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 44,
+                        height: 44,
+                        margin: const EdgeInsets.only(
+                            bottom: 2), // Align bottom visually
+                        decoration: BoxDecoration(
+                          color:
+                              hasText ? _kDarkGreen : const Color(0xFFF3F4F6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          PhosphorIconsFill.paperPlaneRight,
+                          size: 20,
+                          color: hasText ? Colors.white : _kGrey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              // Send button
-              AnimatedBuilder(
-                animation: _sendBtnScale,
-                builder: (_, child) => Transform.scale(
-                  scale: _sendBtnScale.value,
-                  child: child,
-                ),
-                child: GestureDetector(
-                  onTap: hasText ? _sendMessage : null,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: hasText ? _kDarkGreen : const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: hasText
-                          ? [
-                              BoxShadow(
-                                color: _kDarkGreen.withValues(alpha:0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          : null,
-                    ),
-                    child: Icon(
-                      Icons.send_rounded,
-                      size: 20,
-                      color: hasText ? Colors.white : _kGrey,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // ── Options bottom sheet ───────────────────────────────────────────────────
+  // ── Message List ───────────────────────────────────────────────────────────
 
   void _showOptionsSheet(BuildContext context) {
     showModalBottomSheet(
@@ -654,9 +904,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              _sheetTile(Icons.volume_off_outlined, 'Mute Notifications'),
-              _sheetTile(Icons.search, 'Search in Conversation'),
-              _sheetTile(Icons.block, 'Block User', color: Colors.red),
+              _sheetTile(PhosphorIconsRegular.bellSlash, 'Mute Notifications'),
+              _sheetTile(PhosphorIconsRegular.magnifyingGlass,
+                  'Search in Conversation'),
+              _sheetTile(PhosphorIconsRegular.prohibit, 'Block User',
+                  color: Colors.red),
             ],
           ),
         ),
@@ -668,7 +920,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     return ListTile(
       leading: Icon(icon, color: color ?? _kDarkGreen, size: 22),
       title: Text(label,
-          style: GoogleFonts.inter(
+          style: TextStyle(
               color: color ?? _kDarkGreen, fontWeight: FontWeight.w500)),
       onTap: () => Navigator.pop(context),
     );
@@ -683,11 +935,13 @@ class _ChatBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
   final double bottomPadding;
+  final bool isUploading;
 
   const _ChatBubble({
     required this.message,
     required this.isMe,
     this.bottomPadding = 12.0,
+    this.isUploading = false,
   });
 
   @override
@@ -704,15 +958,10 @@ class _ChatBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isMe ? _kBubbleMe : _kBubbleThem,
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                border:
+                    isMe ? null : Border.all(color: const Color(0xFFF3F4F6)),
               ),
-              child: _buildContent(),
+              child: _buildContent(context),
             ),
           ),
         ],
@@ -720,64 +969,143 @@ class _ChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     switch (message.type) {
-      case 'text':
+      case 'image':
+        final isLocal =
+            message.content != null && !message.content!.startsWith('http');
         return Padding(
-          padding: const EdgeInsets.only(left: 14, right: 14, top: 9, bottom: 9),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: message.content ?? '',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: isMe ? Colors.white : _kDarkGreen,
-                    height: 1.4,
-                  ),
-                ),
-                const WidgetSpan(child: SizedBox(width: 12)),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.bottom,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _formatTime(message.timestamp),
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: isMe ? Colors.white70 : _kGrey,
-                        ),
+          padding: const EdgeInsets.all(4.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          ImageViewerScreen(
+                        heroTag: message.messageId,
+                        imageUrl: message.content ?? '',
+                        isLocal: isLocal,
                       ),
-                      if (isMe) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          message.isRead
-                              ? Icons.done_all_rounded
-                              : Icons.done_rounded,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ],
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                    ),
+                  );
+                },
+                child: Hero(
+                  tag: message.messageId,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: isLocal
+                        ? Image.file(
+                            File(message.content!),
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: message.content ?? '',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              width: 200,
+                              height: 200,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                  child: CircularProgressIndicator(
+                                      color: _kDarkGreen)),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              width: 200,
+                              height: 200,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image,
+                                  color: Colors.grey),
+                            ),
+                          ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              if (isUploading)
+                Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: _kDarkGreen),
+                  ),
+                ),
+            ],
           ),
         );
-
-      case 'image':
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: message.images != null && message.images!.isNotEmpty
-              ? Image.network(
-                  message.images!.first.url,
-                  width: 200,
-                  fit: BoxFit.cover,
-                )
-              : const SizedBox.shrink(),
+      case 'text':
+        return GestureDetector(
+          onLongPress: () {
+            if (message.content != null && message.content!.isNotEmpty) {
+              Clipboard.setData(ClipboardData(text: message.content!));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Message copied to clipboard'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 14, right: 14, top: 9, bottom: 9),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: message.content ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isMe ? Colors.white : _kDarkGreen,
+                      height: 1.4,
+                    ),
+                  ),
+                  const WidgetSpan(child: SizedBox(width: 12)),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.bottom,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          _formatTime(message.timestamp),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isMe ? Colors.white70 : _kGrey,
+                          ),
+                        ),
+                        if (isMe) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            message.isRead
+                                ? PhosphorIconsRegular.checks
+                                : PhosphorIconsRegular.check,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
 
       case 'product':
@@ -792,12 +1120,12 @@ class _ChatBubble extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.play_circle_fill_rounded,
+              PhosphorIcon(PhosphorIconsFill.playCircle,
                   color: isMe ? Colors.white : _kDarkGreen, size: 28),
               const SizedBox(width: 8),
               Text(
                 '${message.voice?.duration ?? 0}s',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   color: isMe ? Colors.white : _kDarkGreen,
                   fontWeight: FontWeight.w600,
                 ),
@@ -811,7 +1139,7 @@ class _ChatBubble extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           child: Text(
             message.content ?? '(unsupported message)',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 13,
               color: isMe ? Colors.white70 : _kGrey,
             ),
@@ -862,7 +1190,7 @@ class _ProductCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             product?.name ?? '',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 13,
               color: isMe ? Colors.white : _kDarkGreen,
@@ -870,7 +1198,7 @@ class _ProductCard extends StatelessWidget {
           ),
           Text(
             'Rp ${product?.price ?? 0}/${product?.unit ?? ''}',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 12,
               color: isMe ? Colors.white70 : _kGrey,
             ),
@@ -879,7 +1207,7 @@ class _ProductCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               message.text!,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 13, color: isMe ? Colors.white : _kDarkGreen),
             ),
           ],
@@ -909,12 +1237,12 @@ class _OrderCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.shopping_bag_outlined,
+              PhosphorIcon(PhosphorIconsRegular.bag,
                   size: 16, color: isMe ? Colors.white70 : _kGrey),
               const SizedBox(width: 4),
               Text(
                 'Order',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                     fontSize: 11, color: isMe ? Colors.white70 : _kGrey),
               ),
             ],
@@ -922,7 +1250,7 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '#${order?.orderNumber ?? ''}',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 14,
               color: isMe ? Colors.white : _kDarkGreen,
@@ -930,14 +1258,14 @@ class _OrderCard extends StatelessWidget {
           ),
           Text(
             'Status: ${order?.status ?? ''}',
-            style: GoogleFonts.inter(
-                fontSize: 12, color: isMe ? Colors.white70 : _kGrey),
+            style:
+                TextStyle(fontSize: 12, color: isMe ? Colors.white70 : _kGrey),
           ),
           if (message.text != null) ...[
             const SizedBox(height: 4),
             Text(
               message.text!,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                   fontSize: 13, color: isMe ? Colors.white : _kDarkGreen),
             ),
           ],

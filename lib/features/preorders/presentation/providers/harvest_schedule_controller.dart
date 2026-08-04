@@ -1,0 +1,189 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:harvest_app/core/providers/dio_provider.dart';
+import 'package:harvest_app/features/preorders/data/datasources/remote/harvest_schedule_remote_datasource.dart';
+import 'package:harvest_app/features/preorders/data/repositories/harvest_schedule_repository_impl.dart';
+import 'package:harvest_app/features/preorders/domain/repositories/harvest_schedule_repository.dart';
+import 'package:harvest_app/features/preorders/domain/usecases/get_schedule_dashboard_usecase.dart';
+import 'harvest_schedule_state.dart';
+
+part 'harvest_schedule_controller.g.dart';
+
+// Dependency Injection Providers
+final harvestScheduleRemoteDataSourceProvider =
+    Provider<HarvestScheduleRemoteDataSource>((ref) {
+  return HarvestScheduleRemoteDataSourceImpl(ref.watch(dioProvider));
+});
+
+final harvestScheduleRepositoryProvider =
+    Provider<HarvestScheduleRepository>((ref) {
+  return HarvestScheduleRepositoryImpl(
+      ref.watch(harvestScheduleRemoteDataSourceProvider));
+});
+
+final getScheduleDashboardUseCaseProvider =
+    Provider<GetScheduleDashboardUseCase>((ref) {
+  return GetScheduleDashboardUseCase(
+      ref.watch(harvestScheduleRepositoryProvider));
+});
+
+@riverpod
+class HarvestScheduleController extends _$HarvestScheduleController {
+  @override
+  HarvestScheduleState build() {
+    final now = DateTime.now();
+    Future.microtask(() => _fetchData(now));
+    return const HarvestScheduleState.loading();
+  }
+
+  Future<void> _fetchData(DateTime date,
+      {DateTime? selectedDate, bool? isMonthView}) async {
+    final oldData = state.maybeWhen(data: (d) => d, orElse: () => null);
+
+    if (oldData == null) {
+      state = const HarvestScheduleState.loading();
+    }
+
+    try {
+      final dashboardUseCase = ref.read(getScheduleDashboardUseCaseProvider);
+
+      final monthStr = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+
+      final dashboardResult = await dashboardUseCase.call(month: monthStr);
+
+      dashboardResult.fold(
+        (failure) {
+          state = HarvestScheduleState.error(failure.message);
+        },
+        (entity) {
+          state = HarvestScheduleState.data(HarvestScheduleData.fromEntity(
+            entity,
+            baseDate: date,
+            selectedDate: selectedDate ?? date,
+            isMonthView: isMonthView ?? oldData?.isMonthView ?? false,
+          ));
+        },
+      );
+    } catch (e) {
+      state = HarvestScheduleState.error(e.toString());
+    }
+  }
+
+  void toggleViewMode() {
+    state.maybeWhen(
+      data: (data) {
+        state = HarvestScheduleState.data(
+            data.copyWith(isMonthView: !data.isMonthView));
+      },
+      orElse: () {},
+    );
+  }
+
+  void toggleDateFilter(DateTime date) {
+    state.maybeWhen(
+      data: (data) {
+        if (data.selectedDate?.year == date.year &&
+            data.selectedDate?.month == date.month &&
+            data.selectedDate?.day == date.day) {
+          // Deselect
+          state =
+              HarvestScheduleState.data(data.copyWith(clearSelectedDate: true));
+        } else {
+          // Select
+          state = HarvestScheduleState.data(data.copyWith(
+            selectedDate: date,
+            clearQuickFilter: true,
+          ));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void toggleQuickFilter(QuickFilter filter) {
+    state.maybeWhen(
+      data: (data) {
+        if (data.activeQuickFilter == filter) {
+          // Deselect
+          state =
+              HarvestScheduleState.data(data.copyWith(clearQuickFilter: true));
+        } else {
+          // Select
+          state = HarvestScheduleState.data(data.copyWith(
+            activeQuickFilter: filter,
+            clearSelectedDate: true,
+          ));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void next() {
+    state.maybeWhen(
+      data: (data) {
+        DateTime newBaseDate;
+        if (data.isMonthView) {
+          newBaseDate = DateTime(
+              data.baseDate.year, data.baseDate.month + 1, data.baseDate.day);
+        } else {
+          newBaseDate = data.baseDate.add(const Duration(days: 7));
+        }
+
+        if (newBaseDate.month != data.baseDate.month ||
+            newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate,
+              selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+        } else {
+          state =
+              HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void previous() {
+    state.maybeWhen(
+      data: (data) {
+        DateTime newBaseDate;
+        if (data.isMonthView) {
+          newBaseDate = DateTime(
+              data.baseDate.year, data.baseDate.month - 1, data.baseDate.day);
+        } else {
+          newBaseDate = data.baseDate.subtract(const Duration(days: 7));
+        }
+
+        if (newBaseDate.month != data.baseDate.month ||
+            newBaseDate.year != data.baseDate.year) {
+          _fetchData(newBaseDate,
+              selectedDate: data.selectedDate, isMonthView: data.isMonthView);
+        } else {
+          state =
+              HarvestScheduleState.data(data.copyWith(baseDate: newBaseDate));
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void goToToday() {
+    final now = DateTime.now();
+    state.maybeWhen(
+      data: (data) {
+        if (now.month != data.baseDate.month ||
+            now.year != data.baseDate.year) {
+          _fetchData(now, selectedDate: now, isMonthView: data.isMonthView);
+        } else {
+          state = HarvestScheduleState.data(data.copyWith(
+            baseDate: now,
+            selectedDate: now,
+            clearSelectedDate: false,
+          ));
+        }
+      },
+      orElse: () {
+        Future.microtask(() => _fetchData(now));
+      },
+    );
+  }
+}

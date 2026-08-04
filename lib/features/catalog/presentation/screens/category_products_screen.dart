@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/features/catalog/domain/entities/category_product.dart';
 import 'package:harvest_app/features/catalog/presentation/providers/category/category_providers.dart';
@@ -69,7 +68,7 @@ class _CategoryProductsScreenState
             ),
             title: Text(
               widget.categoryName,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: kDarkGreen,
@@ -160,7 +159,7 @@ class _CategoryProductsScreenState
                         const SizedBox(height: 16),
                         Text(
                           'No products found',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 16,
                             color: kTextGrey,
                           ),
@@ -203,7 +202,7 @@ class _CategoryProductsScreenState
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load products',
-                      style: GoogleFonts.inter(fontSize: 16, color: kTextGrey),
+                      style: TextStyle(fontSize: 16, color: kTextGrey),
                     ),
                   ],
                 ),
@@ -296,7 +295,7 @@ class _CategoryProductsScreenState
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: kDarkGreen,
@@ -320,7 +319,7 @@ class _CategoryProductsScreenState
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -378,7 +377,7 @@ class _CategoryProductsScreenState
                       ),
                       child: Text(
                         product.discount!,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -415,7 +414,7 @@ class _CategoryProductsScreenState
                             ),
                             child: Text(
                               'ORGANIC',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -434,7 +433,7 @@ class _CategoryProductsScreenState
                             ),
                             child: Text(
                               'PREMIUM',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -453,7 +452,7 @@ class _CategoryProductsScreenState
                 children: [
                   Text(
                     product.name,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: kDarkGreen,
@@ -464,7 +463,7 @@ class _CategoryProductsScreenState
                   const SizedBox(height: 2),
                   Text(
                     product.sellerName,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 11,
                       color: kTextGrey,
                     ),
@@ -478,7 +477,7 @@ class _CategoryProductsScreenState
                       const SizedBox(width: 2),
                       Text(
                         product.rating.toString(),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: kDarkGreen,
@@ -486,7 +485,7 @@ class _CategoryProductsScreenState
                       ),
                       Text(
                         ' (${product.reviewCount})',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 10,
                           color: kTextGrey,
                         ),
@@ -499,7 +498,7 @@ class _CategoryProductsScreenState
                     children: [
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: kDarkGreen,
@@ -507,7 +506,7 @@ class _CategoryProductsScreenState
                       ),
                       Text(
                         product.unit,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 11,
                           color: kTextGrey,
                         ),
@@ -538,7 +537,7 @@ class _CategoryProductsScreenState
           children: [
             Text(
               'Sort by',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -551,7 +550,7 @@ class _CategoryProductsScreenState
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   _getSortLabel(option),
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontWeight:
                         isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected ? kDarkGreen : kTextGrey,
@@ -587,7 +586,7 @@ class _CategoryProductsScreenState
           children: [
             Text(
               'Filter',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: kDarkGreen,
@@ -605,7 +604,7 @@ class _CategoryProductsScreenState
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'Organic Only',
-                        style: GoogleFonts.inter(color: kDarkGreen),
+                        style: TextStyle(color: kDarkGreen),
                       ),
                       value: organic,
                       activeColor: kDarkGreen,
@@ -618,7 +617,7 @@ class _CategoryProductsScreenState
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'Premium Only',
-                        style: GoogleFonts.inter(color: kDarkGreen),
+                        style: TextStyle(color: kDarkGreen),
                       ),
                       value: premium,
                       activeColor: kDarkGreen,
@@ -641,7 +640,7 @@ class _CategoryProductsScreenState
                         ),
                         child: Text(
                           'Apply Filters',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),

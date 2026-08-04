@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../core/error/exceptions.dart';
 import '../../models/community_post_model.dart';
-import '../../../../../data/models/recipe_model.dart';
-import '../../../../../data/models/paginated_response_model.dart';
+import '../../models/recipe_model.dart';
+import '../../../../../core/models/paginated_response_model.dart';
 
 abstract class CommunityLocalDataSource {
   Future<void> saveCommunityPosts(String cacheKey, PaginatedResponseModel<CommunityPostModel> posts);

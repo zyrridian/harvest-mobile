@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../core/utils/validators.dart';
 
 // Design constants matching current style
-const kBgColor = Color(0xFFFAFAF8);
+const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
@@ -59,13 +59,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             enabled: !widget.isLoading,
-            style: GoogleFonts.inter(color: kDarkGreen),
+            style: TextStyle(color: kDarkGreen),
             decoration: InputDecoration(
               labelText: 'Email',
-              labelStyle: GoogleFonts.inter(color: kTextGrey),
+              labelStyle: TextStyle(color: kTextGrey),
               hintText: 'Enter your email',
-              hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
-              prefixIcon: const Icon(Icons.email_outlined, color: kDarkGreen),
+              hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
+              prefixIcon: const PhosphorIcon(PhosphorIconsRegular.envelope, color: kDarkGreen),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -95,18 +95,18 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
             enabled: !widget.isLoading,
-            style: GoogleFonts.inter(color: kDarkGreen),
+            style: TextStyle(color: kDarkGreen),
             decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: GoogleFonts.inter(color: kTextGrey),
+              labelStyle: TextStyle(color: kTextGrey),
               hintText: 'Enter your password',
-              hintStyle: GoogleFonts.inter(color: kTextGrey.withOpacity(0.5)),
-              prefixIcon: const Icon(Icons.lock_outlined, color: kDarkGreen),
+              hintStyle: TextStyle(color: kTextGrey.withOpacity(0.5)),
+              prefixIcon: const PhosphorIcon(PhosphorIconsRegular.lock, color: kDarkGreen),
               suffixIcon: IconButton(
-                icon: Icon(
+                icon: PhosphorIcon(
                   _obscurePassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
+                      ? PhosphorIconsRegular.eyeSlash
+                      : PhosphorIconsRegular.eye,
                   color: kTextGrey,
                 ),
                 onPressed: () {
@@ -163,7 +163,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   )
                 : Text(
                     'Login',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
