@@ -62,13 +62,14 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VM_HOST }}
+          port: 33102
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             IMAGE_URL=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | tr '[:upper:]' '[:lower:]')
             
-            # Uncomment the next line and add VM_GH_PAT secret if repo is private
-            # echo ${{ secrets.VM_GH_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Login the VPS to GitHub Packages
+            echo "${{ secrets.VM_GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             docker pull $IMAGE_URL
             docker stop flutter-web-app || true
