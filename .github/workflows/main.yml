@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK and Web
 
 on:
   push:
@@ -8,9 +8,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: Build Android APK
+    name: Build Android APK and Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -58,3 +61,25 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Publish to GitHub Releases
+        if: github.ref == 'refs/heads/main'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/app-release.apk"
+          tag: "latest"
+          name: "Latest Release"
+          body: "Automated build."
+          allowUpdates: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define-from-file=env/prod.json
+
+      - name: Deploy Web to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
