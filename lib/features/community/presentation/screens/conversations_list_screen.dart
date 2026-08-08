@@ -247,14 +247,12 @@ class _ConversationTile extends ConsumerWidget {
             ),
         ],
       ),
-      title: Expanded(
-        child: Text(
-          participant.name,
-          style: TextStyle(
-            fontWeight: conversation.unreadCount > 0
-                ? FontWeight.bold
-                : FontWeight.normal,
-          ),
+      title: Text(
+        participant.name,
+        style: TextStyle(
+          fontWeight: conversation.unreadCount > 0
+              ? FontWeight.bold
+              : FontWeight.normal,
         ),
       ),
       subtitle: Column(
