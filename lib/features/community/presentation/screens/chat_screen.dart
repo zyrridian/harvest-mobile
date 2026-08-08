@@ -116,9 +116,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           setState(() => _messages.add(msg));
           _scrollToBottom();
         }
+        
+        // Ensure providers are fresh for when we navigate back
+        ref.invalidate(conversationDetailProvider(widget.conversationId));
+        ref.invalidate(conversationsProvider);
       } else {
         setState(() => _messages.add(msg));
         _scrollToBottom();
+        
+        // Notify backend we read the message while the chat screen is open
+        ref.read(markConversationReadProvider).call(widget.conversationId);
+        // Ensure providers are fresh for when we navigate back
+        ref.invalidate(conversationDetailProvider(widget.conversationId));
+        ref.invalidate(conversationsProvider);
       }
     });
 
