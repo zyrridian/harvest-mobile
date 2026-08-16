@@ -13,6 +13,7 @@ import 'privacy_policy_screen.dart';
 import 'about_us_screen.dart';
 import 'personal_information_screen.dart';
 import 'language_selection_screen.dart';
+import '../../../../core/widgets/web_constrained_box.dart';
 // import '../../../shared_widgets/app_scaffold.dart'; // Can use Scaffold directly
 // import '../../../../core/config/theme/app_colors.dart'; // Local constants used for demo
 
@@ -22,6 +23,7 @@ const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
 const kTextGrey = Color(0xFF6E7A75);
+
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -71,10 +73,11 @@ class ProfileScreen extends ConsumerWidget {
           onRefresh: () => ref.read(profileControllerProvider.notifier).refresh(),
           color: kDarkGreen,
           backgroundColor: Colors.white,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          children: [
-            // 1. PROFILE HEADER CARD
+          child: WebConstrainedBox(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
+              // 1. PROFILE HEADER CARD
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -289,6 +292,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 40),
           ],
         ),
+          ),
         ),
       ),
     );

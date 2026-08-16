@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:harvest_app/features/preorders/presentation/widgets/preorder_harvest_card.dart';
 import 'package:harvest_app/features/preorders/presentation/widgets/preorder_shimmer_grid.dart';
@@ -61,29 +62,30 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
 
     return Scaffold(
       backgroundColor: kBgColor,
-      body: SafeArea(
-        bottom: false,
-        child: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                backgroundColor: kBgColor,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                leading: IconButton(
-                  icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
-                      color: kDarkGreen),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    }
-                  },
-                ),
-                titleSpacing: 0,
-                centerTitle: false,
-                title: AnimatedCrossFade(
+      body: WebConstrainedBox(
+        child: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  floating: true,
+                  snap: true,
+                  backgroundColor: kBgColor,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  leading: IconButton(
+                    icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                        color: kDarkGreen),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      }
+                    },
+                  ),
+                  titleSpacing: 0,
+                  centerTitle: false,
+                  title: AnimatedCrossFade(
                   duration: const Duration(milliseconds: 200),
                   crossFadeState: _isSearchVisible
                       ? CrossFadeState.showSecond
@@ -218,8 +220,8 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         sliver: SliverGrid(
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 220,
                             mainAxisSpacing: 16,
                             crossAxisSpacing: 16,
                             childAspectRatio: 0.60,
@@ -242,6 +244,7 @@ class _PreOrderScreenState extends ConsumerState<PreOrderScreen> {
             },
           ),
         ),
+      ),
       ),
     );
   }

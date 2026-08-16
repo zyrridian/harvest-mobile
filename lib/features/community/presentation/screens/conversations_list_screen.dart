@@ -10,6 +10,8 @@ import '../../../../core/utils/time_utils.dart';
 import 'package:harvest_app/features/auth/domain/entities/user.dart';
 import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
+
 class ConversationsListScreen extends ConsumerStatefulWidget {
   const ConversationsListScreen({super.key});
 
@@ -90,95 +92,97 @@ class _ConversationsListScreenState
           ),
         ],
       ),
-      body: conversationsAsync.when(
-        data: (data) {
-          final conversationsData = data['data'] as Map<String, dynamic>;
-          final conversations = (conversationsData['conversations'] as List)
-              .map((json) => ConversationModel.fromJson(json))
-              .toList();
-          final stats = conversationsData['stats'] as Map<String, dynamic>?;
+      body: WebConstrainedBox(
+        child: conversationsAsync.when(
+          data: (data) {
+            final conversationsData = data['data'] as Map<String, dynamic>;
+            final conversations = (conversationsData['conversations'] as List)
+                .map((json) => ConversationModel.fromJson(json))
+                .toList();
+            final stats = conversationsData['stats'] as Map<String, dynamic>?;
 
-          if (conversations.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const PhosphorIcon(PhosphorIconsRegular.chatCircle,
-                      size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No conversations yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Start chatting with sellers',
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            );
-          }
+            if (conversations.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const PhosphorIcon(PhosphorIconsRegular.chatCircle,
+                        size: 64, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No conversations yet',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Start chatting with sellers',
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-          return Column(
-            children: [
-              // Stats Card
-              if (stats != null && stats['unread_conversations'] > 0)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: Colors.blue[50],
-                  child: Row(
-                    children: [
-                      PhosphorIcon(PhosphorIconsRegular.bellRinging,
-                          color: Colors.blue[700], size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
-                          style:
-                              TextStyle(color: Colors.blue[900], fontSize: 13),
+            return Column(
+              children: [
+                // Stats Card
+                if (stats != null && stats['unread_conversations'] > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    color: Colors.blue[50],
+                    child: Row(
+                      children: [
+                        PhosphorIcon(PhosphorIconsRegular.bellRinging,
+                            color: Colors.blue[700], size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'You have ${stats['unread_conversations']} unread conversation(s) with ${stats['total_unread_messages']} new message(s)',
+                            style: TextStyle(
+                                color: Colors.blue[900], fontSize: 13),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-              // Conversations List
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    ref.invalidate(conversationsProvider);
-                  },
-                  child: ListView.separated(
-                    itemCount: conversations.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final conversation = conversations[index];
-                      return _ConversationTile(conversation: conversation);
+                // Conversations List
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(conversationsProvider);
                     },
+                    child: ListView.separated(
+                      itemCount: conversations.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final conversation = conversations[index];
+                        return _ConversationTile(conversation: conversation);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const PhosphorIcon(PhosphorIconsRegular.warningCircle,
-                  size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(conversationsProvider),
-                child: const Text('Retry'),
-              ),
-            ],
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                    size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Error: $error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => ref.invalidate(conversationsProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -358,12 +362,11 @@ class _ConversationTile extends ConsumerWidget {
             'conversationId': conversation.conversationId,
             'farmerId': participant.userId,
             'farmerName': participant.name,
-            if (participant.profilePicture != null) 'farmerAvatar': participant.profilePicture,
+            if (participant.profilePicture != null)
+              'farmerAvatar': participant.profilePicture,
           },
         );
-        context
-            .push(uri.toString())
-            .then((_) {
+        context.push(uri.toString()).then((_) {
           // Refresh the list when returning from the chat
           ref.invalidate(conversationsProvider);
         });

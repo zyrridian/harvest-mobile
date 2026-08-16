@@ -8,6 +8,7 @@ import 'package:harvest_app/features/storefront/domain/entities/marketplace.dart
 import 'package:harvest_app/features/storefront/presentation/widgets/marketplace_filter_sheet.dart';
 import 'package:harvest_app/core/widgets/marketplace_product_card.dart';
 import 'package:harvest_app/core/widgets/app_search_bar.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -135,11 +136,12 @@ class MarketplaceScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: state.when(
-        initial: () => const SizedBox(),
-        loading: () => _buildFullShimmer(),
-        error: (err) => Center(child: Text('Error: $err')),
-        data: (data) {
+      body: WebConstrainedBox(
+        child: state.when(
+          initial: () => const SizedBox(),
+          loading: () => _buildFullShimmer(),
+          error: (err) => Center(child: Text('Error: $err')),
+          data: (data) {
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(marketplaceControllerProvider);
@@ -377,8 +379,8 @@ class MarketplaceScreen extends ConsumerWidget {
                           ? _buildShimmerGrid()
                           : SliverGrid(
                               gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 220,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
                                 childAspectRatio:
@@ -462,6 +464,7 @@ class MarketplaceScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
       ),
     );
   }
@@ -604,8 +607,8 @@ class MarketplaceScreen extends ConsumerWidget {
 
   Widget _buildShimmerGrid({bool isSliver = true}) {
     final grid = SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 220,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 0.65,

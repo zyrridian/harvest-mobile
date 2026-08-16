@@ -38,19 +38,26 @@ class QuickActionGrid extends StatelessWidget {
     // Show max 8 items
     final displayActions = actions.take(8).toList();
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.8,
-        crossAxisSpacing: 0,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: displayActions.length,
-      itemBuilder: (context, index) {
-        return _QuickActionButton(action: displayActions[index]);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 600;
+        return Container(
+          width: double.infinity,
+          alignment: Alignment.center,
+          child: Wrap(
+            spacing: isDesktop ? 24 : 12,
+            runSpacing: 24,
+            alignment: WrapAlignment.center,
+            runAlignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            children: displayActions.map((action) {
+              return SizedBox(
+                width: 75, // slightly smaller width to fit 4 on smaller phones
+                child: _QuickActionButton(action: action),
+              );
+            }).toList(),
+          ),
+        );
       },
     );
   }

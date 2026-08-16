@@ -12,6 +12,8 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
@@ -44,7 +46,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
     super.initState();
 
     // Fix for Android emulator freezing issue with Google Maps
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       final GoogleMapsFlutterPlatform mapsImplementation =
           GoogleMapsFlutterPlatform.instance;
       if (mapsImplementation is GoogleMapsFlutterAndroid) {
@@ -126,7 +128,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
     return Scaffold(
       backgroundColor: kBgColor,
       resizeToAvoidBottomInset: false,
-      body: state.when(
+      body: WebConstrainedBox(
+        child: state.when(
         initial: () => const SizedBox(),
         loading: () =>
             const Center(child: CircularProgressIndicator(color: kDarkGreen)),
@@ -714,6 +717,7 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
             },
           );
         },
+      ),
       ),
     );
   }

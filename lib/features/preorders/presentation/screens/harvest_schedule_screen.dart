@@ -9,6 +9,7 @@ import 'package:harvest_app/features/preorders/presentation/providers/harvest_sc
 import 'package:harvest_app/features/preorders/presentation/providers/harvest_schedule_state.dart';
 import 'package:harvest_app/core/constants/app_constants.dart';
 import 'package:intl/intl.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -70,308 +71,310 @@ class HarvestScheduleScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: state.when(
-        initial: () => const SizedBox(),
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kTextGreen)),
-        error: (err) => Center(child: Text('Error: $err')),
-        data: (data) {
-          final groupedItems = <String, List<HarvestScheduleItemEntity>>{};
-          for (var item in data.filteredItems) {
-            groupedItems.putIfAbsent(item.dateGroup, () => []).add(item);
-          }
+      body: WebConstrainedBox(
+        child: state.when(
+          initial: () => const SizedBox(),
+          loading: () =>
+              const Center(child: CircularProgressIndicator(color: kTextGreen)),
+          error: (err) => Center(child: Text('Error: $err')),
+          data: (data) {
+            final groupedItems = <String, List<HarvestScheduleItemEntity>>{};
+            for (var item in data.filteredItems) {
+              groupedItems.putIfAbsent(item.dateGroup, () => []).add(item);
+            }
 
-          return CustomScrollView(
-            slivers: [
-              // Calendar Strip
-              SliverToBoxAdapter(
-                child: Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat('MMMM yyyy').format(data.baseDate),
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: kTextGreen),
-                            ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () => ref
-                                      .read(harvestScheduleControllerProvider
-                                          .notifier)
-                                      .goToToday(),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border:
-                                          Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'Today',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () => ref
-                                      .read(harvestScheduleControllerProvider
-                                          .notifier)
-                                      .previous(),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.chevron_left,
-                                        size: 20, color: Colors.black87),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () => ref
-                                      .read(harvestScheduleControllerProvider
-                                          .notifier)
-                                      .next(),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.chevron_right,
-                                        size: 20, color: Colors.black87),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Days Header (SUN, MON, ...) only shown once in month view
-                      if (data.isMonthView)
+            return CustomScrollView(
+              slivers: [
+                // Calendar Strip
+                SliverToBoxAdapter(
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              'SUN',
-                              'MON',
-                              'TUE',
-                              'WED',
-                              'THU',
-                              'FRI',
-                              'SAT'
-                            ]
-                                .map((day) => Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          day,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
+                              Text(
+                                DateFormat('MMMM yyyy').format(data.baseDate),
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: kTextGreen),
+                              ),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => ref
+                                        .read(harvestScheduleControllerProvider
+                                            .notifier)
+                                        .goToToday(),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                            color: Colors.grey[300]!),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                    ))
-                                .toList(),
+                                      child: Text(
+                                        'Today',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => ref
+                                        .read(harvestScheduleControllerProvider
+                                            .notifier)
+                                        .previous(),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey[300]!),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.chevron_left,
+                                          size: 20, color: Colors.black87),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => ref
+                                        .read(harvestScheduleControllerProvider
+                                            .notifier)
+                                        .next(),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey[300]!),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.chevron_right,
+                                          size: 20, color: Colors.black87),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      // Days Grid / Row
-                      if (data.isMonthView)
-                        ..._buildMonthGrid(context, ref, data)
-                      else
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: _getWeekDays(data.baseDate).map((date) {
-                            return Expanded(
-                              child: _buildDayColumn(context, ref, data, date,
-                                  hasDot: _hasHarvestOnDate(data, date),
-                                  showDayStr: true),
-                            );
-                          }).toList(),
-                        ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Upcoming Harvests Header
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Upcoming harvests',
-                        style: TextStyle(
-                          color: kTextGreen,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      // GestureDetector(
-                      //   onTap: () => _showFilterBottomSheet(context),
-                      //   child: Container(
-                      //     padding: const EdgeInsets.symmetric(
-                      //         horizontal: 12, vertical: 6),
-                      //     decoration: BoxDecoration(
-                      //       color: Colors.white,
-                      //       border: Border.all(color: Colors.grey[300]!),
-                      //       borderRadius: BorderRadius.circular(8),
-                      //     ),
-                      //     child: Row(
-                      //       children: [
-                      //         Text(
-                      //           'Filter',
-                      //           style: TextStyle(
-                      //               fontSize: 12,
-                      //               fontWeight: FontWeight.w600,
-                      //               color: kTextGreen),
-                      //         ),
-                      //         const SizedBox(width: 4),
-                      //         const Icon(Icons.tune, size: 14, color: kTextGreen),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-              // List of items grouped by date
-              ...groupedItems.entries.map((entry) {
-                return SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              entry.key,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[600],
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            if (entry.value.any((e) => e.isToday))
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: kHighlightGreen,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text('NOW',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            const SizedBox(width: 8),
-                            Expanded(child: Divider(color: Colors.grey[300])),
-                          ],
-                        ),
                         const SizedBox(height: 16),
-                        ...entry.value.map((item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: _buildHarvestCard(context, ref, item),
-                            )),
+                        // Days Header (SUN, MON, ...) only shown once in month view
+                        if (data.isMonthView)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                'SUN',
+                                'MON',
+                                'TUE',
+                                'WED',
+                                'THU',
+                                'FRI',
+                                'SAT'
+                              ]
+                                  .map((day) => Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            day,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                        // Days Grid / Row
+                        if (data.isMonthView)
+                          ..._buildMonthGrid(context, ref, data)
+                        else
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: _getWeekDays(data.baseDate).map((date) {
+                              return Expanded(
+                                child: _buildDayColumn(context, ref, data, date,
+                                    hasDot: _hasHarvestOnDate(data, date),
+                                    showDayStr: true),
+                              );
+                            }).toList(),
+                          ),
+                        const SizedBox(height: 16),
+                        const Divider(height: 1, color: Color(0xFFEEEEEE)),
                       ],
                     ),
                   ),
-                );
-              }),
+                ),
 
-              // Bottom placeholder
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color: Colors.grey[300]!, style: BorderStyle.none),
+                // Upcoming Harvests Header
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Upcoming harvests',
+                          style: TextStyle(
+                            color: kTextGreen,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        // GestureDetector(
+                        //   onTap: () => _showFilterBottomSheet(context),
+                        //   child: Container(
+                        //     padding: const EdgeInsets.symmetric(
+                        //         horizontal: 12, vertical: 6),
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       border: Border.all(color: Colors.grey[300]!),
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     child: Row(
+                        //       children: [
+                        //         Text(
+                        //           'Filter',
+                        //           style: TextStyle(
+                        //               fontSize: 12,
+                        //               fontWeight: FontWeight.w600,
+                        //               color: kTextGreen),
+                        //         ),
+                        //         const SizedBox(width: 4),
+                        //         const Icon(Icons.tune, size: 14, color: kTextGreen),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
                     ),
-                    child: Container(
-                      // Dashed border effect using Container trick or just solid for now
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+                // List of items grouped by date
+                ...groupedItems.entries.map((entry) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Nothing else this week — explore more harvests',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
-                            textAlign: TextAlign.center,
+                          Row(
+                            children: [
+                              Text(
+                                entry.key,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[600],
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              if (entry.value.any((e) => e.isToday))
+                                Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: kHighlightGreen,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text('NOW',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Divider(color: Colors.grey[300])),
+                            ],
                           ),
                           const SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () => context.push(AppRouter.preorder),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey[300]!),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'Browse pre-orders',
-                                style: TextStyle(
-                                  color: kTextGreen,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                          ...entry.value.map((item) => Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: _buildHarvestCard(context, ref, item),
+                              )),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+
+                // Bottom placeholder
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: Colors.grey[300]!, style: BorderStyle.none),
+                      ),
+                      child: Container(
+                        // Dashed border effect using Container trick or just solid for now
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Nothing else this week — explore more harvests',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600]),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            GestureDetector(
+                              onTap: () => context.push(AppRouter.preorder),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.grey[300]!),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Browse pre-orders',
+                                  style: TextStyle(
+                                    color: kTextGreen,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

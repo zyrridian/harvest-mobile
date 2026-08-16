@@ -8,7 +8,7 @@ class AppConstants {
   // For development, you can use: http://10.0.2.2:3000 (Android emulator localhost)
   // or http://localhost:3000 (web/desktop)
   static const String baseUrl = String.fromEnvironment('BASE_URL',
-      defaultValue: 'https://marketplace.zyrridian.dev');
+      defaultValue: 'https://harvest.zyrridian.dev');
   static const String apiVersion = '/api/v1';
 
   // API Endpoints - Auth

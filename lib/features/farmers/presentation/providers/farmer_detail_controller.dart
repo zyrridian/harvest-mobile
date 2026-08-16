@@ -46,7 +46,16 @@ class FarmerDetailController extends _$FarmerDetailController {
   }
 
   Future<void> _loadAll() async {
-    loadFarmerProfile();
+    try {
+      await loadFarmerProfile();
+    } catch (e, st) {
+      state = state.copyWith(
+        farmerDetail: AsyncValue.error(e, st),
+        products: AsyncValue.error(e, st),
+        posts: AsyncValue.error(e, st),
+        reviews: AsyncValue.error(e, st),
+      );
+    }
   }
 
   Future<void> loadFarmerProfile() async {

@@ -13,6 +13,7 @@ import '../../../community/presentation/screens/image_viewer_screen.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../providers/farmer_detail_controller.dart';
 import '../../../chat/presentation/providers/messaging_providers.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 
 // --- DESIGN CONSTANTS (Self-contained for this file) ---
 const kBgColor = Color(0xFFFFFFFF);
@@ -56,8 +57,9 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
 
     return Scaffold(
       backgroundColor: kBgColor,
-      body: RefreshIndicator(
-        color: kDarkGreen,
+      body: WebConstrainedBox(
+        child: RefreshIndicator(
+          color: kDarkGreen,
         onRefresh: () async {
           await ref
               .read(farmerDetailControllerProvider(widget.farmer.id).notifier)
@@ -154,6 +156,7 @@ class _FarmerDetailScreenState extends ConsumerState<FarmerDetailScreen>
               _buildReviewsTab(state.reviews),
             ],
           ),
+        ),
         ),
       ),
     );

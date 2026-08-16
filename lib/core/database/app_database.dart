@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'tables/farmers_table.dart';
+import 'package:flutter/foundation.dart';
+import 'package:drift/web.dart';
 
 part 'app_database.g.dart';
 
@@ -27,6 +29,10 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
+
 QueryExecutor _openConnection() {
+  if (kIsWeb) {
+    return WebDatabase('harvest_app');
+  }
   return driftDatabase(name: 'harvest_app');
 }

@@ -9,6 +9,7 @@ import 'core/config/theme/app_theme.dart';
 import 'core/providers/db_provider.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/providers/language_provider.dart';
+import 'core/utils/map_injector.dart';
 // import 'features/auth/presentation/providers/push_notification_provider.dart';
 // import 'package:harvest_app/core/services/godeye_push_notification.dart';
 
@@ -20,9 +21,11 @@ void main() async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
 
+  await injectMapScript();
+
   // final pushService = PushNotificationService();
   // await pushService.initialize(
-  //   serverUrl: "https://marketplace.zyrridian.dev",
+  //   serverUrl: "https://harvest.zyrridian.dev",
   //   appId: "harvest-mobile",
   // );
 

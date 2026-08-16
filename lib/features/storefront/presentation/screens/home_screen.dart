@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
+import 'package:harvest_app/features/community/domain/entities/community_post.dart';
+import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
+import 'package:harvest_app/features/community/presentation/screens/community_post_detail_screen.dart';
+import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
 import 'package:harvest_app/features/storefront/domain/entities/home.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
 import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
@@ -12,6 +16,7 @@ import 'package:harvest_app/features/storefront/presentation/widgets/quick_actio
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/sales/presentation/screens/orders/orders_list_screen.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'main_screen.dart';
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
@@ -54,10 +59,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       backgroundColor: kBgColor,
       body: homeState.maybeWhen(
         data: (homeData) {
-          return _buildContent(
-            homeData.activeOrder,
-            homeData.farmerUpdates,
-            homeData.weeklyStaples,
+          return WebConstrainedBox(
+            child: _buildContent(
+              homeData.activeOrder,
+              homeData.farmerUpdates,
+              homeData.weeklyStaples,
+            ),
           );
         },
         error: (message) => Center(child: Text(message)),
@@ -169,12 +176,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // ── 5. PROMO CAROUSEL ─────────────────────────────────────────────
           SliverToBoxAdapter(
-            child: HarvestPromoBanner(
-              eyebrow: 'Hot deal',
-              title: 'Pre-order & save',
-              subtitle: 'Reserve harvest early and save up to 20%',
-              onTap: () {},
-            ),
+            child: PromoCarousel(),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
@@ -242,20 +244,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         label: 'Promos',
                         iconPath: 'assets/icons/ic_promo.svg',
                         badge: 'HOT',
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Dummy Promotion'),
+                              content:
+                                  const Text('Get 50% off your next harvest!'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       QuickAction(
                         label: 'More',
                         iconData: Icons.more_horiz,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CategoryScreen(
-                              categoryName: 'All Categories',
-                              categoryId: 'all',
-                            ),
-                          ),
-                        ),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('More options coming soon...')),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -321,7 +335,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: GestureDetector(
             onTap: () {
-              ref.read(bottomNavIndexProvider.notifier).state = 2; // Community tab
+              ref.read(bottomNavIndexProvider.notifier).state =
+                  1; // Community tab
+              ref.read(communityTabProvider.notifier).state = 'Following';
+              ref
+                  .read(communityControllerProvider.notifier)
+                  .setFilter('following');
             },
             child: Container(
               width: double.infinity,
@@ -386,7 +405,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: _sectionHeader('Updates from Your Farmers', showSeeAll: true),
+          child: _sectionHeader(
+            'Updates from Your Farmers',
+            showSeeAll: true,
+            onSeeAllTap: () {
+              ref.read(bottomNavIndexProvider.notifier).state =
+                  1; // Community tab
+              ref.read(communityTabProvider.notifier).state = 'Following';
+              ref
+                  .read(communityControllerProvider.notifier)
+                  .setFilter('following');
+            },
+          ),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -398,77 +428,104 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             separatorBuilder: (_, __) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
               final update = updates[index];
-              return Container(
-                width: 280,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: kPillGrey, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              return GestureDetector(
+                onTap: () {
+                  final post = CommunityPost(
+                    id: update.id,
+                    userId: update.id,
+                    farmerId: update.id,
+                    title: 'Update from ${update.farmerName}',
+                    content: update.content,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                    user: CommunityUser(
+                      id: update.id,
+                      name: update.farmerName,
+                      // avatar: update.farmerAvatar,
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        ClipOval(
-                          child: Image.network(
-                            update.farmerAvatar,
-                            width: 32,
-                            height: 32,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CommunityPostDetailScreen(post: post),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 280,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kPillGrey, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          ClipOval(
+                            child: Image.network(
+                              update.farmerAvatar,
                               width: 32,
                               height: 32,
-                              color: kPillGrey,
-                              child: PhosphorIcon(
-                                PhosphorIconsRegular.user,
-                                color: Colors.grey,
-                                size: 20,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                width: 32,
+                                height: 32,
+                                color: kPillGrey,
+                                child: PhosphorIcon(
+                                  PhosphorIconsRegular.user,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            update.farmerName,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: kDarkGreen,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              update.farmerName,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: kDarkGreen,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          update.timeAgo,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[500],
+                          Text(
+                            update.timeAgo,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      update.content,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.black87,
-                        height: 1.4,
+                        ],
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Text(
+                        update.content,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -694,9 +751,13 @@ class HarvestPromoBanner extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
-        color: kSand,
+        decoration: BoxDecoration(
+          color: kSand,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Stack(
           children: [
             Positioned(

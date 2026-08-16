@@ -41,7 +41,7 @@ jobs:
       - name: Create env file
         run: |
           mkdir -p env
-          echo '{"BASE_URL": "https://harvest.zyrridian.dev"}' > env/prod.json
+          echo "{\"BASE_URL\": \"https://harvest.zyrridian.dev\", \"MAPS_API_KEY\": \"${{ secrets.MAPS_API_KEY }}\"}" > env/prod.json
 
       - name: Create local.properties
         run: |

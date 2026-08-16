@@ -21,12 +21,15 @@ import 'package:harvest_app/features/auth/presentation/providers/auth_controller
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/core/widgets/pill_tab_bar.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
 const kAccentOrange = Color(0xFFE86A33);
 const kPillGrey = Color(0xFFF0F2F0);
+
+final communityTabProvider = StateProvider<String>((ref) => 'All Posts');
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
@@ -98,7 +101,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   void _onFilterSelected(String filter) {
-    setState(() => _selectedFilter = filter);
+    ref.read(communityTabProvider.notifier).state = filter;
 
     final currentUserId = ref.read(authControllerProvider).maybeWhen(
           authenticated: (user) => user.id,
@@ -242,6 +245,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedFilter = ref.watch(communityTabProvider);
     final state = ref.watch(communityControllerProvider);
     final authState = ref.watch(authControllerProvider);
     final currentUserId = authState.maybeWhen(
@@ -308,37 +312,39 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         ],
       ),
       body: SafeArea(
-        child: RefreshIndicator.adaptive(
-          onRefresh: () async {
-            ref.invalidate(communityControllerProvider);
-          },
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              // Filters
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: PillTabBarDelegate(
-                  child: PillTabBar(
-                    tabs: _filters.map((f) => PillTabItem(name: f)).toList(),
-                    selectedIndex: _filters.indexOf(_selectedFilter),
-                    onTabSelected: (index) {
-                      _onFilterSelected(_filters[index]);
-                    },
-                    activeColor: AppColors.primary,
+        child: WebConstrainedBox(
+          child: RefreshIndicator.adaptive(
+            onRefresh: () async {
+              ref.invalidate(communityControllerProvider);
+            },
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                // Filters
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PillTabBarDelegate(
+                    child: PillTabBar(
+                      tabs: _filters.map((f) => PillTabItem(name: f)).toList(),
+                      selectedIndex: _filters.indexOf(selectedFilter),
+                      onTabSelected: (index) {
+                        _onFilterSelected(_filters[index]);
+                      },
+                      activeColor: AppColors.primary,
+                    ),
                   ),
                 ),
-              ),
 
-              // Posts List or Recipes List
-              (_selectedFilter == 'Kitchen Recipes' ||
-                      _selectedFilter == 'My Recipes')
-                  ? _buildRecipesList(ref, currentUserId)
-                  : _buildPostsList(state, currentUserId),
+                // Posts List or Recipes List
+                (selectedFilter == 'Kitchen Recipes' ||
+                        selectedFilter == 'My Recipes')
+                    ? _buildRecipesList(ref, currentUserId)
+                    : _buildPostsList(state, currentUserId),
 
-              // Bottom padding for nav bar
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
+                // Bottom padding for nav bar
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            ),
           ),
         ),
       ),

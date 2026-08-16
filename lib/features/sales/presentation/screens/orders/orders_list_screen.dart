@@ -10,6 +10,8 @@ import '../../../../../core/widgets/pill_tab_bar.dart';
 import 'package:harvest_app/features/sales/domain/entities/order.dart';
 import 'package:harvest_app/features/catalog/presentation/widgets/review_product_sheet.dart';
 
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
+
 // --- DESIGN CONSTANTS ---
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -47,187 +49,198 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
 
     return Scaffold(
       backgroundColor: kBgColor,
-      body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          color: kDarkGreen,
-          backgroundColor: Colors.white,
-          onRefresh: () async => ref.refresh(ordersProvider(const {'role': 'buyer'})),
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                pinned: true,
-                backgroundColor: kBgColor,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                titleSpacing: 0,
-                centerTitle: false,
-                leading: IconButton(
-                  icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: kDarkGreen),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(AppRouter.main);
-                    }
-                  },
-                ),
-                title: AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 200),
-                  crossFadeState: _isSearchVisible
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  layoutBuilder:
-                      (topChild, topChildKey, bottomChild, bottomChildKey) {
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.centerLeft,
-                      children: <Widget>[
-                        Positioned(
-                          key: bottomChildKey,
-                          left: 0.0,
-                          right: 0.0,
-                          child: bottomChild,
-                        ),
-                        Positioned(
-                          key: topChildKey,
-                          child: topChild,
-                        ),
-                      ],
-                    );
-                  },
-                  firstChild: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      'My Orders',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: kDarkGreen,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ) ??
-                          const TextStyle(
-                            color: kDarkGreen,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
+      body: WebConstrainedBox(
+        child: SafeArea(
+          bottom: false,
+          child: RefreshIndicator(
+            color: kDarkGreen,
+            backgroundColor: Colors.white,
+            onRefresh: () async =>
+                ref.refresh(ordersProvider(const {'role': 'buyer'})),
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  snap: true,
+                  pinned: true,
+                  backgroundColor: kBgColor,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  titleSpacing: 0,
+                  centerTitle: false,
+                  leading: IconButton(
+                    icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                        color: kDarkGreen),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(AppRouter.main);
+                      }
+                    },
+                  ),
+                  title: AnimatedCrossFade(
+                    duration: const Duration(milliseconds: 200),
+                    crossFadeState: _isSearchVisible
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    layoutBuilder:
+                        (topChild, topChildKey, bottomChild, bottomChildKey) {
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.centerLeft,
+                        children: <Widget>[
+                          Positioned(
+                            key: bottomChildKey,
+                            left: 0.0,
+                            right: 0.0,
+                            child: bottomChild,
                           ),
+                          Positioned(
+                            key: topChildKey,
+                            child: topChild,
+                          ),
+                        ],
+                      );
+                    },
+                    firstChild: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        'My Orders',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: kDarkGreen,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                ) ??
+                            const TextStyle(
+                              color: kDarkGreen,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
+                      ),
+                    ),
+                    secondChild: SizedBox(
+                      width: double.infinity,
+                      child: AppSearchBar(
+                        hintText: 'Search orders...',
+                        height: 38,
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                      ),
                     ),
                   ),
-                  secondChild: SizedBox(
-                    width: double.infinity,
-                    child: AppSearchBar(
-                      hintText: 'Search orders...',
-                      height: 38,
-                      controller: _searchController,
-                      onChanged: (value) {
-                        setState(() {});
+                  actions: [
+                    IconButton(
+                      icon: PhosphorIcon(
+                        _isSearchVisible
+                            ? PhosphorIconsRegular.x
+                            : PhosphorIconsRegular.magnifyingGlass,
+                        color: kDarkGreen,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isSearchVisible = !_isSearchVisible;
+                          if (!_isSearchVisible) {
+                            _searchController.clear();
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PillTabBarDelegate(
+                    height: 52.0,
+                    child: PillTabBar(
+                      backgroundColor: kBgColor,
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, top: 8, bottom: 8),
+                      tabs: _filters
+                          .map((f) => PillTabItem(
+                                name: f,
+                              ))
+                          .toList(),
+                      selectedIndex: _selectedFilterIndex,
+                      onTabSelected: (index) {
+                        setState(() {
+                          _selectedFilterIndex = index;
+                        });
                       },
                     ),
                   ),
                 ),
-                actions: [
-                  IconButton(
-                    icon: PhosphorIcon(
-                      _isSearchVisible
-                          ? PhosphorIconsRegular.x
-                          : PhosphorIconsRegular.magnifyingGlass,
-                      color: kDarkGreen,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isSearchVisible = !_isSearchVisible;
-                        if (!_isSearchVisible) {
-                          _searchController.clear();
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: PillTabBarDelegate(
-                  height: 52.0,
-                  child: PillTabBar(
-                    backgroundColor: kBgColor,
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, top: 8, bottom: 8),
-                    tabs: _filters
-                        .map((f) => PillTabItem(
-                              name: f,
-                            ))
-                        .toList(),
-                    selectedIndex: _selectedFilterIndex,
-                    onTabSelected: (index) {
-                      setState(() {
-                        _selectedFilterIndex = index;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              ordersAsync.when(
-                data: (orders) {
-                  List<Order> filteredOrders = List.from(orders);
-                  final selectedStatus = _filters[_selectedFilterIndex].toLowerCase();
-                  if (selectedStatus != 'all') {
-                    filteredOrders = filteredOrders.where((o) => o.status == selectedStatus).toList();
-                  }
+                ordersAsync.when(
+                  data: (orders) {
+                    List<Order> filteredOrders = List.from(orders);
+                    final selectedStatus =
+                        _filters[_selectedFilterIndex].toLowerCase();
+                    if (selectedStatus != 'all') {
+                      filteredOrders = filteredOrders
+                          .where((o) => o.status == selectedStatus)
+                          .toList();
+                    }
 
-                  if (_searchController.text.isNotEmpty) {
-                    final query = _searchController.text.toLowerCase();
-                    filteredOrders = filteredOrders.where((o) {
-                      return (o.orderNumber.toLowerCase().contains(query)) ||
-                             (o.seller.name.toLowerCase().contains(query));
-                    }).toList();
-                  }
+                    if (_searchController.text.isNotEmpty) {
+                      final query = _searchController.text.toLowerCase();
+                      filteredOrders = filteredOrders.where((o) {
+                        return (o.orderNumber.toLowerCase().contains(query)) ||
+                            (o.seller.name.toLowerCase().contains(query));
+                      }).toList();
+                    }
 
-                  if (filteredOrders.isEmpty) {
-                    return SliverFillRemaining(
-                      child: _buildEmptyState(),
+                    if (filteredOrders.isEmpty) {
+                      return SliverFillRemaining(
+                        child: _buildEmptyState(),
+                      );
+                    }
+
+                    return SliverPadding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 100),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final order = filteredOrders[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 6),
+                              child: _buildOrderCard(order),
+                            );
+                          },
+                          childCount: filteredOrders.length,
+                        ),
+                      ),
                     );
-                  }
-
-                  return SliverPadding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 100),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final order = filteredOrders[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                            child: _buildOrderCard(order),
-                          );
-                        },
-                        childCount: filteredOrders.length,
+                  },
+                  loading: () => SliverFillRemaining(
+                    child: _buildShimmerList(),
+                  ),
+                  error: (e, st) => SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const PhosphorIcon(PhosphorIconsRegular.warningCircle,
+                              size: 48, color: kTextGrey),
+                          const SizedBox(height: 16),
+                          Text('Error: $e',
+                              style: const TextStyle(color: kTextGrey)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => ref.refresh(
+                                ordersProvider(const {'role': 'buyer'})),
+                            child: const Text('Retry'),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
-                loading: () => SliverFillRemaining(
-                  child: _buildShimmerList(),
-                ),
-                error: (e, st) => SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const PhosphorIcon(PhosphorIconsRegular.warningCircle, size: 48, color: kTextGrey),
-                        const SizedBox(height: 16),
-                        Text('Error: $e', style: const TextStyle(color: kTextGrey)),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => ref.refresh(ordersProvider(const {'role': 'buyer'})),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -322,9 +335,11 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(width: 150, height: 16, color: Colors.white),
+                            Container(
+                                width: 150, height: 16, color: Colors.white),
                             const SizedBox(height: 4),
-                            Container(width: 100, height: 14, color: Colors.white),
+                            Container(
+                                width: 100, height: 14, color: Colors.white),
                           ],
                         ),
                       ),
@@ -342,7 +357,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                         children: [
                           Container(width: 80, height: 12, color: Colors.white),
                           const SizedBox(height: 4),
-                          Container(width: 100, height: 20, color: Colors.white),
+                          Container(
+                              width: 100, height: 20, color: Colors.white),
                         ],
                       ),
                       Container(width: 40, height: 40, color: Colors.white),
@@ -392,7 +408,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
             // Seller Info
             Row(
               children: [
-                const PhosphorIcon(PhosphorIconsRegular.storefront, size: 16, color: kTextGrey),
+                const PhosphorIcon(PhosphorIconsRegular.storefront,
+                    size: 16, color: kTextGrey),
                 const SizedBox(width: 6),
                 Text(
                   order.seller.name,
@@ -417,7 +434,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                       final item = order.items[index];
                       final isLast = index == 2 && order.items.length > 3;
                       final imageUrl = item.imageUrl;
-                      
+
                       return Container(
                         margin: const EdgeInsets.only(right: 8),
                         width: 48,
@@ -451,7 +468,9 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                               )
                             : imageUrl == null
                                 ? const Center(
-                                    child: PhosphorIcon(PhosphorIconsRegular.image, color: kTextGrey),
+                                    child: PhosphorIcon(
+                                        PhosphorIconsRegular.image,
+                                        color: kTextGrey),
                                   )
                                 : null,
                       );
@@ -520,7 +539,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                 ),
                 Row(
                   children: [
-                    if (order.status.toLowerCase() == 'delivered' || order.status.toLowerCase() == 'completed')
+                    if (order.status.toLowerCase() == 'delivered' ||
+                        order.status.toLowerCase() == 'completed')
                       Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: OutlinedButton(
@@ -534,7 +554,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                                   orderId: order.orderId,
                                   productId: order.items.first.productId,
                                   productName: order.items.first.name,
-                                  productImageUrl: order.items.first.imageUrl ?? '',
+                                  productImageUrl:
+                                      order.items.first.imageUrl ?? '',
                                 ),
                               );
                             } else {
@@ -547,7 +568,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                                   orderId: order.orderId,
                                   productId: order.items.first.productId,
                                   productName: order.items.first.name,
-                                  productImageUrl: order.items.first.imageUrl ?? '',
+                                  productImageUrl:
+                                      order.items.first.imageUrl ?? '',
                                 ),
                               );
                             }
@@ -557,7 +579,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),

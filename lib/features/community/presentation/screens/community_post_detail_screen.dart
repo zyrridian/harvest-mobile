@@ -10,6 +10,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/community_comment.dart';
 import '../providers/community_controller.dart';
 import '../providers/post_detail_controller.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 
 class CommunityPostDetailScreen extends ConsumerStatefulWidget {
   final CommunityPost post;
@@ -191,8 +192,9 @@ class _CommunityPostDetailScreenState
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Column(
-        children: [
+      body: WebConstrainedBox(
+        child: Column(
+          children: [
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -240,6 +242,7 @@ class _CommunityPostDetailScreenState
           ),
           _buildCommentInput(),
         ],
+      ),
       ),
     );
   }
