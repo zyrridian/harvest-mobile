@@ -56,8 +56,8 @@ GetCurrentUserUseCase getCurrentUserUseCase(Ref ref) {
 class AuthController extends _$AuthController {
   @override
   AuthState build() {
-    // We don't call checkAuthStatus here to avoid unawaited futures.
-    // Splash screen will call it.
+    // Initialize auth status in the background so that web refreshes recover the user state
+    Future.microtask(() => checkAuthStatus());
     return const AuthState.initial();
   }
 

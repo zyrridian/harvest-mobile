@@ -12,4 +12,8 @@ class UploadFileUseCase {
   Future<Either<Failure, UploadedFile>> call(File file) async {
     return await repository.uploadFile(file);
   }
+
+  Future<Either<Failure, UploadedFile>> uploadBytes(List<int> bytes, String filename) async {
+    return await repository.uploadBytes(bytes, filename);
+  }
 }

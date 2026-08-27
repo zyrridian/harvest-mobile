@@ -242,6 +242,10 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       authenticated: (user) => user.id,
       orElse: () => null,
     );
+    final currentUserName = authState.maybeWhen(
+      authenticated: (user) => user.name,
+      orElse: () => null,
+    );
     final isProducer = authState.maybeWhen(
       authenticated: (user) => user.userType == UserType.farmer,
       orElse: () => false,
@@ -338,8 +342,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 // Posts List or Recipes List
                 (selectedFilter == 'Kitchen Recipes' ||
                         selectedFilter == 'My Recipes')
-                    ? _buildRecipesList(ref, currentUserId)
-                    : _buildPostsList(state, currentUserId, selectedFilter),
+                    ? _buildRecipesList(ref, currentUserId, currentUserName)
+                    : _buildPostsList(state, currentUserId, currentUserName, selectedFilter),
 
                 // Bottom padding for nav bar
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -351,8 +355,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildPostsList(
-      CommunityState state, String? currentUserId, String selectedFilter) {
+  Widget _buildPostsList(CommunityState state, String? currentUserId, String? currentUserName, String selectedFilter) {
     return state.maybeWhen(
       data: (response) {
         if (response.data.isEmpty) {
@@ -364,7 +367,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final post = response.data[index];
-              return _buildPostCard(post, currentUserId, selectedFilter);
+              return _buildPostCard(post, currentUserId, currentUserName, selectedFilter);
             },
             childCount: response.data.length,
           ),
@@ -381,7 +384,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipesList(WidgetRef ref, String? currentUserId) {
+  Widget _buildRecipesList(WidgetRef ref, String? currentUserId, String? currentUserName) {
     final recipeState = ref.watch(recipeControllerProvider);
 
     return recipeState.maybeWhen(
@@ -403,7 +406,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final recipe = response.data[index];
-                return _buildRecipeCard(recipe, currentUserId);
+                return _buildRecipeCard(recipe, currentUserId, currentUserName);
               },
               childCount: response.data.length,
             ),
@@ -421,7 +424,10 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Recipe recipe, String? currentUserId) {
+  Widget _buildRecipeCard(Recipe recipe, String? currentUserId, String? currentUserName) {
+    final isMyRecipe = (currentUserId != null && (recipe.authorId == currentUserId || recipe.author.id == currentUserId)) ||
+                       (currentUserName != null && recipe.author.name == currentUserName);
+                       
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -464,7 +470,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                       ),
                     ),
                   ),
-                  if (recipe.author.id == currentUserId)
+                  if (isMyRecipe)
                     Positioned(
                       top: 4,
                       right: 4,
@@ -679,20 +685,23 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  void _editRecipe(Recipe recipe) {
-    // Basic implementation for now - just showing a dialog.
-    // In a real app this would navigate to a full edit screen like CreateRecipeScreen.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Edit recipe functionality is coming soon!')),
+  Future<void> _editRecipe(Recipe recipe) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CreateRecipeScreen(recipeToEdit: recipe)),
     );
+    if (result == true) {
+      ref.read(recipeControllerProvider.notifier).refresh();
+    }
   }
 
   Widget _buildPostCard(
-      CommunityPost post, String? currentUserId, String selectedFilter) {
+      CommunityPost post, String? currentUserId, String? currentUserName, String selectedFilter) {
     return CommunityPostCard(
       post: post,
       currentUserId: currentUserId,
+      currentUserName: currentUserName,
       showFarmerBadge:
           selectedFilter == 'All Posts' || selectedFilter == 'My Posts',
       onTap: () {

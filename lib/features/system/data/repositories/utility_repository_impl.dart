@@ -22,6 +22,16 @@ class UtilityRepositoryImpl implements UtilityRepository {
   }
 
   @override
+  Future<Either<Failure, UploadedFile>> uploadBytes(List<int> bytes, String filename) async {
+    try {
+      final result = await remoteDataSource.uploadBytes(bytes, filename);
+      return Right(result.toEntity());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, ShareContent>> share(
     String type,
     String id,

@@ -1,13 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
+import 'package:dartz/dartz.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/features/system/domain/entities/uploaded_file.dart';
+import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 
 class CreateRecipeScreen extends ConsumerStatefulWidget {
-  const CreateRecipeScreen({super.key});
+  final Recipe? recipeToEdit;
+  const CreateRecipeScreen({super.key, this.recipeToEdit});
 
   @override
   ConsumerState<CreateRecipeScreen> createState() => _CreateRecipeScreenState();
@@ -29,6 +35,33 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
 
   final List<Map<String, dynamic>> _ingredients = [];
   final List<TextEditingController> _instructionControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.recipeToEdit != null) {
+      final recipe = widget.recipeToEdit!;
+      _titleController.text = recipe.title;
+      _descriptionController.text = recipe.description;
+      _prepTimeController.text = recipe.prepTimeMinutes.toString();
+      _cookTimeController.text = recipe.cookTimeMinutes.toString();
+      _servingsController.text = recipe.servings.toString();
+      _difficulty = recipe.difficulty ?? 'medium';
+      _imageUrl = recipe.imageUrl;
+      
+      for (final ingredient in recipe.ingredients) {
+        _ingredients.add({
+          'nameController': TextEditingController(text: ingredient.name),
+          'qtyController': TextEditingController(text: ingredient.quantity.toString()),
+          'unitController': TextEditingController(text: ingredient.unit),
+        });
+      }
+      
+      for (final instruction in recipe.instructions) {
+        _instructionControllers.add(TextEditingController(text: instruction));
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -87,7 +120,10 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
 
     try {
       final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
-      final result = await uploadFileUseCase(File(pickedFile.path));
+      
+      final result = kIsWeb
+          ? await uploadFileUseCase.uploadBytes(await pickedFile.readAsBytes(), pickedFile.name)
+          : await uploadFileUseCase(File(pickedFile.path));
 
       if (!mounted) return;
       result.fold(
@@ -145,8 +181,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
 
     setState(() => _isLoading = true);
 
-    final useCase = ref.read(createRecipeUseCaseProvider);
-    final result = await useCase.call({
+    final recipeData = {
       'title': _titleController.text.trim(),
       'description': _descriptionController.text.trim(),
       'image_url': _imageUrl,
@@ -157,7 +192,11 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
       'ingredients': formattedIngredients,
       'instructions': formattedInstructions,
       'is_featured': false,
-    });
+    };
+
+    final result = widget.recipeToEdit != null
+        ? await ref.read(updateRecipeUseCaseProvider).call(widget.recipeToEdit!.id, recipeData)
+        : await ref.read(createRecipeUseCaseProvider).call(recipeData);
 
     setState(() => _isLoading = false);
 
@@ -188,7 +227,7 @@ class _CreateRecipeScreenState extends ConsumerState<CreateRecipeScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'Create Recipe',
+            widget.recipeToEdit != null ? 'Edit Recipe' : 'Create Recipe',
             style: TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.w600,

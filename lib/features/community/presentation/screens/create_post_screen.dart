@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
+import 'package:dartz/dartz.dart';
+import 'package:harvest_app/core/error/failure.dart';
+import 'package:harvest_app/features/system/domain/entities/uploaded_file.dart';
 import '../../../system/presentation/providers/utility_providers.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -102,7 +106,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     try {
       final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
-      final result = await uploadFileUseCase(File(pickedFile.path));
+      
+      final result = kIsWeb
+          ? await uploadFileUseCase.uploadBytes(await pickedFile.readAsBytes(), pickedFile.name)
+          : await uploadFileUseCase(File(pickedFile.path));
 
       if (!mounted) return;
       result.fold(

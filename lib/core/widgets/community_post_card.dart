@@ -13,6 +13,7 @@ class CommunityPostCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final String? profileImageUrl;
+  final String? currentUserName;
   final bool showFarmerBadge;
 
   const CommunityPostCard({
@@ -25,6 +26,7 @@ class CommunityPostCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     this.profileImageUrl,
+    this.currentUserName,
     this.showFarmerBadge = false,
   });
 
@@ -39,7 +41,11 @@ class CommunityPostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMyPost = post.userId == currentUserId;
+    final isMyPost = (currentUserId != null && 
+        (post.userId == currentUserId || 
+         post.farmerId == currentUserId || 
+         post.user.id == currentUserId)) ||
+         (currentUserName != null && post.user.name == currentUserName);
 
     return GestureDetector(
       onTap: onTap,

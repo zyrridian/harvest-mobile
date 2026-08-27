@@ -6,6 +6,7 @@ import '../entities/share_content.dart';
 
 abstract class UtilityRepository {
   Future<Either<Failure, UploadedFile>> uploadFile(File file);
+  Future<Either<Failure, UploadedFile>> uploadBytes(List<int> bytes, String filename);
 
   Future<Either<Failure, ShareContent>> share(
     String type,

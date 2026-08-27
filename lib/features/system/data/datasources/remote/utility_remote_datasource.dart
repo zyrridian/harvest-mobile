@@ -5,6 +5,7 @@ import '../../models/share_content_model.dart';
 
 abstract class UtilityRemoteDataSource {
   Future<UploadedFileModel> uploadFile(File file);
+  Future<UploadedFileModel> uploadBytes(List<int> bytes, String filename);
   
   Future<ShareContentModel> share(
     String type,
@@ -49,6 +50,38 @@ class UtilityRemoteDataSourceImpl implements UtilityRemoteDataSource {
       throw Exception(e.message ?? 'Network error occurred');
     } catch (e) {
       throw Exception('An error occurred while uploading');
+    }
+  }
+
+  @override
+  Future<UploadedFileModel> uploadBytes(List<int> bytes, String filename) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(
+          bytes,
+          filename: filename,
+        ),
+      });
+
+      final response = await dio.post(
+        '/system/utils/upload',
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return UploadedFileModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ?? 'Failed to upload file');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.message ?? 'Network error occurred');
+    } catch (e) {
+      throw Exception('An error occurred while uploading bytes');
     }
   }
 
