@@ -22,6 +22,8 @@ part 'community_controller.g.dart';
 class CommunityController extends _$CommunityController {
   String _currentFilter = 'all';
   String? _currentTag;
+  int _currentPage = 1;
+  bool _isLoadingMore = false;
 
   @override
   CommunityState build() {
@@ -44,7 +46,12 @@ class CommunityController extends _$CommunityController {
   }
 
   Future<void> _fetchPosts({int page = 1}) async {
-    state = const CommunityState.loading();
+    if (page == 1) {
+      state = const CommunityState.loading();
+      _currentPage = 1;
+    } else {
+      _isLoadingMore = true;
+    }
     
     if (_currentFilter == 'Kitchen Recipes' || _currentFilter == 'recipes') {
       state = const CommunityState.data(PaginatedResponse<CommunityPost>(
@@ -69,8 +76,43 @@ class CommunityController extends _$CommunityController {
     );
 
     result.fold(
-      (failure) => state = CommunityState.error(failure.message),
-      (data) => state = CommunityState.data(data),
+      (failure) {
+        if (page == 1) {
+          state = CommunityState.error(failure.message);
+        }
+        _isLoadingMore = false;
+      },
+      (data) {
+        if (page == 1) {
+          state = CommunityState.data(data);
+        } else {
+          state.maybeWhen(
+            data: (oldData) {
+              final newItems = [...oldData.data, ...data.data];
+              state = CommunityState.data(PaginatedResponse(
+                data: newItems,
+                pagination: data.pagination,
+              ));
+            },
+            orElse: () => state = CommunityState.data(data),
+          );
+        }
+        _currentPage = page;
+        _isLoadingMore = false;
+      },
+    );
+  }
+
+  Future<void> loadNextPage() async {
+    if (_isLoadingMore) return;
+    
+    state.maybeWhen(
+      data: (data) {
+        if (data.pagination.currentPage < data.pagination.totalPages) {
+          _fetchPosts(page: _currentPage + 1);
+        }
+      },
+      orElse: () {},
     );
   }
 

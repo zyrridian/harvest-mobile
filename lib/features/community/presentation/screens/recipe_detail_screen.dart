@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:intl/intl.dart';
 
@@ -10,19 +11,22 @@ class RecipeDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: _buildRecipeContent(context),
-          ),
-          // Bottom padding
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 40),
-          ),
-        ],
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(context),
+            SliverToBoxAdapter(
+              child: _buildRecipeContent(context),
+            ),
+            // Bottom padding
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 40),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -40,7 +44,8 @@ class RecipeDetailScreen extends ConsumerWidget {
             color: Colors.black.withOpacity(0.3),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+          child: const Icon(Icons.arrow_back_ios_new,
+              color: Colors.white, size: 18),
         ),
         onPressed: () => Navigator.pop(context),
       ),
@@ -92,7 +97,7 @@ class RecipeDetailScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Title
           Text(
             recipe.title,
@@ -103,7 +108,7 @@ class RecipeDetailScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Description
           if (recipe.description.isNotEmpty) ...[
             Text(
@@ -116,21 +121,25 @@ class RecipeDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
           ],
-          
+
           // Metadata Cards
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildMetaCard(Icons.schedule, 'Prep Time', '${recipe.prepTimeMinutes}m'),
-              _buildMetaCard(Icons.outdoor_grill, 'Cook Time', '${recipe.cookTimeMinutes}m'),
-              _buildMetaCard(Icons.people_outline, 'Servings', '${recipe.servings}'),
-              _buildMetaCard(Icons.bar_chart, 'Difficulty', recipe.difficulty ?? 'N/A'),
+              _buildMetaCard(
+                  Icons.schedule, 'Prep Time', '${recipe.prepTimeMinutes}m'),
+              _buildMetaCard(Icons.outdoor_grill, 'Cook Time',
+                  '${recipe.cookTimeMinutes}m'),
+              _buildMetaCard(
+                  Icons.people_outline, 'Servings', '${recipe.servings}'),
+              _buildMetaCard(
+                  Icons.bar_chart, 'Difficulty', recipe.difficulty ?? 'N/A'),
             ],
           ),
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 24),
-          
+
           // Ingredients
           Text(
             'Ingredients',
@@ -138,44 +147,45 @@ class RecipeDetailScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           if (recipe.ingredients.isEmpty)
-            Text('No ingredients listed.', style: TextStyle(color: Colors.grey.shade600))
+            Text('No ingredients listed.',
+                style: TextStyle(color: Colors.grey.shade600))
           else
             ...recipe.ingredients.map((ingredient) => Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF166534), // kPrimaryGreen
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      ingredient.name,
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                  ),
-                  if (ingredient.quantity != null)
-                    Text(
-                      '${ingredient.quantity} ${ingredient.unit ?? ''}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF166534), // kPrimaryGreen
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                ],
-              ),
-            )),
-          
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          ingredient.name,
+                          style: TextStyle(fontSize: 16, color: Colors.black87),
+                        ),
+                      ),
+                      if (ingredient.quantity != null)
+                        Text(
+                          '${ingredient.quantity} ${ingredient.unit ?? ''}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                    ],
+                  ),
+                )),
+
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 24),
-          
+
           // Instructions
           Text(
             'Instructions',
@@ -183,45 +193,46 @@ class RecipeDetailScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           if (recipe.instructions.isEmpty)
-            Text('No instructions listed.', style: TextStyle(color: Colors.grey.shade600))
+            Text('No instructions listed.',
+                style: TextStyle(color: Colors.grey.shade600))
           else
             ...recipe.instructions.asMap().entries.map((entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF166534).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${entry.key + 1}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF166534),
-                          fontSize: 12,
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF166534).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${entry.key + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF166534),
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      entry.value,
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: Colors.black87,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          entry.value,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.5,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                )),
         ],
       ),
     );
@@ -246,7 +257,10 @@ class RecipeDetailScreen extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87),
           ),
         ],
       ),

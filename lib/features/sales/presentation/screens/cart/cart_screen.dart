@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,82 +28,85 @@ class CartScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartState = ref.watch(cartControllerProvider);
 
-    return Scaffold(
-      backgroundColor: kBgColor,
-      appBar: AppBar(
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
         backgroundColor: kBgColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
-              color: kDarkGreen),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            }
-          },
-        ),
-        titleSpacing: 0,
-        title: Text(
-          'My Cart',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              onPressed: () => _clearCart(context, ref),
-              icon: const PhosphorIcon(
-                PhosphorIconsRegular.trash,
-                color: kDarkGreen,
-              ),
-            ),
+        appBar: AppBar(
+          backgroundColor: kBgColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                color: kDarkGreen),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
           ),
-        ],
-      ),
-      body: cartState.when(
-        initial: () => const SizedBox.shrink(),
-        data: (cart) {
-          if (cart.items.isEmpty) {
-            return Padding(
-              padding: EdgeInsets.all(16),
-              child: _buildEmptyState(context),
-            );
-          }
-
-          // Calculate Total (assuming item.subtotal is the line total)
-          final double total =
-              cart.items.fold(0, (sum, item) => sum + (item.subtotal));
-
-          return Column(
-            children: [
-              // Scrollable Cart Items
-              Expanded(
-                child: ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  itemCount: cart.items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, idx) {
-                    final item = cart.items[idx];
-                    return _buildModernCartItem(context, ref, item);
-                  },
+          titleSpacing: 0,
+          title: Text(
+            'My Cart',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
+          ),
+          centerTitle: true,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: IconButton(
+                onPressed: () => _clearCart(context, ref),
+                icon: const PhosphorIcon(
+                  PhosphorIconsRegular.trash,
+                  color: kDarkGreen,
                 ),
               ),
+            ),
+          ],
+        ),
+        body: cartState.when(
+          initial: () => const SizedBox.shrink(),
+          data: (cart) {
+            if (cart.items.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.all(16),
+                child: _buildEmptyState(context),
+              );
+            }
 
-              // Bottom Summary Section
-              _buildBottomSummary(context, ref, total),
-            ],
-          );
-        },
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (e) => Center(child: Text('Error: ${e.toString()}')),
+            // Calculate Total (assuming item.subtotal is the line total)
+            final double total =
+                cart.items.fold(0, (sum, item) => sum + (item.subtotal));
+
+            return Column(
+              children: [
+                // Scrollable Cart Items
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
+                    itemCount: cart.items.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, idx) {
+                      final item = cart.items[idx];
+                      return _buildModernCartItem(context, ref, item);
+                    },
+                  ),
+                ),
+
+                // Bottom Summary Section
+                _buildBottomSummary(context, ref, total),
+              ],
+            );
+          },
+          loading: () =>
+              const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+          error: (e) => Center(child: Text('Error: ${e.toString()}')),
+        ),
       ),
     );
   }
@@ -223,7 +227,12 @@ class CartScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal), // Or unit price if available
+                            NumberFormat.currency(
+                                    locale: 'id_ID',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                .format(item
+                                    .subtotal), // Or unit price if available
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -317,7 +326,9 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Text('Subtotal', style: TextStyle(color: kTextGrey)),
                 Text(
-                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(total),
+                  NumberFormat.currency(
+                          locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                      .format(total),
                   style:
                       TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
                 ),
@@ -353,7 +364,9 @@ class CartScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(total + 15000), // Adding dummy delivery fee
+                  NumberFormat.currency(
+                          locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                      .format(total + 15000), // Adding dummy delivery fee
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

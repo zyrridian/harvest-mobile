@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,63 +55,74 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(productDetailControllerProvider(widget.slug));
 
-    return Scaffold(
-      backgroundColor: kBgColor,
-      body: state.when(
-        initial: () => const SizedBox.shrink(),
-        loading: () => Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(height: 350, color: Colors.white),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(height: 32, width: 250, color: Colors.white),
-                    const SizedBox(height: 8),
-                    Container(height: 20, width: 150, color: Colors.white),
-                    const SizedBox(height: 24),
-                    Container(height: 80, width: double.infinity, color: Colors.white, margin: const EdgeInsets.only(bottom: 16)),
-                    Container(height: 80, width: double.infinity, color: Colors.white),
-                  ],
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
+        backgroundColor: kBgColor,
+        body: state.when(
+          initial: () => const SizedBox.shrink(),
+          loading: () => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(height: 350, color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(height: 32, width: 250, color: Colors.white),
+                      const SizedBox(height: 8),
+                      Container(height: 20, width: 150, color: Colors.white),
+                      const SizedBox(height: 24),
+                      Container(
+                          height: 80,
+                          width: double.infinity,
+                          color: Colors.white,
+                          margin: const EdgeInsets.only(bottom: 16)),
+                      Container(
+                          height: 80,
+                          width: double.infinity,
+                          color: Colors.white),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+          data: (product, isFavorite, quantity, isInCart) =>
+              _buildProductDetail(context, product),
+          error: (message) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(PhosphorIconsRegular.warningCircle,
+                    size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Error: $message'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => ref
+                      .read(
+                          productDetailControllerProvider(widget.slug).notifier)
+                      .refresh(),
+                  style: ElevatedButton.styleFrom(backgroundColor: kDarkGreen),
+                  child: Text('Retry',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Colors.white)),
+                ),
+              ],
+            ),
           ),
         ),
-        data: (product, isFavorite, quantity, isInCart) =>
-            _buildProductDetail(context, product),
-        error: (message) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(PhosphorIconsRegular.warningCircle,
-                  size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $message'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref
-                    .read(productDetailControllerProvider(widget.slug).notifier)
-                    .refresh(),
-                style: ElevatedButton.styleFrom(backgroundColor: kDarkGreen),
-                child: Text('Retry',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Colors.white)),
-              ),
-            ],
-          ),
+        bottomNavigationBar: state.maybeWhen(
+          data: (product, _, __, ___) => _buildBottomBar(context, product),
+          orElse: () => null,
         ),
-      ),
-      bottomNavigationBar: state.maybeWhen(
-        data: (product, _, __, ___) => _buildBottomBar(context, product),
-        orElse: () => null,
       ),
     );
   }
@@ -715,7 +727,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
           return reviewsAsync.when(
             data: (response) {
-              if (response.summary.totalReviews == 0) return const SizedBox.shrink();
+              if (response.summary.totalReviews == 0)
+                return const SizedBox.shrink();
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,7 +782,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text('Based on ${response.summary.totalReviews} reviews',
+                            Text(
+                                'Based on ${response.summary.totalReviews} reviews',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -783,88 +797,95 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   if (response.reviews.isNotEmpty)
                     Column(
                       children: response.reviews.take(3).map((review) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: kPillGrey,
-                                  backgroundImage: review.userAvatar != null &&
-                                          review.userAvatar!.startsWith('http')
-                                      ? CachedNetworkImageProvider(
-                                          review.userAvatar!)
-                                      : null,
-                                  onBackgroundImageError: (review.userAvatar != null &&
-                                          review.userAvatar!.startsWith('http'))
-                                      ? (_, __) {}
-                                      : null,
-                                  child: review.userAvatar == null ||
-                                          !review.userAvatar!.startsWith('http')
-                                      ? Text(
-                                          review.userName.isNotEmpty
-                                              ? review.userName[0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(
-                                            color: kDarkGreen,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    review.userName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: kDarkGreen,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: kPillGrey,
+                                    backgroundImage:
+                                        review.userAvatar != null &&
+                                                review.userAvatar!
+                                                    .startsWith('http')
+                                            ? CachedNetworkImageProvider(
+                                                review.userAvatar!)
+                                            : null,
+                                    onBackgroundImageError:
+                                        (review.userAvatar != null &&
+                                                review.userAvatar!
+                                                    .startsWith('http'))
+                                            ? (_, __) {}
+                                            : null,
+                                    child: review.userAvatar == null ||
+                                            !review.userAvatar!
+                                                .startsWith('http')
+                                        ? Text(
+                                            review.userName.isNotEmpty
+                                                ? review.userName[0]
+                                                    .toUpperCase()
+                                                : '?',
+                                            style: const TextStyle(
+                                              color: kDarkGreen,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      review.userName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: kDarkGreen,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  DateFormat('MMM d, yyyy').format(review.createdAt),
-                                  style: const TextStyle(
-                                    color: kTextGrey,
-                                    fontSize: 12,
+                                  Text(
+                                    DateFormat('MMM d, yyyy')
+                                        .format(review.createdAt),
+                                    style: const TextStyle(
+                                      color: kTextGrey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: List.generate(
+                                  5,
+                                  (index) => Icon(
+                                    index < review.rating
+                                        ? PhosphorIconsFill.star
+                                        : PhosphorIconsRegular.star,
+                                    color: kAccentOrange,
+                                    size: 14,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: List.generate(
-                                5,
-                                (index) => Icon(
-                                  index < review.rating
-                                      ? PhosphorIconsFill.star
-                                      : PhosphorIconsRegular.star,
-                                  color: kAccentOrange,
-                                  size: 14,
-                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            if (review.comment.isNotEmpty)
-                              Text(
-                                review.comment,
-                                style: const TextStyle(
-                                  color: kDarkGreen,
-                                  height: 1.5,
+                              const SizedBox(height: 8),
+                              if (review.comment.isNotEmpty)
+                                Text(
+                                  review.comment,
+                                  style: const TextStyle(
+                                    color: kDarkGreen,
+                                    height: 1.5,
+                                  ),
                                 ),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 16),
+                                child: Divider(color: kPillGrey),
                               ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: Divider(color: kPillGrey),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                 ],
               );
             },
@@ -983,10 +1004,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   borderRadius: BorderRadius.circular(30)),
             ),
             child: Text(product.isHarvest ? 'Pre-Order Now' : 'Buy Now',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ),
       ],
@@ -1013,7 +1032,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
     _showSnackBar('Added $quantity ${product.unit} to cart');
     ref.read(productDetailControllerProvider(widget.slug).notifier).addToCart();
-    
+
     // Add to actual global cart
     ref.read(cartControllerProvider.notifier).addItem(product.id, quantity);
 

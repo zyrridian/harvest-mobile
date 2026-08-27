@@ -13,6 +13,7 @@ class CommunityPostCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final String? profileImageUrl;
+  final bool showFarmerBadge;
 
   const CommunityPostCard({
     super.key,
@@ -24,6 +25,7 @@ class CommunityPostCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     this.profileImageUrl,
+    this.showFarmerBadge = false,
   });
 
   String? _getValidImageUrl(String? url) {
@@ -92,13 +94,36 @@ class CommunityPostCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          post.farmer?.name ?? post.user.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: Colors.black87,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              post.farmer?.name ?? post.user.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            if (showFarmerBadge && post.farmer != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'Farmer',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         Text(
                           _formatDate(post.createdAt),

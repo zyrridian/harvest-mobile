@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:harvest_app/features/catalog/domain/entities/favorite_product.dart';
 import 'package:harvest_app/features/users/presentation/providers/favorite_products_controller.dart';
@@ -16,56 +17,59 @@ class FavoriteProductsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(favoriteProductsControllerProvider);
 
-    return Scaffold(
-      backgroundColor: kBgColor,
-      appBar: AppBar(
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
         backgroundColor: kBgColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
-              color: kDarkGreen),
-          onPressed: () => Navigator.of(context).pop(),
+        appBar: AppBar(
+          backgroundColor: kBgColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                color: kDarkGreen),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(
+            'Favorite Products',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: kDarkGreen,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
+          ),
+          centerTitle: false,
         ),
-        title: Text(
-          'Favorite Products',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: kDarkGreen,
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-        ),
-        centerTitle: false,
-      ),
-      body: state.when(
-        initial: () => const SizedBox(),
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (err) => Center(child: Text('Error: $err')),
-        data: (data) {
-          if (data.favorites.isEmpty) {
-            return const Center(child: Text('No favorite products found.'));
-          }
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.read(favoriteProductsControllerProvider.notifier).refresh();
-            },
-            color: kDarkGreen,
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.65,
-              ),
-              itemCount: data.favorites.length,
-              itemBuilder: (context, index) {
-                return _buildProductCard(data.favorites[index], context, ref);
+        body: state.when(
+          initial: () => const SizedBox(),
+          loading: () =>
+              const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+          error: (err) => Center(child: Text('Error: $err')),
+          data: (data) {
+            if (data.favorites.isEmpty) {
+              return const Center(child: Text('No favorite products found.'));
+            }
+            return RefreshIndicator(
+              onRefresh: () async {
+                ref.read(favoriteProductsControllerProvider.notifier).refresh();
               },
-            ),
-          );
-        },
+              color: kDarkGreen,
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.65,
+                ),
+                itemCount: data.favorites.length,
+                itemBuilder: (context, index) {
+                  return _buildProductCard(data.favorites[index], context, ref);
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:harvest_app/core/models/paginated_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/core/providers/db_provider.dart';
@@ -9,41 +10,107 @@ import 'package:harvest_app/features/community/domain/usecases/create_recipe_use
 import 'package:harvest_app/features/community/domain/usecases/get_recipe_by_id_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/update_recipe_usecase.dart';
 import 'package:harvest_app/features/community/domain/usecases/delete_recipe_usecase.dart';
+import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
+import 'package:harvest_app/features/auth/presentation/providers/auth_controller.dart';
 import 'recipe_state.dart';
 
 part 'recipe_controller.g.dart';
 
 @riverpod
 class RecipeController extends _$RecipeController {
+  String? _currentAuthorId;
+  int _activeRequestId = 0;
+  int _currentPage = 1;
+  bool _isLoadingMore = false;
+
   @override
   RecipeState build() {
-    _fetchRecipes();
+    final tab = ref.watch(communityTabProvider);
+
+    if (tab == 'My Recipes') {
+      final authState = ref.watch(authControllerProvider);
+      _currentAuthorId = authState.maybeWhen(
+        authenticated: (user) => user.id,
+        orElse: () => null,
+      );
+    } else {
+      _currentAuthorId = null;
+    }
+
+    // Schedule fetch to avoid state modification during build phase (although safe for this controller, Future.microtask is cleaner for triggering side-effects from build)
+    Future.microtask(() => _fetchRecipes());
     return const RecipeState.loading();
   }
 
-  Future<void> _fetchRecipes({int page = 1, String? authorId}) async {
-    state = const RecipeState.loading();
+  Future<void> _fetchRecipes({int page = 1}) async {
+    final requestId = ++_activeRequestId;
+    if (page == 1) {
+      state = const RecipeState.loading();
+      _currentPage = 1;
+    } else {
+      _isLoadingMore = true;
+    }
     final useCase = ref.read(getRecipesUseCaseProvider);
     final result = await useCase.call(
       page: page,
       limit: 20,
-      authorId: authorId,
+      authorId: _currentAuthorId,
     );
 
+    if (requestId != _activeRequestId) return;
+
     result.fold(
-      (failure) => state = RecipeState.error(failure.message),
-      (data) => state = RecipeState.data(data),
+      (failure) {
+        if (page == 1) {
+          state = RecipeState.error(failure.message);
+        }
+        _isLoadingMore = false;
+      },
+      (data) {
+        if (page == 1) {
+          state = RecipeState.data(data);
+        } else {
+          state.maybeWhen(
+            data: (oldData) {
+              final newItems = [...oldData.data, ...data.data];
+              state = RecipeState.data(PaginatedResponse(
+                data: newItems,
+                pagination: data.pagination,
+              ));
+            },
+            orElse: () => state = RecipeState.data(data),
+          );
+        }
+        _currentPage = page;
+        _isLoadingMore = false;
+      },
     );
   }
 
-  void refresh({String? authorId}) {
-    _fetchRecipes(authorId: authorId);
+  Future<void> loadNextPage() async {
+    if (_isLoadingMore) return;
+
+    state.maybeWhen(
+      data: (data) {
+        if (data.pagination.currentPage < data.pagination.totalPages) {
+          _fetchRecipes(page: _currentPage + 1);
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  void refresh({String? authorId, bool keepAuthor = false}) {
+    if (!keepAuthor) {
+      _currentAuthorId = authorId;
+    }
+    _fetchRecipes();
   }
 
   Future<void> deleteRecipe(String id) async {
     final useCase = ref.read(deleteRecipeUseCaseProvider);
     final result = await useCase.call(id);
-    
+
     result.fold(
       (failure) {
         // Handle failure if needed
@@ -51,7 +118,8 @@ class RecipeController extends _$RecipeController {
       (_) {
         state.maybeWhen(
           data: (data) {
-            final updatedRecipes = data.data.where((recipe) => recipe.id != id).toList();
+            final updatedRecipes =
+                data.data.where((recipe) => recipe.id != id).toList();
             state = RecipeState.data(data.copyWith(data: updatedRecipes));
           },
           orElse: () => refresh(),
@@ -67,7 +135,8 @@ final recipeRemoteDataSourceProvider = Provider<RecipeRemoteDataSource>((ref) {
 });
 
 final recipeLocalDataSourceProvider = Provider<RecipeLocalDataSource>((ref) {
-  return RecipeLocalDataSourceImpl(sharedPreferences: ref.watch(sharedPreferencesProvider));
+  return RecipeLocalDataSourceImpl(
+      sharedPreferences: ref.watch(sharedPreferencesProvider));
 });
 
 // Recipe Repository provider

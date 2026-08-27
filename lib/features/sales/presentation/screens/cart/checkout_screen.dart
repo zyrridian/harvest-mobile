@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:harvest_app/core/config/theme/app_colors.dart';
@@ -65,238 +66,261 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       orElse: () {},
     );
 
-    return Scaffold(
-      backgroundColor: kBgColor,
-      appBar: AppBar(
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
         backgroundColor: kBgColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
-              color: kDarkGreen),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            }
-          },
-        ),
-        titleSpacing: 0,
-        title: Text(
-          'Checkout',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-        ),
-        centerTitle: true,
-      ),
-      body: cartState.when(
-        initial: () => const SizedBox.shrink(),
-        data: (cart) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-                24, 8, 24, 100), // Bottom padding for FAB
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. ITEMS REVIEW
-                _buildSectionTitle('Your Items'),
-                const SizedBox(height: 12),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: cart.items.where((i) => i.isSelected).length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final item =
-                        cart.items.where((i) => i.isSelected).toList()[index];
-                    return _buildCheckoutItemCard(item);
-                  },
+        appBar: AppBar(
+          backgroundColor: kBgColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                color: kDarkGreen),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+          ),
+          titleSpacing: 0,
+          title: Text(
+            'Checkout',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
                 ),
-
-                const SizedBox(height: 32),
-
-                // 2. DELIVERY METHOD
-                _buildSectionTitle('Delivery Method'),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildSelectableCard(
-                        value: 'home_delivery',
-                        groupValue: _deliveryMethod,
-                        title: 'Home Delivery',
-                        icon: PhosphorIconsRegular.truck,
-                        onTap: () =>
-                            setState(() => _deliveryMethod = 'home_delivery'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildSelectableCard(
-                        value: 'self_pickup',
-                        groupValue: _deliveryMethod,
-                        title: 'Self Pickup',
-                        icon: PhosphorIconsRegular.storefront,
-                        onTap: () =>
-                            setState(() => _deliveryMethod = 'self_pickup'),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 32),
-
-                // 2.5. DELIVERY ADDRESS (Only for home_delivery)
-                if (_deliveryMethod == 'home_delivery') ...[
-                  _buildSectionTitle('Delivery Address'),
+          ),
+          centerTitle: true,
+        ),
+        body: cartState.when(
+          initial: () => const SizedBox.shrink(),
+          data: (cart) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                  24, 8, 24, 100), // Bottom padding for FAB
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. ITEMS REVIEW
+                  _buildSectionTitle('Your Items'),
                   const SizedBox(height: 12),
-                  _buildAddressSection(addressState),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: cart.items.where((i) => i.isSelected).length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final item =
+                          cart.items.where((i) => i.isSelected).toList()[index];
+                      return _buildCheckoutItemCard(item);
+                    },
+                  ),
+
                   const SizedBox(height: 32),
-                ],
 
-                // 3. PAYMENT METHOD
-                _buildSectionTitle('Payment Method'),
-                const SizedBox(height: 12),
-                _buildSelectableCard(
-                  value: 'cod',
-                  groupValue: _paymentMethod,
-                  title: 'Cash on Delivery (COD)',
-                  icon: PhosphorIconsRegular.money,
-                  onTap: () => setState(() => _paymentMethod = 'cod'),
-                  isWide: true,
-                ),
-                const SizedBox(height: 12),
-                _buildSelectableCard(
-                  value: 'online_payment',
-                  groupValue: _paymentMethod,
-                  title: 'Online Payment (Midtrans)',
-                  icon: PhosphorIconsRegular.creditCard,
-                  onTap: () => setState(() => _paymentMethod = 'online_payment'),
-                  isWide: true,
-                ),
-
-                const SizedBox(height: 32),
-
-                // 4. NOTES
-                _buildSectionTitle('Delivery Notes'),
-                const SizedBox(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: kPillGrey),
-                  ),
-                  child: TextField(
-                    controller: _notesController,
-                    maxLines: 3,
-                    style: TextStyle(color: kDarkGreen),
-                    decoration: InputDecoration(
-                      hintText:
-                          'Any special instructions? (e.g. Leave at door)',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // 5. ORDER SUMMARY CARD
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: kPillGrey),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: kDarkGreen.withOpacity(0.05),
-                    //     blurRadius: 10,
-                    //     offset: const Offset(0, 4),
-                    //   ),
-                    // ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // 2. DELIVERY METHOD
+                  _buildSectionTitle('Delivery Method'),
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
-                      Text(
-                        'Order Summary',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: kDarkGreen,
+                      Expanded(
+                        child: _buildSelectableCard(
+                          value: 'home_delivery',
+                          groupValue: _deliveryMethod,
+                          title: 'Home Delivery',
+                          icon: PhosphorIconsRegular.truck,
+                          onTap: () =>
+                              setState(() => _deliveryMethod = 'home_delivery'),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      _buildSummaryRow(
-                          'Subtotal', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.subtotal)),
-                      _buildSummaryRow(
-                          'Discount', '- ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.totalDiscount)}',
-                          isDiscount: true),
-                      _buildSummaryRow(
-                          'Delivery', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.totalDeliveryFee)),
-                      _buildSummaryRow(
-                          'Service Fee', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.serviceFee)),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Divider(color: kPillGrey),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Grand Total',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: kDarkGreen,
-                            ),
-                          ),
-                          Text(
-                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.grandTotal),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: kAccentOrange,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildSelectableCard(
+                          value: 'self_pickup',
+                          groupValue: _deliveryMethod,
+                          title: 'Self Pickup',
+                          icon: PhosphorIconsRegular.storefront,
+                          onTap: () =>
+                              setState(() => _deliveryMethod = 'self_pickup'),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (e) => Center(child: Text('Error: $e')),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: () => _handlePlaceOrder(cartState),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kDarkGreen,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+
+                  const SizedBox(height: 32),
+
+                  // 2.5. DELIVERY ADDRESS (Only for home_delivery)
+                  if (_deliveryMethod == 'home_delivery') ...[
+                    _buildSectionTitle('Delivery Address'),
+                    const SizedBox(height: 12),
+                    _buildAddressSection(addressState),
+                    const SizedBox(height: 32),
+                  ],
+
+                  // 3. PAYMENT METHOD
+                  _buildSectionTitle('Payment Method'),
+                  const SizedBox(height: 12),
+                  _buildSelectableCard(
+                    value: 'cod',
+                    groupValue: _paymentMethod,
+                    title: 'Cash on Delivery (COD)',
+                    icon: PhosphorIconsRegular.money,
+                    onTap: () => setState(() => _paymentMethod = 'cod'),
+                    isWide: true,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSelectableCard(
+                    value: 'online_payment',
+                    groupValue: _paymentMethod,
+                    title: 'Online Payment (Midtrans)',
+                    icon: PhosphorIconsRegular.creditCard,
+                    onTap: () =>
+                        setState(() => _paymentMethod = 'online_payment'),
+                    isWide: true,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // 4. NOTES
+                  _buildSectionTitle('Delivery Notes'),
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: kPillGrey),
+                    ),
+                    child: TextField(
+                      controller: _notesController,
+                      maxLines: 3,
+                      style: TextStyle(color: kDarkGreen),
+                      decoration: InputDecoration(
+                        hintText:
+                            'Any special instructions? (e.g. Leave at door)',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.all(16),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // 5. ORDER SUMMARY CARD
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: kPillGrey),
+                      // boxShadow: [
+                      //   BoxShadow(
+                      //     color: kDarkGreen.withOpacity(0.05),
+                      //     blurRadius: 10,
+                      //     offset: const Offset(0, 4),
+                      //   ),
+                      // ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order Summary',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: kDarkGreen,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                            'Subtotal',
+                            NumberFormat.currency(
+                                    locale: 'id_ID',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                .format(cart.summary.subtotal)),
+                        _buildSummaryRow('Discount',
+                            '- ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(cart.summary.totalDiscount)}',
+                            isDiscount: true),
+                        _buildSummaryRow(
+                            'Delivery',
+                            NumberFormat.currency(
+                                    locale: 'id_ID',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                .format(cart.summary.totalDeliveryFee)),
+                        _buildSummaryRow(
+                            'Service Fee',
+                            NumberFormat.currency(
+                                    locale: 'id_ID',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                .format(cart.summary.serviceFee)),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Divider(color: kPillGrey),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Grand Total',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: kDarkGreen,
+                              ),
+                            ),
+                            Text(
+                              NumberFormat.currency(
+                                      locale: 'id_ID',
+                                      symbol: 'Rp ',
+                                      decimalDigits: 0)
+                                  .format(cart.summary.grandTotal),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: kAccentOrange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                'Place Order',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+            );
+          },
+          loading: () =>
+              const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+          error: (e) => Center(child: Text('Error: $e')),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () => _handlePlaceOrder(cartState),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kDarkGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'Place Order',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -334,7 +358,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               children: [
                 Row(
                   children: [
-                    const PhosphorIcon(PhosphorIconsRegular.mapPinLine, color: kTextGrey),
+                    const PhosphorIcon(PhosphorIconsRegular.mapPinLine,
+                        color: kTextGrey),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -349,7 +374,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () => context.push(AppRouter.addresses),
-                    icon: const PhosphorIcon(PhosphorIconsRegular.plus, size: 18),
+                    icon:
+                        const PhosphorIcon(PhosphorIconsRegular.plus, size: 18),
                     label: const Text('Add Address'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: kDarkGreen,
@@ -381,7 +407,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 children: [
                   Row(
                     children: [
-                      PhosphorIcon(PhosphorIconsRegular.mapPin, color: kAccentOrange, size: 20),
+                      PhosphorIcon(PhosphorIconsRegular.mapPin,
+                          color: kAccentOrange, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         address.label.toUpperCase(),
@@ -394,7 +421,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       if (address.isPrimary) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: kDarkGreen.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -447,7 +475,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+      loading: () =>
+          const Center(child: CircularProgressIndicator(color: kDarkGreen)),
       error: (e) => Center(child: Text('Error: $e')),
       orElse: () => const SizedBox.shrink(),
     );
@@ -490,8 +519,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final address = addresses[index];
-                  final isSelected = _selectedAddress?.addressId == address.addressId;
-                  
+                  final isSelected =
+                      _selectedAddress?.addressId == address.addressId;
+
                   return GestureDetector(
                     onTap: () {
                       setState(() => _selectedAddress = address);
@@ -500,7 +530,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isSelected ? kDarkGreen.withOpacity(0.05) : Colors.white,
+                        color: isSelected
+                            ? kDarkGreen.withOpacity(0.05)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected ? kDarkGreen : kPillGrey,
@@ -522,7 +554,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                 ),
                               ),
                               if (isSelected)
-                                const PhosphorIcon(PhosphorIconsFill.checkCircle, color: kDarkGreen, size: 20),
+                                const PhosphorIcon(
+                                    PhosphorIconsFill.checkCircle,
+                                    color: kDarkGreen,
+                                    size: 20),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -578,7 +613,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-
   Widget _buildCheckoutItemCard(dynamic item) {
     // Assuming 'item' has name, quantity, subtotal.
     return Container(
@@ -606,8 +640,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               children: [
                 Text(
                   item.name,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: kDarkGreen),
+                  style:
+                      TextStyle(fontWeight: FontWeight.w600, color: kDarkGreen),
                 ),
                 Text(
                   '${item.quantity} x ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal ~/ item.quantity)}',
@@ -617,9 +651,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           ),
           Text(
-            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.subtotal),
-            style: TextStyle(
-                fontWeight: FontWeight.bold, color: kDarkGreen),
+            NumberFormat.currency(
+                    locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                .format(item.subtotal),
+            style: TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
           ),
         ],
       ),
@@ -668,7 +703,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             if (isWide) ...[
               const Spacer(),
               if (isSelected)
-                const PhosphorIcon(PhosphorIconsFill.checkCircle, color: kDarkGreen, size: 20),
+                const PhosphorIcon(PhosphorIconsFill.checkCircle,
+                    color: kDarkGreen, size: 20),
             ]
           ],
         ),
@@ -725,7 +761,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       "cart_item_ids": selectedItems,
       "delivery_method": _deliveryMethod,
       "payment_method": _paymentMethod,
-      "delivery_date": DateTime.now().add(const Duration(days: 1)).toString().substring(0, 10),
+      "delivery_date": DateTime.now()
+          .add(const Duration(days: 1))
+          .toString()
+          .substring(0, 10),
     };
 
     if (_deliveryMethod == 'home_delivery') {
@@ -756,15 +795,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           }
 
           final orders = data['orders'] as List<dynamic>?;
-          final orderId = (orders != null && orders.isNotEmpty) 
-              ? orders.first['order_id'] ?? 'ord_unknown' 
+          final orderId = (orders != null && orders.isNotEmpty)
+              ? orders.first['order_id'] ?? 'ord_unknown'
               : 'ord_unknown';
-          final orderNumber = (orders != null && orders.isNotEmpty) 
-              ? orders.first['order_number'] ?? 'ORD-000000' 
+          final orderNumber = (orders != null && orders.isNotEmpty)
+              ? orders.first['order_number'] ?? 'ORD-000000'
               : 'ORD-000000';
 
           if (context.mounted) {
-            context.go('${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber&paymentMethod=$_paymentMethod');
+            context.go(
+                '${AppRouter.orderSuccess}?orderId=$orderId&orderNumber=$orderNumber&paymentMethod=$_paymentMethod');
           }
         }
       },

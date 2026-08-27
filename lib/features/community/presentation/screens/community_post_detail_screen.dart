@@ -167,9 +167,9 @@ class _CommunityPostDetailScreenState
     );
   }
 
-
   String? _getValidImageUrl(String? url) {
-    if (url == null || url.trim().isEmpty || !url.startsWith('http')) return null;
+    if (url == null || url.trim().isEmpty || !url.startsWith('http'))
+      return null;
     return url;
   }
 
@@ -182,67 +182,71 @@ class _CommunityPostDetailScreenState
       orElse: () => null,
     );
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: WebConstrainedBox(
-        child: Column(
+        body: Column(
           children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(postDetailControllerProvider(widget.post.id));
-              },
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: _buildPostHeader(),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      height: 8,
-                      color: Colors.grey.shade100,
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(postDetailControllerProvider(widget.post.id));
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _buildPostHeader(),
                     ),
-                  ),
-                  state.maybeWhen(
-                    data: (data) {
-                      if (data.data.isEmpty) {
-                        return const SliverFillRemaining(
-                          child: Center(child: Text('No comments yet')),
+                    SliverToBoxAdapter(
+                      child: Container(
+                        height: 8,
+                        color: Colors.grey.shade100,
+                      ),
+                    ),
+                    state.maybeWhen(
+                      data: (data) {
+                        if (data.data.isEmpty) {
+                          return const SliverFillRemaining(
+                            child: Center(child: Text('No comments yet')),
+                          );
+                        }
+                        return SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final comment = data.data[index];
+                              return _buildCommentThread(
+                                  comment, currentUserId);
+                            },
+                            childCount: data.data.length,
+                          ),
                         );
-                      }
-                      return SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final comment = data.data[index];
-                            return _buildCommentThread(comment, currentUserId);
-                          },
-                          childCount: data.data.length,
-                        ),
-                      );
-                    },
-                    loading: () => const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
+                      },
+                      loading: () => const SliverFillRemaining(
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      error: (msg) => SliverFillRemaining(
+                        child: Center(child: Text(msg)),
+                      ),
+                      orElse: () =>
+                          const SliverFillRemaining(child: SizedBox()),
                     ),
-                    error: (msg) => SliverFillRemaining(
-                      child: Center(child: Text(msg)),
-                    ),
-                    orElse: () => const SliverFillRemaining(child: SizedBox()),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          _buildCommentInput(),
-        ],
-      ),
+            _buildCommentInput(),
+          ],
+        ),
       ),
     );
   }
@@ -301,11 +305,19 @@ class _CommunityPostDetailScreenState
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: Colors.grey.shade100,
-                  backgroundImage: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) != null
-                      ? NetworkImage(_getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl)!)
+                  backgroundImage: _getValidImageUrl(
+                              currentPost.farmer?.profileImage ??
+                                  currentPost.user.avatarUrl) !=
+                          null
+                      ? NetworkImage(_getValidImageUrl(
+                          currentPost.farmer?.profileImage ??
+                              currentPost.user.avatarUrl)!)
                       : null,
-                  child: _getValidImageUrl(currentPost.farmer?.profileImage ?? currentPost.user.avatarUrl) == null
-                      ? PhosphorIcon(PhosphorIconsRegular.user, color: Colors.grey.shade500)
+                  child: _getValidImageUrl(currentPost.farmer?.profileImage ??
+                              currentPost.user.avatarUrl) ==
+                          null
+                      ? PhosphorIcon(PhosphorIconsRegular.user,
+                          color: Colors.grey.shade500)
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -326,50 +338,55 @@ class _CommunityPostDetailScreenState
                     ],
                   ),
                 ),
-              if (isMyPost)
-                PopupMenuButton<String>(
-                  icon: PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.grey.shade600),
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _editPost();
-                    } else if (value == 'delete') {
-                      _deletePost();
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: const [
-                          PhosphorIcon(PhosphorIconsRegular.pencilSimple, size: 20),
-                          SizedBox(width: 12),
-                          Text('Edit'),
-                        ],
+                if (isMyPost)
+                  PopupMenuButton<String>(
+                    icon: PhosphorIcon(PhosphorIconsRegular.dotsThree,
+                        color: Colors.grey.shade600),
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _editPost();
+                      } else if (value == 'delete') {
+                        _deletePost();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: const [
+                            PhosphorIcon(PhosphorIconsRegular.pencilSimple,
+                                size: 20),
+                            SizedBox(width: 12),
+                            Text('Edit'),
+                          ],
+                        ),
                       ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: const [
-                          PhosphorIcon(PhosphorIconsRegular.trash, size: 20, color: Colors.red),
-                          SizedBox(width: 12),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
-                        ],
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: const [
+                            PhosphorIcon(PhosphorIconsRegular.trash,
+                                size: 20, color: Colors.red),
+                            SizedBox(width: 12),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              else
-                IconButton(
-                  icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree, color: Colors.transparent),
-                  onPressed: null,
-                ),
-            ],
+                    ],
+                  )
+                else
+                  IconButton(
+                    icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree,
+                        color: Colors.transparent),
+                    onPressed: null,
+                  ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           Text(
             currentPost.title,
@@ -383,16 +400,14 @@ class _CommunityPostDetailScreenState
 
           if (currentPost.images.isNotEmpty) ...[
             const SizedBox(height: 16),
-            ...currentPost.images
-                .map((url) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(url,
-                            width: double.infinity, fit: BoxFit.cover),
-                      ),
-                    ))
-                ,
+            ...currentPost.images.map((url) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(url,
+                        width: double.infinity, fit: BoxFit.cover),
+                  ),
+                )),
           ],
 
           if (currentPost.tags.isNotEmpty) ...[
@@ -461,13 +476,15 @@ class _CommunityPostDetailScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCommentItem(comment, isReply: false, currentUserId: currentUserId),
+        _buildCommentItem(comment,
+            isReply: false, currentUserId: currentUserId),
         if (comment.replies.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 48.0), // Indent replies
             child: Column(
               children: comment.replies
-                  .map((reply) => _buildCommentItem(reply, isReply: true, currentUserId: currentUserId))
+                  .map((reply) => _buildCommentItem(reply,
+                      isReply: true, currentUserId: currentUserId))
                   .toList(),
             ),
           ),
@@ -475,7 +492,8 @@ class _CommunityPostDetailScreenState
     );
   }
 
-  Widget _buildCommentItem(CommunityComment comment, {required bool isReply, String? currentUserId}) {
+  Widget _buildCommentItem(CommunityComment comment,
+      {required bool isReply, String? currentUserId}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 0 : 16, 16, 16, 8),
       child: Opacity(
@@ -593,36 +611,37 @@ class _CommunityPostDetailScreenState
                         GestureDetector(
                           onTap: () {
                             showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete Comment'),
-                              content: const Text(
-                                  'Are you sure you want to delete this comment?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel',
-                                      style: TextStyle(color: Colors.black87)),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    ref
-                                        .read(postDetailControllerProvider(
-                                                widget.post.id)
-                                            .notifier)
-                                        .deleteComment(comment.id);
-                                  },
-                                  child: const Text('Delete',
-                                      style: TextStyle(color: Colors.red)),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        child: PhosphorIcon(PhosphorIconsRegular.trash,
-                            size: 16, color: Colors.grey.shade500),
-                      ),
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Comment'),
+                                content: const Text(
+                                    'Are you sure you want to delete this comment?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel',
+                                        style:
+                                            TextStyle(color: Colors.black87)),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      ref
+                                          .read(postDetailControllerProvider(
+                                                  widget.post.id)
+                                              .notifier)
+                                          .deleteComment(comment.id);
+                                    },
+                                    child: const Text('Delete',
+                                        style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: PhosphorIcon(PhosphorIconsRegular.trash,
+                              size: 16, color: Colors.grey.shade500),
+                        ),
                     ],
                   ),
                 ],
@@ -655,11 +674,11 @@ class _CommunityPostDetailScreenState
               child: Row(
                 children: [
                   Text('Replying to ',
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.grey.shade600)),
+                      style:
+                          TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                   Text('@$_replyToUserName',
-                      style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
@@ -682,8 +701,8 @@ class _CommunityPostDetailScreenState
                   controller: _commentController,
                   decoration: InputDecoration(
                     hintText: 'Write a comment...',
-                    hintStyle: TextStyle(
-                        color: Colors.grey.shade500, fontSize: 14),
+                    hintStyle:
+                        TextStyle(color: Colors.grey.shade500, fontSize: 14),
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     contentPadding: const EdgeInsets.symmetric(
@@ -706,7 +725,8 @@ class _CommunityPostDetailScreenState
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const PhosphorIcon(PhosphorIconsFill.paperPlaneRight, color: Color(0xFF166534)),
+                icon: const PhosphorIcon(PhosphorIconsFill.paperPlaneRight,
+                    color: Color(0xFF166534)),
                 onPressed: _submitComment,
               ),
             ],

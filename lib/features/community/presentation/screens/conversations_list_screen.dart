@@ -47,53 +47,54 @@ class _ConversationsListScreenState
       limit: 20,
     )));
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
+    return WebConstrainedBox(
+      maxWidth: 600,
+      child: Scaffold(
         backgroundColor: const Color(0xFFFFFFFF),
-        elevation: 0,
-        centerTitle: true,
-        scrolledUnderElevation: 0,
-        leading: isProducer
-            ? null
-            : IconButton(
-                icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
-                    color: Color(0xFF1A2F25)),
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(AppRouter.main);
-                  }
-                },
-              ),
-        title: Text(
-          'Messages',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF1A2F25),
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            initialValue: _selectedFilter,
-            onSelected: (value) {
-              setState(() {
-                _selectedFilter = value;
-              });
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'all', child: Text('All Messages')),
-              const PopupMenuItem(value: 'unread', child: Text('Unread')),
-              // const PopupMenuItem(value: 'orders', child: Text('Orders')),
-              // const PopupMenuItem(value: 'general', child: Text('General')),
-            ],
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFFFFF),
+          elevation: 0,
+          centerTitle: true,
+          scrolledUnderElevation: 0,
+          leading: isProducer
+              ? null
+              : IconButton(
+                  icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft,
+                      color: Color(0xFF1A2F25)),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(AppRouter.main);
+                    }
+                  },
+                ),
+          title: Text(
+            'Messages',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF1A2F25),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
           ),
-        ],
-      ),
-      body: WebConstrainedBox(
-        child: conversationsAsync.when(
+          actions: [
+            PopupMenuButton<String>(
+              initialValue: _selectedFilter,
+              onSelected: (value) {
+                setState(() {
+                  _selectedFilter = value;
+                });
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'all', child: Text('All Messages')),
+                const PopupMenuItem(value: 'unread', child: Text('Unread')),
+                // const PopupMenuItem(value: 'orders', child: Text('Orders')),
+                // const PopupMenuItem(value: 'general', child: Text('General')),
+              ],
+            ),
+          ],
+        ),
+        body: conversationsAsync.when(
           data: (data) {
             final conversationsData = data['data'] as Map<String, dynamic>;
             final conversations = (conversationsData['conversations'] as List)

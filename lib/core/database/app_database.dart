@@ -30,5 +30,16 @@ class AppDatabase extends _$AppDatabase {
 
 
 QueryExecutor _openConnection() {
-  return driftDatabase(name: 'harvest_app');
+  return driftDatabase(
+    name: 'harvest_app',
+    web: DriftWebOptions(
+      sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+      driftWorker: Uri.parse('drift_worker.dart.js'),
+      onResult: (result) {
+        if (result.missingFeatures.isNotEmpty) {
+          debugPrint('Using ${result.chosenImplementation} due to unsupported browser features: ${result.missingFeatures}');
+        }
+      },
+    ),
+  );
 }

@@ -52,6 +52,17 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
       } else if (_scrollController.offset <= 200 && _showScrollUp) {
         setState(() => _showScrollUp = false);
       }
+
+      // Infinite scroll trigger
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        final filter = ref.read(communityTabProvider);
+        if (filter == 'Kitchen Recipes' || filter == 'My Recipes') {
+          ref.read(recipeControllerProvider.notifier).loadNextPage();
+        } else {
+          ref.read(communityControllerProvider.notifier).loadNextPage();
+        }
+      }
     });
   }
 
@@ -103,29 +114,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   void _onFilterSelected(String filter) {
     ref.read(communityTabProvider.notifier).state = filter;
 
-    final currentUserId = ref.read(authControllerProvider).maybeWhen(
-          authenticated: (user) => user.id,
-          orElse: () => null,
-        );
-
-    if (filter == 'Kitchen Recipes') {
-      ref.read(recipeControllerProvider.notifier).refresh();
-    } else if (filter == 'My Recipes') {
-      ref
-          .read(recipeControllerProvider.notifier)
-          .refresh(authorId: currentUserId);
-    } else {
-      final apiFilterMap = {
-        'All Posts': 'all',
-        'Farmer Updates': 'farmers',
-        'Following': 'following',
-        'My Posts': 'my_posts',
-      };
-      if (apiFilterMap.containsKey(filter)) {
-        ref
-            .read(communityControllerProvider.notifier)
-            .setFilter(apiFilterMap[filter]!);
-      }
+    if (filter != 'Kitchen Recipes' && filter != 'My Recipes') {
+      ref.read(communityControllerProvider.notifier).setFilter(filter);
     }
   }
 
@@ -315,7 +305,17 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         child: WebConstrainedBox(
           child: RefreshIndicator.adaptive(
             onRefresh: () async {
-              ref.invalidate(communityControllerProvider);
+              if (selectedFilter == 'Kitchen Recipes') {
+                ref
+                    .read(recipeControllerProvider.notifier)
+                    .refresh(authorId: null);
+              } else if (selectedFilter == 'My Recipes') {
+                ref
+                    .read(recipeControllerProvider.notifier)
+                    .refresh(authorId: currentUserId);
+              } else {
+                ref.invalidate(communityControllerProvider);
+              }
             },
             child: CustomScrollView(
               controller: _scrollController,
@@ -339,7 +339,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                 (selectedFilter == 'Kitchen Recipes' ||
                         selectedFilter == 'My Recipes')
                     ? _buildRecipesList(ref, currentUserId)
-                    : _buildPostsList(state, currentUserId),
+                    : _buildPostsList(state, currentUserId, selectedFilter),
 
                 // Bottom padding for nav bar
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -351,7 +351,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildPostsList(CommunityState state, String? currentUserId) {
+  Widget _buildPostsList(
+      CommunityState state, String? currentUserId, String selectedFilter) {
     return state.maybeWhen(
       data: (response) {
         if (response.data.isEmpty) {
@@ -363,7 +364,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final post = response.data[index];
-              return _buildPostCard(post, currentUserId);
+              return _buildPostCard(post, currentUserId, selectedFilter);
             },
             childCount: response.data.length,
           ),
@@ -393,8 +394,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 300,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               childAspectRatio: 0.75,
@@ -687,10 +688,13 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     );
   }
 
-  Widget _buildPostCard(CommunityPost post, String? currentUserId) {
+  Widget _buildPostCard(
+      CommunityPost post, String? currentUserId, String selectedFilter) {
     return CommunityPostCard(
       post: post,
       currentUserId: currentUserId,
+      showFarmerBadge:
+          selectedFilter == 'All Posts' || selectedFilter == 'My Posts',
       onTap: () {
         Navigator.push(
           context,

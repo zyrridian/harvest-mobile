@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/core/services/storage_service.dart';
+import 'package:harvest_app/core/widgets/web_constrained_box.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
@@ -78,93 +79,96 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     return Scaffold(
       backgroundColor: kBgColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextButton(
-                  onPressed: _completeOnboarding,
-                  child: Text(
-                    'Skip',
-                    style: TextStyle(
-                      color: kTextGrey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+        child: WebConstrainedBox(
+          maxWidth: 600,
+          child: Column(
+            children: [
+              // Skip button
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: _completeOnboarding,
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(
+                        color: kTextGrey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Page content
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
-                },
+              // Page content
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return _buildPage(_pages[index]);
+                  },
+                ),
               ),
-            ),
 
-            // Page indicators
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _pages.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentPage == index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? _pages[_currentPage].color
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(4),
+              // Page indicators
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pages.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: _currentPage == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index
+                            ? _pages[_currentPage].color
+                            : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Next/Get Started button
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _nextPage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _pages[_currentPage].color,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              // Next/Get Started button
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _nextPage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _pages[_currentPage].color,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    _currentPage < _pages.length - 1 ? 'Next' : 'Get Started',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      _currentPage < _pages.length - 1 ? 'Next' : 'Get Started',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
