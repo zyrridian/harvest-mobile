@@ -221,7 +221,7 @@ class _BuyerRequestDetailsScreenState
                                           const Icon(Icons.star, color: Colors.amber, size: 14),
                                           const SizedBox(width: 4),
                                           Text(
-                                            offer.farmer!.rating!.toStringAsFixed(1),
+                                            offer.farmer!.rating.toStringAsFixed(1),
                                             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                           ),
                                         ],

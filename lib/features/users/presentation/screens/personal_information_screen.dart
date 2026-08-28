@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/core/widgets/web_constrained_box.dart';
-import 'dart:io';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../providers/profile_controller.dart';
@@ -475,6 +474,7 @@ class _PersonalInformationScreenState
             backgroundColor: kDarkGreen,
           ),
         );
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -504,7 +504,7 @@ class _PersonalInformationScreenState
 
     try {
       final uploadFileUseCase = ref.read(uploadFileUseCaseProvider);
-      final result = await uploadFileUseCase(File(pickedFile.path));
+      final result = await uploadFileUseCase.uploadFromPath(pickedFile.path);
 
       await result.fold(
         (failure) async {

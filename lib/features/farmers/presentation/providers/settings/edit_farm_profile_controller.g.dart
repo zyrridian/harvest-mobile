@@ -27,7 +27,7 @@ final updateFarmProfileUseCaseProvider =
 typedef UpdateFarmProfileUseCaseRef
     = AutoDisposeProviderRef<UpdateFarmProfileUseCase>;
 String _$editFarmProfileControllerHash() =>
-    r'8c0857d04f919980c4fcffed9ad5a6a1b7eaf242';
+    r'c496616523fda47ef4bf0f1c3d47c55b30e7f685';
 
 /// See also [EditFarmProfileController].
 @ProviderFor(EditFarmProfileController)

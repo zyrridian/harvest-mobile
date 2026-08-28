@@ -853,139 +853,145 @@ class HarvestScheduleScreen extends ConsumerWidget {
     final formatter =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: Colors.grey.shade100),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.03),
-        //     blurRadius: 8,
-        //     offset: const Offset(0, 4),
-        //   ),
-        // ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AppCachedImage(
-                imageUrl: item.imageUrl.isEmpty
-                    ? AppConstants.emptyImageUrl
-                    : item.imageUrl,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorAssetImage: AppConstants.emptyImageUrl,
+    return GestureDetector(
+      onTap: () {
+        context.push('/preorder/${item.id}');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          // border: Border.all(color: Colors.grey.shade100),
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withOpacity(0.03),
+          //     blurRadius: 8,
+          //     offset: const Offset(0, 4),
+          //   ),
+          // ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AppCachedImage(
+                  imageUrl: item.imageUrl.isEmpty
+                      ? AppConstants.emptyImageUrl
+                      : item.imageUrl,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorAssetImage: AppConstants.emptyImageUrl,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.title,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: kDarkGreen,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          item.statusText == 'Now'
+                              ? 'Ready'
+                              : '${item.statusText} days',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: item.statusText == 'Now'
+                                ? kHighlightGreen
+                                : kDarkGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item.farmerName, // · ${item.distance} km',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: item.badges.map((badge) {
+                        Color badgeBg = kPillGrey;
+                        Color badgeText = Colors.grey[700]!;
+                        if (badge == 'Pre-ordered' ||
+                            badge == 'Just reserved') {
+                          badgeBg = const Color(0xFFF3F6F1);
+                          badgeText = const Color(0xFF336240);
+                        } else if (badge == 'Pending confirmation') {
+                          badgeBg = const Color(0xFFFFF4EC);
+                          badgeText = const Color(0xFFD97706);
+                        }
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: badgeBg,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            badge,
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                              color: badgeText,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.descriptionText,
+                            style: TextStyle(
+                                fontSize: 11, color: Colors.grey[700]),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          formatter.format(item.price).replaceAll(',00', ''),
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: kDarkGreen,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        item.statusText == 'Now'
-                            ? 'Ready'
-                            : '${item.statusText} days',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: item.statusText == 'Now'
-                              ? kHighlightGreen
-                              : kDarkGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${item.farmerName}', // · ${item.distance} km',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[600],
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: item.badges.map((badge) {
-                      Color badgeBg = kPillGrey;
-                      Color badgeText = Colors.grey[700]!;
-                      if (badge == 'Pre-ordered' || badge == 'Just reserved') {
-                        badgeBg = const Color(0xFFF3F6F1);
-                        badgeText = const Color(0xFF336240);
-                      } else if (badge == 'Pending confirmation') {
-                        badgeBg = const Color(0xFFFFF4EC);
-                        badgeText = const Color(0xFFD97706);
-                      }
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: badgeBg,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          badge,
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: badgeText,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.descriptionText,
-                          style:
-                              TextStyle(fontSize: 11, color: Colors.grey[700]),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        formatter.format(item.price).replaceAll(',00', ''),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: kDarkGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

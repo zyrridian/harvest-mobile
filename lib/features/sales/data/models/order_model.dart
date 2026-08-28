@@ -51,22 +51,23 @@ class OrderItemModel {
 }
 
 @JsonSerializable(explicitToJson: true)
-class OrderSellerModel {
+class OrderCounterpartyModel {
   @JsonKey(name: 'user_id')
   final String userId;
   final String name;
   @JsonKey(name: 'profile_picture')
   final String? profilePicture;
+  final String role;
 
-  OrderSellerModel(
-      {required this.userId, required this.name, this.profilePicture});
+  OrderCounterpartyModel(
+      {required this.userId, required this.name, this.profilePicture, required this.role});
 
-  factory OrderSellerModel.fromJson(Map<String, dynamic> json) =>
-      _$OrderSellerModelFromJson(json);
-  Map<String, dynamic> toJson() => _$OrderSellerModelToJson(this);
+  factory OrderCounterpartyModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderCounterpartyModelFromJson(json);
+  Map<String, dynamic> toJson() => _$OrderCounterpartyModelToJson(this);
 
-  OrderSeller toEntity() =>
-      OrderSeller(userId: userId, name: name, profilePicture: profilePicture);
+  OrderCounterparty toEntity() =>
+      OrderCounterparty(userId: userId, name: name, profilePicture: profilePicture, role: role);
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -94,7 +95,11 @@ class OrderDeliveryModel {
       address: address?['full_address'] ?? address?['address'],
       date: date,
       timeSlot: timeSlot,
-      fee: fee);
+      fee: fee,
+      latitude: address?['latitude'] != null ? (address!['latitude'] as num).toDouble() : null,
+      longitude: address?['longitude'] != null ? (address!['longitude'] as num).toDouble() : null,
+      notes: address?['notes'] as String?,
+  );
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -104,7 +109,7 @@ class OrderModel {
   @JsonKey(name: 'order_number')
   final String orderNumber;
   final String status;
-  final OrderSellerModel seller;
+  final OrderCounterpartyModel counterparty;
   final List<OrderItemModel> items;
   final OrderDeliveryModel delivery;
   @JsonKey(name: 'total_amount')
@@ -116,7 +121,7 @@ class OrderModel {
     required this.orderId,
     required this.orderNumber,
     required this.status,
-    required this.seller,
+    required this.counterparty,
     required this.items,
     required this.delivery,
     required this.totalAmount,
@@ -131,7 +136,7 @@ class OrderModel {
         orderId: orderId,
         orderNumber: orderNumber,
         status: status,
-        seller: seller.toEntity(),
+        counterparty: counterparty.toEntity(),
         items: items.map((e) => e.toEntity()).toList(),
         delivery: delivery.toEntity(),
         totalAmount: totalAmount,

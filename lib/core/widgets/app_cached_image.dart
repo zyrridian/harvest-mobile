@@ -250,6 +250,14 @@ class AppCachedImage extends StatelessWidget {
       } catch (e) {
         image = customErrorWidget?.call(context, imageUrl, e) ?? _buildErrorWidget(context, imageUrl, e);
       }
+    } else if (imageUrl.startsWith('blob:')) {
+      image = Image.network(
+        imageUrl,
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => customErrorWidget?.call(context, imageUrl, error) ?? _buildErrorWidget(context, imageUrl, error),
+      );
     } else if (!imageUrl.startsWith('http')) {
       // Handle local file paths
       image = Image.file(

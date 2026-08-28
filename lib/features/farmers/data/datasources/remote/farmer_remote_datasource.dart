@@ -175,7 +175,7 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
   @override
   Future<void> followFarmer(String id) async {
     try {
-      final endpoint = AppConstants.farmerByIdEndpoint.replaceAll(':id', id) + '/follow';
+      final endpoint = '${AppConstants.farmerByIdEndpoint.replaceAll(':id', id)}/follow';
       final response = await dio.post(endpoint);
       if (response.statusCode != 201 && response.statusCode != 200) {
         throw ServerException('Failed to follow farmer');
@@ -190,7 +190,7 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
   @override
   Future<void> unfollowFarmer(String id) async {
     try {
-      final endpoint = AppConstants.farmerByIdEndpoint.replaceAll(':id', id) + '/follow';
+      final endpoint = '${AppConstants.farmerByIdEndpoint.replaceAll(':id', id)}/follow';
       final response = await dio.delete(endpoint);
       if (response.statusCode != 200) {
         throw ServerException('Failed to unfollow farmer');
@@ -274,9 +274,15 @@ class FarmerRemoteDataSourceImpl implements FarmerRemoteDataSource {
 
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
-        final message = e.response?.data['message'] ??
-            e.response?.data['error'] ??
-            'Server error occurred';
+        final data = e.response?.data;
+        String message = 'Server error occurred';
+        if (data is Map<String, dynamic>) {
+          message = data['message']?.toString() ??
+              data['error']?.toString() ??
+              'Server error occurred';
+        } else if (data is String) {
+          message = data.length > 100 ? data.substring(0, 100) : data;
+        }
         throw ServerException(message, statusCode: statusCode);
 
       case DioExceptionType.cancel:

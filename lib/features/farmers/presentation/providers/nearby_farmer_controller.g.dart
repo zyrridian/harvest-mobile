@@ -7,7 +7,7 @@ part of 'nearby_farmer_controller.dart';
 // **************************************************************************
 
 String _$nearbyFarmerControllerHash() =>
-    r'84182c035893ec87eebb0fb39487ea30927f10d7';
+    r'f3badfd1a2e9aa8736c5f45c7e93698c7db309c2';
 
 /// See also [NearbyFarmerController].
 @ProviderFor(NearbyFarmerController)

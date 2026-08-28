@@ -97,6 +97,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         body: cartState.when(
           initial: () => const SizedBox.shrink(),
           data: (cart) {
+            final effectiveDeliveryFee = _deliveryMethod == 'self_pickup'
+                ? 0.0
+                : cart.summary.totalDeliveryFee;
+            final effectiveGrandTotal = cart.summary.subtotal -
+                cart.summary.totalDiscount +
+                effectiveDeliveryFee +
+                cart.summary.serviceFee;
+
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(
                   24, 8, 24, 100), // Bottom padding for FAB
@@ -251,7 +259,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     locale: 'id_ID',
                                     symbol: 'Rp ',
                                     decimalDigits: 0)
-                                .format(cart.summary.totalDeliveryFee)),
+                                .format(effectiveDeliveryFee)),
                         _buildSummaryRow(
                             'Service Fee',
                             NumberFormat.currency(
@@ -279,7 +287,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       locale: 'id_ID',
                                       symbol: 'Rp ',
                                       decimalDigits: 0)
-                                  .format(cart.summary.grandTotal),
+                                  .format(effectiveGrandTotal),
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,

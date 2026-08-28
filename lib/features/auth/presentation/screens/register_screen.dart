@@ -501,10 +501,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: authState.maybeWhen(
+                      onPressed: (!_acceptTerms || authState.maybeWhen(
                         loading: () => true,
                         orElse: () => false,
-                      )
+                      ))
                           ? null
                           : _handleRegister,
                       style: ElevatedButton.styleFrom(

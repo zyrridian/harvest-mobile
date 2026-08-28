@@ -334,19 +334,7 @@ class CartScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            // Mock Delivery Fee (Optional)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Delivery Fee', style: TextStyle(color: kTextGrey)),
-                Text(
-                  'Rp 15.000',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, color: kDarkGreen),
-                ),
-              ],
-            ),
+
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(),
@@ -366,7 +354,7 @@ class CartScreen extends ConsumerWidget {
                 Text(
                   NumberFormat.currency(
                           locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
-                      .format(total + 15000), // Adding dummy delivery fee
+                      .format(total),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

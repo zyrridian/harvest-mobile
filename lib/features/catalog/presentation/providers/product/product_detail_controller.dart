@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harvest_app/features/storefront/presentation/providers/marketplace_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/core/providers/dio_provider.dart';
 import 'package:harvest_app/features/catalog/data/datasources/remote/product_remote_datasource.dart';

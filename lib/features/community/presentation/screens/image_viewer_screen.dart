@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -36,10 +37,15 @@ class ImageViewerScreen extends StatelessWidget {
             minScale: 1.0,
             maxScale: 4.0,
             child: isLocal
-                ? Image.file(
-                    File(imageUrl),
-                    fit: BoxFit.contain,
-                  )
+                ? (kIsWeb
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                      )
+                    : Image.file(
+                        File(imageUrl),
+                        fit: BoxFit.contain,
+                      ))
                 : CachedNetworkImage(
                     imageUrl: imageUrl,
                     fit: BoxFit.contain,

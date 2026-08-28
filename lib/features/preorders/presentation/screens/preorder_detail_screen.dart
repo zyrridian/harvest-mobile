@@ -280,7 +280,7 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
-                                          '${campaign.distance != null ? '${campaign.distance} km from you' : (campaign.location ?? 'Local farm')}', // · Harvested within hours of pickup',
+                                          campaign.distance != null ? '${campaign.distance} km from you' : (campaign.location ?? 'Local farm'), // · Harvested within hours of pickup',
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -405,76 +405,74 @@ class _PreOrderDetailScreenState extends ConsumerState<PreOrderDetailScreen> {
                                   ),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    campaign.profileImage ??
-                                        'https://ui-avatars.com/api/?name=${Uri.encodeComponent(campaign.farmerName ?? 'Local Farmer')}&background=1A2F25&color=fff',
+                        GestureDetector(
+                          onTap: () {
+                            if (campaign.farmerId != null) {
+                              context.push('/farmer-detail', extra: campaign.farmerId);
+                            }
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      campaign.profileImage ??
+                                          'https://ui-avatars.com/api/?name=${Uri.encodeComponent(campaign.farmerName ?? 'Local Farmer')}&background=1A2F25&color=fff',
+                                    ),
+                                    fit: BoxFit.cover,
                                   ),
-                                  fit: BoxFit.cover,
+                                  border: Border.all(
+                                      color: Colors.grey[200]!, width: 2),
                                 ),
-                                border: Border.all(
-                                    color: Colors.grey[200]!, width: 2),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    campaign.farmerName ?? 'Local Farmer',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: kTextGreen,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      campaign.farmerName ?? 'Local Farmer',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: kTextGreen,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const PhosphorIcon(
+                                            PhosphorIconsRegular.plant,
+                                            size: 12,
+                                            color: kDarkGreen),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${campaign.successfulHarvests ?? 0} successful harvests',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: kDarkGreen,
+                                              ),
                                         ),
-                                  ),
-                                  // const SizedBox(height: 4),
-                                  // Text(
-                                  //   '3rd generation tomato grower · Bogor',
-                                  //   style: Theme.of(context)
-                                  //       .textTheme
-                                  //       .bodyMedium
-                                  //       ?.copyWith(
-                                  //         fontSize: 12,
-                                  //         color: Colors.grey[600],
-                                  //       ),
-                                  // ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const PhosphorIcon(
-                                          PhosphorIconsRegular.plant,
-                                          size: 12,
-                                          color: kDarkGreen),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${campaign.successfulHarvests ?? 0} successful harvests',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: kDarkGreen,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              const Icon(PhosphorIconsRegular.caretRight,
+                                  color: kDarkGreen, size: 20),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 32),
                         // Community Section

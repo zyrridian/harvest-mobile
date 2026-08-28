@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -195,7 +196,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       _scrollToBottom();
 
       final uploadUc = ref.read(uploadFileUseCaseProvider);
-      uploadUc.call(File(imageToUpload.path)).then((uploadResult) {
+      uploadUc.uploadFromPath(imageToUpload.path).then((uploadResult) {
         uploadResult.fold((failure) {
           if (mounted) {
             setState(() => _uploadingMessageIds.remove(tempImgId));
@@ -260,6 +261,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   void _pickAndCropImage() {
     ImagePickerBottomSheet.show(context, onImagePicked: (path) async {
+      if (kIsWeb) {
+        if (mounted) {
+          setState(() {
+            _selectedImageToUpload = XFile(path);
+          });
+        }
+        return;
+      }
+
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: path,
         uiSettings: [
@@ -773,12 +783,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            File(_selectedImageToUpload!.path),
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                          ),
+                          child: kIsWeb
+                              ? Image.network(
+                                  _selectedImageToUpload!.path,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  File(_selectedImageToUpload!.path),
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                         Positioned(
                           right: -8,
@@ -1013,12 +1030,19 @@ class _ChatBubble extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: isLocal
-                        ? Image.file(
-                            File(message.content!),
-                            width: 200,
-                            height: 200,
-                            fit: BoxFit.cover,
-                          )
+                        ? (kIsWeb
+                            ? Image.network(
+                                message.content!,
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(message.content!),
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ))
                         : CachedNetworkImage(
                             imageUrl: message.content ?? '',
                             width: 200,

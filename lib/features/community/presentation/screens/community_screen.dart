@@ -7,7 +7,6 @@ import 'package:harvest_app/features/community/domain/entities/recipe.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_controller.dart';
 import 'package:harvest_app/core/config/router/app_router.dart';
 import 'package:harvest_app/features/community/presentation/providers/community_state.dart';
-import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';
 import 'package:harvest_app/features/community/presentation/providers/recipe_controller.dart';
 import 'package:harvest_app/core/widgets/community_post_card.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farmer.dart';
@@ -131,8 +130,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 
   String? _getValidImageUrl(String? url) {
-    if (url == null || url.trim().isEmpty || !url.startsWith('http'))
+    if (url == null || url.trim().isEmpty || !url.startsWith('http')) {
       return null;
+    }
     return url;
   }
 

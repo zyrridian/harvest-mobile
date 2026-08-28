@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harvest_app/features/farmers/domain/entities/farm_profile_request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -29,7 +28,7 @@ class EditFarmProfileController extends _$EditFarmProfileController {
 
     try {
       if (finalProfileImage != null && !finalProfileImage.startsWith('http')) {
-        final uploadResult = await ref.read(uploadFileUseCaseProvider).call(File(finalProfileImage));
+        final uploadResult = await ref.read(uploadFileUseCaseProvider).uploadFromPath(finalProfileImage);
         uploadResult.fold(
           (failure) => throw Exception(failure.message),
           (uploadedFile) => finalProfileImage = uploadedFile.url,
@@ -37,7 +36,7 @@ class EditFarmProfileController extends _$EditFarmProfileController {
       }
 
       if (finalCoverImage != null && !finalCoverImage.startsWith('http')) {
-        final uploadResult = await ref.read(uploadFileUseCaseProvider).call(File(finalCoverImage));
+        final uploadResult = await ref.read(uploadFileUseCaseProvider).uploadFromPath(finalCoverImage);
         uploadResult.fold(
           (failure) => throw Exception(failure.message),
           (uploadedFile) => finalCoverImage = uploadedFile.url,

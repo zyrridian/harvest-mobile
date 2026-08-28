@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_network_debugger/flutter_network_debugger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +65,7 @@ class MainApp extends ConsumerWidget {
       builder: (context, child) {
         return FlutterNetworkDebugger(
           navigatorKey: navigatorKey,
-          isDebug: kDebugMode, //false,
+          isDebug: true, //kDebugMode, //false,
           child: child ?? const SizedBox(),
         );
       },

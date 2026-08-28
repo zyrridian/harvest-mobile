@@ -34,7 +34,16 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> _filters = ['All', 'Processing', 'Delivered', 'Cancelled'];
+  final List<String> _filters = [
+    'All',
+    'Pending Payment',
+    'Confirmed',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Completed',
+    'Cancelled'
+  ];
   int _selectedFilterIndex = 0;
 
   @override
@@ -177,10 +186,11 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                   data: (orders) {
                     List<Order> filteredOrders = List.from(orders);
                     final selectedStatus =
-                        _filters[_selectedFilterIndex].toLowerCase();
+                        _filters[_selectedFilterIndex].toLowerCase().replaceAll(' ', '_');
+
                     if (selectedStatus != 'all') {
                       filteredOrders = filteredOrders
-                          .where((o) => o.status == selectedStatus)
+                          .where((o) => o.status.toLowerCase() == selectedStatus)
                           .toList();
                     }
 
@@ -188,7 +198,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
                       final query = _searchController.text.toLowerCase();
                       filteredOrders = filteredOrders.where((o) {
                         return (o.orderNumber.toLowerCase().contains(query)) ||
-                            (o.seller.name.toLowerCase().contains(query));
+                            (o.counterparty.name.toLowerCase().contains(query));
                       }).toList();
                     }
 
@@ -405,14 +415,14 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen>
             ),
             const SizedBox(height: 12),
 
-            // Seller Info
+            // Counterparty Info
             Row(
               children: [
                 const PhosphorIcon(PhosphorIconsRegular.storefront,
                     size: 16, color: kTextGrey),
                 const SizedBox(width: 6),
                 Text(
-                  order.seller.name,
+                  order.counterparty.name,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

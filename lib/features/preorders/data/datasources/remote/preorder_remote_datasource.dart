@@ -25,6 +25,7 @@ abstract class PreOrderRemoteDataSource {
   Future<Map<String, dynamic>> arrangePickup(String id, DateTime pickupTime);
   Future<Map<String, dynamic>> cancelReservation(String id);
   Future<Map<String, dynamic>> completeReservation(String id);
+  Future<Map<String, dynamic>> updateReservationStatus(String id, String status);
   Future<Map<String, dynamic>> fulfillCampaign(String id);
 }
 
@@ -161,8 +162,9 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       {String? filter, double? latitude, double? longitude}) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (filter != null && filter.toLowerCase() != 'all')
+      if (filter != null && filter.toLowerCase() != 'all') {
         queryParams['filter'] = filter;
+      }
       if (latitude != null) queryParams['latitude'] = latitude;
       if (longitude != null) queryParams['longitude'] = longitude;
 
@@ -305,6 +307,25 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
       }
       throw ServerException(
           response.data['message'] ?? 'Failed to complete reservation');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw ServerException('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateReservationStatus(String id, String status) async {
+    try {
+      final response = await dio.patch(
+        '/preorders/reservations/$id/status',
+        data: {'status': status},
+      );
+      if (response.data['status'] == 'success') {
+        return response.data['data'] ?? {};
+      }
+      throw ServerException(
+          response.data['message'] ?? 'Failed to update reservation status');
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ImagePickerBottomSheet extends StatelessWidget {
@@ -30,7 +31,29 @@ class ImagePickerBottomSheet extends StatelessWidget {
     }
   }
 
-  static Future<void> show(BuildContext context, {required Function(String path) onImagePicked}) {
+  static Future<void> show(BuildContext context, {required Function(String path) onImagePicked}) async {
+    if (kIsWeb) {
+      final picker = ImagePicker();
+      try {
+        final XFile? image = await picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1080,
+          maxHeight: 1080,
+          imageQuality: 85,
+        );
+        if (image != null && context.mounted) {
+          onImagePicked(image.path);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to pick image')),
+          );
+        }
+      }
+      return;
+    }
+
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,

@@ -46,11 +46,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       final orders = (data['orders'] as List<dynamic>).map((o) {
         final map = o as Map<String, dynamic>;
-        final sellerMap = map['seller'] ?? {};
-        final seller = OrderSellerModel(
-            userId: sellerMap['user_id'] ?? '',
-            name: sellerMap['name'] ?? '',
-            profilePicture: sellerMap['profile_picture']);
+        final counterpartyMap = map['counterparty'] ?? map['seller'] ?? map['buyer'] ?? {};
+        final counterparty = OrderCounterpartyModel(
+            userId: counterpartyMap['user_id'] ?? '',
+            name: counterpartyMap['name'] ?? '',
+            profilePicture: counterpartyMap['profile_picture'],
+            role: counterpartyMap['role'] ?? (map['seller'] != null ? 'seller' : 'buyer'));
 
         final items = <OrderItemModel>[];
         final itemsList = map['items'] as List<dynamic>? ?? [];
@@ -80,7 +81,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
             orderId: map['order_id'] ?? '',
             orderNumber: map['order_number'] ?? '',
             status: map['status'] ?? '',
-            seller: seller,
+            counterparty: counterparty,
             items: items,
             delivery: delivery,
             totalAmount: map['total_amount'] ?? 0,
@@ -102,10 +103,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       final response = await dio.get('${AppConstants.ordersEndpoint}/$orderId');
 
       final d = response.data['data'] as Map<String, dynamic>;
-      final seller = OrderSellerModel(
-          userId: d['seller']['user_id'] ?? '',
-          name: d['seller']['name'] ?? '',
-          profilePicture: d['seller']['profile_picture']);
+      final counterpartyData = d['counterparty'] ?? d['seller'] ?? d['buyer'] ?? {};
+      final counterparty = OrderCounterpartyModel(
+          userId: counterpartyData['user_id'] ?? '',
+          name: counterpartyData['name'] ?? '',
+          profilePicture: counterpartyData['profile_picture'],
+          role: counterpartyData['role'] ?? (d['seller'] != null ? 'seller' : 'buyer'));
       final items = (d['items'] as List<dynamic>)
           .map((it) => OrderItemModel.fromJson(it as Map<String, dynamic>))
           .toList();
@@ -120,7 +123,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
           orderId: d['order_id'] ?? '',
           orderNumber: d['order_number'] ?? '',
           status: d['status'] ?? '',
-          seller: seller,
+          counterparty: counterparty,
           items: items,
           delivery: delivery,
           totalAmount: d['pricing']?['total'] ?? d['total'] ?? 0,

@@ -248,18 +248,16 @@ class _CampaignCard extends ConsumerWidget {
                               _StatusMenu(campaign: campaign),
                             ],
                           ),
-                          if (campaign.pricePerUnit != null &&
-                              campaign.unit != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Text(
-                                'Rp ${campaign.pricePerUnit} / ${campaign.unit}',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: _kTextGrey,
-                                ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              'Rp ${campaign.pricePerUnit} / ${campaign.unit}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: _kTextGrey,
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ),

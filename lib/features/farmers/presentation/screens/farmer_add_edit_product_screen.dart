@@ -10,8 +10,6 @@ import 'package:harvest_app/features/catalog/presentation/providers/category/cat
 import 'package:harvest_app/features/farmers/presentation/providers/unit_providers.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
-import 'package:intl/intl.dart';
-import 'dart:io';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
 
 const kBgColor = Colors.white;
@@ -129,7 +127,7 @@ class _AddProductScreenState extends ConsumerState<FarmerAddEditProductScreen> {
       if (path.startsWith('http://') || path.startsWith('https://')) {
         finalImageUrls.add(path);
       } else {
-        final uploadResult = await uploadUseCase.call(File(path));
+        final uploadResult = await uploadUseCase.uploadFromPath(path);
         bool uploadSuccess = false;
         uploadResult.fold(
           (failure) {

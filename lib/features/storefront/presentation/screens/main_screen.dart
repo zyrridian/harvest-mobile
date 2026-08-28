@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_screen.dart';
 import '../../../community/presentation/screens/community_screen.dart';
 import '../../../users/presentation/screens/profile_screen.dart';
-import '../../../explore/presentation/screens/explore_screen.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 
 // Provider to manage which tab is active

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -79,7 +80,7 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
 
       if (_imagePath != null && !_imagePath!.startsWith('http')) {
         final uploadUseCase = ref.read(uploadFileUseCaseProvider);
-        final result = await uploadUseCase(File(_imagePath!));
+        final result = await uploadUseCase.uploadFromPath(_imagePath!);
 
         bool uploadFailed = false;
         result.fold(
@@ -319,7 +320,7 @@ class _EditDropPointScreenState extends ConsumerState<EditDropPointScreen> {
                   child: _imagePath != null && _imagePath!.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: _imagePath!.startsWith('http')
+                          child: (kIsWeb || _imagePath!.startsWith('http'))
                               ? Image.network(_imagePath!, fit: BoxFit.cover)
                               : Image.file(File(_imagePath!), fit: BoxFit.cover),
                         )

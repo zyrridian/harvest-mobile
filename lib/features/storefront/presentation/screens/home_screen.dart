@@ -7,10 +7,7 @@ import 'package:harvest_app/features/community/presentation/providers/community_
 import 'package:harvest_app/features/community/presentation/screens/community_post_detail_screen.dart';
 import 'package:harvest_app/features/community/presentation/screens/community_screen.dart';
 import 'package:harvest_app/features/storefront/domain/entities/home.dart';
-import 'package:harvest_app/features/catalog/presentation/screens/search/search_screen.dart';
-import 'package:harvest_app/features/catalog/presentation/screens/category/category_screen.dart';
 import 'package:harvest_app/features/storefront/presentation/providers/home_controller.dart';
-import 'package:harvest_app/features/storefront/presentation/widgets/greeting_location_bar.dart';
 import 'package:harvest_app/features/storefront/presentation/widgets/promo_carousel.dart';
 import 'package:harvest_app/features/storefront/presentation/widgets/quick_action_grid.dart';
 import 'package:harvest_app/features/community/presentation/screens/conversations_list_screen.dart';

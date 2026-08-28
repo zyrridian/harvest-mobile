@@ -261,6 +261,23 @@ class PreorderRepositoryImpl implements PreorderRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> updateReservationStatus(
+      String id, String status) async {
+    try {
+      final result = await remoteDataSource.updateReservationStatus(id, status);
+      return Right(result);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(ServerFailure(e.message, statusCode: e.statusCode));
+      } else if (e is NetworkException) {
+        return Left(NetworkFailure(e.message));
+      } else {
+        return Left(UnexpectedFailure('An unexpected error occurred: $e'));
+      }
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> fulfillCampaign(
       String id) async {
     try {

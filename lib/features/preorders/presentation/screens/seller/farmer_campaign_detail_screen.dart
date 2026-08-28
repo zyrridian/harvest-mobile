@@ -6,12 +6,10 @@ import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_c
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-import 'package:harvest_app/core/config/theme/app_colors.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import '../../../../../core/config/router/app_router.dart';
 import '../../../../../core/widgets/app_cached_image.dart';
 import '../../providers/seller/farmer_campaigns_controller.dart';
-import '../../../domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/features/chat/presentation/providers/messaging_providers.dart';
 
 const _kBg = Color(0xFFFFFFFF);
@@ -210,19 +208,17 @@ class _FarmerCampaignDetailScreenState
                       final unit = detailAsync.hasValue
                           ? detailAsync.value!.unit
                           : displayCampaign.unit;
-                      if (price != null && unit != null) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            'Rp ${NumberFormat('#,###').format(price)} / $unit',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: _kOrange,
-                            ),
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          'Rp ${NumberFormat('#,###').format(price)} / $unit',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _kOrange,
                           ),
-                        );
-                      }
+                        ),
+                      );
                       return const SizedBox.shrink();
                     }),
 
@@ -561,15 +557,14 @@ class _ReservationCardState extends ConsumerState<_ReservationCard> {
                           color: _kOrange,
                         ),
                       ),
-                      if (reservation.totalPrice != null)
-                        Text(
-                          'Rp ${NumberFormat('#,###').format(reservation.totalPrice?.toInt())}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _kDark,
-                          ),
+                      Text(
+                        'Rp ${NumberFormat('#,###').format(reservation.totalPrice.toInt())}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _kDark,
                         ),
+                      ),
                     ],
                   ),
                 ],
@@ -719,28 +714,28 @@ class _ReservationCardState extends ConsumerState<_ReservationCard> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _ReservationStatusSheet(
+      builder: (sheetContext) => _ReservationStatusSheet(
         currentStatus: _currentStatus,
         buyerName: reservation.buyerName,
         onStatusSelected: (newStatus) async {
-          Navigator.pop(context);
+          Navigator.pop(sheetContext);
           setState(() => _isUpdating = true);
-          final success = await ref
+          final errorMessage = await ref
               .read(preOrderControllerProvider.notifier)
               .updateReservationStatus(reservation.id, newStatus);
           if (mounted) {
             setState(() {
               _isUpdating = false;
-              if (success) _currentStatus = newStatus;
+              if (errorMessage == null) _currentStatus = newStatus;
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  success
+                  errorMessage == null
                       ? 'Status updated to ${newStatus.replaceAll("_", " ")}'
-                      : 'Failed to update status',
+                      : errorMessage,
                 ),
-                backgroundColor: success ? _kDark : Colors.red,
+                backgroundColor: errorMessage == null ? _kDark : Colors.red,
               ),
             );
           }
@@ -776,8 +771,13 @@ class _ReservationCardState extends ConsumerState<_ReservationCard> {
       url =
           Uri.parse('https://www.google.com/maps/search/?api=1&query=$encoded');
     }
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        await launchUrl(url, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      debugPrint('Could not launch Google Maps: $e');
+      await launchUrl(url, mode: LaunchMode.platformDefault);
     }
   }
 }
@@ -1047,20 +1047,14 @@ class _ReservationStatusSheet extends StatelessWidget {
 
   static const _statuses = [
     (
-      'PENDING_DEPOSIT',
-      'Pending Deposit',
+      'PENDING_PAYMENT',
+      'Pending Payment',
       Color(0xFFE86A33), // Orange
       PhosphorIconsRegular.clockCountdown
     ),
     (
-      'DEPOSIT_PAID',
-      'Deposit Paid',
-      Color(0xFF1565C0), // Blue
-      PhosphorIconsRegular.currencyCircleDollar
-    ),
-    (
-      'FULLY_PAID',
-      'Fully Paid',
+      'PAID',
+      'Paid',
       Color(0xFF2E7D32), // Green
       PhosphorIconsRegular.checkCircle
     ),
@@ -1181,9 +1175,9 @@ class _MapPreviewSheet extends StatelessWidget {
         ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
         : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
 
-    // We use a static map image from OpenStreetMap via a URL
+    // We use a static map image from Yandex Static API
     final staticMapUrl = lat != null && lng != null
-        ? 'https://api.maptiler.com/maps/streets/static/$lng,$lat,14/600x300.png?markers=$lng,$lat&key=demo'
+        ? 'https://static-maps.yandex.ru/1.x/?lang=en_US&ll=$lng,$lat&z=14&l=map&size=600,300&pt=$lng,$lat,pm2rdm'
         : null;
 
     return Container(
@@ -1319,8 +1313,14 @@ class _MapPreviewSheet extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   final url = Uri.parse(mapsUrl);
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  try {
+                    if (!await launchUrl(url,
+                        mode: LaunchMode.externalApplication)) {
+                      await launchUrl(url, mode: LaunchMode.platformDefault);
+                    }
+                  } catch (e) {
+                    debugPrint('Could not launch Google Maps: $e');
+                    await launchUrl(url, mode: LaunchMode.platformDefault);
                   }
                 },
                 icon: const Icon(PhosphorIconsFill.navigationArrow, size: 18),

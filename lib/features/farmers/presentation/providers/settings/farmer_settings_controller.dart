@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/get_farmer_profile_usecase.dart';
 import 'package:harvest_app/features/farmers/domain/usecases/get_delivery_settings_usecase.dart';
 import '../farmer_dashboard_controller.dart';
+import 'package:harvest_app/features/farmers/domain/entities/delivery_settings.dart';
 import 'farmer_settings_state.dart';
 
 part 'farmer_settings_controller.g.dart';
@@ -35,7 +36,20 @@ class FarmerSettingsController extends _$FarmerSettingsController {
       (failure) => state = FarmerSettingsState.error(failure.message),
       (profile) {
         deliveryResult.fold(
-          (failure) => state = FarmerSettingsState.error(failure.message),
+          (failure) {
+            // If delivery settings haven't been configured yet (e.g., 404), use defaults
+            state = FarmerSettingsState.data(
+              profile: profile,
+              deliverySettings: const DeliverySettings(
+                farmerDeliveryEnabled: false,
+                baseFee: 0,
+                perKmRate: 0,
+                maxRadiusKm: 0,
+                minOrderForFree: 0,
+                cashOnDeliveryEnabled: false,
+              ),
+            );
+          },
           (deliverySettings) {
             state = FarmerSettingsState.data(
               profile: profile,

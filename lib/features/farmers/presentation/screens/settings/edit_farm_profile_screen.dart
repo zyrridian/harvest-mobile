@@ -11,7 +11,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest_app/features/users/presentation/screens/map_picker_screen.dart';
 import 'package:harvest_app/features/system/presentation/providers/master_provider.dart';
 import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
-import 'package:harvest_app/features/farmers/domain/entities/drop_point.dart';
 
 const kBgColor = Color(0xFFFFFFFF);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -446,7 +445,7 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
               borderRadius: BorderRadius.circular(12),
               image: _coverImagePath != null
                   ? DecorationImage(
-                      image: _coverImagePath!.startsWith('http')
+                      image: (_coverImagePath!.startsWith('http') || _coverImagePath!.startsWith('blob:'))
                           ? NetworkImage(_coverImagePath!)
                           : FileImage(File(_coverImagePath!)) as ImageProvider,
                       fit: BoxFit.cover,
@@ -480,28 +479,36 @@ class _EditFarmProfileScreenState extends ConsumerState<EditFarmProfileScreen> {
         Center(
           child: Stack(
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: kPillGrey,
-                  shape: BoxShape.circle,
-                  image: _profileImagePath != null
-                      ? DecorationImage(
-                          image: _profileImagePath!.startsWith('http')
-                              ? NetworkImage(_profileImagePath!)
-                              : FileImage(File(_profileImagePath!))
-                                  as ImageProvider,
-                          fit: BoxFit.cover,
+              InkWell(
+                onTap: () {
+                  ImagePickerBottomSheet.show(context, onImagePicked: (path) {
+                    setState(() => _profileImagePath = path);
+                  });
+                },
+                borderRadius: BorderRadius.circular(50),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: kPillGrey,
+                    shape: BoxShape.circle,
+                    image: _profileImagePath != null
+                        ? DecorationImage(
+                            image: (_profileImagePath!.startsWith('http') || _profileImagePath!.startsWith('blob:'))
+                                ? NetworkImage(_profileImagePath!)
+                                : FileImage(File(_profileImagePath!))
+                                    as ImageProvider,
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: _profileImagePath == null
+                      ? const Center(
+                          child: PhosphorIcon(PhosphorIconsRegular.user,
+                              color: kTextGrey, size: 40),
                         )
                       : null,
                 ),
-                child: _profileImagePath == null
-                    ? const Center(
-                        child: PhosphorIcon(PhosphorIconsRegular.user,
-                            color: kTextGrey, size: 40),
-                      )
-                    : null,
               ),
               Positioned(
                 bottom: 0,

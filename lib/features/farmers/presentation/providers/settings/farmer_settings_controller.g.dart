@@ -47,7 +47,7 @@ final getDeliverySettingsUseCaseProvider =
 typedef GetDeliverySettingsUseCaseRef
     = AutoDisposeProviderRef<GetDeliverySettingsUseCase>;
 String _$farmerSettingsControllerHash() =>
-    r'c2ad9e2ce44b806aff29d5c4619388896d1a146a';
+    r'690926ed76c03f4fb56a867d0e0b693282343184';
 
 /// See also [FarmerSettingsController].
 @ProviderFor(FarmerSettingsController)

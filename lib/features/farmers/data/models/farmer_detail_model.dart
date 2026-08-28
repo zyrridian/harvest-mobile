@@ -90,7 +90,7 @@ class FarmerDetailModel {
           ),
           farmer: (author != null && author['type'] == 'producer')
               ? CommunityFarmer(
-                  id: author!['id']?.toString() ?? '',
+                  id: author['id']?.toString() ?? '',
                   name: author['name']?.toString() ?? 'Unknown Farmer',
                   profileImage: author['avatar_url']?.toString(),
                 ) 

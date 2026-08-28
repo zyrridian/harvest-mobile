@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_response_model.dart';
 import '../models/sourcing_request_model.dart';
@@ -59,7 +58,7 @@ class SourcingRemoteDataSourceImpl implements SourcingRemoteDataSource {
       if (response.statusCode == 200) {
         return PaginatedResponseModel.fromJson(
           response.data,
-          (json) => SourcingRequestModel.fromJson(json as Map<String, dynamic>),
+          (json) => SourcingRequestModel.fromJson(json),
         );
       } else {
         throw ServerException('Failed to fetch open sourcing requests');
@@ -120,7 +119,7 @@ class SourcingRemoteDataSourceImpl implements SourcingRemoteDataSource {
       if (response.statusCode == 200) {
         return PaginatedResponseModel.fromJson(
           response.data,
-          (json) => SourcingRequestModel.fromJson(json as Map<String, dynamic>),
+          (json) => SourcingRequestModel.fromJson(json),
         );
       } else {
         throw ServerException('Failed to fetch my sourcing requests');
@@ -196,7 +195,7 @@ class SourcingRemoteDataSourceImpl implements SourcingRemoteDataSource {
       if (response.statusCode == 200) {
         return PaginatedResponseModel.fromJson(
           response.data,
-          (json) => SourcingOfferModel.fromJson(json as Map<String, dynamic>),
+          (json) => SourcingOfferModel.fromJson(json),
         );
       } else {
         throw ServerException('Failed to fetch my sourcing offers');

@@ -727,8 +727,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
           return reviewsAsync.when(
             data: (response) {
-              if (response.summary.totalReviews == 0)
+              if (response.summary.totalReviews == 0) {
                 return const SizedBox.shrink();
+              }
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

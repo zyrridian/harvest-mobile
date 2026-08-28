@@ -5,6 +5,7 @@ class PreorderCampaign extends Equatable {
   final String productId;
   final String? productName;
   final String? productImage;
+  final String? farmerId;
   final String? farmerName;
   final int targetQuantity;
   final int currentReservations;
@@ -33,6 +34,7 @@ class PreorderCampaign extends Equatable {
     required this.productId,
     this.productName,
     this.productImage,
+    this.farmerId,
     this.farmerName,
     required this.targetQuantity,
     required this.currentReservations,
@@ -62,6 +64,7 @@ class PreorderCampaign extends Equatable {
     String? productId,
     String? productName,
     String? productImage,
+    String? farmerId,
     String? farmerName,
     int? targetQuantity,
     int? currentReservations,
@@ -90,6 +93,7 @@ class PreorderCampaign extends Equatable {
       productId: productId ?? this.productId,
       productName: productName ?? this.productName,
       productImage: productImage ?? this.productImage,
+      farmerId: farmerId ?? this.farmerId,
       farmerName: farmerName ?? this.farmerName,
       targetQuantity: targetQuantity ?? this.targetQuantity,
       currentReservations: currentReservations ?? this.currentReservations,
@@ -121,6 +125,7 @@ class PreorderCampaign extends Equatable {
         productId,
         productName,
         productImage,
+        farmerId,
         farmerName,
         targetQuantity,
         currentReservations,

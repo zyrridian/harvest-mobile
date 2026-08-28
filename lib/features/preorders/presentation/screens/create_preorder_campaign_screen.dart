@@ -5,7 +5,6 @@ import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_c
 import 'package:harvest_app/features/preorders/presentation/providers/preorder_controller.dart';
 import 'package:harvest_app/features/preorders/presentation/providers/seller/farmer_campaigns_controller.dart';
 import 'package:harvest_app/features/preorders/domain/entities/create_preorder_campaign_params.dart';
-import 'package:harvest_app/features/preorders/domain/entities/preorder_campaign.dart';
 import 'package:harvest_app/core/widgets/app_cached_image.dart';
 import 'package:harvest_app/core/widgets/image_picker_bottom_sheet.dart';
 import 'package:harvest_app/features/system/presentation/providers/utility_providers.dart';
@@ -81,34 +80,31 @@ class _CreatePreorderCampaignScreenState
 
       // 1. Upload local images first
       List<String> finalImages = [];
-      for (final imagePath in _images) {
-        if (!imagePath.startsWith('http')) {
-          // It's a local file, we need to upload it
-          final uploadUseCase = ref.read(uploadFileUseCaseProvider);
-          final result = await uploadUseCase(File(imagePath));
+      final uploadUseCase = ref.read(uploadFileUseCaseProvider);
 
-          final uploadFailed = result.fold(
+      for (String path in _images) {
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+          finalImages.add(path);
+        } else {
+          final uploadResult = await uploadUseCase.uploadFromPath(path);
+          bool uploadSuccess = false;
+          uploadResult.fold(
             (failure) {
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content:
-                          Text('Failed to upload image: ${failure.message}')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text('Failed to upload image: ${failure.message}')));
                 setState(() => _isLoading = false);
               }
-              return true;
             },
             (uploadedFile) {
               finalImages.add(uploadedFile.url);
-              return false;
+              uploadSuccess = true;
             },
           );
-
-          if (uploadFailed) return; // Stop submission if upload fails
-        } else {
-          // Already uploaded
-          finalImages.add(imagePath);
+          if (!uploadSuccess) {
+            return; // Stop saving if an image upload fails
+          }
         }
       }
 

@@ -6,6 +6,7 @@ class PreorderCampaignModel extends PreorderCampaign {
     required super.productId,
     super.productName,
     super.productImage,
+    super.farmerId,
     super.farmerName,
     required super.targetQuantity,
     required super.currentReservations,
@@ -90,6 +91,7 @@ class PreorderCampaignModel extends PreorderCampaign {
           json['title'] ?? json['productName'] ?? json['product']?['name'],
       productImage:
           json['productImage'] ?? json['product']?['image'] ?? primaryImage,
+      farmerId: json['farmerId'] ?? json['farmer_id'],
       farmerName: json['farmerName'],
       targetQuantity: json['targetQuantity'] ?? 0,
       currentReservations:

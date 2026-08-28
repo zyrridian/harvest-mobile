@@ -22,8 +22,12 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
     try {
       final response = await dio.get('/users/profile');
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        // The API returns { "data": { "user": {...}, "profile": null } }
-        return UserProfileModel.fromJson(response.data['data']['user']);
+        final userData = Map<String, dynamic>.from(response.data['data']['user']);
+        final profileData = response.data['data']['profile'];
+        if (profileData != null) {
+          userData['bio'] = profileData['bio'];
+        }
+        return UserProfileModel.fromJson(userData);
       } else {
         throw ServerException(
           'Failed to get user profile',
@@ -49,14 +53,19 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
     try {
       final Map<String, dynamic> data = {};
       if (name != null) data['name'] = name;
-      if (phoneNumber != null) data['phone'] = phoneNumber;
+      if (phoneNumber != null) data['phone_number'] = phoneNumber;
       if (bio != null) data['bio'] = bio;
       if (avatarUrl != null) data['avatar_url'] = avatarUrl;
 
       final response = await dio.put('/users/profile', data: data);
 
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        return UserProfileModel.fromJson(response.data['data']['user']);
+        final userData = Map<String, dynamic>.from(response.data['data']['user']);
+        final profileData = response.data['data']['profile'];
+        if (profileData != null) {
+          userData['bio'] = profileData['bio'];
+        }
+        return UserProfileModel.fromJson(userData);
       } else {
         throw ServerException(
           'Failed to update user profile',

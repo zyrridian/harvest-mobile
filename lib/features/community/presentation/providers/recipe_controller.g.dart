@@ -6,7 +6,7 @@ part of 'recipe_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$recipeControllerHash() => r'6ee200e29a50e3eae8a037ed84f30900a21485e4';
+String _$recipeControllerHash() => r'52c74b4e131ad7eb4d9ee04775e87ba73ed96026';
 
 /// See also [RecipeController].
 @ProviderFor(RecipeController)

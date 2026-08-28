@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter/foundation.dart';
 
 const kBgColor = Color(0xFFFAFAF8);
 const kDarkGreen = Color(0xFF1A2F25);
@@ -32,7 +33,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     _selectedLocation = widget.initialLocation;
     
     // Fix for Android emulator freezing issue with Google Maps
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       final GoogleMapsFlutterPlatform mapsImplementation =
           GoogleMapsFlutterPlatform.instance;
       if (mapsImplementation is GoogleMapsFlutterAndroid) {

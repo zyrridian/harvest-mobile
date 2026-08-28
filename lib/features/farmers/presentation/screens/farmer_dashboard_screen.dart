@@ -438,7 +438,7 @@ class _QuickActionCard extends StatelessWidget {
 }
 
 class _ActiveDropPointsCard extends ConsumerStatefulWidget {
-  const _ActiveDropPointsCard({Key? key}) : super(key: key);
+  const _ActiveDropPointsCard();
 
 
   @override

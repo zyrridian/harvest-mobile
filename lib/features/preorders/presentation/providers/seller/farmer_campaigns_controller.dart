@@ -1,4 +1,3 @@
-import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign.dart';
 import 'package:harvest_app/features/preorders/domain/entities/farmer_preorder_campaign_detail.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/seller/get_my_campaign_detail_usecase.dart';
 import 'package:harvest_app/features/preorders/domain/usecases/seller/get_my_campaigns_usecase.dart';
@@ -47,7 +46,7 @@ class FarmerCampaignsController extends _$FarmerCampaignsController {
           state = FarmerCampaignsState.data(campaigns);
         },
       );
-    } catch (e, st) {
+    } catch (e) {
       state = FarmerCampaignsState.error(e.toString());
     }
   }

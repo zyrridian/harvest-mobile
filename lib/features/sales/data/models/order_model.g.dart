@@ -34,18 +34,22 @@ Map<String, dynamic> _$OrderItemModelToJson(OrderItemModel instance) =>
       'subtotal': instance.subtotal,
     };
 
-OrderSellerModel _$OrderSellerModelFromJson(Map<String, dynamic> json) =>
-    OrderSellerModel(
+OrderCounterpartyModel _$OrderCounterpartyModelFromJson(
+        Map<String, dynamic> json) =>
+    OrderCounterpartyModel(
       userId: json['user_id'] as String,
       name: json['name'] as String,
       profilePicture: json['profile_picture'] as String?,
+      role: json['role'] as String,
     );
 
-Map<String, dynamic> _$OrderSellerModelToJson(OrderSellerModel instance) =>
+Map<String, dynamic> _$OrderCounterpartyModelToJson(
+        OrderCounterpartyModel instance) =>
     <String, dynamic>{
       'user_id': instance.userId,
       'name': instance.name,
       'profile_picture': instance.profilePicture,
+      'role': instance.role,
     };
 
 OrderDeliveryModel _$OrderDeliveryModelFromJson(Map<String, dynamic> json) =>
@@ -70,7 +74,8 @@ OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => OrderModel(
       orderId: json['order_id'] as String,
       orderNumber: json['order_number'] as String,
       status: json['status'] as String,
-      seller: OrderSellerModel.fromJson(json['seller'] as Map<String, dynamic>),
+      counterparty: OrderCounterpartyModel.fromJson(
+          json['counterparty'] as Map<String, dynamic>),
       items: (json['items'] as List<dynamic>)
           .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -85,7 +90,7 @@ Map<String, dynamic> _$OrderModelToJson(OrderModel instance) =>
       'order_id': instance.orderId,
       'order_number': instance.orderNumber,
       'status': instance.status,
-      'seller': instance.seller.toJson(),
+      'counterparty': instance.counterparty.toJson(),
       'items': instance.items.map((e) => e.toJson()).toList(),
       'delivery': instance.delivery.toJson(),
       'total_amount': instance.totalAmount,

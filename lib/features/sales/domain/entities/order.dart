@@ -25,16 +25,17 @@ class OrderItem extends Equatable {
   List<Object?> get props => [orderItemId, productId, quantity, subtotal];
 }
 
-class OrderSeller extends Equatable {
+class OrderCounterparty extends Equatable {
   final String userId;
   final String name;
   final String? profilePicture;
+  final String role;
 
-  const OrderSeller(
-      {required this.userId, required this.name, this.profilePicture});
+  const OrderCounterparty(
+      {required this.userId, required this.name, this.profilePicture, required this.role});
 
   @override
-  List<Object?> get props => [userId, name];
+  List<Object?> get props => [userId, name, role];
 }
 
 class OrderDelivery extends Equatable {
@@ -43,23 +44,29 @@ class OrderDelivery extends Equatable {
   final String? date;
   final String? timeSlot;
   final num fee;
+  final double? latitude;
+  final double? longitude;
+  final String? notes;
 
   const OrderDelivery(
       {required this.method,
       this.address,
       this.date,
       this.timeSlot,
-      this.fee = 0});
+      this.fee = 0,
+      this.latitude,
+      this.longitude,
+      this.notes});
 
   @override
-  List<Object?> get props => [method, address, date];
+  List<Object?> get props => [method, address, date, latitude, longitude, notes];
 }
 
 class Order extends Equatable {
   final String orderId;
   final String orderNumber;
   final String status;
-  final OrderSeller seller;
+  final OrderCounterparty counterparty;
   final List<OrderItem> items;
   final OrderDelivery delivery;
   final num totalAmount;
@@ -69,7 +76,7 @@ class Order extends Equatable {
     required this.orderId,
     required this.orderNumber,
     required this.status,
-    required this.seller,
+    required this.counterparty,
     required this.items,
     required this.delivery,
     required this.totalAmount,

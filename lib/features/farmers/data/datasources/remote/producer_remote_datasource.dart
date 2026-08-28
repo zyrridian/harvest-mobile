@@ -423,9 +423,15 @@ class ProducerRemoteDataSourceImpl implements ProducerRemoteDataSource {
 
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
-        final message = e.response?.data['message'] ??
-            e.response?.data['error'] ??
-            'Server error occurred';
+        final data = e.response?.data;
+        String message = 'Server error occurred';
+        if (data is Map<String, dynamic>) {
+          message = data['message']?.toString() ??
+              data['error']?.toString() ??
+              'Server error occurred';
+        } else if (data is String) {
+          message = data.length > 100 ? data.substring(0, 100) : data;
+        }
 
         if (statusCode == 401) {
           throw AuthException(message, statusCode: statusCode);

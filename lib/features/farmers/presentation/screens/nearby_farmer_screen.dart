@@ -130,594 +130,649 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
       resizeToAvoidBottomInset: false,
       body: WebConstrainedBox(
         child: state.when(
-        initial: () => const SizedBox(),
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: kDarkGreen)),
-        error: (err) => Center(child: Text('Error: $err')),
-        data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter, radius,
-            isLoading) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final sheetHeaderHeight = 100.0;
-              final minFraction = sheetHeaderHeight / constraints.maxHeight;
-              final topPadding = MediaQuery.of(context).padding.top;
-              final safeTopSpace = topPadding + 140.0;
-              final maxFraction = ((constraints.maxHeight - safeTopSpace) /
-                      constraints.maxHeight)
-                  .clamp(0.5, 1.0);
+          initial: () => const SizedBox(),
+          loading: () =>
+              const Center(child: CircularProgressIndicator(color: kDarkGreen)),
+          error: (err) => Center(child: Text('Error: $err')),
+          data: (farmers, searchQuery, isOrganicFilter, isOpenNowFilter, radius,
+              isLoading) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWideScreen = constraints.maxWidth > 800;
+                final sheetHeaderHeight = 100.0;
+                final minFraction = sheetHeaderHeight / constraints.maxHeight;
+                final topPadding = MediaQuery.of(context).padding.top;
+                final safeTopSpace = topPadding + 140.0;
+                final maxFraction = ((constraints.maxHeight - safeTopSpace) /
+                        constraints.maxHeight)
+                    .clamp(0.5, 1.0);
 
-              return Stack(
-                children: [
-                  // Map Area
-                  Positioned.fill(
-                    child: GoogleMap(
-                      padding: EdgeInsets.only(
-                        top: topPadding + 80,
-                        bottom: _isListView
-                            ? (constraints.maxHeight * 0.5)
-                            : sheetHeaderHeight,
+                Widget mapStack = Stack(
+                  children: [
+                    // Map Area
+                    Positioned.fill(
+                      child: GoogleMap(
+                        padding: EdgeInsets.only(
+                          top: topPadding + 80,
+                          bottom: isWideScreen
+                              ? 0
+                              : (_isListView
+                                  ? (constraints.maxHeight * 0.5)
+                                  : sheetHeaderHeight),
+                        ),
+                        initialCameraPosition: CameraPosition(
+                          target: _currentPosition != null
+                              ? LatLng(_currentPosition!.latitude,
+                                  _currentPosition!.longitude)
+                              : const LatLng(-6.200000, 106.816666),
+                          zoom: 13,
+                        ),
+                        markers: farmers.expand((f) {
+                          final List<Marker> markers = [];
+
+                          // Plot Main Farm Location (if valid coordinates exist)
+                          if (f.mainLocation != null) {
+                            markers.add(Marker(
+                              markerId: MarkerId('main-${f.id}'),
+                              position: LatLng(f.mainLocation!.latitude,
+                                  f.mainLocation!.longitude),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                                _selectedFarmerId == f.id
+                                    ? BitmapDescriptor.hueGreen
+                                    : BitmapDescriptor.hueRed,
+                              ),
+                              onTap: () {
+                                setState(() => _selectedFarmerId = f.id);
+                                _mapController?.animateCamera(
+                                  CameraUpdate.newLatLng(LatLng(
+                                      f.mainLocation!.latitude,
+                                      f.mainLocation!.longitude)),
+                                );
+                              },
+                            ));
+                          } else {
+                            // Fallback to legacy farmer coordinates
+                            markers.add(Marker(
+                              markerId: MarkerId('main-${f.id}'),
+                              position: LatLng(f.latitude, f.longitude),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                                _selectedFarmerId == f.id
+                                    ? BitmapDescriptor.hueGreen
+                                    : BitmapDescriptor.hueRed,
+                              ),
+                              onTap: () {
+                                setState(() => _selectedFarmerId = f.id);
+                                _mapController?.animateCamera(
+                                  CameraUpdate.newLatLng(
+                                      LatLng(f.latitude, f.longitude)),
+                                );
+                              },
+                            ));
+                          }
+
+                          // Plot all Cabang / Branches
+                          for (var branch in f.cabang) {
+                            markers.add(Marker(
+                              markerId: MarkerId('branch-${branch.id}'),
+                              position:
+                                  LatLng(branch.latitude, branch.longitude),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                                _selectedFarmerId == f.id
+                                    ? BitmapDescriptor.hueGreen
+                                    : BitmapDescriptor.hueOrange,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _selectedFarmerId = f.id;
+                                  _selectedCabang = branch;
+                                });
+                                _mapController?.animateCamera(
+                                  CameraUpdate.newLatLng(LatLng(
+                                      branch.latitude, branch.longitude)),
+                                );
+                              },
+                            ));
+                          }
+                          return markers;
+                        }).toSet(),
+                        circles: _currentPosition != null && radius > 0
+                            ? {
+                                Circle(
+                                  circleId: const CircleId('radius_circle'),
+                                  center: LatLng(_currentPosition!.latitude,
+                                      _currentPosition!.longitude),
+                                  radius: radius * 1000,
+                                  fillColor: Colors.blue.withOpacity(0.15),
+                                  strokeColor: Colors.blue,
+                                  strokeWidth: 2,
+                                )
+                              }
+                            : {},
+                        onMapCreated: (mapController) =>
+                            _mapController = mapController,
+                        onTap: (_) {
+                          if (_selectedCabang != null) {
+                            setState(() => _selectedCabang = null);
+                          }
+                        },
+                        myLocationEnabled: _myLocationEnabled,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                        mapToolbarEnabled: false,
                       ),
-                      initialCameraPosition: CameraPosition(
-                        target: _currentPosition != null
-                            ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-                            : const LatLng(-6.200000, 106.816666),
-                        zoom: 13,
-                      ),
-                      markers: farmers.expand((f) {
-                        final List<Marker> markers = [];
-
-                        // Plot Main Farm Location (if valid coordinates exist)
-                        if (f.mainLocation != null) {
-                          markers.add(Marker(
-                            markerId: MarkerId('main-${f.id}'),
-                            position: LatLng(f.mainLocation!.latitude,
-                                f.mainLocation!.longitude),
-                            icon: BitmapDescriptor.defaultMarkerWithHue(
-                              _selectedFarmerId == f.id
-                                  ? BitmapDescriptor.hueGreen
-                                  : BitmapDescriptor.hueRed,
-                            ),
-                            onTap: () {
-                              setState(() => _selectedFarmerId = f.id);
-                              _mapController?.animateCamera(
-                                CameraUpdate.newLatLng(LatLng(
-                                    f.mainLocation!.latitude,
-                                    f.mainLocation!.longitude)),
-                              );
-                            },
-                          ));
-                        } else {
-                          // Fallback to legacy farmer coordinates
-                          markers.add(Marker(
-                            markerId: MarkerId('main-${f.id}'),
-                            position: LatLng(f.latitude, f.longitude),
-                            icon: BitmapDescriptor.defaultMarkerWithHue(
-                              _selectedFarmerId == f.id
-                                  ? BitmapDescriptor.hueGreen
-                                  : BitmapDescriptor.hueRed,
-                            ),
-                            onTap: () {
-                              setState(() => _selectedFarmerId = f.id);
-                              _mapController?.animateCamera(
-                                CameraUpdate.newLatLng(
-                                    LatLng(f.latitude, f.longitude)),
-                              );
-                            },
-                          ));
-                        }
-
-                        // Plot all Cabang / Branches
-                        for (var branch in f.cabang) {
-                          markers.add(Marker(
-                            markerId: MarkerId('branch-${branch.id}'),
-                            position: LatLng(branch.latitude, branch.longitude),
-                            icon: BitmapDescriptor.defaultMarkerWithHue(
-                              _selectedFarmerId == f.id
-                                  ? BitmapDescriptor.hueGreen
-                                  : BitmapDescriptor.hueOrange,
-                            ),
-                            onTap: () {
-                              setState(() {
-                                _selectedFarmerId = f.id;
-                                _selectedCabang = branch;
-                              });
-                              _mapController?.animateCamera(
-                                CameraUpdate.newLatLng(
-                                    LatLng(branch.latitude, branch.longitude)),
-                              );
-                            },
-                          ));
-                        }
-                        return markers;
-                      }).toSet(),
-                      circles: _currentPosition != null && radius > 0
-                          ? {
-                              Circle(
-                                circleId: const CircleId('radius_circle'),
-                                center: LatLng(_currentPosition!.latitude,
-                                    _currentPosition!.longitude),
-                                radius: radius * 1000,
-                                fillColor: Colors.blue.withOpacity(0.15),
-                                strokeColor: Colors.blue,
-                                strokeWidth: 2,
-                              )
-                            }
-                          : {},
-                      onMapCreated: (mapController) =>
-                          _mapController = mapController,
-                      onTap: (_) {
-                        if (_selectedCabang != null) {
-                          setState(() => _selectedCabang = null);
-                        }
-                      },
-                      myLocationEnabled: _myLocationEnabled,
-                      myLocationButtonEnabled: false,
-                      zoomControlsEnabled: false,
-                      mapToolbarEnabled: false,
                     ),
-                  ),
-                  // Cabang Overlay
-                  if (_selectedCabang != null)
+                    // Cabang Overlay
+                    if (_selectedCabang != null)
+                      Positioned(
+                        top: topPadding + 80,
+                        left: 16,
+                        right: 16,
+                        child: _buildCabangCard(_selectedCabang!),
+                      ),
+                    // Search bar overlay
                     Positioned(
-                      top: topPadding + 80,
+                      top: topPadding + 16,
                       left: 16,
                       right: 16,
-                      child: _buildCabangCard(_selectedCabang!),
-                    ),
-                  // Search bar overlay
-                  Positioned(
-                    top: topPadding + 16,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const PhosphorIcon(
-                              PhosphorIconsRegular.magnifyingGlass,
-                              color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (val) =>
-                                  controller.updateSearchQuery(val),
-                              style: const TextStyle(fontSize: 13),
-                              textAlignVertical: TextAlignVertical.center,
-                              cursorColor: kDarkGreen,
-                              decoration: InputDecoration(
-                                hintText: 'Search area or farmer name...',
-                                hintStyle: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 13,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const PhosphorIcon(
+                                PhosphorIconsRegular.magnifyingGlass,
+                                color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (val) =>
+                                    controller.updateSearchQuery(val),
+                                style: const TextStyle(fontSize: 13),
+                                textAlignVertical: TextAlignVertical.center,
+                                cursorColor: kDarkGreen,
+                                decoration: InputDecoration(
+                                  hintText: 'Search area or farmer name...',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  suffixIcon: searchQuery.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.close,
+                                              size: 16, color: Colors.grey),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            controller.updateSearchQuery('');
+                                          },
+                                        )
+                                      : null,
                                 ),
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                isDense: true,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                suffixIcon: searchQuery.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 16, color: Colors.grey),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          controller.updateSearchQuery('');
-                                        },
-                                      )
-                                    : null,
                               ),
                             ),
-                          ),
-                          DropdownButton<double>(
-                            value: radius,
-                            icon: const Icon(Icons.arrow_drop_down, size: 16),
-                            underline: const SizedBox(),
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.black87),
-                            items: const [
-                              DropdownMenuItem(value: 3.0, child: Text('3 km')),
-                              DropdownMenuItem(value: 5.0, child: Text('5 km')),
-                              DropdownMenuItem(
-                                  value: 10.0, child: Text('10 km')),
-                              DropdownMenuItem(value: 0.0, child: Text('All')),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) {
-                                controller.updateRadius(val);
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                        ],
+                            DropdownButton<double>(
+                              value: radius,
+                              icon: const Icon(Icons.arrow_drop_down, size: 16),
+                              underline: const SizedBox(),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black87),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 3.0, child: Text('3 km')),
+                                DropdownMenuItem(
+                                    value: 5.0, child: Text('5 km')),
+                                DropdownMenuItem(
+                                    value: 10.0, child: Text('10 km')),
+                                DropdownMenuItem(
+                                    value: 0.0, child: Text('All')),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  controller.updateRadius(val);
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  // Current location button
-                  AnimatedBuilder(
-                    animation: _sheetController,
-                    builder: (context, child) {
-                      double posSize = 0.5;
-                      if (_sheetController.isAttached) {
-                        posSize = _sheetController.size;
-                      }
-                      return Positioned(
-                        bottom: (posSize * constraints.maxHeight) + 16,
-                        right: 16,
-                        child: child!,
-                      );
-                    },
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (_currentPosition != null) {
-                          ref.read(nearbyFarmerControllerProvider.notifier).setLocation(
-                            _currentPosition!.latitude,
-                            _currentPosition!.longitude,
-                          );
-                          _mapController?.animateCamera(
-                            CameraUpdate.newLatLng(LatLng(
-                                _currentPosition!.latitude,
-                                _currentPosition!.longitude)),
-                          );
-                        } else {
-                          await _checkLocationPermission();
+                    // Current location button
+                    AnimatedBuilder(
+                      animation: _sheetController,
+                      builder: (context, child) {
+                        double posSize = 0.5;
+                        if (!isWideScreen && _sheetController.isAttached) {
+                          posSize = _sheetController.size;
+                        } else if (isWideScreen) {
+                          posSize = 0.0;
+                        }
+                        return Positioned(
+                          bottom: isWideScreen
+                              ? 16
+                              : ((posSize * constraints.maxHeight) + 16),
+                          right: 16,
+                          child: child!,
+                        );
+                      },
+                      child: GestureDetector(
+                        onTap: () async {
                           if (_currentPosition != null) {
-                            ref.read(nearbyFarmerControllerProvider.notifier).setLocation(
-                              _currentPosition!.latitude,
-                              _currentPosition!.longitude,
-                            );
+                            ref
+                                .read(nearbyFarmerControllerProvider.notifier)
+                                .setLocation(
+                                  _currentPosition!.latitude,
+                                  _currentPosition!.longitude,
+                                );
                             _mapController?.animateCamera(
                               CameraUpdate.newLatLng(LatLng(
                                   _currentPosition!.latitude,
                                   _currentPosition!.longitude)),
                             );
                           } else {
-                            _mapController?.animateCamera(
-                              CameraUpdate.newLatLng(
-                                  const LatLng(-6.200000, 106.816666)),
-                            );
+                            await _checkLocationPermission();
+                            if (_currentPosition != null) {
+                              ref
+                                  .read(nearbyFarmerControllerProvider.notifier)
+                                  .setLocation(
+                                    _currentPosition!.latitude,
+                                    _currentPosition!.longitude,
+                                  );
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLng(LatLng(
+                                    _currentPosition!.latitude,
+                                    _currentPosition!.longitude)),
+                              );
+                            } else {
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLng(
+                                    const LatLng(-6.200000, 106.816666)),
+                              );
+                            }
                           }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.my_location,
+                              color: kDarkGreen, size: 20),
+                        ),
+                      ),
+                    ),
+                    // // Legend overlay
+                    // AnimatedBuilder(
+                    //   animation: _sheetController,
+                    //   builder: (context, child) {
+                    //     double posSize = 0.5;
+                    //     if (_sheetController.isAttached) {
+                    //       posSize = _sheetController.size;
+                    //     }
+                    //     return Positioned(
+                    //       bottom: (posSize * constraints.maxHeight) + 16,
+                    //       left: 68,
+                    //       child: child!,
+                    //     );
+                    //   },
+                    //   child: Container(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 12, vertical: 8),
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.white,
+                    //       borderRadius: BorderRadius.circular(20),
+                    //       boxShadow: [
+                    //         BoxShadow(
+                    //           color: Colors.black.withOpacity(0.05),
+                    //           blurRadius: 10,
+                    //           offset: const Offset(0, 2),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     child: Row(
+                    //       children: [
+                    //         _buildLegendItem(
+                    //             const Color(0xFF4A7C38), 'Produce'),
+                    //         const SizedBox(width: 12),
+                    //         _buildLegendItem(
+                    //             const Color(0xFFD97706), 'Aquaculture'),
+                    //         const SizedBox(width: 12),
+                    //         _buildLegendItem(Colors.grey, 'Closed'),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // Dark Overlay
+                    if (!isWideScreen)
+                      AnimatedBuilder(
+                        animation: _sheetController,
+                        builder: (context, child) {
+                          double currentSize = 0.5;
+                          if (_sheetController.isAttached) {
+                            currentSize = _sheetController.size;
+                          }
+                          double opacity = 0.0;
+                          if (currentSize > 0.5 && maxFraction > 0.5) {
+                            opacity =
+                                ((currentSize - 0.5) / (maxFraction - 0.5))
+                                        .clamp(0.0, 1.0) *
+                                    0.5;
+                          }
+
+                          if (opacity <= 0.0) return const SizedBox.shrink();
+
+                          return Positioned.fill(
+                            child: GestureDetector(
+                              onTap: () {
+                                _sheetController.animateTo(0.5,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut);
+                              },
+                              child: Container(
+                                color: Colors.black.withOpacity(opacity),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    // Back button overlay (Not covered by dark overlay)
+                    AnimatedBuilder(
+                      animation: _sheetController,
+                      builder: (context, child) {
+                        double posSize = 0.5;
+                        if (!isWideScreen && _sheetController.isAttached) {
+                          posSize = _sheetController.size;
+                        } else if (isWideScreen) {
+                          posSize = 0.0;
                         }
+                        return Positioned(
+                          bottom: isWideScreen
+                              ? 16
+                              : ((posSize * constraints.maxHeight) + 16),
+                          left: 16,
+                          child: child!,
+                        );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
+                      child: GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.arrow_back,
+                              color: kDarkGreen, size: 20),
+                        ),
+                      ),
+                    ),
+                    // Bottom Sheet
+                    if (!isWideScreen)
+                      DraggableScrollableSheet(
+                        controller: _sheetController,
+                        initialChildSize: 0.5,
+                        minChildSize: minFraction,
+                        maxChildSize: maxFraction,
+                        snap: true,
+                        snapSizes: const [0.5],
+                        builder: (context, scrollController) {
+                          return _buildFarmerListContent(
+                              context,
+                              scrollController,
+                              farmers,
+                              radius,
+                              isLoading,
+                              false);
+                        },
+                      ),
+                  ],
+                );
+
+                if (isWideScreen) {
+                  return Row(
+                    children: [
+                      Container(
+                        width: 400,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(4, 0),
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.my_location,
-                            color: kDarkGreen, size: 20),
-                      ),
-                    ),
-                  ),
-                  // // Legend overlay
-                  // AnimatedBuilder(
-                  //   animation: _sheetController,
-                  //   builder: (context, child) {
-                  //     double posSize = 0.5;
-                  //     if (_sheetController.isAttached) {
-                  //       posSize = _sheetController.size;
-                  //     }
-                  //     return Positioned(
-                  //       bottom: (posSize * constraints.maxHeight) + 16,
-                  //       left: 68,
-                  //       child: child!,
-                  //     );
-                  //   },
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.white,
-                  //       borderRadius: BorderRadius.circular(20),
-                  //       boxShadow: [
-                  //         BoxShadow(
-                  //           color: Colors.black.withOpacity(0.05),
-                  //           blurRadius: 10,
-                  //           offset: const Offset(0, 2),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     child: Row(
-                  //       children: [
-                  //         _buildLegendItem(
-                  //             const Color(0xFF4A7C38), 'Produce'),
-                  //         const SizedBox(width: 12),
-                  //         _buildLegendItem(
-                  //             const Color(0xFFD97706), 'Aquaculture'),
-                  //         const SizedBox(width: 12),
-                  //         _buildLegendItem(Colors.grey, 'Closed'),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                  // Dark Overlay
-                  AnimatedBuilder(
-                    animation: _sheetController,
-                    builder: (context, child) {
-                      double currentSize = 0.5;
-                      if (_sheetController.isAttached) {
-                        currentSize = _sheetController.size;
-                      }
-                      double opacity = 0.0;
-                      if (currentSize > 0.5 && maxFraction > 0.5) {
-                        opacity = ((currentSize - 0.5) / (maxFraction - 0.5))
-                                .clamp(0.0, 1.0) *
-                            0.5;
-                      }
-
-                      if (opacity <= 0.0) return const SizedBox.shrink();
-
-                      return Positioned.fill(
-                        child: GestureDetector(
-                          onTap: () {
-                            _sheetController.animateTo(0.5,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
-                          },
-                          child: Container(
-                            color: Colors.black.withOpacity(opacity),
+                        child: SafeArea(
+                          child: _buildFarmerListContent(
+                            context,
+                            ScrollController(),
+                            farmers,
+                            radius,
+                            isLoading,
+                            true,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  // Back button overlay (Not covered by dark overlay)
-                  AnimatedBuilder(
-                    animation: _sheetController,
-                    builder: (context, child) {
-                      double posSize = 0.5;
-                      if (_sheetController.isAttached) {
-                        posSize = _sheetController.size;
-                      }
-                      return Positioned(
-                        bottom: (posSize * constraints.maxHeight) + 16,
-                        left: 16,
-                        child: child!,
-                      );
-                    },
-                    child: GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      ),
+                      Expanded(child: mapStack),
+                    ],
+                  );
+                }
+
+                return mapStack;
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFarmerListContent(
+    BuildContext context,
+    ScrollController scrollController,
+    List<NearbyFarmerData> farmers,
+    double radius,
+    bool isLoading,
+    bool isSidePanel,
+  ) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: Column(
+        children: [
+          SingleChildScrollView(
+            controller: scrollController,
+            physics: const ClampingScrollPhysics(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: isSidePanel
+                    ? BorderRadius.zero
+                    : const BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: _isScrolled
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        child: const Icon(Icons.arrow_back,
-                            color: kDarkGreen, size: 20),
+                      ]
+                    : null,
+              ),
+              child: Column(
+                children: [
+                  // Drag handle
+                  if (!isSidePanel)
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 12, bottom: 8),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  // Bottom Sheet
-                  DraggableScrollableSheet(
-                    controller: _sheetController,
-                    initialChildSize: 0.5,
-                    minChildSize: minFraction,
-                    maxChildSize: maxFraction,
-                    snap: true,
-                    snapSizes: const [0.5],
-                    builder: (context, scrollController) {
-                      return Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.transparent,
+                  if (isSidePanel) const SizedBox(height: 16),
+                  // List Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${farmers.length} farmers near you ${radius == 0.0 ? '' : '· within ${radius.toInt()} km'}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        child: Column(
-                          children: [
-                            SingleChildScrollView(
-                              controller: scrollController,
-                              physics: const ClampingScrollPhysics(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(24)),
-                                  boxShadow: _isScrolled
-                                      ? [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.05),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                child: Column(
-                                  children: [
-                                    // Drag handle
-                                    Center(
-                                      child: Container(
-                                        margin: const EdgeInsets.only(
-                                            top: 12, bottom: 8),
-                                        width: 40,
-                                        height: 4,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius:
-                                              BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                    ),
-                                    // List Header
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16, 0, 16, 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '${farmers.length} farmers near you ${radius == 0.0 ? '' : '· within ${radius.toInt()} km'}',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          if (isLoading)
-                                            const SizedBox(
-                                              height: 16,
-                                              width: 16,
-                                              child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: kDarkGreen),
-                                            ),
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  _sheetController.animateTo(
-                                                      0.5,
-                                                      duration: const Duration(
-                                                          milliseconds: 300),
-                                                      curve: Curves.easeInOut);
-                                                },
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(6),
-                                                  decoration: BoxDecoration(
-                                                    color: _isListView
-                                                        ? kHighlightGreen
-                                                        : Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    border: Border.all(
-                                                        color: _isListView
-                                                            ? kHighlightGreen
-                                                            : Colors
-                                                                .grey[300]!),
-                                                  ),
-                                                  child: Icon(Icons.list,
-                                                      size: 20,
-                                                      color: _isListView
-                                                          ? Colors.white
-                                                          : Colors.black87),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  _sheetController.animateTo(
-                                                      minFraction,
-                                                      duration: const Duration(
-                                                          milliseconds: 300),
-                                                      curve: Curves.easeInOut);
-                                                },
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(6),
-                                                  decoration: BoxDecoration(
-                                                    color: !_isListView
-                                                        ? kHighlightGreen
-                                                        : Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    border: Border.all(
-                                                        color: !_isListView
-                                                            ? kHighlightGreen
-                                                            : Colors
-                                                                .grey[300]!),
-                                                  ),
-                                                  child: Icon(
-                                                      Icons.map_outlined,
-                                                      size: 20,
-                                                      color: !_isListView
-                                                          ? Colors.white
-                                                          : Colors.grey),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // List
-                            Expanded(
-                              child: Container(
-                                color: Colors.white,
-                                child: NotificationListener<ScrollNotification>(
-                                  onNotification: (notification) {
-                                    if (notification.metrics.axis ==
-                                        Axis.vertical) {
-                                      bool scrolled =
-                                          notification.metrics.pixels > 2.0;
-                                      if (scrolled != _isScrolled) {
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          if (mounted) {
-                                            setState(
-                                                () => _isScrolled = scrolled);
-                                          }
-                                        });
-                                      }
-                                    }
-                                    return false;
-                                  },
-                                  child: ListView.separated(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    padding: const EdgeInsets.only(
-                                        left: 16, right: 16, bottom: 24),
-                                    itemCount: farmers.length,
-                                    separatorBuilder: (context, index) =>
-                                        const SizedBox(height: 16),
-                                    itemBuilder: (context, index) {
-                                      return _buildFarmerCard(farmers[index],
-                                          isFirst: index == 0);
-                                    },
+                        if (isLoading)
+                          const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: kDarkGreen),
+                          ),
+                        if (!isSidePanel)
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _sheetController.animateTo(0.5,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: _isListView
+                                        ? kHighlightGreen
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: _isListView
+                                            ? kHighlightGreen
+                                            : Colors.grey[300]!),
                                   ),
+                                  child: Icon(Icons.list,
+                                      size: 20,
+                                      color: _isListView
+                                          ? Colors.white
+                                          : Colors.black87),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  _sheetController.animateTo(0.15,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: !_isListView
+                                        ? kHighlightGreen
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: !_isListView
+                                            ? kHighlightGreen
+                                            : Colors.grey[300]!),
+                                  ),
+                                  child: Icon(Icons.map_outlined,
+                                      size: 20,
+                                      color: !_isListView
+                                          ? Colors.white
+                                          : Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                 ],
-              );
-            },
-          );
-        },
-      ),
+              ),
+            ),
+          ),
+          // List
+          Expanded(
+            child: Container(
+              color: Colors.white,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.axis == Axis.vertical) {
+                    bool scrolled = notification.metrics.pixels > 2.0;
+                    if (scrolled != _isScrolled) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          setState(() => _isScrolled = scrolled);
+                        }
+                      });
+                    }
+                  }
+                  return false;
+                },
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+                  itemCount: farmers.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    return _buildFarmerCard(farmers[index],
+                        isFirst: index == 0);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -785,7 +840,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(PhosphorIconsRegular.storefront, color: Colors.grey),
+              child: const Icon(PhosphorIconsRegular.storefront,
+                  color: Colors.grey),
             ),
           const SizedBox(width: 12),
           Expanded(
@@ -810,7 +866,8 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                     ),
                     GestureDetector(
                       onTap: () => setState(() => _selectedCabang = null),
-                      child: const Icon(Icons.close, size: 18, color: Colors.grey),
+                      child:
+                          const Icon(Icons.close, size: 18, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -818,12 +875,14 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 if (cabang.operatingHours != null)
                   Row(
                     children: [
-                      const Icon(PhosphorIconsRegular.clock, size: 14, color: Colors.grey),
+                      const Icon(PhosphorIconsRegular.clock,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           cabang.operatingHours.toString(),
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -834,7 +893,10 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                 if (cabang.distance != null)
                   Text(
                     '${cabang.distance!.toStringAsFixed(1)} km away',
-                    style: const TextStyle(fontSize: 12, color: kHighlightGreen, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: kHighlightGreen,
+                        fontWeight: FontWeight.w600),
                   ),
               ],
             ),
@@ -843,7 +905,6 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
       ),
     );
   }
-
 
   Widget _buildFarmerCard(NearbyFarmerData farmer, {bool isFirst = false}) {
     final isSelected = _selectedFarmerId == farmer.id;
@@ -1246,8 +1307,27 @@ class _NearbyFarmerScreenState extends ConsumerState<NearbyFarmerScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(PhosphorIconsFill.mapPin,
-                                        size: 16, color: Colors.orange),
+                                    if (branch.imageUrl != null && branch.imageUrl!.isNotEmpty)
+                                      GestureDetector(
+                                        onTap: () {
+                                          context.push(
+                                            AppRouter.imageViewer,
+                                            extra: {'imageUrl': branch.imageUrl},
+                                          );
+                                        },
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: AppCachedImage(
+                                            imageUrl: branch.imageUrl!,
+                                            width: 40,
+                                            height: 40,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      const Icon(PhosphorIconsFill.mapPin,
+                                          size: 16, color: Colors.orange),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(

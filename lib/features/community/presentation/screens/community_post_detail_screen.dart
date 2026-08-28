@@ -168,8 +168,9 @@ class _CommunityPostDetailScreenState
   }
 
   String? _getValidImageUrl(String? url) {
-    if (url == null || url.trim().isEmpty || !url.startsWith('http'))
+    if (url == null || url.trim().isEmpty || !url.startsWith('http')) {
       return null;
+    }
     return url;
   }
 

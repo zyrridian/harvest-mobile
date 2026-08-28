@@ -64,7 +64,7 @@ final getPreorderCampaignDetailUseCaseProvider =
   return GetPreorderCampaignDetailUseCase(ref.watch(preOrderRepositoryProvider));
 });
 
-final preorderDetailProvider = FutureProvider.family<PreorderCampaign, String>((ref, id) async {
+final preorderDetailProvider = FutureProvider.autoDispose.family<PreorderCampaign, String>((ref, id) async {
   final usecase = ref.watch(getPreorderCampaignDetailUseCaseProvider);
   final result = await usecase.call(id);
   return result.fold(
@@ -318,24 +318,10 @@ class PreOrderController extends _$PreOrderController {
     );
   }
 
-  Future<bool> updateReservationStatus(String reservationId, String status) async {
+  Future<String?> updateReservationStatus(String reservationId, String status) async {
     final repository = ref.read(preOrderRepositoryProvider);
-    switch (status) {
-      case 'CANCELLED':
-        final result = await repository.cancelReservation(reservationId);
-        return result.fold((f) => false, (_) => true);
-      case 'COMPLETED':
-        final result = await repository.completeReservation(reservationId);
-        return result.fold((f) => false, (_) => true);
-      case 'CONFIRMED':
-      case 'PAID':
-      case 'PENDING_PAYMENT':
-      default:
-        // Generic status update via campaign status endpoint treated as reservation update
-        // Falls back to calling completeReservation or cancelReservation based on mapping
-        final result = await repository.completeReservation(reservationId);
-        return result.fold((f) => false, (_) => true);
-    }
+    final result = await repository.updateReservationStatus(reservationId, status);
+    return result.fold((f) => f.message, (_) => null);
   }
 
   Future<bool> fulfillCampaign(String id) async {

@@ -9,7 +9,6 @@ import '../../../../core/widgets/product_card.dart';
 import '../../../../core/widgets/community_post_card.dart';
 import '../../../community/domain/entities/review.dart';
 import '../../../community/domain/entities/community_post.dart';
-import '../../../community/presentation/screens/image_viewer_screen.dart';
 import '../../../../core/config/router/app_router.dart';
 import '../providers/farmer_detail_controller.dart';
 import '../../../chat/presentation/providers/messaging_providers.dart';

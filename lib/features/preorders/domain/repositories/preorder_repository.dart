@@ -31,6 +31,7 @@ abstract class PreorderRepository {
       String id, DateTime pickupTime);
   Future<Either<Failure, Map<String, dynamic>>> cancelReservation(String id);
   Future<Either<Failure, Map<String, dynamic>>> completeReservation(String id);
+  Future<Either<Failure, Map<String, dynamic>>> updateReservationStatus(String id, String status);
   Future<Either<Failure, Map<String, dynamic>>> fulfillCampaign(String id);
 
   /// Farmer
